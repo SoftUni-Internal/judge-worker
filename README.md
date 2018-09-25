@@ -21,13 +21,10 @@ Consist of:
   Originally developed by:
 * Nikolay Kostov (https://github.com/NikolayIT)
 * Ivaylo Kenov (https://github.com/ivaylokenov)
-* Vasil Dininski (https://github.com/dininski)
 
 Other contributors:
 * Vladislav Karamfilov (https://github.com/vladislav-karamfilov)
-* Teodor Kurtev (https://github.com/teodor92)
 * Kristian Mariyanov (https://github.com/KristianMariyanov)
-* Rositsa Popova (https://github.com/rozay)
 * Viktor Kazakov (https://github.com/Innos)
 * Svetlin Galov (https://github.com/jicata)
 * Georgi Georgiev (https://github.com/gogo4ds)

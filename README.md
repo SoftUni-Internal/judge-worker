@@ -9,12 +9,11 @@ Consist of:
 
 ### 🔌 Usage
   1. Include the repository as a submodule in your project.
-  2. Create a windows service that implements `LocalWorkerServiceBase`.
-  3. Create a class that implements `SubmissionProcessingStrategy`. This is where the logic for processing the execution result for your application should reside.
-  Implementing this base class, you have access to a single concurrent queue that is shared between all the submission processors and you can use it for stroing and retrieving submissions.
+  2. Create a Windows service that implements `LocalWorkerServiceBase`. This base class starts a predefined number of threads which start that many submission processors. You have the option to plug logic that will be executed once before starting the threads, overriding the `BeforeStartingThreads()` method (at the end you must call it's `base`).
+  3. Create a class that implements `SubmissionProcessingStrategy`. This is where the logic for processing the execution result for your application should reside. Implementing this base class, you have access to a single concurrent queue that is shared between all the submission processors and you can use it for stroing and retrieving submissions.
   4. Create a Dependancy container of your choosing which should implement `IDependancyContainer` and register your `SubmissionProcessingStrategy` in it.
   5. Pass the container to the `GetDependancyContainer` method of the `LocalWorkerServiceBase`
-  6. Install and Start your windows service.
+  6. Install and Start your Windows service.
   
   ### Credit
   

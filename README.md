@@ -13,7 +13,8 @@ Consist of:
   3. Create a class that implements `SubmissionProcessingStrategy`. This is where the logic for processing the execution result for your application should reside. Implementing this base class, you have access to a single concurrent queue that is shared between all the submission processors and you can use it for stroing and retrieving submissions.
   4. Create a Dependancy container of your choosing which should implement `IDependancyContainer` and register your `SubmissionProcessingStrategy` in it.
   5. Pass the container to the `GetDependancyContainer()` method of the `LocalWorkerServiceBase` and to the `ObjectFactory.InitializeServiceProvider()` method in the entry point of your service.
-  6. Install and Start your Windows service.
+  6. Add the corresponding appSettings of the `OJS.Workers.Common.Settings` in the App.config of your service.
+  7. Install and Start your Windows service.
   
   ### Credit
   

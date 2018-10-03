@@ -80,7 +80,7 @@
 
             if (section.ElementInformation.IsLocked)
             {
-                throw new ArgumentException($"{section.SectionInformation.Name} is locked!");
+                throw new InvalidOperationException($"{section.SectionInformation.Name} is locked!");
             }
 
             return true;

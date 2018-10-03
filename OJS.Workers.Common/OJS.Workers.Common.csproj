@@ -88,6 +88,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\CSharpPreprocessorHelper.cs" />
     <Compile Include="Helpers\DirectoryHelpers.cs" />
+    <Compile Include="Helpers\EncryptionHelper.cs" />
     <Compile Include="Helpers\FileHelpers.cs" />
     <Compile Include="Helpers\JavaCodePreprocessorHelper.cs" />
     <Compile Include="Helpers\ServicesHelper.cs" />

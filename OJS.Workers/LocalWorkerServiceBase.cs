@@ -38,8 +38,6 @@
 
             this.DependencyContainer = this.GetDependencyContainer();
 
-            this.SpawnSubmissionProcessorsAndThreads();
-
             this.BeforeStartingThreads();
 
             this.StartThreads();
@@ -51,9 +49,7 @@
         {
             this.Logger.Info($"{Constants.LocalWorkerServiceName} stopping...");
 
-            this.StopSubmissionProcessors();
-
-            Thread.Sleep(this.TimeBeforeAbortingThreadsInMilliseconds);
+            this.BeforeAbortingThreads();
 
             this.AbortThreads();
 
@@ -62,7 +58,16 @@
 
         protected virtual void BeforeStartingThreads()
         {
+            this.SpawnSubmissionProcessorsAndThreads();
+
             this.CreateExecutionStrategiesWorkingDirectory();
+        }
+
+        protected virtual void BeforeAbortingThreads()
+        {
+            this.StopSubmissionProcessors();
+
+            Thread.Sleep(this.TimeBeforeAbortingThreadsInMilliseconds);
         }
 
         protected virtual IDependencyContainer GetDependencyContainer() =>

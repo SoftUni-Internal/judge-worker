@@ -4,6 +4,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.Executors;
 
     public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -19,6 +20,8 @@
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
+            executionContext.SanitizeContent();
+
             IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var result = this.CompileExecuteAndCheck(executionContext, this.GetCompilerPathFunc, executor);
             return result;

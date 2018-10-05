@@ -103,6 +103,8 @@
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
+            executionContext.SanitizeContent();
+
             var result = new ExecutionResult();
             var userSubmissionContent = executionContext.FileContent;
 

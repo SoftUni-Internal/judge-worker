@@ -13,9 +13,7 @@
     {
         public static void SanitizeContent(this ExecutionContext executionContext)
         {
-            var frame = new StackFrame(1);
-
-            var callingClassName = frame.GetMethod()?.DeclaringType?.Name;
+            var callingClassName = new StackFrame(1).GetMethod()?.DeclaringType?.Name;
 
             switch (callingClassName)
             {
@@ -28,21 +26,29 @@
             }
         }
 
-        private static void SanitizeAllFilesInZip(
-            ExecutionContext executionContext,
-            Func<string, string> sanitizingFunc)
+        private static void SanitizeDotNetCoreZipFile(ExecutionContext executionContext)
         {
-            var zipExtension = Constants.ZipFileExtension.Substring(1);
-
-            if (string.IsNullOrWhiteSpace(executionContext.AllowedFileExtensions) ||
-                !executionContext.AllowedFileExtensions.Contains(zipExtension))
+            if (!ExecutionContextContainsZipFile(executionContext))
             {
                 return;
             }
 
+            const string connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
+            const string safeConnectionString = "Data Source=.;";
+
+            executionContext.FileContent = SanitizeZipFileContent(
+                executionContext.FileContent,
+                SanitizeConnectionStrings);
+
+            string SanitizeConnectionStrings(string fileContent) =>
+                Regex.Replace(fileContent, connectionStringSearchPattern, $"$1\"{safeConnectionString}\"$3");
+        }
+
+        private static byte[] SanitizeZipFileContent(byte[] zipFileContent, Func<string, string> sanitizingFunc)
+        {
             var sanitizedZipFile = new ZipFile();
 
-            using (var fileContentMemoryStream = new MemoryStream(executionContext.FileContent))
+            using (var fileContentMemoryStream = new MemoryStream(zipFileContent))
             {
                 var zipFile = ZipFile.Read(fileContentMemoryStream);
 
@@ -68,19 +74,12 @@
             {
                 sanitizedZipFile.Save(outputStream);
 
-                executionContext.FileContent = outputStream.ToArray();
+                return outputStream.ToArray();
             }
         }
 
-        private static void SanitizeDotNetCoreZipFile(ExecutionContext executionContext)
-        {
-            const string connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
-            const string safeConnectionString = "Data Source=.;";
-
-            SanitizeAllFilesInZip(executionContext, SanitizeConnectionString);
-
-            string SanitizeConnectionString(string fileContent) =>
-                Regex.Replace(fileContent, connectionStringSearchPattern, $"$1\"{safeConnectionString}\"$3");
-        }
+        private static bool ExecutionContextContainsZipFile(ExecutionContext executionContext) =>
+            !string.IsNullOrWhiteSpace(executionContext.AllowedFileExtensions) &&
+              executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension.Substring(1));
     }
 }

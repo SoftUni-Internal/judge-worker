@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     using Ionic.Zip;
@@ -52,19 +53,19 @@
             {
                 var zipFile = ZipFile.Read(fileContentMemoryStream);
 
-                foreach (var entry in zipFile.Entries)
+                foreach (var zipEntry in zipFile.Entries.Where(e => !e.IsDirectory))
                 {
-                    using (var zipFileMemoryStream = new MemoryStream())
+                    using (var memoryInputStream = new MemoryStream())
                     {
-                        entry.Extract(zipFileMemoryStream);
+                        zipEntry.Extract(memoryInputStream);
 
-                        zipFileMemoryStream.Seek(0, SeekOrigin.Begin);
+                        memoryInputStream.Seek(0, SeekOrigin.Begin);
 
-                        using (var streamReader = new StreamReader(zipFileMemoryStream))
+                        using (var streamReader = new StreamReader(memoryInputStream))
                         {
                             var sanitizedText = sanitizingFunc(streamReader.ReadToEnd());
 
-                            sanitizedZipFile.AddEntry(entry.FileName, sanitizedText);
+                            sanitizedZipFile.AddEntry(zipEntry.FileName, sanitizedText);
                         }
                     }
                 }

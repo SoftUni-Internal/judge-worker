@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Extensions
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
     using System.Text.RegularExpressions;
@@ -10,8 +11,7 @@
 
     public static class ExecutionContextExtensions
     {
-        public static void SanitizeContent(
-            this ExecutionContext context)
+        public static void SanitizeContent(this ExecutionContext executionContext)
         {
             var frame = new StackFrame(1);
 
@@ -19,21 +19,18 @@
 
             switch (callingClassName)
             {
-                case nameof(CompileExecuteAndCheckExecutionStrategy):
-                case nameof(CSharpPerformanceProjectTestsExecutionStrategy):
-                case nameof(CSharpAspProjectTestsExecutionStrategy):
-                case nameof(CSharpProjectTestsExecutionStrategy):
-                case nameof(CSharpUnitTestsExecutionStrategy):
                 case nameof(DotNetCoreProjectTestsExecutionStrategy):
                 case nameof(DotNetCoreProjectExecutionStrategy):
                 case nameof(DotNetCoreUnitTestsExecutionStrategy):
                 case nameof(DotNetCoreTestRunnerExecutionStrategy):
-                    DisableIntegratedSecurityInZipFile(context);
+                    SanitizeDotNetCoreZipFile(executionContext);
                     break;
             }
         }
 
-        private static void DisableIntegratedSecurityInZipFile(ExecutionContext executionContext)
+        private static void SanitizeAllFilesInZip(
+            ExecutionContext executionContext,
+            Func<string, string> sanitizingFunc)
         {
             var zipExtension = Constants.ZipFileExtension.Substring(1);
 
@@ -42,10 +39,6 @@
             {
                 return;
             }
-
-            var integratedSecuritySearchRegex = new Regex(
-                "Integrated Security=true|Trusted_Connection=yes",
-                RegexOptions.IgnoreCase);
 
             var sanitizedZipFile = new ZipFile();
 
@@ -63,8 +56,7 @@
 
                         using (var streamReader = new StreamReader(zipFileMemoryStream))
                         {
-                            var text = streamReader.ReadToEnd();
-                            var sanitizedText = integratedSecuritySearchRegex.Replace(text, string.Empty);
+                            var sanitizedText = sanitizingFunc(streamReader.ReadToEnd());
 
                             sanitizedZipFile.AddEntry(entry.FileName, sanitizedText);
                         }
@@ -78,6 +70,17 @@
 
                 executionContext.FileContent = outputStream.ToArray();
             }
+        }
+
+        private static void SanitizeDotNetCoreZipFile(ExecutionContext executionContext)
+        {
+            const string connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
+            const string safeConnectionString = "Data Source=.;";
+
+            SanitizeAllFilesInZip(executionContext, SanitizeConnectionString);
+
+            string SanitizeConnectionString(string fileContent) =>
+                Regex.Replace(fileContent, connectionStringSearchPattern, $"$1\"{safeConnectionString}\"$3");
         }
     }
 }

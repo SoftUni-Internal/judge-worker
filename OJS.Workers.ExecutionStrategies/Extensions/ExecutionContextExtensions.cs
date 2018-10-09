@@ -17,7 +17,7 @@
             [CallerFilePath]string callerFilePath = null)
         {
             var callerClassName = Path.GetFileNameWithoutExtension(callerFilePath);
-            
+
             switch (callerClassName)
             {
                 case nameof(DotNetCoreProjectTestsExecutionStrategy):

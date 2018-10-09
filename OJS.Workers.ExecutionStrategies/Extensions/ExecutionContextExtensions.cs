@@ -81,6 +81,6 @@
 
         private static bool ExecutionContextContainsZipFile(ExecutionContext executionContext) =>
             !string.IsNullOrWhiteSpace(executionContext.AllowedFileExtensions) &&
-              executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension.Substring(1));
+            executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension.Substring(1));
     }
 }

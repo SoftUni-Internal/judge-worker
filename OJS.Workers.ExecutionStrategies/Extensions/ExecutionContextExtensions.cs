@@ -37,7 +37,7 @@
             }
 
             var connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
-            var safeConnectionString = @"Data Source=.;";
+            var safeConnectionString = "Data Source=.;";
 
             executionContext.FileContent = SanitizeZipFileContent(
                 executionContext.FileContent,

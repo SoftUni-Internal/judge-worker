@@ -11,6 +11,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.Executors;
 
     public class DotNetCoreTestRunnerExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -145,6 +146,8 @@
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
+            executionContext.SanitizeContent();
+
             var result = new ExecutionResult();
 
             var userSubmissionContent = executionContext.FileContent;

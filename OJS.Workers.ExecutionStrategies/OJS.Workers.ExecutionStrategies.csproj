@@ -108,6 +108,7 @@
     <Compile Include="DotNetCoreProjectTestsExecutionStrategy.cs" />
     <Compile Include="ExecutionStrategy.cs" />
     <Compile Include="Extensions\CSharpProjectExtensions.cs" />
+    <Compile Include="Extensions\ExecutionContextExtensions.cs" />
     <Compile Include="Helpers\DotNetCoreStrategiesHelper.cs" />
     <Compile Include="Helpers\JavaStrategiesHelper.cs" />
     <Compile Include="Helpers\UnitTestStrategiesHelper.cs" />

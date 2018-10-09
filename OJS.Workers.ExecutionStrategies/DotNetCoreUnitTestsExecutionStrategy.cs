@@ -9,6 +9,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.Executors;
 
@@ -35,6 +36,8 @@
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
+            executionContext.SanitizeContent();
+
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 

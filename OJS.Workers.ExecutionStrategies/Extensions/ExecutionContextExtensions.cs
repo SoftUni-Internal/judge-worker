@@ -1,9 +1,9 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Extensions
 {
     using System;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
 
     using Ionic.Zip;
@@ -12,11 +12,13 @@
 
     public static class ExecutionContextExtensions
     {
-        public static void SanitizeContent(this ExecutionContext executionContext)
+        public static void SanitizeContent(
+            this ExecutionContext executionContext,
+            [CallerFilePath]string callerFilePath = null)
         {
-            var callingClassName = new StackFrame(1).GetMethod()?.DeclaringType?.Name;
-
-            switch (callingClassName)
+            var callerClassName = Path.GetFileNameWithoutExtension(callerFilePath);
+            
+            switch (callerClassName)
             {
                 case nameof(DotNetCoreProjectTestsExecutionStrategy):
                 case nameof(DotNetCoreProjectExecutionStrategy):
@@ -34,8 +36,8 @@
                 return;
             }
 
-            const string connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
-            const string safeConnectionString = "Data Source=.;";
+            var connectionStringSearchPattern = @"(\.\s*UseSqlServer\s*\()(.*)(\))";
+            var safeConnectionString = @"Data Source=.;";
 
             executionContext.FileContent = SanitizeZipFileContent(
                 executionContext.FileContent,

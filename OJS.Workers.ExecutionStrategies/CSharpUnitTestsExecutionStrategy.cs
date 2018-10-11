@@ -14,6 +14,7 @@
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CSharpUnitTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -29,7 +30,7 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -65,7 +66,7 @@
 
         protected override ExecutionResult RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult result,

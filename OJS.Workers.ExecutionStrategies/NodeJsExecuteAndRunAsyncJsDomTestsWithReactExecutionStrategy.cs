@@ -7,6 +7,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy :
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
@@ -191,7 +192,7 @@ it('Test{testsCount++}', function(done) {{
         }
 
         protected override List<TestResult> ProcessTests(
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -237,7 +238,7 @@ it('Test{testsCount++}', function(done) {{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected override string PreprocessJsSubmission(string template, CompetitiveExecutionContext context)
         {
             var code = context.Code.Trim(';');
             code = Regex.Replace(code, "([\\\\`$])", "\\$1");

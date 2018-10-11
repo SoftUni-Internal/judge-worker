@@ -2,13 +2,12 @@
 {
     using System.Collections.Generic;
 
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
-    public class ExecutionContext
+    public abstract class ExecutionContext<TInputContext> : IExecutionContext
     {
-        public int SubmissionId { get; set; }
-
         public CompilerType CompilerType { get; set; }
 
         public string AdditionalCompilerArguments { get; set; }
@@ -19,20 +18,10 @@
 
         public string AllowedFileExtensions { get; set; }
 
-        public IEnumerable<TestContext> Tests { get; set; }
+        public abstract IEnumerable<TInputContext> Tests { get; set; }
 
         public int TimeLimit { get; set; }
 
         public int MemoryLimit { get; set; }
-
-        public string CheckerAssemblyName { get; set; }
-
-        public string CheckerTypeName { get; set; }
-
-        public string CheckerParameter { get; set; }
-
-        public byte[] TaskSkeleton { get; set; }
-
-        public string TaskSkeletonAsString => this.TaskSkeleton.Decompress();
     }
 }

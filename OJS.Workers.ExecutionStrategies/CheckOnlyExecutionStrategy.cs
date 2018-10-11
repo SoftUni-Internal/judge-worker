@@ -2,6 +2,7 @@
 {
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class CheckOnlyExecutionStrategy : ExecutionStrategy
     {
@@ -10,7 +11,7 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult
             {

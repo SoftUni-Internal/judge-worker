@@ -1,6 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb
 {
-    using System;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class SqlServerLocalDbPrepareDatabaseAndRunQueriesExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
@@ -12,7 +12,7 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             return this.Execute(
                 executionContext,

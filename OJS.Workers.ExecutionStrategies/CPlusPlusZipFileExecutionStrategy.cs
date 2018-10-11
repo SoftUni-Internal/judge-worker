@@ -10,6 +10,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CPlusPlusZipFileExecutionStrategy : ExecutionStrategy
@@ -26,7 +27,7 @@
             : base(baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPath;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 

@@ -6,6 +6,7 @@
 
     using OJS.Workers.Checkers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -29,7 +30,7 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -74,6 +75,49 @@
                     processExecutionResult.ReceivedOutput);
 
                 result.TestResults.Add(testResult);
+            }
+
+            return result;
+        }
+
+        protected override ExecutionResult ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext)
+        {
+            var result = new ExecutionResult();
+
+            // Compile the file
+            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
+            if (!compilerResult.IsCompiledSuccessfully)
+            {
+                return result;
+            }
+
+            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
+
+            // Execute and check each test
+            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            var arguments = new[]
+            {
+                compilerResult.OutputFile
+            };
+
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+
+            foreach (var test in executionContext.Tests)
+            {
+                var processExecutionResult = executor.Execute(
+                    compilerPath,
+                    test,
+                    executionContext.TimeLimit,
+                    executionContext.MemoryLimit,
+                    arguments,
+                    this.WorkingDirectory);
+
+                var rawResult = this.GetRawResult(
+                    processExecutionResult,
+                    processExecutionResult.ReceivedOutput);
+
+                result.RawResults.Add(rawResult);
             }
 
             return result;

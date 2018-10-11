@@ -11,6 +11,7 @@
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : ExecutionStrategy
@@ -69,7 +70,7 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 

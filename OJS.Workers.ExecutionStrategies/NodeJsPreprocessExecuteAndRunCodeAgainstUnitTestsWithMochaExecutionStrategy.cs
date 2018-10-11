@@ -9,6 +9,7 @@
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy :
@@ -84,7 +85,7 @@ after(function() {
 
         private Random Random { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             // In NodeJS there is no compilation
             var result = new ExecutionResult() { IsCompiledSuccessfully = true };
@@ -162,7 +163,7 @@ describe('Test {i} ', function(){{
         }
 
         protected override List<TestResult> ProcessTests(
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -249,7 +250,7 @@ describe('Test {i} ', function(){{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected override string PreprocessJsSubmission(string template, CompetitiveExecutionContext context)
         {
             var code = context.Code.Trim(';');
 

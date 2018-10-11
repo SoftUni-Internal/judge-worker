@@ -12,6 +12,7 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaUnitTestsExecutionStrategy : JavaZipFileCompileExecuteAndCheckExecutionStrategy
@@ -114,7 +115,7 @@ public class _$TestRunner {{
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
             string submissionFilePath;
@@ -260,7 +261,7 @@ public class _$TestRunner {{
             return compilerResult;
         }
 
-        protected override string CreateSubmissionFile(ExecutionContext executionContext)
+        protected override string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
@@ -275,7 +276,7 @@ public class _$TestRunner {{
             return this.PrepareSubmissionFile(executionContext);
         }
 
-        protected virtual string PrepareSubmissionFile(ExecutionContext context)
+        protected virtual string PrepareSubmissionFile(CompetitiveExecutionContext context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);

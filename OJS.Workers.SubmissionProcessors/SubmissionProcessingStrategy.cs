@@ -5,7 +5,9 @@
     using log4net;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Models;
 
     public abstract class SubmissionProcessingStrategy<TSubmission> : ISubmissionProcessingStrategy<TSubmission>
@@ -36,5 +38,38 @@
         public abstract void ProcessExecutionResult(ExecutionResult executionResult);
 
         public abstract void OnError(SubmissionModel submission);
+
+        public virtual IExecutionContext CreateExecutionContext(SubmissionModel submission)
+        {
+            if (submission.ExecutionContextType == ExecutionContextType.NonCompetitive)
+            {
+                return new NonCompetitiveExecutionContext
+                {
+                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                    FileContent = submission.FileContent,
+                    AllowedFileExtensions = submission.AllowedFileExtensions,
+                    CompilerType = submission.CompilerType,
+                    MemoryLimit = submission.MemoryLimit,
+                    TimeLimit = submission.TimeLimit,
+                    Tests = submission.Inputs
+                };
+            }
+
+            return new CompetitiveExecutionContext
+            {
+                SubmissionId = submission.Id,
+                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                CheckerAssemblyName = submission.CheckerAssemblyName,
+                CheckerParameter = submission.CheckerParameter,
+                CheckerTypeName = submission.CheckerTypeName,
+                FileContent = submission.FileContent,
+                AllowedFileExtensions = submission.AllowedFileExtensions,
+                CompilerType = submission.CompilerType,
+                MemoryLimit = submission.MemoryLimit,
+                TimeLimit = submission.TimeLimit,
+                TaskSkeleton = submission.TaskSkeleton,
+                Tests = submission.Tests
+            };
+        }
     }
 }

@@ -119,6 +119,10 @@
     <Compile Include="JavaUnitTestsExecutionStrategy.cs" />
     <Compile Include="JavaZipFileCompileExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="JsonExecutionResult.cs" />
+    <Compile Include="Models\NonCompetitiveExecutionContext.cs" />
+    <Compile Include="Models\Result.cs" />
+    <Compile Include="Models\RawResult.cs" />
+    <Compile Include="Models\CompetitiveExecutionContext.cs" />
     <Compile Include="NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy.cs" />
     <Compile Include="NodeJsZipExecuteHtmlAndCssStrategy.cs" />
     <Compile Include="NodeJsPreprocessExecuteAndCheckExecutionStrategy.cs" />
@@ -148,7 +152,7 @@
     <Compile Include="SqlStrategies\SqlServerLocalDb\SqlServerLocalDbRunQueriesAndCheckDatabaseExecutionStrategy.cs" />
     <Compile Include="SqlStrategies\SqlServerLocalDb\SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy.cs" />
     <Compile Include="TestContext.cs" />
-    <Compile Include="TestResult.cs" />
+    <Compile Include="Models\TestResult.cs" />
     <Compile Include="DotNetCoreUnitTestsExecutionStrategy.cs" />
   </ItemGroup>
   <ItemGroup>

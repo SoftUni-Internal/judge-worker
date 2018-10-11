@@ -11,8 +11,6 @@
     using OJS.Workers.SubmissionProcessors.Helpers;
     using OJS.Workers.SubmissionProcessors.Models;
 
-    using ExecutionContext = ExecutionStrategies.ExecutionContext;
-
     public class SubmissionProcessor<TSubmission> : ISubmissionProcessor
     {
         private readonly object sharedLockObject;
@@ -105,11 +103,13 @@
             {
                 this.logger.Info($"Work on submission #{submission.Id} started.");
 
-                var executionStrategy = this.CreateExecutinStrategy(submission);
+                var executionStrategy = this.CreateExecutionStrategy(submission);
+
+                var executionContext = this.CreateExecutionContext(submission);
 
                 this.BeforeExecute(submission);
 
-                var executionResult = this.ExecuteSubmission(executionStrategy, submission);
+                var executionResult = this.ExecuteSubmission(executionStrategy, executionContext, submission);
 
                 this.logger.Info($"Work on submission #{submission.Id} ended.");
 
@@ -123,7 +123,7 @@
             }
         }
 
-        private IExecutionStrategy CreateExecutinStrategy(SubmissionModel submission)
+        private IExecutionStrategy CreateExecutionStrategy(SubmissionModel submission)
         {
             try
             {
@@ -137,6 +137,22 @@
                     $"{nameof(SubmissionProcessorHelper.CreateExecutionStrategy)} has thrown an Exception: ", ex);
 
                 submission.ProcessingComment = $"Exception in creating execution strategy: {ex.Message}";
+                throw;
+            }
+        }
+
+        private IExecutionContext CreateExecutionContext(SubmissionModel submission)
+        {
+            try
+            {
+                return this.submissionProcessingStrategy.CreateExecutionContext(submission);
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error(
+                    $"{nameof(this.CreateExecutionContext)} has thrown an Exception: ", ex);
+
+                submission.ProcessingComment = $"Exception in creating execution context: {ex.Message}";
                 throw;
             }
         }
@@ -158,29 +174,14 @@
             }
         }
 
-        private ExecutionResult ExecuteSubmission(IExecutionStrategy executionStrategy, SubmissionModel submission)
+        private ExecutionResult ExecuteSubmission(
+            IExecutionStrategy executionStrategy,
+            IExecutionContext executionContext,
+            SubmissionModel submission)
         {
             try
             {
-                var context = new ExecutionContext
-                {
-                    SubmissionId = submission.Id,
-                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                    CheckerAssemblyName = submission.CheckerAssemblyName,
-                    CheckerParameter = submission.CheckerParameter,
-                    CheckerTypeName = submission.CheckerTypeName,
-                    FileContent = submission.FileContent,
-                    AllowedFileExtensions = submission.AllowedFileExtensions,
-                    CompilerType = submission.CompilerType,
-                    MemoryLimit = submission.MemoryLimit,
-                    TimeLimit = submission.TimeLimit,
-                    TaskSkeleton = submission.TaskSkeleton,
-                    Tests = submission.Tests
-                };
-
-                var executionResult = executionStrategy.SafeExecute(context);
-
-                return executionResult;
+                return executionStrategy.SafeExecute(executionContext);
             }
             catch (Exception ex)
             {

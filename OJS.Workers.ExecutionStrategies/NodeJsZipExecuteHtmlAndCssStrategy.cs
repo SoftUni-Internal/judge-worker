@@ -8,6 +8,7 @@
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsZipExecuteHtmlAndCssStrategy : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
@@ -158,7 +159,7 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult { IsCompiledSuccessfully = true };
             this.CreateSubmissionFile(executionContext);
@@ -207,10 +208,10 @@ describe('TestDOMScope', function() {{
         }
 
         protected override List<TestResult> ProcessTests(
-          ExecutionContext executionContext,
-          IExecutor executor,
-          IChecker checker,
-          string codeSavePath)
+            CompetitiveExecutionContext executionContext,
+            IExecutor executor,
+            IChecker checker,
+            string codeSavePath)
         {
             var testResults = new List<TestResult>();
             var arguments = new List<string>();
@@ -251,7 +252,7 @@ describe('TestDOMScope', function() {{
             return testResults;
         }
 
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -278,7 +279,7 @@ describe('TestDOMScope', function() {{
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context, string pathToFile)
         {
             var userBaseDirectory = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
             userBaseDirectory = FileHelpers.ProcessModulePath(Path.GetDirectoryName(userBaseDirectory));

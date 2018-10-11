@@ -10,6 +10,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
@@ -95,7 +96,7 @@ class Classes{{
             }
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -228,7 +229,7 @@ class Classes{{
             return result;
         }
 
-        protected override string PrepareSubmissionFile(ExecutionContext context)
+        protected override string PrepareSubmissionFile(CompetitiveExecutionContext context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -240,7 +241,7 @@ class Classes{{
             return submissionFilePath;
         }
 
-        protected virtual void AddTestsToUserSubmission(ExecutionContext context, string submissionZipFilePath)
+        protected virtual void AddTestsToUserSubmission(CompetitiveExecutionContext context, string submissionZipFilePath)
         {
             var testNumber = 0;
             var filePaths = new string[context.Tests.Count()];

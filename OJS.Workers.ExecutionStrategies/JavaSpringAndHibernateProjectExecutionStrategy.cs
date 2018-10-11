@@ -12,6 +12,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaSpringAndHibernateProjectExecutionStrategy : JavaProjectTestsExecutionStrategy
@@ -138,7 +139,7 @@
 
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -249,7 +250,7 @@
             return message;
         }
 
-        protected override string PrepareSubmissionFile(ExecutionContext context)
+        protected override string PrepareSubmissionFile(CompetitiveExecutionContext context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -335,7 +336,7 @@
             DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
         }
 
-        protected override void AddTestsToUserSubmission(ExecutionContext context, string submissionZipFilePath)
+        protected override void AddTestsToUserSubmission(CompetitiveExecutionContext context, string submissionZipFilePath)
         {
             var testNumber = 0;
             var filePaths = new string[context.Tests.Count()];

@@ -6,6 +6,7 @@
 
     using OJS.Workers.Checkers;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class PythonExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -29,7 +30,7 @@
             this.pythonExecutablePath = pythonExecutablePath;
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 

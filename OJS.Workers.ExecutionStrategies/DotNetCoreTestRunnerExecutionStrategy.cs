@@ -12,6 +12,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreTestRunnerExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -144,7 +145,7 @@
             : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPathFunc;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             executionContext.SanitizeContent();
 
@@ -204,7 +205,7 @@
             return result;
         }
 
-        private string PreprocessAndCompileTestRunner(ExecutionContext executionContext, string outputDirectory)
+        private string PreprocessAndCompileTestRunner(CompetitiveExecutionContext executionContext, string outputDirectory)
         {
             var testStrings = new List<string>();
             foreach (var test in executionContext.Tests)
@@ -240,7 +241,7 @@
 
         private void ProcessTests(
             ProcessExecutionResult processExecutionResult,
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             ExecutionResult result)
         {
             var jsonResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput, true, true);

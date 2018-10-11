@@ -1,9 +1,11 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
+    using OJS.Workers.Common;
+
     public interface IExecutionStrategy
     {
-        ExecutionResult SafeExecute(ExecutionContext executionContext);
+        ExecutionResult SafeExecute(IExecutionContext executionContext);
 
-        ExecutionResult Execute(ExecutionContext executionContext);
+        ExecutionResult Execute(IExecutionContext executionContext);
     }
 }

@@ -4,6 +4,7 @@
 
     using log4net;
 
+    using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -23,5 +24,7 @@
         void ProcessExecutionResult(ExecutionResult executionResult);
 
         void OnError(SubmissionModel submission);
+
+        IExecutionContext CreateExecutionContext(SubmissionModel submissionModel);
     }
 }

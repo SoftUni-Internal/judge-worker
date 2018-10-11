@@ -2,13 +2,15 @@
 {
     using System.Collections.Generic;
 
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class DoNothingExecutionStrategy : IExecutionStrategy
     {
         protected string WorkingDirectory { get; set; }
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public ExecutionResult SafeExecute(IExecutionContext executionContext)
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
@@ -21,7 +23,7 @@
             }
         }
 
-        public ExecutionResult Execute(ExecutionContext executionContext) =>
+        public ExecutionResult Execute(IExecutionContext executionContext) =>
             new ExecutionResult
             {
                 CompilerComment = null,

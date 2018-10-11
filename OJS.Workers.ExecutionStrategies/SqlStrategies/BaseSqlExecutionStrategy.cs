@@ -7,9 +7,11 @@
     using MissingFeatures;
 
     using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class BaseSqlExecutionStrategy : IExecutionStrategy
     {
@@ -22,9 +24,9 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public string WorkingDirectory { get; set; }
+        public string WorkingDirectory { get; set; } 
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public ExecutionResult SafeExecute(IExecutionContext executionContext)
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
@@ -37,10 +39,23 @@
             }
         }
 
-        public abstract ExecutionResult Execute(ExecutionContext executionContext);
+        public virtual ExecutionResult Execute(IExecutionContext executionContext)
+        {
+            switch (executionContext)
+            {
+                case CompetitiveExecutionContext competitiveExecutionContext:
+                    return this.ExecuteCompetitive(competitiveExecutionContext);
+                default:
+                    return new ExecutionResult
+                    {
+                        IsCompiledSuccessfully = false,
+                        CompilerComment = "Execution context not found"
+                    };
+            }
+        }
 
         public virtual ExecutionResult Execute(
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             Action<IDbConnection, TestContext, ExecutionResult> executionFlow)
         {
             var result = new ExecutionResult { IsCompiledSuccessfully = true };
@@ -79,6 +94,8 @@
         public abstract void DropDatabase(string databaseName);
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
+
+        protected abstract ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext competitiveExecutionContext);
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
@@ -164,7 +181,7 @@
             }
         }
 
-        protected void ProcessSqlResult(SqlResult sqlResult, ExecutionContext executionContext, TestContext test, ExecutionResult result)
+        protected void ProcessSqlResult(SqlResult sqlResult, CompetitiveExecutionContext executionContext, TestContext test, ExecutionResult result)
         {
             if (sqlResult.Completed)
             {

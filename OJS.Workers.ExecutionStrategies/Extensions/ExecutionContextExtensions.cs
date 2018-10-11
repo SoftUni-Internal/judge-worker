@@ -13,7 +13,7 @@
     public static class ExecutionContextExtensions
     {
         public static void SanitizeContent(
-            this ExecutionContext executionContext,
+            this IExecutionContext executionContext,
             [CallerFilePath]string callerFilePath = null)
         {
             var callerClassName = Path.GetFileNameWithoutExtension(callerFilePath);
@@ -29,7 +29,7 @@
             }
         }
 
-        private static void SanitizeDotNetCoreZipFile(ExecutionContext executionContext)
+        private static void SanitizeDotNetCoreZipFile(IExecutionContext executionContext)
         {
             if (!ExecutionContextContainsZipFile(executionContext))
             {
@@ -81,7 +81,7 @@
             }
         }
 
-        private static bool ExecutionContextContainsZipFile(ExecutionContext executionContext) =>
+        private static bool ExecutionContextContainsZipFile(IExecutionContext executionContext) =>
             !string.IsNullOrWhiteSpace(executionContext.AllowedFileExtensions) &&
             executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension.Substring(1));
     }

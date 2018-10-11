@@ -7,6 +7,7 @@
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -167,7 +168,7 @@ process.stdin.on('end', function() {
             EvaluationPlaceholder +
             PostevaluationPlaceholder;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -197,7 +198,7 @@ process.stdin.on('end', function() {
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        protected virtual List<TestResult> ProcessTests(CompetitiveExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
         {
             var testResults = new List<TestResult>();
 
@@ -219,7 +220,7 @@ process.stdin.on('end', function() {
             return testResults;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context)
         {
             var problemSkeleton = context.TaskSkeletonAsString ??
                 "function adapter(input, code) { return code(input); }";

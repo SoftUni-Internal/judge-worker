@@ -9,6 +9,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -159,7 +160,7 @@ class _$SandboxSecurityManager extends SecurityManager {
     }
 }";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
 
@@ -267,10 +268,10 @@ class _$SandboxSecurityManager extends SecurityManager {
             }
         }
 
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext) =>
+        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext) =>
             JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
 
-        protected virtual CompileResult DoCompile(ExecutionContext executionContext, string submissionFilePath)
+        protected virtual CompileResult DoCompile(CompetitiveExecutionContext executionContext, string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

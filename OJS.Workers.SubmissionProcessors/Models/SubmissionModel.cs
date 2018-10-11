@@ -31,8 +31,12 @@
 
         public CompilerType CompilerType { get; set; }
 
+        public ExecutionContextType ExecutionContextType { get; set; }
+
         public ExecutionStrategyType ExecutionStrategyType { get; set; }
 
         public IEnumerable<TestContext> Tests { get; set; }
+
+        public IEnumerable<string> Inputs { get; set; }
     }
 }

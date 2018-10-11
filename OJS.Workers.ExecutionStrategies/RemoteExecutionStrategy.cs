@@ -4,15 +4,17 @@
     using System.IO;
 
     using Ionic.Zip;
+    using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class RemoteExecutionStrategy : IExecutionStrategy
     {
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public ExecutionResult SafeExecute(IExecutionContext executionContext)
         {
             throw new NotImplementedException();
         }
 
-        public ExecutionResult Execute(ExecutionContext executionContext)
+        public ExecutionResult Execute(IExecutionContext executionContext)
         {
             throw new NotImplementedException();
 
@@ -41,7 +43,7 @@
              */
         }
 
-        private byte[] PreparePayloadFile(ExecutionContext executionContext)
+        private byte[] PreparePayloadFile(CompetitiveExecutionContext executionContext)
         {
             var tempFile = Path.GetTempFileName();
             tempFile += ".zip"; // TODO: Useless?

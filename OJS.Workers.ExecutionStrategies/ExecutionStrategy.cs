@@ -12,6 +12,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class ExecutionStrategy : IExecutionStrategy
     {
@@ -32,9 +33,24 @@
 
         protected string WorkingDirectory { get; set; }
 
-        public abstract ExecutionResult Execute(ExecutionContext executionContext);
+        public ExecutionResult Execute(IExecutionContext executionContext)
+        {
+            switch (executionContext)
+            {
+                case CompetitiveExecutionContext competitiveExecutionContext:
+                    return this.ExecuteCompetitive(competitiveExecutionContext);
+                case NonCompetitiveExecutionContext nonCompetitiveExecutionContext:
+                    return this.ExecuteNonCompetitive(nonCompetitiveExecutionContext);
+                default:
+                    return new ExecutionResult
+                    {
+                        IsCompiledSuccessfully = false,
+                        CompilerComment = "Execution context not found"
+                    };
+            }
+        }
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public ExecutionResult SafeExecute(IExecutionContext executionContext)
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
@@ -57,8 +73,13 @@
             }
         }
 
+        protected virtual ExecutionResult ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext) =>
+            throw new NotImplementedException();
+
+        protected abstract ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext);
+
         protected ExecutionResult CompileExecuteAndCheck(
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutor executor,
             bool useSystemEncoding = true,
@@ -148,7 +169,16 @@
             return testResult;
         }
 
-        protected CompileResult ExecuteCompiling(ExecutionContext executionContext, Func<CompilerType, string> getCompilerPathFunc, ExecutionResult result)
+        protected RawResult GetRawResult(ProcessExecutionResult processExecutionResult, string receivedOutput) =>
+            new RawResult
+            {
+                TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
+                MemoryUsed = (int)processExecutionResult.MemoryUsed,
+                ResultType = processExecutionResult.Type,
+                Output = receivedOutput
+            };
+
+        protected CompileResult ExecuteCompiling(IExecutionContext executionContext, Func<CompilerType, string> getCompilerPathFunc, ExecutionResult result)
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)

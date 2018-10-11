@@ -14,6 +14,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CSharpProjectTestsExecutionStrategy : ExecutionStrategy
@@ -101,7 +102,7 @@
 
         protected List<string> TestPaths { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
             var userSubmissionContent = executionContext.FileContent;
@@ -177,7 +178,7 @@
 
         protected virtual ExecutionResult RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult result,

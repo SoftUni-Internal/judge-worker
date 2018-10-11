@@ -8,6 +8,7 @@
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy :
@@ -148,7 +149,7 @@ function afterBundling() {
     });
 }";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult { IsCompiledSuccessfully = true };
 
@@ -206,7 +207,7 @@ function afterBundling() {
             return testsCode;
         }
 
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -233,7 +234,7 @@ function afterBundling() {
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context, string pathToFile)
         {
             var processedCode =
                 template.Replace(RequiredModules, this.JsCodeRequiredModules)

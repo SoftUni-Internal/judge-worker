@@ -6,6 +6,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
         : NodeJsPreprocessExecuteAndCheckExecutionStrategy
@@ -119,10 +120,10 @@ describe('TestScope', function() {
         protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon'";
 
         protected override List<TestResult> ProcessTests(
-           ExecutionContext executionContext,
-           IExecutor executor,
-           IChecker checker,
-           string codeSavePath)
+            CompetitiveExecutionContext executionContext,
+            IExecutor executor,
+            IChecker checker,
+            string codeSavePath)
         {
             var testResults = new List<TestResult>();
 

@@ -6,6 +6,7 @@
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
     using OJS.Workers.Executors;
 
@@ -43,7 +44,7 @@
 
         protected BaseMySqlExecutionStrategy MySqlHelperStrategy { get; set; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             var result = new ExecutionResult();
             var databaseName = this.MySqlHelperStrategy.GetDatabaseName();

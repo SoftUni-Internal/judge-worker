@@ -1,5 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb
 {
+    using OJS.Workers.ExecutionStrategies.Models;
+
     public class SqlServerLocalDbRunQueriesAndCheckDatabaseExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
         public SqlServerLocalDbRunQueriesAndCheckDatabaseExecutionStrategy(
@@ -10,7 +12,7 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             return this.Execute(
                 executionContext,

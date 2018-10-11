@@ -4,6 +4,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -17,7 +18,7 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var result = this.CompileExecuteAndCheck(executionContext, this.GetCompilerPathFunc, executor);

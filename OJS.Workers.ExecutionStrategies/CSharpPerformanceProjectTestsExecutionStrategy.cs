@@ -6,6 +6,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class CSharpPerformanceProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -21,7 +22,7 @@
 
         protected override ExecutionResult RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult result,

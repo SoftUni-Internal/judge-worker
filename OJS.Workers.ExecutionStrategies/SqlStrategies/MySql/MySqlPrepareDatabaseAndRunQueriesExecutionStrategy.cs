@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.SqlStrategies.MySql
 {
+    using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
     public class MySqlPrepareDatabaseAndRunQueriesExecutionStrategy : BaseMySqlExecutionStrategy
@@ -12,7 +13,8 @@
         {
         }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
             return this.Execute(
                 executionContext,

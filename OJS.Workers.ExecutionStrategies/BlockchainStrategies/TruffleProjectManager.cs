@@ -5,7 +5,7 @@
     using System.IO;
 
     using Newtonsoft.Json;
-
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     using static OJS.Workers.Common.Constants;

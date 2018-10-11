@@ -4,6 +4,7 @@
 
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class SubmissionModel
     {

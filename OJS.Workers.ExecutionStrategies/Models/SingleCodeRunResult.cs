@@ -1,6 +1,8 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Models
 {
-    public abstract class Result
+    using OJS.Workers.Common;
+
+    public abstract class SingleCodeRunResult : ISingleCodeRunResult
     {
         public int TimeUsed { get; set; }
 

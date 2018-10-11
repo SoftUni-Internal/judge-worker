@@ -44,9 +44,10 @@
 
         protected BaseMySqlExecutionStrategy MySqlHelperStrategy { get; set; }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
             var databaseName = this.MySqlHelperStrategy.GetDatabaseName();
 
             // PHP code is not compiled
@@ -66,8 +67,6 @@
                 executionContext.CheckerAssemblyName,
                 executionContext.CheckerTypeName,
                 executionContext.CheckerParameter);
-
-            result.TestResults = new List<TestResult>();
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             foreach (var test in executionContext.Tests)
@@ -90,7 +89,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 this.MySqlHelperStrategy.DropDatabase(databaseName);
             }
 

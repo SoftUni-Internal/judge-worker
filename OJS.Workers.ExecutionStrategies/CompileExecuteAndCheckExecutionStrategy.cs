@@ -18,7 +18,8 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
             IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var result = this.CompileExecuteAndCheck(executionContext, this.GetCompilerPathFunc, executor);

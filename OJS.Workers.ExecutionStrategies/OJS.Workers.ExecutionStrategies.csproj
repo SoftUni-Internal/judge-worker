@@ -112,7 +112,6 @@
     <Compile Include="Helpers\DotNetCoreStrategiesHelper.cs" />
     <Compile Include="Helpers\JavaStrategiesHelper.cs" />
     <Compile Include="Helpers\UnitTestStrategiesHelper.cs" />
-    <Compile Include="IExecutionStrategy.cs" />
     <Compile Include="JavaPreprocessCompileExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="JavaProjectTestsExecutionStrategy.cs" />
     <Compile Include="JavaSpringAndHibernateProjectExecutionStrategy.cs" />
@@ -120,9 +119,9 @@
     <Compile Include="JavaZipFileCompileExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="JsonExecutionResult.cs" />
     <Compile Include="Models\NonCompetitiveExecutionContext.cs" />
-    <Compile Include="Models\Result.cs" />
     <Compile Include="Models\RawResult.cs" />
     <Compile Include="Models\CompetitiveExecutionContext.cs" />
+    <Compile Include="Models\SingleCodeRunResult.cs" />
     <Compile Include="NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy.cs" />
     <Compile Include="NodeJsZipExecuteHtmlAndCssStrategy.cs" />
     <Compile Include="NodeJsPreprocessExecuteAndCheckExecutionStrategy.cs" />
@@ -151,7 +150,7 @@
     <Compile Include="SqlStrategies\SqlResult.cs" />
     <Compile Include="SqlStrategies\SqlServerLocalDb\SqlServerLocalDbRunQueriesAndCheckDatabaseExecutionStrategy.cs" />
     <Compile Include="SqlStrategies\SqlServerLocalDb\SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy.cs" />
-    <Compile Include="TestContext.cs" />
+    <Compile Include="Models\TestContext.cs" />
     <Compile Include="Models\TestResult.cs" />
     <Compile Include="DotNetCoreUnitTestsExecutionStrategy.cs" />
   </ItemGroup>

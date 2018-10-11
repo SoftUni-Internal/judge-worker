@@ -1,10 +1,10 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Models
 {
     using System.Collections.Generic;
-    using OJS.Workers.Common;
+
     using OJS.Workers.Common.Extensions;
 
-    public class CompetitiveExecutionContext : ExecutionContext<TestContext>, IExecutionContext
+    public class CompetitiveExecutionContext : ExecutionContext<TestContext>
     {
         public int SubmissionId { get; set; }
 

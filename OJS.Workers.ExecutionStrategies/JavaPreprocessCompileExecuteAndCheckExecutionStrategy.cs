@@ -160,9 +160,9 @@ class _$SandboxSecurityManager extends SecurityManager {
     }
 }";
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Copy the sandbox executor source code to a file in the working directory
             File.WriteAllText(this.SandboxExecutorSourceFilePath, this.SandboxExecutorCode);
@@ -227,7 +227,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                     this.baseUpdateTimeOffset);
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;

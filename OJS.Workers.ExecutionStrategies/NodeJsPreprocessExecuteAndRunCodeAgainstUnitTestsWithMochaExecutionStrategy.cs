@@ -85,10 +85,11 @@ after(function() {
 
         private Random Random { get; }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
             // In NodeJS there is no compilation
-            var result = new ExecutionResult() { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult>() { IsCompiledSuccessfully = true };
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
@@ -106,7 +107,7 @@ after(function() {
                 executionContext.CheckerTypeName,
                 executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);

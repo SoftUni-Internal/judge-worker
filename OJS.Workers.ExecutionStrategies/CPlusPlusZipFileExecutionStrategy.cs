@@ -27,9 +27,10 @@
             : base(baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPath;
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var submissionDestination = $@"{this.WorkingDirectory}\{SubmissionName}";
 
@@ -82,7 +83,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResults);
+                result.Results.Add(testResults);
             }
 
             return result;

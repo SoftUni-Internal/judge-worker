@@ -5,7 +5,6 @@
     using log4net;
 
     using OJS.Workers.Common;
-    using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.SubmissionProcessors.Models;
 
     public interface ISubmissionProcessingStrategy<TSubmission>
@@ -21,7 +20,8 @@
 
         void BeforeExecute();
 
-        void ProcessExecutionResult(ExecutionResult executionResult);
+        void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
+            where TResult : ISingleCodeRunResult, new();
 
         void OnError(SubmissionModel submission);
 

@@ -9,12 +9,14 @@
 
     public class RemoteExecutionStrategy : IExecutionStrategy
     {
-        public ExecutionResult SafeExecute(IExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             throw new NotImplementedException();
         }
 
-        public ExecutionResult Execute(IExecutionContext executionContext)
+        public IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             throw new NotImplementedException();
 

@@ -5,6 +5,7 @@
     using System.Linq;
 
     using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -30,9 +31,10 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Compile the file
             var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
@@ -74,15 +76,16 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;
         }
 
-        protected override ExecutionResult ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<RawResult> ExecuteNonCompetitive(
+            NonCompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<RawResult>();
 
             // Compile the file
             var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
@@ -117,7 +120,7 @@
                     processExecutionResult,
                     processExecutionResult.ReceivedOutput);
 
-                result.RawResults.Add(rawResult);
+                result.Results.Add(rawResult);
             }
 
             return result;

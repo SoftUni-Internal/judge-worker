@@ -18,8 +18,8 @@
     public class DotNetCoreTestRunnerExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         private const string DotNetCoreCsProjIdentifierPattern = "<Project";
-        private const string DotNetCoreCompiledFileExtention = ".dll";
-        private const string DotNetFrameworkCompiledFileExtention = ".exe";
+        private const string DotNetCoreCompiledFileExtension = ".dll";
+        private const string DotNetFrameworkCompiledFileExtension = ".exe";
         private const string SystemAssembly = "System.dll";
         private const string SystemCoreAssembly = "System.Core.dll";
         private const string MsCoreLibAssembly = "mscorlib.dll";
@@ -145,11 +145,12 @@
             : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPathFunc;
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
             executionContext.SanitizeContent();
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
             var submissionFilePath = $"{this.WorkingDirectory}\\{ZippedSubmissionName}";
@@ -224,8 +225,8 @@
 
             var referencedTypes = Directory
                 .GetFiles(outputDirectory)
-                .Where(f => f.EndsWith(DotNetCoreCompiledFileExtention) ||
-                    f.EndsWith(DotNetFrameworkCompiledFileExtention))
+                .Where(f => f.EndsWith(DotNetCoreCompiledFileExtension) ||
+                    f.EndsWith(DotNetFrameworkCompiledFileExtension))
                 .ToArray();
 
             compilerParameters.ReferencedAssemblies.AddRange(referencedTypes);
@@ -242,12 +243,12 @@
         private void ProcessTests(
             ProcessExecutionResult processExecutionResult,
             CompetitiveExecutionContext executionContext,
-            ExecutionResult result)
+            IExecutionResult<TestResult> result)
         {
             var jsonResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput, true, true);
 
             var index = 0;
-            result.TestResults = new List<TestResult>();
+            result.Results = new List<TestResult>();
             foreach (var test in executionContext.Tests)
             {
                 var testResult = new TestResult
@@ -267,7 +268,7 @@
                     testResult.CheckerDetails = new CheckerDetails { Comment = "Test failed." };
                 }
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 index++;
             }
         }

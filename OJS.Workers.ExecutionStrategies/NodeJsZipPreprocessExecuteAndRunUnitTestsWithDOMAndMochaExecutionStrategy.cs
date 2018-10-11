@@ -149,9 +149,10 @@ function afterBundling() {
     });
 }";
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
 
             // Copy and unzip the file (save file to WorkingDirectory)
             this.CreateSubmissionFile(executionContext);
@@ -176,7 +177,7 @@ function afterBundling() {
                 executionContext.CheckerParameter);
 
             // Process tests
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);

@@ -7,7 +7,8 @@
     using log4net;
 
     using OJS.Workers.Common;
-    using OJS.Workers.ExecutionStrategies;
+    using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Helpers;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -109,7 +110,22 @@
 
                 this.BeforeExecute(submission);
 
-                var executionResult = this.ExecuteSubmission(executionStrategy, executionContext, submission);
+                dynamic executionResult;
+
+                if (submission.ExecutionContextType != ExecutionContextType.NonCompetitive)
+                {
+                    executionResult = this.ExecuteSubmission<TestResult>(
+                        executionStrategy,
+                        executionContext,
+                        submission);
+                }
+                else
+                {
+                    executionResult = this.ExecuteSubmission<RawResult>(
+                        executionStrategy,
+                        executionContext,
+                        submission);
+                }
 
                 this.logger.Info($"Work on submission #{submission.Id} ended.");
 
@@ -174,14 +190,15 @@
             }
         }
 
-        private ExecutionResult ExecuteSubmission(
+        private IExecutionResult<TOutput> ExecuteSubmission<TOutput>(
             IExecutionStrategy executionStrategy,
             IExecutionContext executionContext,
             SubmissionModel submission)
+            where TOutput : ISingleCodeRunResult, new()
         {
             try
             {
-                return executionStrategy.SafeExecute(executionContext);
+                return executionStrategy.SafeExecute<TOutput>(executionContext);
             }
             catch (Exception ex)
             {
@@ -194,7 +211,8 @@
             }
         }
 
-        private void ProcessExecutionResult(ExecutionResult executionResult, SubmissionModel submission)
+        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, SubmissionModel submission)
+            where TOutput : ISingleCodeRunResult, new()
         {
             try
             {

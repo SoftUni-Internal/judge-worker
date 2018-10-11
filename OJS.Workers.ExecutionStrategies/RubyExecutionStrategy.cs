@@ -3,6 +3,7 @@
     using System.IO;
 
     using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -15,9 +16,9 @@
 
         public string RubyPath { get; set; }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             result.IsCompiledSuccessfully = true;
 
@@ -46,7 +47,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             if (File.Exists(submissionFilePath))

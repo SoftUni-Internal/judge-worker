@@ -159,9 +159,10 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
             this.CreateSubmissionFile(executionContext);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
 
@@ -178,7 +179,7 @@ describe('TestDOMScope', function() {{
                 executionContext.CheckerTypeName,
                 executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
             File.Delete(codeSavePath);
 
             return result;

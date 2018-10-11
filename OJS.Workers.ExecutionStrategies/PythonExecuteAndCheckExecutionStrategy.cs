@@ -5,6 +5,7 @@
     using System.IO;
 
     using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -30,9 +31,10 @@
             this.pythonExecutablePath = pythonExecutablePath;
         }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Python code is not compiled
             result.IsCompiledSuccessfully = true;
@@ -42,8 +44,6 @@
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
-
-            result.TestResults = new List<TestResult>();
 
             foreach (var test in executionContext.Tests)
             {
@@ -58,7 +58,7 @@
                     true);
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             // Clean up

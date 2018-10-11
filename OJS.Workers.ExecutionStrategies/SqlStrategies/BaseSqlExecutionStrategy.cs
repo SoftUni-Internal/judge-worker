@@ -26,12 +26,13 @@
 
         public string WorkingDirectory { get; set; } 
 
-        public ExecutionResult SafeExecute(IExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
             {
-                return this.Execute(executionContext);
+                return this.Execute<TResult>(executionContext);
             }
             finally
             {
@@ -39,14 +40,15 @@
             }
         }
 
-        public virtual ExecutionResult Execute(IExecutionContext executionContext)
+        public virtual IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             switch (executionContext)
             {
                 case CompetitiveExecutionContext competitiveExecutionContext:
-                    return this.ExecuteCompetitive(competitiveExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(competitiveExecutionContext);
                 default:
-                    return new ExecutionResult
+                    return new ExecutionResult<TResult>
                     {
                         IsCompiledSuccessfully = false,
                         CompilerComment = "Execution context not found"
@@ -54,11 +56,11 @@
             }
         }
 
-        public virtual ExecutionResult Execute(
+        public virtual IExecutionResult<TestResult> Execute(
             CompetitiveExecutionContext executionContext,
-            Action<IDbConnection, TestContext, ExecutionResult> executionFlow)
+            Action<IDbConnection, TestContext, ExecutionResult<TestResult>> executionFlow)
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
 
             string databaseName = null;
             try
@@ -95,7 +97,8 @@
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
-        protected abstract ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext competitiveExecutionContext);
+        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext competitiveExecutionContext);
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
@@ -181,7 +184,11 @@
             }
         }
 
-        protected void ProcessSqlResult(SqlResult sqlResult, CompetitiveExecutionContext executionContext, TestContext test, ExecutionResult result)
+        protected void ProcessSqlResult(
+            SqlResult sqlResult,
+            CompetitiveExecutionContext executionContext,
+            TestContext test,
+            IExecutionResult<TestResult> result)
         {
             if (sqlResult.Completed)
             {
@@ -190,7 +197,7 @@
                 var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
                 var checkerResult = checker.Check(test.Input, joinedUserOutput, test.Output, test.IsTrialTest);
 
-                result.TestResults.Add(new TestResult
+                result.Results.Add(new TestResult
                 {
                     Id = test.Id,
                     ResultType = checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
@@ -199,7 +206,7 @@
             }
             else
             {
-                result.TestResults.Add(new TestResult
+                result.Results.Add(new TestResult
                 {
                     Id = test.Id,
                     TimeUsed = executionContext.TimeLimit,

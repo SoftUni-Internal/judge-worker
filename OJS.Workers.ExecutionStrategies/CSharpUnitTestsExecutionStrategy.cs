@@ -30,9 +30,10 @@
         {
         }
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
 
@@ -64,12 +65,12 @@
             return result;
         }
 
-        protected override ExecutionResult RunUnitTests(
+        protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
             CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string csProjFilePath,
             string additionalExecutionArguments)
         {
@@ -130,7 +131,7 @@
                 originalTestsPassed = processExecutionTestResult.originalTestsPassed;
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 count++;
             }
 

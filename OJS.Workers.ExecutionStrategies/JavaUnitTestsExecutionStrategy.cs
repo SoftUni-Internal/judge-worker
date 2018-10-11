@@ -115,9 +115,10 @@ public class _$TestRunner {{
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
             string submissionFilePath;
 
             try
@@ -233,7 +234,7 @@ public class _$TestRunner {{
                 }
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 count++;
             }
 

@@ -16,7 +16,7 @@
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         protected new const string AdditionalExecutionArguments = "--noresult";
-        protected const string CsProjFileExtention = ".csproj";
+        protected const string CsProjFileExtension = ".csproj";
 
         private const string ProjectPathPlaceholder = "##projectPath##";
         private const string ProjectReferencesPlaceholder = "##ProjectReferences##";
@@ -71,14 +71,14 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
         {
             executionContext.SanitizeContent();
 
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmission = executionContext.FileContent;
 
@@ -152,7 +152,7 @@
         protected string CreateNuinitLiteConsoleAppCsProjFile(string csProjTemplate)
         {
             var consoleAppCsProjPath =
-                $@"{this.NUnitLiteConsoleAppDirectory}\{NUnitLiteConsoleAppFolderName}{CsProjFileExtention}";
+                $@"{this.NUnitLiteConsoleAppDirectory}\{NUnitLiteConsoleAppFolderName}{CsProjFileExtension}";
 
             File.WriteAllText(consoleAppCsProjPath, csProjTemplate);
 

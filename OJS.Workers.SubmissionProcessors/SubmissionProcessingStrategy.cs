@@ -6,7 +6,6 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -35,7 +34,8 @@
 
         public abstract SubmissionModel RetrieveSubmission();
 
-        public abstract void ProcessExecutionResult(ExecutionResult executionResult);
+        public abstract void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
+            where TResult : ISingleCodeRunResult, new();
 
         public abstract void OnError(SubmissionModel submission);
 

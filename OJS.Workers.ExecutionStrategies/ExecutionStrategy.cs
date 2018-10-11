@@ -33,29 +33,32 @@
 
         protected string WorkingDirectory { get; set; }
 
-        public ExecutionResult Execute(IExecutionContext executionContext)
+        public IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             switch (executionContext)
             {
                 case CompetitiveExecutionContext competitiveExecutionContext:
-                    return this.ExecuteCompetitive(competitiveExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(competitiveExecutionContext);
                 case NonCompetitiveExecutionContext nonCompetitiveExecutionContext:
-                    return this.ExecuteNonCompetitive(nonCompetitiveExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteNonCompetitive(nonCompetitiveExecutionContext);
                 default:
-                    return new ExecutionResult
+                    return (IExecutionResult<TResult>)new ExecutionResult<TestResult>
                     {
                         IsCompiledSuccessfully = false,
-                        CompilerComment = "Execution context not found"
+                        CompilerComment = "Execution context not found",
                     };
             }
         }
 
-        public ExecutionResult SafeExecute(IExecutionContext executionContext)
+        public IExecutionResult<TOutput> SafeExecute<TOutput>(IExecutionContext executionContext)
+            where TOutput : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
+
             try
             {
-                return this.Execute(executionContext);
+                return this.Execute<TOutput>(executionContext);
             }
             finally
             {
@@ -73,19 +76,19 @@
             }
         }
 
-        protected virtual ExecutionResult ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext) =>
+        protected virtual IExecutionResult<RawResult> ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext) =>
             throw new NotImplementedException();
 
-        protected abstract ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext);
+        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext);
 
-        protected ExecutionResult CompileExecuteAndCheck(
+        protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             CompetitiveExecutionContext executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutor executor,
             bool useSystemEncoding = true,
             bool dependOnExitCodeForRunTimeError = false)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Compile the file
             var compilerResult = this.ExecuteCompiling(executionContext, getCompilerPathFunc, result);
@@ -121,7 +124,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;
@@ -178,7 +181,11 @@
                 Output = receivedOutput
             };
 
-        protected CompileResult ExecuteCompiling(IExecutionContext executionContext, Func<CompilerType, string> getCompilerPathFunc, ExecutionResult result)
+        protected CompileResult ExecuteCompiling<TResult>(
+            IExecutionContext executionContext,
+            Func<CompilerType, string> getCompilerPathFunc,
+            IExecutionResult<TResult> result)
+            where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)

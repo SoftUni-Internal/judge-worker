@@ -168,9 +168,10 @@ process.stdin.on('end', function() {
             EvaluationPlaceholder +
             PostevaluationPlaceholder;
 
-        protected override ExecutionResult ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            CompetitiveExecutionContext executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // In NodeJS there is no compilation
             result.IsCompiledSuccessfully = true;
@@ -190,7 +191,7 @@ process.stdin.on('end', function() {
                 executionContext.CheckerTypeName,
                 executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);

@@ -20,12 +20,12 @@
 
         protected List<string> TestClassNames { get; }
 
-        protected override ExecutionResult RunUnitTests(
+        protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
             CompetitiveExecutionContext executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string compiledFile,
             string additionalExecutionArguments)
         {
@@ -52,7 +52,7 @@
                 }
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 testIndex++;
             }
 

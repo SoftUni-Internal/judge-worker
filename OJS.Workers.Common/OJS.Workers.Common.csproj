@@ -98,6 +98,7 @@
     <Compile Include="IExecutionResult.cs" />
     <Compile Include="IExecutionStrategy.cs" />
     <Compile Include="ISingleCodeRunResult.cs" />
+    <Compile Include="ISubmission.cs" />
     <Compile Include="Models\CompilerType.cs" />
     <Compile Include="Models\ExecutionContextType.cs" />
     <Compile Include="Models\ExecutionStrategyType.cs" />

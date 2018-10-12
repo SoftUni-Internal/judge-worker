@@ -10,7 +10,6 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Helpers;
-    using OJS.Workers.SubmissionProcessors.Models;
 
     public class SubmissionProcessor<TSubmission> : ISubmissionProcessor
     {
@@ -85,7 +84,7 @@
             this.stopping = true;
         }
 
-        private SubmissionModel GetSubmissionForProcessing()
+        private ISubmission GetSubmissionForProcessing()
         {
             try
             {
@@ -98,7 +97,7 @@
             }
         }
 
-        private void ProcessSubmission(SubmissionModel submission)
+        private void ProcessSubmission(ISubmission submission)
         {
             try
             {
@@ -106,10 +105,9 @@
 
                 var executionStrategy = this.CreateExecutionStrategy(submission);
 
-                var executionContext = this.CreateExecutionContext(submission);
-
                 this.BeforeExecute(submission);
 
+                var executionContext = this.CreateExecutionContext(submission);
                 dynamic executionResult;
 
                 if (submission.ExecutionContextType != ExecutionContextType.NonCompetitive)
@@ -139,7 +137,7 @@
             }
         }
 
-        private IExecutionStrategy CreateExecutionStrategy(SubmissionModel submission)
+        private IExecutionStrategy CreateExecutionStrategy(ISubmission submission)
         {
             try
             {
@@ -157,7 +155,7 @@
             }
         }
 
-        private IExecutionContext CreateExecutionContext(SubmissionModel submission)
+        private IExecutionContext CreateExecutionContext(ISubmission submission)
         {
             try
             {
@@ -173,7 +171,7 @@
             }
         }
 
-        private void BeforeExecute(SubmissionModel submission)
+        private void BeforeExecute(ISubmission submission)
         {
             try
             {
@@ -190,15 +188,15 @@
             }
         }
 
-        private IExecutionResult<TOutput> ExecuteSubmission<TOutput>(
+        private IExecutionResult<TResult> ExecuteSubmission<TResult>(
             IExecutionStrategy executionStrategy,
             IExecutionContext executionContext,
-            SubmissionModel submission)
-            where TOutput : ISingleCodeRunResult, new()
+            ISubmission submission)
+            where TResult : ISingleCodeRunResult, new()
         {
             try
             {
-                return executionStrategy.SafeExecute<TOutput>(executionContext);
+                return executionStrategy.SafeExecute<TResult>(executionContext);
             }
             catch (Exception ex)
             {
@@ -211,7 +209,7 @@
             }
         }
 
-        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, SubmissionModel submission)
+        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, ISubmission submission)
             where TOutput : ISingleCodeRunResult, new()
         {
             try

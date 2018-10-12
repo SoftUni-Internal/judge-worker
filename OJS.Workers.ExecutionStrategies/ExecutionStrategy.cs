@@ -46,19 +46,19 @@
                     return (IExecutionResult<TResult>)new ExecutionResult<TestResult>
                     {
                         IsCompiledSuccessfully = false,
-                        CompilerComment = "Execution context not found",
+                        CompilerComment = "Execution context not found"
                     };
             }
         }
 
-        public IExecutionResult<TOutput> SafeExecute<TOutput>(IExecutionContext executionContext)
-            where TOutput : ISingleCodeRunResult, new()
+        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
 
             try
             {
-                return this.Execute<TOutput>(executionContext);
+                return this.Execute<TResult>(executionContext);
             }
             finally
             {

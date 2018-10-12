@@ -6,7 +6,7 @@
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
-    public abstract class ExecutionContext<TInputContext> : IExecutionContext
+    public abstract class ExecutionContext<TInput> : IExecutionContext
     {
         public CompilerType CompilerType { get; set; }
 
@@ -18,7 +18,7 @@
 
         public string AllowedFileExtensions { get; set; }
 
-        public abstract IEnumerable<TInputContext> Tests { get; set; }
+        public abstract IEnumerable<TInput> Tests { get; set; }
 
         public int TimeLimit { get; set; }
 

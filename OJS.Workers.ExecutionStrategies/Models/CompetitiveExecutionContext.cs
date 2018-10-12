@@ -6,8 +6,6 @@
 
     public class CompetitiveExecutionContext : ExecutionContext<TestContext>
     {
-        public int SubmissionId { get; set; }
-
         public string CheckerAssemblyName { get; set; }
 
         public string CheckerTypeName { get; set; }

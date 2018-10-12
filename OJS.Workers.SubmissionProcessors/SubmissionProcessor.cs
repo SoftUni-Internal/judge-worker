@@ -107,19 +107,24 @@
 
                 this.BeforeExecute(submission);
 
-                var executionContext = this.CreateExecutionContext(submission);
+                dynamic executionContext;
                 dynamic executionResult;
+                
 
                 if (submission.ExecutionContextType != ExecutionContextType.NonCompetitive)
                 {
-                    executionResult = this.ExecuteSubmission<TestResult>(
+                    executionContext = this.CreateExecutionContext<TestsInputModel>(submission);
+
+                    executionResult = this.ExecuteSubmission<TestsInputModel, TestResult>(
                         executionStrategy,
                         executionContext,
                         submission);
                 }
                 else
                 {
-                    executionResult = this.ExecuteSubmission<RawResult>(
+                    executionContext = this.CreateExecutionContext<string>(submission);
+
+                    executionResult = this.ExecuteSubmission<string, RawResult>(
                         executionStrategy,
                         executionContext,
                         submission);
@@ -155,11 +160,11 @@
             }
         }
 
-        private IExecutionContext CreateExecutionContext(ISubmission submission)
+        private IExecutionContext<TInput> CreateExecutionContext<TInput>(ISubmission submission)
         {
             try
             {
-                return this.submissionProcessingStrategy.CreateExecutionContext(submission);
+                return this.submissionProcessingStrategy.CreateExecutionContext<TInput>(submission);
             }
             catch (Exception ex)
             {
@@ -188,15 +193,15 @@
             }
         }
 
-        private IExecutionResult<TResult> ExecuteSubmission<TResult>(
+        private IExecutionResult<TResult> ExecuteSubmission<TInput, TResult>(
             IExecutionStrategy executionStrategy,
-            IExecutionContext executionContext,
+            IExecutionContext<TInput> executionContext,
             ISubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
             try
             {
-                return executionStrategy.SafeExecute<TResult>(executionContext);
+                return executionStrategy.SafeExecute<TInput, TResult>(executionContext);
             }
             catch (Exception ex)
             {

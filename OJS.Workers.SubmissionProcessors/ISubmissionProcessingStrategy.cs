@@ -24,6 +24,6 @@
 
         void OnError(ISubmission submission);
 
-        IExecutionContext CreateExecutionContext(ISubmission submissionModel);
+        IExecutionContext<TInput> CreateExecutionContext<TInput>(ISubmission submissionModel);
     }
 }

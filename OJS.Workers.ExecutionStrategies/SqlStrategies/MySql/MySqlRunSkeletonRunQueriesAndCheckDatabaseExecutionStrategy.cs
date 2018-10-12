@@ -14,13 +14,13 @@
         }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             return this.Execute(
                 executionContext,
                 (connection, test, result) =>
                 {
-                    this.ExecuteNonQuery(connection, executionContext.TaskSkeletonAsString);
+                    this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
                     this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
                     var sqlTestResult = this.ExecuteReader(connection, test.Input);
                     this.ProcessSqlResult(sqlTestResult, executionContext, test, result);

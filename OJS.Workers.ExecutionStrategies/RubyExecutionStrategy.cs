@@ -16,7 +16,8 @@
 
         public string RubyPath { get; set; }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -28,11 +29,11 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.RubyPath,

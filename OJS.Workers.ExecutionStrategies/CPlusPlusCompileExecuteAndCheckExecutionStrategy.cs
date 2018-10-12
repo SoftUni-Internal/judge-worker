@@ -18,7 +18,7 @@
         }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 

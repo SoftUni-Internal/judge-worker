@@ -120,7 +120,7 @@ describe('TestScope', function() {
         protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon'";
 
         protected override List<TestResult> ProcessTests(
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -132,7 +132,7 @@ describe('TestScope', function() {
             arguments.Add(codeSavePath);
             arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.NodeJsExecutablePath,

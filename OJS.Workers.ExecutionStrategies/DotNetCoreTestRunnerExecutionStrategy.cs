@@ -146,7 +146,7 @@
                 this.getCompilerPathFunc = getCompilerPathFunc;
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
@@ -206,10 +206,10 @@
             return result;
         }
 
-        private string PreprocessAndCompileTestRunner(CompetitiveExecutionContext executionContext, string outputDirectory)
+        private string PreprocessAndCompileTestRunner(IExecutionContext<TestsInputModel> executionContext, string outputDirectory)
         {
             var testStrings = new List<string>();
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 testStrings.Add(TestTemplate.Replace(TestInputPlaceholder, test.Input));
             }
@@ -242,14 +242,14 @@
 
         private void ProcessTests(
             ProcessExecutionResult processExecutionResult,
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
             var jsonResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput, true, true);
 
             var index = 0;
             result.Results = new List<TestResult>();
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var testResult = new TestResult
                 {

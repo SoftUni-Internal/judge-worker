@@ -160,7 +160,7 @@ describe('TestDOMScope', function() {{
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
             this.CreateSubmissionFile(executionContext);
@@ -175,9 +175,9 @@ describe('TestDOMScope', function() {{
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
             File.Delete(codeSavePath);
@@ -209,7 +209,7 @@ describe('TestDOMScope', function() {{
         }
 
         protected override List<TestResult> ProcessTests(
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -229,7 +229,7 @@ describe('TestDOMScope', function() {{
 
             var mochaResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput);
             var currentTest = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "yes";
                 if (!string.IsNullOrEmpty(mochaResult.Error))
@@ -253,7 +253,7 @@ describe('TestDOMScope', function() {{
             return testResults;
         }
 
-        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -280,7 +280,7 @@ describe('TestDOMScope', function() {{
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context, string pathToFile)
         {
             var userBaseDirectory = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
             userBaseDirectory = FileHelpers.ProcessModulePath(Path.GetDirectoryName(userBaseDirectory));
@@ -293,7 +293,7 @@ describe('TestDOMScope', function() {{
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
                     .Replace(UserInputPlaceholder, pathToFile)
                     .Replace(UserBaseDirectoryPlaceholder, userBaseDirectory)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests));
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests));
 
             return processedCode;
         }

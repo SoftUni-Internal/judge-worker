@@ -2,7 +2,7 @@
 {
     using OJS.Workers.Common.Models;
 
-    public interface IExecutionContext
+    public interface IExecutionContext<TInput>
     {
         CompilerType CompilerType { get; set; }
 
@@ -17,5 +17,7 @@
         int TimeLimit { get; set; }
 
         int MemoryLimit { get; set; }
+
+        TInput Input { get; set; }
     }
 }

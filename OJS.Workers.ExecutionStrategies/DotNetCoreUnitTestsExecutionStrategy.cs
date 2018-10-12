@@ -36,7 +36,7 @@
         }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
@@ -59,9 +59,9 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,
@@ -77,7 +77,7 @@
 
         protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult<TestResult> result,
@@ -92,7 +92,7 @@
                 $"{this.NUnitLiteConsoleAppDirectory}\\{UnitTestStrategiesHelper.TestedCodeFileNameWithExtension}";
             var originalTestsPassed = -1;
 
-            var tests = executionContext.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
+            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
 
             for (var i = 0;  i < tests.Count; i++)
             {

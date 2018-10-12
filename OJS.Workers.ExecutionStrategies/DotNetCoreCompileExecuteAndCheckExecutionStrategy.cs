@@ -32,7 +32,7 @@
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -49,9 +49,9 @@
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             var arguments = new[]
             {
@@ -60,7 +60,7 @@
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     compilerPath,
@@ -83,7 +83,7 @@
         }
 
         protected override IExecutionResult<RawResult> ExecuteNonCompetitive(
-            NonCompetitiveExecutionContext executionContext)
+            IExecutionContext<string> executionContext)
         {
             var result = new ExecutionResult<RawResult>();
 
@@ -106,22 +106,19 @@
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
-            foreach (var test in executionContext.Tests)
-            {
-                var processExecutionResult = executor.Execute(
-                    compilerPath,
-                    test,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                    arguments,
-                    this.WorkingDirectory);
+            var processExecutionResult = executor.Execute(
+                compilerPath,
+                executionContext.Input,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                arguments,
+                this.WorkingDirectory);
 
-                var rawResult = this.GetRawResult(
-                    processExecutionResult,
-                    processExecutionResult.ReceivedOutput);
+            var rawResult = this.GetRawResult(
+                processExecutionResult,
+                processExecutionResult.ReceivedOutput);
 
-                result.Results.Add(rawResult);
-            }
+            result.Results.Add(rawResult);
 
             return result;
         }

@@ -28,7 +28,7 @@
                 this.getCompilerPathFunc = getCompilerPath;
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -37,9 +37,9 @@
             File.WriteAllBytes(submissionDestination, executionContext.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionDestination, RemoveMacFolderPattern);
 
-            if (!string.IsNullOrEmpty(executionContext.TaskSkeletonAsString))
+            if (!string.IsNullOrEmpty(executionContext.Input.TaskSkeletonAsString))
             {
-                var pathsOfHeadersAndCppFiles = this.ExtractTaskSkeleton(executionContext.TaskSkeletonAsString);
+                var pathsOfHeadersAndCppFiles = this.ExtractTaskSkeleton(executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionDestination, string.Empty, pathsOfHeadersAndCppFiles.ToArray());
             }
 
@@ -60,11 +60,11 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     compilationResult.OutputFile,

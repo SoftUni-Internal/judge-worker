@@ -140,7 +140,7 @@
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -198,12 +198,12 @@
 
             var testErrorMatcher = new Regex(JUnitFailedTestPattern);
             var checker = Checker.CreateChecker(
-              executionContext.CheckerAssemblyName,
-              executionContext.CheckerTypeName,
-              executionContext.CheckerParameter);
+              executionContext.Input.CheckerAssemblyName,
+              executionContext.Input.CheckerTypeName,
+              executionContext.Input.CheckerParameter);
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var testFile = this.TestNames[testIndex++];
                 arguments.Add(testFile);
@@ -251,7 +251,7 @@
             return message;
         }
 
-        protected override string PrepareSubmissionFile(CompetitiveExecutionContext context)
+        protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -337,12 +337,14 @@
             DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
         }
 
-        protected override void AddTestsToUserSubmission(CompetitiveExecutionContext context, string submissionZipFilePath)
+        protected override void AddTestsToUserSubmission(
+            IExecutionContext<TestsInputModel> context,
+            string submissionZipFilePath)
         {
             var testNumber = 0;
-            var filePaths = new string[context.Tests.Count()];
+            var filePaths = new string[context.Input.Tests.Count()];
 
-            foreach (var test in context.Tests)
+            foreach (var test in context.Input.Tests)
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =

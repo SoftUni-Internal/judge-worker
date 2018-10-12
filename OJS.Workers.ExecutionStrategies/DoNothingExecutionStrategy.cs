@@ -7,14 +7,14 @@
     {
         protected string WorkingDirectory { get; set; }
 
-        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
 
             try
             {
-                return this.Execute<TResult>(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -22,7 +22,7 @@
             }
         }
 
-        public IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+        public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new() =>
                 new ExecutionResult<TResult>
                 {

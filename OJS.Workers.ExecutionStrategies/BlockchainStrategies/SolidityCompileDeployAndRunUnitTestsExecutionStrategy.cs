@@ -70,11 +70,12 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
             var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
@@ -89,7 +90,7 @@
 
             truffleProject.InitializeMigration(this.GetCompilerPathFunc(executionContext.CompilerType));
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
-            truffleProject.ImportJsUnitTests(executionContext.Tests);
+            truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
             IExecutor executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             ProcessExecutionResult processExecutionResult;
@@ -118,7 +119,7 @@
             var (totalTestsCount, failingTestsCount) =
                 ExtractFailingTestsCount(processExecutionResult.ReceivedOutput);
 
-            if (totalTestsCount != executionContext.Tests.Count())
+            if (totalTestsCount != executionContext.Input.Tests.Count())
             {
                 throw new ArgumentException(
                     "Some of the tests contain more than one test per test case. Please contact an administrator");
@@ -132,12 +133,12 @@
             }
 
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             var testsCounter = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testName = this.TestNames[testsCounter++];

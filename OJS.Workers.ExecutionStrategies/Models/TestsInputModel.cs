@@ -4,7 +4,7 @@
 
     using OJS.Workers.Common.Extensions;
 
-    public class CompetitiveExecutionContext : ExecutionContext<TestContext>
+    public class TestsInputModel
     {
         public string CheckerAssemblyName { get; set; }
 
@@ -16,6 +16,6 @@
 
         public string TaskSkeletonAsString => this.TaskSkeleton.Decompress();
 
-        public override IEnumerable<TestContext> Tests { get; set; }
+        public IEnumerable<TestContext> Tests { get; set; }
     }
 }

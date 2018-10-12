@@ -33,17 +33,17 @@
 
         protected string WorkingDirectory { get; set; }
 
-        public IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+        public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
         {
             switch (executionContext)
             {
-                case CompetitiveExecutionContext competitiveExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(competitiveExecutionContext);
-                case NonCompetitiveExecutionContext nonCompetitiveExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteNonCompetitive(nonCompetitiveExecutionContext);
+                case IExecutionContext<TestsInputModel> testsExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
+                case IExecutionContext<string> stringInputExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteNonCompetitive(stringInputExecutionContext);
                 default:
-                    return (IExecutionResult<TResult>)new ExecutionResult<TestResult>
+                    return new ExecutionResult<TResult>
                     {
                         IsCompiledSuccessfully = false,
                         CompilerComment = "Execution context not found"
@@ -51,14 +51,14 @@
             }
         }
 
-        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
 
             try
             {
-                return this.Execute<TResult>(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -76,13 +76,15 @@
             }
         }
 
-        protected virtual IExecutionResult<RawResult> ExecuteNonCompetitive(NonCompetitiveExecutionContext executionContext) =>
-            throw new NotImplementedException();
+        protected virtual IExecutionResult<RawResult> ExecuteNonCompetitive(
+            IExecutionContext<string> executionContext) =>
+                throw new NotImplementedException();
 
-        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext);
+        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext);
 
         protected IExecutionResult<TestResult> CompileExecuteAndCheck(
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutor executor,
             bool useSystemEncoding = true,
@@ -101,11 +103,11 @@
 
             // Execute and check each test
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     outputFile,
@@ -181,8 +183,8 @@
                 Output = receivedOutput
             };
 
-        protected CompileResult ExecuteCompiling<TResult>(
-            IExecutionContext executionContext,
+        protected CompileResult ExecuteCompiling<TInput, TResult>(
+            IExecutionContext<TInput> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()

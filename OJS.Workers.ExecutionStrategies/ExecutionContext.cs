@@ -1,12 +1,10 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using System.Collections.Generic;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
-    public abstract class ExecutionContext<TInput> : IExecutionContext
+    public class ExecutionContext<TInput> : IExecutionContext<TInput>
     {
         public CompilerType CompilerType { get; set; }
 
@@ -18,10 +16,10 @@
 
         public string AllowedFileExtensions { get; set; }
 
-        public abstract IEnumerable<TInput> Tests { get; set; }
-
         public int TimeLimit { get; set; }
 
         public int MemoryLimit { get; set; }
+
+        public TInput Input { get; set; }
     }
 }

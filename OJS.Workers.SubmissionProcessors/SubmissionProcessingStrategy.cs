@@ -6,6 +6,7 @@
     using log4net;
 
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -30,14 +31,14 @@
             this.SharedLockObject = sharedLockObject;
         }
 
-        public virtual IExecutionContext CreateExecutionContext(ISubmission submission)
+        public virtual IExecutionContext<TInput> CreateExecutionContext<TInput>(ISubmission submission)
         {
             switch (submission)
             {
                 case SubmissionWithTests submissionWithTests:
-                    return CreateCompetitiveExecutionContext(submissionWithTests);
-                case SubmissionWithInputs rawSubmission:
-                    return CreateNonCompetitiveExecutionContext(rawSubmission);
+                    return (IExecutionContext<TInput>)CreateCompetitiveExecutionContext(submissionWithTests);
+                case SubmissionWithInput rawSubmission:
+                    return (IExecutionContext<TInput>)CreateNonCompetitiveExecutionContext(rawSubmission);
                 default:
                     throw new ArgumentException("Invalid submission", nameof(submission));
             }
@@ -69,25 +70,29 @@
 
         protected abstract void ProcessRawExecutionResult(IExecutionResult<RawResult> rawExecutionResult);
 
-        private static IExecutionContext CreateCompetitiveExecutionContext(SubmissionWithTests submission) =>
-            new CompetitiveExecutionContext
+        private static IExecutionContext<TestsInputModel> CreateCompetitiveExecutionContext(SubmissionWithTests submission) =>
+            new ExecutionContext<TestsInputModel>
             {
                 AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                CheckerAssemblyName = submission.CheckerAssemblyName,
-                CheckerParameter = submission.CheckerParameter,
-                CheckerTypeName = submission.CheckerTypeName,
+                
                 FileContent = submission.FileContent,
                 AllowedFileExtensions = submission.AllowedFileExtensions,
                 CompilerType = submission.CompilerType,
                 MemoryLimit = submission.MemoryLimit,
-                TimeLimit = submission.TimeLimit,
-                TaskSkeleton = submission.TaskSkeleton,
-                Tests = submission.Tests
+                TimeLimit = submission.TimeLimit,              
+                Input = new TestsInputModel
+                {
+                    CheckerAssemblyName = submission.CheckerAssemblyName,
+                    CheckerParameter = submission.CheckerParameter,
+                    CheckerTypeName = submission.CheckerTypeName,
+                    TaskSkeleton = submission.TaskSkeleton,
+                    Tests = submission.Tests
+                }
             };
 
 
-        private static IExecutionContext CreateNonCompetitiveExecutionContext(SubmissionWithInputs submission) =>
-            new NonCompetitiveExecutionContext
+        private static IExecutionContext<string> CreateNonCompetitiveExecutionContext(SubmissionWithInput submission) =>
+            new ExecutionContext<string>
             {
                 AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
                 FileContent = submission.FileContent,
@@ -95,7 +100,7 @@
                 CompilerType = submission.CompilerType,
                 MemoryLimit = submission.MemoryLimit,
                 TimeLimit = submission.TimeLimit,
-                Tests = submission.Inputs
+                Input = submission.Input
             };
     }
 }

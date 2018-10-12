@@ -150,7 +150,7 @@ function afterBundling() {
 }";
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
 
@@ -172,9 +172,9 @@ function afterBundling() {
 
             // Create a Checker using the information from the Execution Context
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             // Process tests
             result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
@@ -208,7 +208,7 @@ function afterBundling() {
             return testsCode;
         }
 
-        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -235,7 +235,10 @@ function afterBundling() {
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(
+            string template,
+            IExecutionContext<TestsInputModel> context,
+            string pathToFile)
         {
             var processedCode =
                 template.Replace(RequiredModules, this.JsCodeRequiredModules)
@@ -244,7 +247,7 @@ function afterBundling() {
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
                     .Replace(UserInputPlaceholder, pathToFile)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests));
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests));
 
             return processedCode;
         }

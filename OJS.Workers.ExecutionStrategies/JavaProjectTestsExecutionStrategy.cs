@@ -97,7 +97,7 @@ class Classes{{
         }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -120,17 +120,17 @@ class Classes{{
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
-            if (!string.IsNullOrWhiteSpace(executionContext.TaskSkeletonAsString))
+            if (!string.IsNullOrWhiteSpace(executionContext.Input.TaskSkeletonAsString))
             {
                 FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
 
-                string className = JavaCodePreprocessorHelper.GetPublicClassName(executionContext.TaskSkeletonAsString);
+                string className = JavaCodePreprocessorHelper.GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
                 string filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
-                File.WriteAllText(filePath, executionContext.TaskSkeletonAsString);
+                File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
 
                 var preprocessCompileResult = this.Compile(
@@ -214,7 +214,7 @@ class Classes{{
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testFile = this.TestNames[testIndex++];
@@ -230,7 +230,7 @@ class Classes{{
             return result;
         }
 
-        protected override string PrepareSubmissionFile(CompetitiveExecutionContext context)
+        protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -242,12 +242,12 @@ class Classes{{
             return submissionFilePath;
         }
 
-        protected virtual void AddTestsToUserSubmission(CompetitiveExecutionContext context, string submissionZipFilePath)
+        protected virtual void AddTestsToUserSubmission(IExecutionContext<TestsInputModel> context, string submissionZipFilePath)
         {
             var testNumber = 0;
-            var filePaths = new string[context.Tests.Count()];
+            var filePaths = new string[context.Input.Tests.Count()];
 
-            foreach (var test in context.Tests)
+            foreach (var test in context.Input.Tests)
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =

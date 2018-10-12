@@ -2,10 +2,10 @@
 {
     public interface IExecutionStrategy
     {
-        IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+        IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new();
 
-        IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+        IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new();
     }
 }

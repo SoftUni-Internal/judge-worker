@@ -103,7 +103,7 @@
         protected List<string> TestPaths { get; }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
             var userSubmissionContent = executionContext.FileContent;
@@ -112,12 +112,12 @@
 
             var csProjFilePath = this.GetCsProjFilePath();
 
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
             var project = new Project(csProjFilePath);
             var compileDirectory = project.DirectoryPath;
 
-            this.SaveTestFiles(executionContext.Tests, compileDirectory);
+            this.SaveTestFiles(executionContext.Input.Tests, compileDirectory);
             this.SaveSetupFixture(compileDirectory);
 
             this.CorrectProjectReferences(project);
@@ -142,9 +142,9 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
@@ -179,7 +179,7 @@
 
         protected virtual ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult<TestResult> result,
@@ -204,14 +204,14 @@
 
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
 
-            if (failedTestsCount != errorsByFiles.Count || totalTestsCount != executionContext.Tests.Count())
+            if (failedTestsCount != errorsByFiles.Count || totalTestsCount != executionContext.Input.Tests.Count())
             {
                 throw new ArgumentException("Failing tests not captured properly, please contact an administrator");
             }
 
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testFile = this.TestNames[testIndex++];

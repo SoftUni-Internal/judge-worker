@@ -169,7 +169,7 @@ process.stdin.on('end', function() {
             PostevaluationPlaceholder;
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -187,9 +187,9 @@ process.stdin.on('end', function() {
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
 
@@ -199,13 +199,13 @@ process.stdin.on('end', function() {
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(CompetitiveExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        protected virtual List<TestResult> ProcessTests(IExecutionContext<TestsInputModel> executionContext, IExecutor executor, IChecker checker, string codeSavePath)
         {
             var testResults = new List<TestResult>();
 
             var arguments = new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath };
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.NodeJsExecutablePath,
@@ -221,9 +221,9 @@ process.stdin.on('end', function() {
             return testResults;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, CompetitiveExecutionContext context)
+        protected virtual string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
         {
-            var problemSkeleton = context.TaskSkeletonAsString ??
+            var problemSkeleton = context.Input.TaskSkeletonAsString ??
                 "function adapter(input, code) { return code(input); }";
             var code = context.Code.Trim(';');
 

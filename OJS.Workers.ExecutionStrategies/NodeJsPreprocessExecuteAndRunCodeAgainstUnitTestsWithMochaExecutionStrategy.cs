@@ -86,7 +86,7 @@ after(function() {
         private Random Random { get; }
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             // In NodeJS there is no compilation
             var result = new ExecutionResult<TestResult>() { IsCompiledSuccessfully = true };
@@ -103,9 +103,9 @@ after(function() {
 
             // Process the submission and check each test
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
 
@@ -164,7 +164,7 @@ describe('Test {i} ', function(){{
         }
 
         protected override List<TestResult> ProcessTests(
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -190,7 +190,7 @@ describe('Test {i} ', function(){{
 
             // an offset for tracking the current subset of tests (by convention we always have 2 Zero tests)
             var testOffset = numberOfUserTests * 2;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 TestResult testResult = null;
@@ -251,7 +251,7 @@ describe('Test {i} ', function(){{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, CompetitiveExecutionContext context)
+        protected override string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
         {
             var code = context.Code.Trim(';');
 
@@ -261,7 +261,7 @@ describe('Test {i} ', function(){{
                     .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests))
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests))
                     .Replace(UserInputPlaceholder, code);
 
             return processedCode;

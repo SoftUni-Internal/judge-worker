@@ -26,13 +26,13 @@
 
         public string WorkingDirectory { get; set; } 
 
-        public IExecutionResult<TResult> SafeExecute<TResult>(IExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
             {
-                return this.Execute<TResult>(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -40,13 +40,13 @@
             }
         }
 
-        public virtual IExecutionResult<TResult> Execute<TResult>(IExecutionContext executionContext)
+        public virtual IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
         {
             switch (executionContext)
             {
-                case CompetitiveExecutionContext competitiveExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(competitiveExecutionContext);
+                case IExecutionContext<TestsInputModel> testsExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
                 default:
                     return new ExecutionResult<TResult>
                     {
@@ -57,7 +57,7 @@
         }
 
         public virtual IExecutionResult<TestResult> Execute(
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             Action<IDbConnection, TestContext, ExecutionResult<TestResult>> executionFlow)
         {
             var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
@@ -65,7 +65,7 @@
             string databaseName = null;
             try
             {
-                foreach (var test in executionContext.Tests)
+                foreach (var test in executionContext.Input.Tests)
                 {
                     databaseName = this.GetDatabaseName();
 
@@ -98,7 +98,7 @@
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
         protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext competitiveExecutionContext);
+            IExecutionContext<TestsInputModel> executionContext);
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
@@ -186,7 +186,7 @@
 
         protected void ProcessSqlResult(
             SqlResult sqlResult,
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             TestContext test,
             IExecutionResult<TestResult> result)
         {
@@ -194,7 +194,11 @@
             {
                 var joinedUserOutput = string.Join(Environment.NewLine, sqlResult.Results);
 
-                var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
+                var checker = Checker.CreateChecker(
+                    executionContext.Input.CheckerAssemblyName,
+                    executionContext.Input.CheckerTypeName,
+                    executionContext.Input.CheckerParameter);
+
                 var checkerResult = checker.Check(test.Input, joinedUserOutput, test.Output, test.IsTrialTest);
 
                 result.Results.Add(new TestResult

@@ -23,7 +23,7 @@
         {
         }
 
-        protected override string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
+        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -39,7 +39,9 @@
             return this.PrepareSubmissionFile(executionContext.FileContent);
         }
 
-        protected override CompileResult DoCompile(CompetitiveExecutionContext executionContext, string submissionFilePath)
+        protected override CompileResult DoCompile<TInput>(
+            IExecutionContext<TInput> executionContext,
+            string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

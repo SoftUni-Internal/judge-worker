@@ -22,7 +22,7 @@
 
         protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            CompetitiveExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             ExecutionResult<TestResult> result,
@@ -30,7 +30,7 @@
             string additionalExecutionArguments)
         {
             var testIndex = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var arguments = new List<string> { $"--where \"class == {this.TestClassNames[testIndex]}\" \"{compiledFile}\"" };
                 arguments.AddRange(additionalExecutionArguments.Split(' '));

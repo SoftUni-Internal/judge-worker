@@ -116,7 +116,7 @@ public class _$TestRunner {{
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            CompetitiveExecutionContext executionContext)
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
             string submissionFilePath;
@@ -138,14 +138,14 @@ public class _$TestRunner {{
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             var originalTestsPassed = int.MaxValue;
             var count = 0;
 
-            var tests = executionContext.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
+            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
 
             foreach (var test in tests)
             {
@@ -262,7 +262,7 @@ public class _$TestRunner {{
             return compilerResult;
         }
 
-        protected override string CreateSubmissionFile(CompetitiveExecutionContext executionContext)
+        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
@@ -277,7 +277,7 @@ public class _$TestRunner {{
             return this.PrepareSubmissionFile(executionContext);
         }
 
-        protected virtual string PrepareSubmissionFile(CompetitiveExecutionContext context)
+        protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);

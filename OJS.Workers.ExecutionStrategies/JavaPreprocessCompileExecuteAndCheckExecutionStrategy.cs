@@ -160,7 +160,8 @@ class _$SandboxSecurityManager extends SecurityManager {
     }
 }";
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
@@ -205,10 +206,13 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             // Create an executor and a checker
             var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
+            var checker = Checker.CreateChecker(
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             // Process the submission and check each test
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.JavaExecutablePath,
@@ -268,10 +272,10 @@ class _$SandboxSecurityManager extends SecurityManager {
             }
         }
 
-        protected virtual string CreateSubmissionFile(CompetitiveExecutionContext executionContext) =>
+        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>
             JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
 
-        protected virtual CompileResult DoCompile(CompetitiveExecutionContext executionContext, string submissionFilePath)
+        protected virtual CompileResult DoCompile<TInput>(IExecutionContext<TInput> executionContext, string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

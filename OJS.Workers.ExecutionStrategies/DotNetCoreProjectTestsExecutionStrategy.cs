@@ -71,7 +71,8 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(CompetitiveExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
@@ -83,9 +84,9 @@
             var userSubmission = executionContext.FileContent;
 
             this.ExtractFilesInWorkingDirectory(userSubmission, this.UserProjectDirectory);
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
-            this.SaveTestFiles(executionContext.Tests, this.NUnitLiteConsoleAppDirectory);
+            this.SaveTestFiles(executionContext.Input.Tests, this.NUnitLiteConsoleAppDirectory);
             this.SaveSetupFixture(this.NUnitLiteConsoleAppDirectory);
 
             var userCsProjPaths = FileHelpers.FindAllFilesMatchingPattern(
@@ -114,9 +115,9 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+                executionContext.Input.CheckerAssemblyName,
+                executionContext.Input.CheckerTypeName,
+                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 compilerPath,

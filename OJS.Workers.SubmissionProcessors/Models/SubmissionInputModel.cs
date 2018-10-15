@@ -3,7 +3,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
 
-    public abstract class BaseSubmission : ISubmission
+    public class SubmissionInputModel<TInput> : ISubmission
     {
         public object Id { get; set; }
 
@@ -24,5 +24,7 @@
         public ExecutionStrategyType ExecutionStrategyType { get; set; }
 
         public string AllowedFileExtensions { get; set; }
+
+        public TInput Input { get; set; }
     }
 }

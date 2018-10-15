@@ -8,8 +8,10 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Helpers;
+    using OJS.Workers.SubmissionProcessors.Models;
 
     public class SubmissionProcessor<TSubmission> : ISubmissionProcessor
     {
@@ -67,7 +69,18 @@
 
                     if (submission != null)
                     {
-                        this.ProcessSubmission(submission);
+                        switch (submission.ExecutionContextType)
+                        {
+                            case ExecutionContextType.Competitive:
+                                this.ProcessSubmission<TestsInputModel, TestResult>(submission);
+                                break;
+                            case ExecutionContextType.NonCompetitive:
+                                this.ProcessSubmission<string, RawResult>(submission);
+                                break;
+                            default: throw new ArgumentOutOfRangeException(
+                                nameof(submission.ExecutionContextType),
+                                "Invalid execution context type!");
+                        }
                     }
                     else
                     {
@@ -97,7 +110,8 @@
             }
         }
 
-        private void ProcessSubmission(ISubmission submission)
+        private void ProcessSubmission<TInput, TResult>(ISubmission submission)
+            where TResult : ISingleCodeRunResult, new()
         {
             try
             {
@@ -107,28 +121,12 @@
 
                 this.BeforeExecute(submission);
 
-                dynamic executionContext;
-                dynamic executionResult;
-                
+                var executionContext = this.CreateExecutionContext<TInput>(submission);
 
-                if (submission.ExecutionContextType != ExecutionContextType.NonCompetitive)
-                {
-                    executionContext = this.CreateExecutionContext<TestsInputModel>(submission);
-
-                    executionResult = this.ExecuteSubmission<TestsInputModel, TestResult>(
-                        executionStrategy,
-                        executionContext,
-                        submission);
-                }
-                else
-                {
-                    executionContext = this.CreateExecutionContext<string>(submission);
-
-                    executionResult = this.ExecuteSubmission<string, RawResult>(
-                        executionStrategy,
-                        executionContext,
-                        submission);
-                }
+                var executionResult = this.ExecuteSubmission<TInput, TResult>(
+                    executionStrategy,
+                    executionContext,
+                    submission);
 
                 this.logger.Info($"Work on submission #{submission.Id} ended.");
 
@@ -164,7 +162,16 @@
         {
             try
             {
-                return this.submissionProcessingStrategy.CreateExecutionContext<TInput>(submission);
+                return new ExecutionContext<TInput>
+                {
+                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                    FileContent = submission.FileContent,
+                    AllowedFileExtensions = submission.AllowedFileExtensions,
+                    CompilerType = submission.CompilerType,
+                    MemoryLimit = submission.MemoryLimit,
+                    TimeLimit = submission.TimeLimit,
+                    Input = ((SubmissionInputModel<TInput>)submission).Input
+                };
             }
             catch (Exception ex)
             {

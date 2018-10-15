@@ -23,7 +23,5 @@
             where TResult : ISingleCodeRunResult, new();
 
         void OnError(ISubmission submission);
-
-        IExecutionContext<TInput> CreateExecutionContext<TInput>(ISubmission submissionModel);
     }
 }

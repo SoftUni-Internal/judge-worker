@@ -51,7 +51,7 @@
 
             var userCsProjPath = this.RemoveUnwantedReferencesFromUserCsProjFile();
 
-            var nunitLiteConsoleApp = this.CreateNunitLiteConsoleApp(new List<string> { userCsProjPath });
+            var nunitLiteConsoleApp = this.CreateNUnitLiteConsoleApp(new List<string> { userCsProjPath });
 
             this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
@@ -146,7 +146,7 @@
                 if (i < tests.Count - 1)
                 {
                     // Recreate NUnitLite Console App .csproj file, deleted after compilation, to compile again
-                    this.CreateNuinitLiteConsoleAppCsProjFile(this.nUnitLiteConsoleAppCsProjTemplate);
+                    this.CreateNUnitLiteConsoleAppCsProjFile(this.nUnitLiteConsoleAppCsProjTemplate);
                 }
             }
 

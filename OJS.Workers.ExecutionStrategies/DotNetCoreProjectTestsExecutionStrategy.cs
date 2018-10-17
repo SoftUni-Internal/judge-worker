@@ -15,7 +15,7 @@
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         protected new const string AdditionalExecutionArguments = "--noresult";
-        protected const string CsProjFileExtention = ".csproj";
+        protected const string CsProjFileExtension = ".csproj";
 
         private const string ProjectPathPlaceholder = "##projectPath##";
         private const string ProjectReferencesPlaceholder = "##ProjectReferences##";
@@ -37,11 +37,11 @@
                 }
             }";
 
-        private readonly string nunitLiteConsoleAppCsProjTemplate = $@"
+        private readonly string nUnitLiteConsoleAppCsProjTemplate = $@"
             <Project Sdk=""Microsoft.NET.Sdk"">
                 <PropertyGroup>
                     <OutputType>Exe</OutputType>
-                    <TargetFramework>netcoreapp2.0</TargetFramework>
+                    <TargetFramework>netcoreapp2.1</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.10.1"" />
@@ -90,7 +90,7 @@
             var userCsProjPaths = FileHelpers.FindAllFilesMatchingPattern(
                 this.UserProjectDirectory, CsProjFileSearchPattern);
 
-            var nunitLiteConsoleApp = this.CreateNunitLiteConsoleApp(userCsProjPaths);
+            var nUnitLiteConsoleApp = this.CreateNUnitLiteConsoleApp(userCsProjPaths);
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
@@ -98,7 +98,7 @@
                 executionContext.CompilerType,
                 compilerPath,
                 executionContext.AdditionalCompilerArguments,
-                nunitLiteConsoleApp.csProjPath);
+                nUnitLiteConsoleApp.csProjPath);
 
             result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
 
@@ -129,7 +129,7 @@
             return result;
         }
 
-        protected (string csProjTemplate, string csProjPath) CreateNunitLiteConsoleApp(
+        protected (string csProjTemplate, string csProjPath) CreateNUnitLiteConsoleApp(
             IEnumerable<string> projectsToTestCsProjPaths)
         {
             var consoleAppEntryPointPath =
@@ -140,18 +140,18 @@
             var references = projectsToTestCsProjPaths
                 .Select(path => this.projectReferenceTemplate.Replace(ProjectPathPlaceholder, path));
 
-            var csProjTemplate = this.nunitLiteConsoleAppCsProjTemplate
+            var csProjTemplate = this.nUnitLiteConsoleAppCsProjTemplate
                 .Replace(ProjectReferencesPlaceholder, string.Join(Environment.NewLine, references));
 
-            var csProjPath = this.CreateNuinitLiteConsoleAppCsProjFile(csProjTemplate);
+            var csProjPath = this.CreateNUnitLiteConsoleAppCsProjFile(csProjTemplate);
 
             return (csProjTemplate, csProjPath);
         }
 
-        protected string CreateNuinitLiteConsoleAppCsProjFile(string csProjTemplate)
+        protected string CreateNUnitLiteConsoleAppCsProjFile(string csProjTemplate)
         {
             var consoleAppCsProjPath =
-                $@"{this.NUnitLiteConsoleAppDirectory}\{NUnitLiteConsoleAppFolderName}{CsProjFileExtention}";
+                $@"{this.NUnitLiteConsoleAppDirectory}\{NUnitLiteConsoleAppFolderName}{CsProjFileExtension}";
 
             File.WriteAllText(consoleAppCsProjPath, csProjTemplate);
 

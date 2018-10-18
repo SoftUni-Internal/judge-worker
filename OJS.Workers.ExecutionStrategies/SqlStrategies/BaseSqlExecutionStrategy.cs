@@ -6,7 +6,6 @@
 
     using MissingFeatures;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -194,12 +193,11 @@
             {
                 var joinedUserOutput = string.Join(Environment.NewLine, sqlResult.Results);
 
-                var checker = Checker.CreateChecker(
-                    executionContext.Input.CheckerAssemblyName,
-                    executionContext.Input.CheckerTypeName,
-                    executionContext.Input.CheckerParameter);
-
-                var checkerResult = checker.Check(test.Input, joinedUserOutput, test.Output, test.IsTrialTest);
+                var checkerResult = executionContext.Input.Checker.Check(
+                    test.Input,
+                    joinedUserOutput,
+                    test.Output,
+                    test.IsTrialTest);
 
                 result.Results.Add(new TestResult
                 {

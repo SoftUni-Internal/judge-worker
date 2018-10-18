@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -58,16 +57,12 @@
             this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.Checker,
                 result,
                 string.Empty,
                 AdditionalExecutionArguments);

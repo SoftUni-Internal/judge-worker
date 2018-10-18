@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
 
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
 
     public class TestsInputModel
@@ -17,5 +18,10 @@
         public string TaskSkeletonAsString => this.TaskSkeleton.Decompress();
 
         public IEnumerable<TestContext> Tests { get; set; }
+
+        public IChecker Checker => Checkers.Checker.CreateChecker(
+            this.CheckerAssemblyName,
+            this.CheckerTypeName,
+            this.CheckerParameter);
     }
 }

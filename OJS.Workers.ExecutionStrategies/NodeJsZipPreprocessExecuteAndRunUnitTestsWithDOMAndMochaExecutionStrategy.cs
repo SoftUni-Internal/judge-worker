@@ -5,7 +5,6 @@
     using System.IO;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -170,14 +169,12 @@ function afterBundling() {
             // Create a Restricted Process Executor
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
-            // Create a Checker using the information from the Execution Context
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             // Process tests
-            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.Checker,
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);

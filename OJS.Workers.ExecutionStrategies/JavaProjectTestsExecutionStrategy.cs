@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -119,17 +118,16 @@ class Classes{{
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPath;
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             if (!string.IsNullOrWhiteSpace(executionContext.Input.TaskSkeletonAsString))
             {
                 FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
 
-                string className = JavaCodePreprocessorHelper.GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
-                string filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+                var className = JavaCodePreprocessorHelper
+                    .GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
+
+                var filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+
                 File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
 
@@ -223,7 +221,12 @@ class Classes{{
                     message = errorsByFiles[testFile];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    executionContext.Input.Checker,
+                    message);
+
                 result.Results.Add(testResult);
             }
 
@@ -242,7 +245,9 @@ class Classes{{
             return submissionFilePath;
         }
 
-        protected virtual void AddTestsToUserSubmission(IExecutionContext<TestsInputModel> context, string submissionZipFilePath)
+        protected virtual void AddTestsToUserSubmission(
+            IExecutionContext<TestsInputModel> context,
+            string submissionZipFilePath)
         {
             var testNumber = 0;
             var filePaths = new string[context.Input.Tests.Count()];

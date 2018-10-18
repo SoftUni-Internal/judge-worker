@@ -1,9 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -53,22 +51,20 @@
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
 
-            string submissionPath =
-                $@"{this.WorkingDirectory}\\{ZippedSubmissionName}{Constants.ZipFileExtension}";
+            var submissionPath = $@"{this.WorkingDirectory}\\{ZippedSubmissionName}{Constants.ZipFileExtension}";
+
             File.WriteAllBytes(submissionPath, executionContext.FileContent);
             FileHelpers.UnzipFile(submissionPath, this.WorkingDirectory);
             File.Delete(submissionPath);
 
             this.ReplaceDatabaseConfigurationFile(databaseName);
+
             var applicationEntryPointPath = this.AddTestRunnerTemplateToApplicationEntryPoint();
+
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
             foreach (var test in executionContext.Input.Tests)
             {
                 var dbConnection = this.MySqlHelperStrategy.GetOpenConnection(databaseName);
@@ -86,7 +82,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    checker,
+                    executionContext.Input.Checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

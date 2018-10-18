@@ -8,7 +8,6 @@
 
     using Microsoft.Build.Evaluation;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -141,16 +140,12 @@
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.Checker,
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);

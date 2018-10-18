@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
@@ -25,14 +24,14 @@
                 ReceivedOutput = executionContext.Code
             };
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             foreach (var test in executionContext.Input.Tests)
             {
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    executionContext.Input.Checker,
+                    processExecutionResult.ReceivedOutput);
+
                 result.Results.Add(testResult);
             }
 

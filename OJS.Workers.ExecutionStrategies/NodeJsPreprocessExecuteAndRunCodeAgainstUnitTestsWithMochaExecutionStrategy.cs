@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -102,12 +101,11 @@ after(function() {
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
 
             // Process the submission and check each test
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
-            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.Checker,
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);

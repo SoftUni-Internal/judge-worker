@@ -7,7 +7,6 @@
 
     using Microsoft.Build.Evaluation;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -48,16 +47,12 @@
             this.CorrectProjectReferences(project);
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.Checker,
                 result,
                 csProjFilePath,
                 AdditionalExecutionArguments);

@@ -4,7 +4,6 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -48,11 +47,6 @@
             // Execute and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             var arguments = new[]
             {
                 compilerResult.OutputFile
@@ -73,7 +67,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    checker,
+                    executionContext.Input.Checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

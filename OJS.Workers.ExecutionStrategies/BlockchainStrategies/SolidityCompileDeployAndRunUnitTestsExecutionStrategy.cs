@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
@@ -132,11 +131,6 @@
                 throw new ArgumentException("Failing tests not captured properly. Please contact an administrator");
             }
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             var testsCounter = 0;
             foreach (var test in executionContext.Input.Tests)
             {
@@ -147,7 +141,12 @@
                     message = errorsByTestNames[testName];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    executionContext.Input.Checker,
+                    message);
+
                 result.Results.Add(testResult);
             }
 

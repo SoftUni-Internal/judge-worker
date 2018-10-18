@@ -7,7 +7,6 @@
     using System.Text.RegularExpressions;
     using System.Xml;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -197,10 +196,6 @@
             };
 
             var testErrorMatcher = new Regex(JUnitFailedTestPattern);
-            var checker = Checker.CreateChecker(
-              executionContext.Input.CheckerAssemblyName,
-              executionContext.Input.CheckerTypeName,
-              executionContext.Input.CheckerParameter);
             var testIndex = 0;
 
             foreach (var test in executionContext.Input.Tests)
@@ -225,7 +220,12 @@
 
                 var message = this.EvaluateJUnitOutput(processExecutionResult.ReceivedOutput, testErrorMatcher);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    executionContext.Input.Checker,
+                    message);
+
                 result.Results.Add(testResult);
 
                 arguments.Remove(testFile);

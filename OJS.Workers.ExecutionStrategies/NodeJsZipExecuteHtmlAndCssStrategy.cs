@@ -5,7 +5,6 @@
     using System.IO;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -174,12 +173,12 @@ describe('TestDOMScope', function() {{
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.Checker,
+                codeSavePath);
 
-            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
             File.Delete(codeSavePath);
 
             return result;
@@ -280,7 +279,10 @@ describe('TestDOMScope', function() {{
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(
+            string template,
+            IExecutionContext<TestsInputModel> context,
+            string pathToFile)
         {
             var userBaseDirectory = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
             userBaseDirectory = FileHelpers.ProcessModulePath(Path.GetDirectoryName(userBaseDirectory));

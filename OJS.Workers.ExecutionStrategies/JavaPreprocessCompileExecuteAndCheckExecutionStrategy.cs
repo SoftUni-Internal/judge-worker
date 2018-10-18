@@ -5,7 +5,6 @@
     using System.IO;
     using System.Text;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -160,6 +159,41 @@ class _$SandboxSecurityManager extends SecurityManager {
     }
 }";
 
+        protected static void UpdateExecutionTime(
+            string timeMeasurementFilePath,
+            ProcessExecutionResult processExecutionResult,
+            int timeLimit,
+            int updateTimeOffset)
+        {
+            if (File.Exists(timeMeasurementFilePath))
+            {
+                var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
+                if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
+                {
+                    var totalTimeUsed = TimeSpan.FromMilliseconds((double)timeInNanoseconds / 1000000);
+                    var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
+
+                    processExecutionResult.TimeWorked = totalTimeUsed > timeOffset
+                        ? totalTimeUsed - timeOffset
+                        : totalTimeUsed;
+
+                    if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
+                        processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
+                    {
+                        // The time from the time measurement file is under the time limit
+                        processExecutionResult.Type = ProcessExecutionResultType.Success;
+                    }
+                    else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
+                             processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
+                    {
+                        processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
+                    }
+                }
+
+                File.Delete(timeMeasurementFilePath);
+            }
+        }
+
         protected override IExecutionResult<TestResult> ExecuteCompetitive(
             IExecutionContext<TestsInputModel> executionContext)
         {
@@ -204,12 +238,8 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
-            // Create an executor and a checker
+            // Create an executor
             var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             // Process the submission and check each test
             foreach (var test in executionContext.Input.Tests)
@@ -230,52 +260,24 @@ class _$SandboxSecurityManager extends SecurityManager {
                     executionContext.TimeLimit,
                     this.baseUpdateTimeOffset);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    executionContext.Input.Checker,
+                    processExecutionResult.ReceivedOutput);
+
                 result.Results.Add(testResult);
             }
 
             return result;
         }
 
-        protected static void UpdateExecutionTime(
-            string timeMeasurementFilePath,
-            ProcessExecutionResult processExecutionResult,
-            int timeLimit,
-            int updateTimeOffset)
-        {
-            if (File.Exists(timeMeasurementFilePath))
-            {
-                var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
-                if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
-                {
-                    var totalTimeUsed = TimeSpan.FromMilliseconds((double)timeInNanoseconds / 1000000);
-                    var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
-
-                    processExecutionResult.TimeWorked = totalTimeUsed > timeOffset
-                        ? totalTimeUsed - timeOffset
-                        : totalTimeUsed;
-
-                    if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
-                        processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
-                    {
-                        // The time from the time measurement file is under the time limit
-                        processExecutionResult.Type = ProcessExecutionResultType.Success;
-                    }
-                    else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
-                        processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
-                    {
-                        processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
-                    }
-                }
-
-                File.Delete(timeMeasurementFilePath);
-            }
-        }
-
         protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>
             JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
 
-        protected virtual CompileResult DoCompile<TInput>(IExecutionContext<TInput> executionContext, string submissionFilePath)
+        protected virtual CompileResult DoCompile<TInput>(
+            IExecutionContext<TInput> executionContext,
+            string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

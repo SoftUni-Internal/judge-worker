@@ -1,10 +1,8 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -61,11 +59,6 @@
 
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
-
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
             foreach (var test in executionContext.Input.Tests)
             {
@@ -81,7 +74,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    checker,
+                    executionContext.Input.Checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

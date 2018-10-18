@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -186,12 +185,12 @@ process.stdin.on('end', function() {
 
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
-            result.Results = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.Checker,
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);
@@ -199,7 +198,11 @@ process.stdin.on('end', function() {
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(IExecutionContext<TestsInputModel> executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        protected virtual List<TestResult> ProcessTests(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutor executor,
+            IChecker checker,
+            string codeSavePath)
         {
             var testResults = new List<TestResult>();
 
@@ -214,7 +217,12 @@ process.stdin.on('end', function() {
                     executionContext.MemoryLimit,
                     arguments);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
                 testResults.Add(testResult);
             }
 

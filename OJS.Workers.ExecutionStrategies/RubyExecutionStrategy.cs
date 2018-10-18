@@ -2,7 +2,6 @@
 {
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -28,10 +27,6 @@
             var arguments = new[] { submissionFilePath };
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.Input.CheckerAssemblyName,
-                executionContext.Input.CheckerTypeName,
-                executionContext.Input.CheckerParameter);
 
             foreach (var test in executionContext.Input.Tests)
             {
@@ -45,7 +40,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    checker,
+                    executionContext.Input.Checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

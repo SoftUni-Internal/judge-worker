@@ -3,7 +3,8 @@
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public class SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
+    public class SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy
+        : BaseSqlServerLocalDbExecutionStrategy
     {
         public SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
             string masterDbConnectionString,

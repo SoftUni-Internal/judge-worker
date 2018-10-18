@@ -206,7 +206,9 @@
             return result;
         }
 
-        private string PreprocessAndCompileTestRunner(IExecutionContext<TestsInputModel> executionContext, string outputDirectory)
+        private string PreprocessAndCompileTestRunner(
+            IExecutionContext<TestsInputModel> executionContext,
+            string outputDirectory)
         {
             var testStrings = new List<string>();
             foreach (var test in executionContext.Input.Tests)

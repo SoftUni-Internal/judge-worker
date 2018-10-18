@@ -82,47 +82,6 @@
             return result;
         }
 
-        protected override IExecutionResult<RawResult> ExecuteNonCompetitive(
-            IExecutionContext<string> executionContext)
-        {
-            var result = new ExecutionResult<RawResult>();
-
-            // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
-            {
-                return result;
-            }
-
-            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
-
-            // Execute and check each test
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-
-            var arguments = new[]
-            {
-                compilerResult.OutputFile
-            };
-
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-
-            var processExecutionResult = executor.Execute(
-                compilerPath,
-                executionContext.Input,
-                executionContext.TimeLimit,
-                executionContext.MemoryLimit,
-                arguments,
-                this.WorkingDirectory);
-
-            var rawResult = this.GetRawResult(
-                processExecutionResult,
-                processExecutionResult.ReceivedOutput);
-
-            result.Results.Add(rawResult);
-
-            return result;
-        }
-
         private void CreateRuntimeConfigJsonFile(string directory, string text)
         {
             var compiledFileName = Directory

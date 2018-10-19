@@ -9,6 +9,6 @@
 
         string CompilerComment { get; set; }
 
-        ICollection<TResult> Results { get; set; }
+        ICollection<TResult> Results { get; }
     }
 }

@@ -145,7 +145,7 @@
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                executionContext.Input.Checker,
+                executionContext.Input.GetChecker(),
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);

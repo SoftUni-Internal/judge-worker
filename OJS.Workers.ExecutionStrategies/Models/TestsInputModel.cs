@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
 
+    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
 
@@ -19,7 +20,7 @@
 
         public IEnumerable<TestContext> Tests { get; set; }
 
-        public IChecker Checker => Checkers.Checker.CreateChecker(
+        public IChecker GetChecker() => Checker.CreateChecker(
             this.CheckerAssemblyName,
             this.CheckerTypeName,
             this.CheckerParameter);

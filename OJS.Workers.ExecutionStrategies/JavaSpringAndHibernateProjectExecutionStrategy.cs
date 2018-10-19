@@ -188,6 +188,8 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
+            var checker = executionContext.Input.GetChecker();
+
             var arguments = new List<string>
             {
                 this.ClassPath,
@@ -223,7 +225,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     message);
 
                 result.Results.Add(testResult);

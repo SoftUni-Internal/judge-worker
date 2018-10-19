@@ -91,7 +91,10 @@
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
             truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
-            IExecutor executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            var checker = executionContext.Input.GetChecker();
+
             ProcessExecutionResult processExecutionResult;
 
             // Run tests in the Ethereum Virtual Machine scope
@@ -144,7 +147,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     message);
 
                 result.Results.Add(testResult);

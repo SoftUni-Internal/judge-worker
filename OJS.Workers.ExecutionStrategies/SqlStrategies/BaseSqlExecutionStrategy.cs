@@ -193,7 +193,9 @@
             {
                 var joinedUserOutput = string.Join(Environment.NewLine, sqlResult.Results);
 
-                var checkerResult = executionContext.Input.Checker.Check(
+                var checker = executionContext.Input.GetChecker();
+
+                var checkerResult = checker.Check(
                     test.Input,
                     joinedUserOutput,
                     test.Output,

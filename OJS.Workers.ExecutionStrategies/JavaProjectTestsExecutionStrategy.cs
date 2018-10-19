@@ -212,6 +212,8 @@ class Classes{{
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
             var testIndex = 0;
 
+            var checker = executionContext.Input.GetChecker();
+
             foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
@@ -224,7 +226,7 @@ class Classes{{
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     message);
 
                 result.Results.Add(testResult);

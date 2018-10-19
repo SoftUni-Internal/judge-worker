@@ -238,8 +238,10 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
-            // Create an executor
+            // Create an executor and checker
             var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            var checker = executionContext.Input.GetChecker();
 
             // Process the submission and check each test
             foreach (var test in executionContext.Input.Tests)
@@ -263,7 +265,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

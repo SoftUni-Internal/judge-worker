@@ -173,7 +173,7 @@ function afterBundling() {
             result.Results = this.ProcessTests(
                 executionContext,
                 executor,
-                executionContext.Input.Checker,
+                executionContext.Input.GetChecker(),
                 codeSavePath);
 
             // Clean up

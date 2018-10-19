@@ -250,7 +250,7 @@
             var jsonResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput, true, true);
 
             var index = 0;
-            result.Results = new List<TestResult>();
+
             foreach (var test in executionContext.Input.Tests)
             {
                 var testResult = new TestResult

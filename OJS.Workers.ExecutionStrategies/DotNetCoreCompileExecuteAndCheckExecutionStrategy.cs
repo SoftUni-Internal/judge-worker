@@ -47,6 +47,8 @@
             // Execute and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
+            var checker = executionContext.Input.GetChecker();
+
             var arguments = new[]
             {
                 compilerResult.OutputFile
@@ -67,7 +69,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

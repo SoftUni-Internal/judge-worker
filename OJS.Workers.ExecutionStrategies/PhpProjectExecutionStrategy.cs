@@ -60,6 +60,9 @@
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            var checker = executionContext.Input.GetChecker();
+
             foreach (var test in executionContext.Input.Tests)
             {
                 File.WriteAllText(this.SuperGlobalsTemplatePath, test.Input);
@@ -74,7 +77,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

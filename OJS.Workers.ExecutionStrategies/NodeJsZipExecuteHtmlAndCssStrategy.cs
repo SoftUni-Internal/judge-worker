@@ -176,7 +176,7 @@ describe('TestDOMScope', function() {{
             result.Results = this.ProcessTests(
                 executionContext,
                 executor,
-                executionContext.Input.Checker,
+                executionContext.Input.GetChecker(),
                 codeSavePath);
 
             File.Delete(codeSavePath);

@@ -42,6 +42,8 @@
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
+            var checker = executionContext.Input.GetChecker();
+
             foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
@@ -57,7 +59,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

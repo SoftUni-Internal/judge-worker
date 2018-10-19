@@ -137,6 +137,8 @@ public class _$TestRunner {{
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
+            var checker = executionContext.Input.GetChecker();
+
             var originalTestsPassed = int.MaxValue;
             var count = 0;
 
@@ -231,7 +233,7 @@ public class _$TestRunner {{
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     message);
 
                 result.Results.Add(testResult);

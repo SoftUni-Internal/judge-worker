@@ -52,7 +52,7 @@
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                executionContext.Input.Checker,
+                executionContext.Input.GetChecker(),
                 result,
                 csProjFilePath,
                 AdditionalExecutionArguments);

@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
 
     using log4net;
-
+    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -101,6 +101,8 @@
             var outputFile = compilerResult.OutputFile;
 
             // Execute and check each test
+            var checker = executionContext.Input.GetChecker();
+
             foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
@@ -117,7 +119,7 @@
                 var testResult = this.ExecuteAndCheckTest(
                     test,
                     processExecutionResult,
-                    executionContext.Input.Checker,
+                    checker,
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);

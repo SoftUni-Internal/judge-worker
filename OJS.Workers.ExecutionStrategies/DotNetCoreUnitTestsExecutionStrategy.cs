@@ -62,7 +62,7 @@
                 nunitLiteConsoleApp.csProjPath,
                 executionContext,
                 executor,
-                executionContext.Input.Checker,
+                executionContext.Input.GetChecker(),
                 result,
                 string.Empty,
                 AdditionalExecutionArguments);

@@ -92,8 +92,7 @@
             var result = new ExecutionResult<TestResult>();
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, getCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            if (!this.ExecuteCompiling(executionContext, getCompilerPathFunc, result, out var compilerResult))
             {
                 return result;
             }
@@ -170,19 +169,20 @@
             return testResult;
         }
 
-        protected RawResult GetRawResult(ProcessExecutionResult processExecutionResult, string receivedOutput) =>
+        protected RawResult GetRawResult(ProcessExecutionResult processExecutionResult) =>
             new RawResult
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
                 ResultType = processExecutionResult.Type,
-                Output = receivedOutput
+                Output = processExecutionResult.ReceivedOutput ?? processExecutionResult.ErrorOutput
             };
 
-        protected CompileResult ExecuteCompiling<TInput, TResult>(
+        protected bool ExecuteCompiling<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> result,
+            out CompileResult compileResult)
             where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
@@ -190,11 +190,12 @@
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
-            var compilerResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
+            compileResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            return compilerResult;
+            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
+            result.CompilerComment = compileResult.CompilerComment;
+
+            return result.IsCompiledSuccessfully;
         }
 
         protected virtual CompileResult Compile(

@@ -77,8 +77,7 @@
             this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            if (!this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result, out var compilerResult))
             {
                 return result;
             }

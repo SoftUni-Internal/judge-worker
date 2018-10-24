@@ -35,7 +35,7 @@
 
         protected string PhpCliExecutablePath { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();

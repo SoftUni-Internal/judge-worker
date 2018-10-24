@@ -2,7 +2,7 @@
 {
     using OJS.Workers.Common;
 
-    public class RawResult : SingleCodeRunResult
+    public class OutputResult : SingleCodeRunResult
     {
         public ProcessExecutionResultType ResultType { get; set; }
 

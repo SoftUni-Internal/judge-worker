@@ -69,7 +69,7 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();

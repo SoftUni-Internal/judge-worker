@@ -37,8 +37,8 @@
                 case IExecutionResult<TestResult> testsExecutionResult:
                     this.ProcessTestsExecutionResult(testsExecutionResult);
                     break;
-                case IExecutionResult<RawResult> rawExecutionResult:
-                    this.ProcessRawExecutionResult(rawExecutionResult);
+                case IExecutionResult<OutputResult> outputExecutionResult:
+                    this.ProcessOutputExecutionResult(outputExecutionResult);
                     break;
                 default:
                     throw new ArgumentException("Invalid execution result", nameof(executionResult));
@@ -53,6 +53,6 @@
 
         protected abstract void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult);
 
-        protected abstract void ProcessRawExecutionResult(IExecutionResult<RawResult> rawExecutionResult);
+        protected abstract void ProcessOutputExecutionResult(IExecutionResult<OutputResult> outputExecutionResult);
     }
 }

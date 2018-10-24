@@ -38,9 +38,9 @@
             switch (executionContext)
             {
                 case IExecutionContext<TestsInputModel> testsExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext);
                 case IExecutionContext<string> stringInputExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteNonCompetitive(stringInputExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(stringInputExecutionContext);
                 default:
                     return new ExecutionResult<TResult>
                     {
@@ -75,12 +75,13 @@
             }
         }
 
-        protected virtual IExecutionResult<RawResult> ExecuteNonCompetitive(
+        protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext) =>
                 throw new NotImplementedException();
 
-        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
-            IExecutionContext<TestsInputModel> executionContext);
+        protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext) =>
+                throw new NotImplementedException();
 
         protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             IExecutionContext<TestsInputModel> executionContext,
@@ -175,8 +176,8 @@
             return testResult;
         }
 
-        protected RawResult GetRawResult(ProcessExecutionResult processExecutionResult) =>
-            new RawResult
+        protected OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult) =>
+            new OutputResult
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,

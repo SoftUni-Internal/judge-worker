@@ -30,7 +30,7 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
@@ -76,9 +76,9 @@
             return result;
         }
 
-        protected override IExecutionResult<RawResult> ExecuteNonCompetitive(IExecutionContext<string> executionContext)
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(IExecutionContext<string> executionContext)
         {
-            var result = new ExecutionResult<RawResult>();
+            var result = new ExecutionResult<OutputResult>();
 
             var isCompiledSuccessfully = this.ExecuteCompiling(
                 executionContext,
@@ -105,9 +105,9 @@
                 arguments,
                 this.WorkingDirectory);
 
-            var rawResult = this.GetRawResult(processExecutionResult);
+            var outputResult = this.GetOutputResult(processExecutionResult);
 
-            result.Results.Add(rawResult);
+            result.Results.Add(outputResult);
 
             return result;
         }

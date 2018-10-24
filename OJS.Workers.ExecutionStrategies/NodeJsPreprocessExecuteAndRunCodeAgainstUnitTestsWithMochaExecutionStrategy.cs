@@ -84,7 +84,7 @@ after(function() {
 
         private Random Random { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             // In NodeJS there is no compilation

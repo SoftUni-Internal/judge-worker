@@ -70,7 +70,7 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();

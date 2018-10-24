@@ -99,7 +99,7 @@
 
             var processExecutionResult = executor.Execute(
                 compilerPath,
-                executionContext.Input,
+                executionContext.Input ?? string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
                 arguments,

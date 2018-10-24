@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
     public class ExecutionContext<TInput> : IExecutionContext<TInput>
@@ -10,7 +9,7 @@
 
         public string AdditionalCompilerArguments { get; set; }
 
-        public string Code => this.FileContent.Decompress();
+        public string Code { get; set; }
 
         public byte[] FileContent { get; set; }
 

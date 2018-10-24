@@ -4,24 +4,26 @@
 
     public interface ISubmission
     {
-        object Id { get; set; }
+        object Id { get; }
 
-        string AdditionalCompilerArguments { get; set; }
+        string AdditionalCompilerArguments { get; }
 
         string ProcessingComment { get; set; }
 
-        int MemoryLimit { get; set; }
+        int MemoryLimit { get; }
 
-        int TimeLimit { get; set; }
+        int TimeLimit { get; }
 
-        byte[] FileContent { get;  }
+        string Code { get; }
+
+        byte[] FileContent { get; }
 
         string AllowedFileExtensions { get; }
 
-        CompilerType CompilerType { get; set; }
+        CompilerType CompilerType { get; }
 
-        ExecutionContextType ExecutionContextType { get; set; }
+        ExecutionContextType ExecutionContextType { get; }
 
-        ExecutionStrategyType ExecutionStrategyType { get; set; }
+        ExecutionStrategyType ExecutionStrategyType { get; }
     }
 }

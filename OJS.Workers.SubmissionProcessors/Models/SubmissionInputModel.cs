@@ -1,10 +1,14 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Models
 {
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
     public class SubmissionInputModel<TInput> : ISubmission
     {
+        private byte[] fileContent;
+        private string code;
+
         public object Id { get; set; }
 
         public string AdditionalCompilerArguments { get; set; }
@@ -15,7 +19,17 @@
 
         public int TimeLimit { get; set; }
 
-        public byte[] FileContent { get; set; }
+        public string Code
+        {
+            get => this.code ?? this.FileContent.Decompress();
+            set => this.code = value;
+        }
+
+        public byte[] FileContent
+        {
+            get => this.fileContent ?? this.Code.Compress();
+            set => this.fileContent = value;
+        }
 
         public CompilerType CompilerType { get; set; }
 

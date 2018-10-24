@@ -364,6 +364,7 @@
                 new ExecutionContext<TInput>
                 {
                     AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                    Code = submission.Code,
                     FileContent = submission.FileContent,
                     AllowedFileExtensions = submission.AllowedFileExtensions,
                     CompilerType = submission.CompilerType,

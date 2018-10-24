@@ -73,7 +73,7 @@
                                 this.ProcessSubmission<TestsInputModel, TestResult>(submission);
                                 break;
                             case ExecutionContextType.NonCompetitive:
-                                this.ProcessSubmission<string, RawResult>(submission);
+                                this.ProcessSubmission<string, OutputResult>(submission);
                                 break;
                             default: throw new ArgumentOutOfRangeException(
                                 nameof(submission.ExecutionContextType),

@@ -38,9 +38,9 @@
             switch (executionContext)
             {
                 case IExecutionContext<TestsInputModel> testsExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext);
                 case IExecutionContext<string> stringInputExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteNonCompetitive(stringInputExecutionContext);
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(stringInputExecutionContext);
                 default:
                     return new ExecutionResult<TResult>
                     {
@@ -75,12 +75,13 @@
             }
         }
 
-        protected virtual IExecutionResult<RawResult> ExecuteNonCompetitive(
+        protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext) =>
                 throw new NotImplementedException();
 
-        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
-            IExecutionContext<TestsInputModel> executionContext);
+        protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext) =>
+                throw new NotImplementedException();
 
         protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             IExecutionContext<TestsInputModel> executionContext,
@@ -92,8 +93,13 @@
             var result = new ExecutionResult<TestResult>();
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, getCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                getCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }
@@ -170,19 +176,20 @@
             return testResult;
         }
 
-        protected RawResult GetRawResult(ProcessExecutionResult processExecutionResult, string receivedOutput) =>
-            new RawResult
+        protected OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult) =>
+            new OutputResult
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
                 ResultType = processExecutionResult.Type,
-                Output = receivedOutput
+                Output = processExecutionResult.ReceivedOutput ?? processExecutionResult.ErrorOutput
             };
 
-        protected CompileResult ExecuteCompiling<TInput, TResult>(
+        protected bool ExecuteCompiling<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> result,
+            out CompileResult compileResult)
             where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
@@ -190,11 +197,12 @@
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
-            var compilerResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
+            compileResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            return compilerResult;
+            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
+            result.CompilerComment = compileResult.CompilerComment;
+
+            return result.IsCompiledSuccessfully;
         }
 
         protected virtual CompileResult Compile(

@@ -118,7 +118,7 @@
     <Compile Include="JavaUnitTestsExecutionStrategy.cs" />
     <Compile Include="JavaZipFileCompileExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="JsonExecutionResult.cs" />
-    <Compile Include="Models\RawResult.cs" />
+    <Compile Include="Models\OutputResult.cs" />
     <Compile Include="Models\TestsInputModel.cs" />
     <Compile Include="Models\SingleCodeRunResult.cs" />
     <Compile Include="NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy.cs" />

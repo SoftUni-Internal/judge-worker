@@ -69,7 +69,7 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
@@ -77,8 +77,13 @@
             this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }

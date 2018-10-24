@@ -138,7 +138,7 @@
 
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();

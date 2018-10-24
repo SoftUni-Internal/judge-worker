@@ -114,7 +114,7 @@ public class _$TestRunner {{
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();

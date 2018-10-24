@@ -158,7 +158,7 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };

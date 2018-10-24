@@ -30,31 +30,29 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
             var result = new ExecutionResult<TestResult>();
 
-            // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }
 
-            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
-
-            // Execute and check each test
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.PrepareExecutor(
+                compilerResult,
+                executionContext,
+                out var arguments,
+                out var compilerPath);
 
             var checker = executionContext.Input.GetChecker();
-
-            var arguments = new[]
-            {
-                compilerResult.OutputFile
-            };
-
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
             foreach (var test in executionContext.Input.Tests)
             {
@@ -76,6 +74,62 @@
             }
 
             return result;
+        }
+
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(IExecutionContext<string> executionContext)
+        {
+            var result = new ExecutionResult<OutputResult>();
+
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
+            {
+                return result;
+            }
+
+            var executor = this.PrepareExecutor(
+                compilerResult,
+                executionContext,
+                out var arguments,
+                out var compilerPath);
+
+            var processExecutionResult = executor.Execute(
+                compilerPath,
+                executionContext.Input,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                arguments,
+                this.WorkingDirectory);
+
+            var outputResult = this.GetOutputResult(processExecutionResult);
+
+            result.Results.Add(outputResult);
+
+            return result;
+        }
+
+        private IExecutor PrepareExecutor<TInput>(
+            CompileResult compileResult,
+            IExecutionContext<TInput> executionContext,
+            out string[] arguments,
+            out string compilerPath)
+        {
+            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            arguments = new[]
+            {
+                compileResult.OutputFile
+            };
+
+            compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+
+            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
+
+            return executor;
         }
 
         private void CreateRuntimeConfigJsonFile(string directory, string text)

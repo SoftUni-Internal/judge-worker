@@ -21,13 +21,13 @@
             {
                 case PlagiarismDetectorType.CSharpCompileDisassemble:
                     return new CSharpCompileDisassemblePlagiarismDetector(
-                        ObjectFactory.GetInstance<CSharpCompiler>(),
+                        new CSharpCompiler(Settings.CSharpCompilerProcessExitTimeOutMultiplier),
                         context.CompilerPath,
                         new DotNetDisassembler(context.DisassemblerPath),
                         context.SimilarityFinder);
                 case PlagiarismDetectorType.JavaCompileDisassemble:
                     return new JavaCompileDisassemblePlagiarismDetector(
-                        ObjectFactory.GetInstance<JavaCompiler>(),
+                        new JavaCompiler(Settings.JavaCompilerProcessExitTimeOutMultiplier),
                         context.CompilerPath,
                         new JavaDisassembler(context.DisassemblerPath),
                         context.SimilarityFinder);

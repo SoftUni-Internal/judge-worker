@@ -84,7 +84,6 @@
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Extensions\CompilerTypeExtensions.cs" />
     <Compile Include="Extensions\CompressStringExtensions.cs" />
-    <Compile Include="Extensions\ServiceProviderExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\CSharpPreprocessorHelper.cs" />
     <Compile Include="Helpers\DirectoryHelpers.cs" />
@@ -105,7 +104,6 @@
     <Compile Include="Models\PlagiarismDetectorType.cs" />
     <Compile Include="Models\ServiceState.cs" />
     <Compile Include="Models\TestRunResultType.cs" />
-    <Compile Include="ObjectFactory.cs" />
     <Compile Include="ProcessExecutionResult.cs" />
     <Compile Include="ProcessExecutionResultType.cs" />
     <Compile Include="IChecker.cs" />

@@ -6,7 +6,6 @@
 
     public class SubmissionInputModel<TInput> : ISubmission
     {
-        private byte[] fileContent;
         private string code;
 
         public object Id { get; set; }
@@ -21,15 +20,14 @@
 
         public string Code
         {
-            get => this.code ?? this.FileContent.Decompress();
+            get => this.code
+                   ?? (string.IsNullOrWhiteSpace(this.AllowedFileExtensions)
+                       ? this.FileContent.Decompress()
+                       : null);
             set => this.code = value;
         }
 
-        public byte[] FileContent
-        {
-            get => this.fileContent ?? this.Code.Compress();
-            set => this.fileContent = value;
-        }
+        public byte[] FileContent { get; set; }
 
         public CompilerType CompilerType { get; set; }
 

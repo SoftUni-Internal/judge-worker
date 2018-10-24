@@ -92,7 +92,13 @@
             var result = new ExecutionResult<TestResult>();
 
             // Compile the file
-            if (!this.ExecuteCompiling(executionContext, getCompilerPathFunc, result, out var compilerResult))
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                getCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }

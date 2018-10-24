@@ -35,7 +35,13 @@
         {
             var result = new ExecutionResult<TestResult>();
 
-            if (!this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result, out var compilerResult))
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }
@@ -74,7 +80,13 @@
         {
             var result = new ExecutionResult<RawResult>();
 
-            if (!this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result, out var compilerResult))
+            var isCompiledSuccessfully = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result,
+                out var compilerResult);
+
+            if (!isCompiledSuccessfully)
             {
                 return result;
             }

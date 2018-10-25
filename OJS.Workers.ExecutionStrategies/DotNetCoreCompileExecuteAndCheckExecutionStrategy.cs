@@ -76,7 +76,8 @@
             return result;
         }
 
-        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(IExecutionContext<string> executionContext)
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext)
         {
             var result = new ExecutionResult<OutputResult>();
 

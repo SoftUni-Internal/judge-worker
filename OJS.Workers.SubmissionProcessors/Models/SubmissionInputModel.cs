@@ -21,9 +21,9 @@
         public string Code
         {
             get => this.code
-                   ?? (string.IsNullOrWhiteSpace(this.AllowedFileExtensions)
-                       ? this.FileContent.Decompress()
-                       : null);
+                ?? (string.IsNullOrWhiteSpace(this.AllowedFileExtensions)
+                    ? this.FileContent.Decompress()
+                    : null);
             set => this.code = value;
         }
 

@@ -2,7 +2,7 @@
 {
     using OJS.Workers.Common.Models;
 
-    public interface ISubmission
+    public interface IOjsSubmission
     {
         object Id { get; }
 

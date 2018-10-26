@@ -95,7 +95,7 @@
             this.stopping = true;
         }
 
-        private ISubmission GetSubmissionForProcessing()
+        private IOjsSubmission GetSubmissionForProcessing()
         {
             try
             {
@@ -108,7 +108,7 @@
             }
         }
 
-        private void ProcessSubmission<TInput, TResult>(ISubmission submission)
+        private void ProcessSubmission<TInput, TResult>(IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
             try
@@ -119,7 +119,7 @@
 
                 var executor = new SubmissionExecutor(this.portNumber);
 
-                var executionResult = executor.Execute<TInput, TResult>((SubmissionInputModel<TInput>)submission);
+                var executionResult = executor.Execute<TInput, TResult>((OjsSubmission<TInput>)submission);
 
                 this.logger.Info($"Work on submission #{submission.Id} ended.");
 
@@ -137,7 +137,7 @@
             }
         }
 
-        private void BeforeExecute(ISubmission submission)
+        private void BeforeExecute(IOjsSubmission submission)
         {
             try
             {
@@ -151,7 +151,7 @@
             }
         }
 
-        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, ISubmission submission)
+        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
             where TOutput : ISingleCodeRunResult, new()
         {
             try

@@ -16,6 +16,7 @@
         protected const string TimeMeasurementFileName = "_$time.txt";
         protected const string SandboxExecutorClassName = "_$SandboxExecutor";
         protected const string JavaCompiledFileExtension = ".class";
+        private const double NanosecondsInOneMillisecond = 1000000;
 
         private readonly int baseUpdateTimeOffset;
 
@@ -170,7 +171,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                 var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
                 if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
                 {
-                    var totalTimeUsed = TimeSpan.FromMilliseconds((double)timeInNanoseconds / 1000000);
+                    var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
                     var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
 
                     processExecutionResult.TimeWorked = totalTimeUsed > timeOffset

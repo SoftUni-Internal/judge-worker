@@ -81,6 +81,7 @@
     <Compile Include="Communication\Job.cs" />
     <Compile Include="Communication\JobResult.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Exceptions\DerivedImplementationNotFoundException.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Extensions\CompilerTypeExtensions.cs" />
     <Compile Include="Extensions\CompressStringExtensions.cs" />

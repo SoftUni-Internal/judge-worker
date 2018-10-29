@@ -7,6 +7,7 @@
     using log4net;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -77,11 +78,11 @@
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext) =>
-                throw new NotImplementedException();
+                throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext) =>
-                throw new NotImplementedException();
+                throw new DerivedImplementationNotFoundException();
 
         protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             IExecutionContext<TestsInputModel> executionContext,

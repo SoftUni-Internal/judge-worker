@@ -77,18 +77,17 @@
             this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
-            var isCompiledSuccessfully = this.ExecuteCompiling(
+            var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
-                result,
-                out var compilerResult);
+                result);
 
-            if (!isCompiledSuccessfully)
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
-            var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compilerResult.OutputFile));
+            var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
 
             var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber);
 

@@ -35,19 +35,18 @@
         {
             var result = new ExecutionResult<TestResult>();
 
-            var isCompiledSuccessfully = this.ExecuteCompiling(
+            var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
-                result,
-                out var compilerResult);
+                result);
 
-            if (!isCompiledSuccessfully)
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
             var executor = this.PrepareExecutor(
-                compilerResult,
+                compileResult,
                 executionContext,
                 out var arguments,
                 out var compilerPath);
@@ -81,19 +80,18 @@
         {
             var result = new ExecutionResult<OutputResult>();
 
-            var isCompiledSuccessfully = this.ExecuteCompiling(
+            var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
-                result,
-                out var compilerResult);
+                result);
 
-            if (!isCompiledSuccessfully)
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
             var executor = this.PrepareExecutor(
-                compilerResult,
+                compileResult,
                 executionContext,
                 out var arguments,
                 out var compilerPath);

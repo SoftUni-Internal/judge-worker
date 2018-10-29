@@ -55,7 +55,7 @@
             {
                 using (this.dependencyContainer.BeginDefaultScope())
                 {
-                    this.submissionProcessingStrategy = this.InitializeProcessingStrategy();
+                    this.submissionProcessingStrategy = this.GetSubmissionProcessingStrategyInstance();
 
                     var submission = this.GetSubmissionForProcessing();
 
@@ -78,7 +78,7 @@
             this.stopping = true;
         }
 
-        private ISubmissionProcessingStrategy<TSubmission> InitializeProcessingStrategy()
+        private ISubmissionProcessingStrategy<TSubmission> GetSubmissionProcessingStrategyInstance()
         {
             try
             {

@@ -8,9 +8,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.SubmissionProcessors.Helpers;
     using OJS.Workers.SubmissionProcessors.Models;
 
     public class SubmissionProcessor<TSubmission> : ISubmissionProcessor
@@ -117,16 +115,11 @@
             {
                 this.logger.Info($"Work on submission #{submission.Id} started.");
 
-                var executionStrategy = this.CreateExecutionStrategy(submission);
-
                 this.BeforeExecute(submission);
 
-                var executionContext = this.CreateExecutionContext<TInput>(submission);
+                var executor = new SubmissionExecutor(this.portNumber);
 
-                var executionResult = this.ExecuteSubmission<TInput, TResult>(
-                    executionStrategy,
-                    executionContext,
-                    submission);
+                var executionResult = executor.Execute<TInput, TResult>((SubmissionInputModel<TInput>)submission);
 
                 this.logger.Info($"Work on submission #{submission.Id} ended.");
 
@@ -134,52 +127,13 @@
 
                 this.logger.Info($"Submission #{submission.Id} successfully processed.");
             }
-            catch
+            catch (Exception ex)
             {
+                this.logger.Error(
+                    $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
+                    ex);
+
                 this.submissionProcessingStrategy.OnError(submission);
-            }
-        }
-
-        private IExecutionStrategy CreateExecutionStrategy(ISubmission submission)
-        {
-            try
-            {
-                return SubmissionProcessorHelper.CreateExecutionStrategy(
-                    submission.ExecutionStrategyType,
-                    this.portNumber);
-            }
-            catch (Exception ex)
-            {
-                this.logger.Error(
-                    $"{nameof(SubmissionProcessorHelper.CreateExecutionStrategy)} has thrown an Exception: ", ex);
-
-                submission.ProcessingComment = $"Exception in creating execution strategy: {ex.Message}";
-                throw;
-            }
-        }
-
-        private IExecutionContext<TInput> CreateExecutionContext<TInput>(ISubmission submission)
-        {
-            try
-            {
-                return new ExecutionContext<TInput>
-                {
-                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                    FileContent = submission.FileContent,
-                    AllowedFileExtensions = submission.AllowedFileExtensions,
-                    CompilerType = submission.CompilerType,
-                    MemoryLimit = submission.MemoryLimit,
-                    TimeLimit = submission.TimeLimit,
-                    Input = ((SubmissionInputModel<TInput>)submission).Input
-                };
-            }
-            catch (Exception ex)
-            {
-                this.logger.Error(
-                    $"{nameof(this.CreateExecutionContext)} has thrown an Exception: ", ex);
-
-                submission.ProcessingComment = $"Exception in creating execution context: {ex.Message}";
-                throw;
             }
         }
 
@@ -191,33 +145,9 @@
             }
             catch (Exception ex)
             {
-                this.logger.Error(
-                    $"{nameof(this.submissionProcessingStrategy.BeforeExecute)} on submission #{submission.Id} has thrown an exception:",
-                    ex);
-
                 submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
-                throw;
-            }
-        }
 
-        private IExecutionResult<TResult> ExecuteSubmission<TInput, TResult>(
-            IExecutionStrategy executionStrategy,
-            IExecutionContext<TInput> executionContext,
-            ISubmission submission)
-            where TResult : ISingleCodeRunResult, new()
-        {
-            try
-            {
-                return executionStrategy.SafeExecute<TInput, TResult>(executionContext);
-            }
-            catch (Exception ex)
-            {
-                this.logger.Error(
-                    $"{nameof(executionStrategy.SafeExecute)} on submission #{submission.Id} has thrown an exception:",
-                    ex);
-
-                submission.ProcessingComment = $"Exception in executing the submission: {ex.Message}";
-                throw;
+                throw new Exception($"Exception in {nameof(this.submissionProcessingStrategy.BeforeExecute)}", ex);
             }
         }
 
@@ -230,12 +160,9 @@
             }
             catch (Exception ex)
             {
-                this.logger.Error(
-                    $"{nameof(this.ProcessExecutionResult)} on submission #{submission.Id} has thrown an exception:",
-                    ex);
+                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
 
-                submission.ProcessingComment = $"Exception in processing submission: {ex.Message}";
-                throw;
+                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
             }
         }
     }

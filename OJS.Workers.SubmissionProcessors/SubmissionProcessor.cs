@@ -55,30 +55,13 @@
             {
                 using (this.dependencyContainer.BeginDefaultScope())
                 {
-                    this.submissionProcessingStrategy = this.dependencyContainer
-                        .GetInstance<ISubmissionProcessingStrategy<TSubmission>>();
-
-                    this.submissionProcessingStrategy.Initialize(
-                        this.logger,
-                        this.submissionsForProcessing,
-                        this.sharedLockObject);
+                    this.submissionProcessingStrategy = this.InitializeProcessingStrategy();
 
                     var submission = this.GetSubmissionForProcessing();
 
                     if (submission != null)
                     {
-                        switch (submission.ExecutionContextType)
-                        {
-                            case ExecutionContextType.Competitive:
-                                this.ProcessSubmission<TestsInputModel, TestResult>(submission);
-                                break;
-                            case ExecutionContextType.NonCompetitive:
-                                this.ProcessSubmission<string, OutputResult>(submission);
-                                break;
-                            default: throw new ArgumentOutOfRangeException(
-                                nameof(submission.ExecutionContextType),
-                                "Invalid execution context type!");
-                        }
+                        this.ProcessSubmission(submission);
                     }
                     else
                     {
@@ -95,37 +78,63 @@
             this.stopping = true;
         }
 
+        private ISubmissionProcessingStrategy<TSubmission> InitializeProcessingStrategy()
+        {
+            try
+            {
+                var processingStrategy = this.dependencyContainer
+                    .GetInstance<ISubmissionProcessingStrategy<TSubmission>>();
+
+                processingStrategy.Initialize(
+                    this.logger,
+                    this.submissionsForProcessing,
+                    this.sharedLockObject);
+
+                return processingStrategy;
+            }
+            catch (Exception ex)
+            {
+                this.logger.Fatal("Unable to initialize submission processing strategy.", ex);
+                throw;
+            }
+        }
+
         private IOjsSubmission GetSubmissionForProcessing()
         {
             try
             {
                 return this.submissionProcessingStrategy.RetrieveSubmission();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                this.logger.Fatal("Unable to get submission for processing.", exception);
+                this.logger.Fatal("Unable to get submission for processing.", ex);
                 throw;
             }
         }
 
-        private void ProcessSubmission<TInput, TResult>(IOjsSubmission submission)
-            where TResult : ISingleCodeRunResult, new()
+        // Overload accepting IOjsSubmission and doing cast, because upon getting the submission,
+        // TInput is not known and no specific type could be given to the generic ProcessSubmission<>
+        private void ProcessSubmission(IOjsSubmission submission)
         {
             try
             {
-                this.logger.Info($"Work on submission #{submission.Id} started.");
+                switch (submission.ExecutionContextType)
+                {
+                    case ExecutionContextType.Competitive:
+                        var testsSubmission = (OjsSubmission<TestsInputModel>)submission;
+                        this.ProcessSubmission<TestsInputModel, TestResult>(testsSubmission);
+                        break;
 
-                this.BeforeExecute(submission);
+                    case ExecutionContextType.NonCompetitive:
+                        var simpleSubmission = (OjsSubmission<string>)submission;
+                        this.ProcessSubmission<string, OutputResult>(simpleSubmission);
+                        break;
 
-                var executor = new SubmissionExecutor(this.portNumber);
-
-                var executionResult = executor.Execute<TInput, TResult>((OjsSubmission<TInput>)submission);
-
-                this.logger.Info($"Work on submission #{submission.Id} ended.");
-
-                this.ProcessExecutionResult(executionResult, submission);
-
-                this.logger.Info($"Submission #{submission.Id} successfully processed.");
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            nameof(submission.ExecutionContextType),
+                            "Invalid execution context type!");
+                }
             }
             catch (Exception ex)
             {
@@ -135,6 +144,24 @@
 
                 this.submissionProcessingStrategy.OnError(submission);
             }
+        }
+
+        private void ProcessSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
+            where TResult : ISingleCodeRunResult, new()
+        {
+            this.logger.Info($"Work on submission #{submission.Id} started.");
+
+            this.BeforeExecute(submission);
+
+            var executor = new SubmissionExecutor(this.portNumber);
+
+            var executionResult = executor.Execute<TInput, TResult>(submission);
+
+            this.logger.Info($"Work on submission #{submission.Id} ended.");
+
+            this.ProcessExecutionResult(executionResult, submission);
+
+            this.logger.Info($"Submission #{submission.Id} successfully processed.");
         }
 
         private void BeforeExecute(IOjsSubmission submission)

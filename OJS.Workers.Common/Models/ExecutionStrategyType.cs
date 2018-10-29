@@ -42,6 +42,6 @@
         DotNetCoreCompileExecuteAndCheck = 37,
         DotNetCoreUnitTestsExecutionStrategy = 38,
         SolidityCompileDeployAndRunUnitTestsExecutionStrategy = 39,
-        DoNothing = 40
+        DoNothing = 40,
     }
 }

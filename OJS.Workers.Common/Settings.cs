@@ -80,7 +80,7 @@
 
         public static string SolidityCompilerPath => SettingsHelper.GetSetting("SolidityCompilerPath");
 
-        public static string GanacheCliNodeExecutablePath => SettingsHelper.GetSetting("SettingsHelper.GetSetting");
+        public static string GanacheCliNodeExecutablePath => SettingsHelper.GetSetting("GanacheCliNodeExecutablePath");
 
         public static string TruffleCliNodeExecutablePath => SettingsHelper.GetSetting("TruffleCliNodeExecutablePath");
 

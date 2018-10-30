@@ -5,8 +5,9 @@
     using System.Threading.Tasks;
 
     using log4net;
-    using OJS.Workers.Checkers;
+
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -77,11 +78,11 @@
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext) =>
-                throw new NotImplementedException();
+                throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext) =>
-                throw new NotImplementedException();
+                throw new DerivedImplementationNotFoundException();
 
         protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             IExecutionContext<TestsInputModel> executionContext,
@@ -93,18 +94,17 @@
             var result = new ExecutionResult<TestResult>();
 
             // Compile the file
-            var isCompiledSuccessfully = this.ExecuteCompiling(
+            var compileResult = this.ExecuteCompiling(
                 executionContext,
                 getCompilerPathFunc,
-                result,
-                out var compilerResult);
+                result);
 
-            if (!isCompiledSuccessfully)
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
-            var outputFile = compilerResult.OutputFile;
+            var outputFile = compileResult.OutputFile;
 
             // Execute and check each test
             var checker = executionContext.Input.GetChecker();
@@ -185,11 +185,10 @@
                 Output = processExecutionResult.ReceivedOutput ?? processExecutionResult.ErrorOutput
             };
 
-        protected bool ExecuteCompiling<TInput, TResult>(
+        protected CompileResult ExecuteCompiling<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
-            IExecutionResult<TResult> result,
-            out CompileResult compileResult)
+            IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
@@ -197,12 +196,12 @@
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
-            compileResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
+            var compileResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
 
             result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
             result.CompilerComment = compileResult.CompilerComment;
 
-            return result.IsCompiledSuccessfully;
+            return compileResult;
         }
 
         protected virtual CompileResult Compile(

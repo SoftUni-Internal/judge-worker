@@ -176,9 +176,9 @@ class _$SandboxSecurityManager extends SecurityManager {
             {
                 var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
                 var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
+                var timeToSubtract = TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
 
-                processExecutionResult.TimeWorked =
-                    totalTimeUsed - TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
+                processExecutionResult.TimeWorked = totalTimeUsed - timeToSubtract;
 
                 if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
                     processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)

@@ -13,7 +13,7 @@
         public SubmissionExecutor(int portNumber) => this.portNumber = portNumber;
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(
-            SubmissionInputModel<TInput> submission)
+            OjsSubmission<TInput> submission)
             where TResult : ISingleCodeRunResult, new()
         {
             var executionStrategy = this.CreateExecutionStrategy(submission);
@@ -23,7 +23,7 @@
             return this.ExecuteSubmission<TInput, TResult>(executionStrategy, executionContext, submission);
         }
 
-        private IExecutionStrategy CreateExecutionStrategy(ISubmission submission)
+        private IExecutionStrategy CreateExecutionStrategy(IOjsSubmission submission)
         {
             try
             {
@@ -39,7 +39,7 @@
             }
         }
 
-        private IExecutionContext<TInput> CreateExecutionContext<TInput>(SubmissionInputModel<TInput> submission)
+        private IExecutionContext<TInput> CreateExecutionContext<TInput>(OjsSubmission<TInput> submission)
         {
             try
             {
@@ -56,7 +56,7 @@
         private IExecutionResult<TResult> ExecuteSubmission<TInput, TResult>(
             IExecutionStrategy executionStrategy,
             IExecutionContext<TInput> executionContext,
-            ISubmission submission)
+            IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
             try

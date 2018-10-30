@@ -4,7 +4,7 @@
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
 
-    public class SubmissionInputModel<TInput> : ISubmission
+    public class OjsSubmission<TInput> : IOjsSubmission
     {
         private string code;
 

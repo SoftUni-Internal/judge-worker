@@ -15,13 +15,13 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject);
 
-        ISubmission RetrieveSubmission();
+        IOjsSubmission RetrieveSubmission();
 
         void BeforeExecute();
 
         void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
             where TResult : ISingleCodeRunResult, new();
 
-        void OnError(ISubmission submission);
+        void OnError(IOjsSubmission submission);
     }
 }

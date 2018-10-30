@@ -166,33 +166,34 @@ class _$SandboxSecurityManager extends SecurityManager {
             int timeLimit,
             int updateTimeOffset)
         {
-            if (File.Exists(timeMeasurementFilePath))
+            if (!File.Exists(timeMeasurementFilePath))
             {
-                var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
-                if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
-                {
-                    var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
-                    var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
-
-                    processExecutionResult.TimeWorked = totalTimeUsed > timeOffset
-                        ? totalTimeUsed - timeOffset
-                        : totalTimeUsed;
-
-                    if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
-                        processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
-                    {
-                        // The time from the time measurement file is under the time limit
-                        processExecutionResult.Type = ProcessExecutionResultType.Success;
-                    }
-                    else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
-                             processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
-                    {
-                        processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
-                    }
-                }
-
-                File.Delete(timeMeasurementFilePath);
+                return;
             }
+
+            var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
+            if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
+            {
+                var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
+                var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
+
+                processExecutionResult.TimeWorked =
+                    totalTimeUsed - TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
+
+                if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
+                    processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
+                {
+                    // The time from the time measurement file is under the time limit
+                    processExecutionResult.Type = ProcessExecutionResultType.Success;
+                }
+                else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
+                         processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
+                {
+                    processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
+                }
+            }
+
+            File.Delete(timeMeasurementFilePath);
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(

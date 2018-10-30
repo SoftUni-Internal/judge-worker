@@ -49,7 +49,7 @@
     <Compile Include="Helpers\SubmissionProcessorHelper.cs" />
     <Compile Include="ISubmissionProcessor.cs" />
     <Compile Include="ISubmissionProcessingStrategy.cs" />
-    <Compile Include="Models\SubmissionInputModel.cs" />
+    <Compile Include="Models\OjsSubmission.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubmissionProcessor.cs" />
   </ItemGroup>

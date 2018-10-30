@@ -47,9 +47,9 @@
 
         public abstract void BeforeExecute();
 
-        public abstract ISubmission RetrieveSubmission();
+        public abstract IOjsSubmission RetrieveSubmission();
 
-        public abstract void OnError(ISubmission submission);
+        public abstract void OnError(IOjsSubmission submission);
 
         protected abstract void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult);
 

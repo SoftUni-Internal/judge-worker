@@ -182,7 +182,9 @@
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
                 ResultType = processExecutionResult.Type,
-                Output = processExecutionResult.ReceivedOutput ?? processExecutionResult.ErrorOutput
+                Output = string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput)
+                    ? processExecutionResult.ReceivedOutput
+                    : processExecutionResult.ErrorOutput
             };
 
         protected CompileResult ExecuteCompiling<TInput, TResult>(

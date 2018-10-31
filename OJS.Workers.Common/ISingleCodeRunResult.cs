@@ -5,7 +5,5 @@
         int TimeUsed { get; }
 
         int MemoryUsed { get; }
-
-        string ExecutionComment { get; }
     }
 }

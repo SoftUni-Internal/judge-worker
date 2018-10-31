@@ -10,5 +10,7 @@
         public TestRunResultType ResultType { get; set; }
 
         public CheckerDetails CheckerDetails { get; set; }
+
+        public string ExecutionComment { get; set; }
     }
 }

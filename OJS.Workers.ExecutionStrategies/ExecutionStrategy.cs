@@ -196,7 +196,12 @@
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
-            var compileResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
+
+            var compileResult = this.Compile(
+                executionContext.CompilerType,
+                compilerPath,
+                executionContext.AdditionalCompilerArguments,
+                submissionFilePath);
 
             result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
             result.CompilerComment = compileResult.CompilerComment;

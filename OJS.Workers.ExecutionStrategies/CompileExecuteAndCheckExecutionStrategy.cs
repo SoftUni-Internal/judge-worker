@@ -9,20 +9,52 @@
 
     public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
+        private readonly IExecutor executor;
+
         public CompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed) =>
-                this.GetCompilerPathFunc = getCompilerPathFunc;
+            : base(baseTimeUsed, baseMemoryUsed)
+        {
+            this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+        }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+            IExecutionContext<TestsInputModel> executionContext) =>
+                this.CompileExecuteAndCheck(
+                    executionContext,
+                    this.GetCompilerPathFunc,
+                    this.executor);
+
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext)
         {
-            IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var result = this.CompileExecuteAndCheck(executionContext, this.GetCompilerPathFunc, executor);
+            var result = new ExecutionResult<OutputResult>();
+
+            var compileResult = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result);
+
+            if (!compileResult.IsCompiledSuccessfully)
+            {
+                return result;
+            }
+
+            var processExecutionResult = this.executor.Execute(
+                compileResult.OutputFile,
+                executionContext.Input ?? string.Empty,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                null,
+                this.WorkingDirectory);
+
+            result.Results.Add(this.GetOutputResult(processExecutionResult));
+
             return result;
         }
     }

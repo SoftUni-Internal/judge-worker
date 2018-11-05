@@ -118,22 +118,22 @@
         {
             try
             {
-                switch (submission.ExecutionContextType)
+                switch (submission.ExecutionType)
                 {
-                    case ExecutionContextType.Competitive:
+                    case ExecutionType.TestsExecution:
                         var testsSubmission = (OjsSubmission<TestsInputModel>)submission;
                         this.ProcessSubmission<TestsInputModel, TestResult>(testsSubmission);
                         break;
 
-                    case ExecutionContextType.NonCompetitive:
+                    case ExecutionType.SimpleExecution:
                         var simpleSubmission = (OjsSubmission<string>)submission;
                         this.ProcessSubmission<string, OutputResult>(simpleSubmission);
                         break;
 
                     default:
                         throw new ArgumentOutOfRangeException(
-                            nameof(submission.ExecutionContextType),
-                            "Invalid execution context type!");
+                            nameof(submission.ExecutionType),
+                            "Invalid execution type!");
                 }
             }
             catch (Exception ex)

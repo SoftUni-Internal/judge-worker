@@ -22,7 +22,7 @@
 
         CompilerType CompilerType { get; }
 
-        ExecutionContextType ExecutionContextType { get; }
+        ExecutionType ExecutionType { get; }
 
         ExecutionStrategyType ExecutionStrategyType { get; }
     }

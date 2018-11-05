@@ -31,7 +31,7 @@
 
         public CompilerType CompilerType { get; set; }
 
-        public ExecutionContextType ExecutionContextType { get; set; }
+        public ExecutionType ExecutionType { get; set; }
 
         public ExecutionStrategyType ExecutionStrategyType { get; set; }
 

@@ -51,7 +51,7 @@
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
 
-            var submissionPath = $@"{this.WorkingDirectory}\\{ZippedSubmissionName}{Constants.ZipFileExtension}";
+            var submissionPath = this.GetZipFilePath(ZippedSubmissionName);
 
             File.WriteAllBytes(submissionPath, executionContext.FileContent);
             FileHelpers.UnzipFile(submissionPath, this.WorkingDirectory);
@@ -93,6 +93,9 @@
 
             return result;
         }
+
+        private string GetZipFilePath(string zipFileName) =>
+            $@"{this.WorkingDirectory}\\{zipFileName}{Constants.ZipFileExtension}";
 
         private string AddTestRunnerTemplateToApplicationEntryPoint()
         {

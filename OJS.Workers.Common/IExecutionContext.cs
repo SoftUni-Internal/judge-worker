@@ -4,19 +4,19 @@
 
     public interface IExecutionContext<TInput>
     {
-        CompilerType CompilerType { get; set; }
+        CompilerType CompilerType { get; }
 
-        string AdditionalCompilerArguments { get; set; }
+        string AdditionalCompilerArguments { get; }
 
-        string Code { get; }
+        string Code { get; set; }
 
         byte[] FileContent { get; set; }
 
-        string AllowedFileExtensions { get; set; }
+        string AllowedFileExtensions { get; }
 
-        int TimeLimit { get; set; }
+        int TimeLimit { get; }
 
-        int MemoryLimit { get; set; }
+        int MemoryLimit { get; }
 
         TInput Input { get; set; }
     }

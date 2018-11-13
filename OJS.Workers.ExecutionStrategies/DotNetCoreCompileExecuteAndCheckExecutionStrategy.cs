@@ -11,24 +11,30 @@
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        private const string RuntimeConfigJsonTemplate = @"
-            {
-	            ""runtimeOptions"": {
-                    ""framework"": {
-                        ""name"": ""Microsoft.NETCore.App"",
-                        ""version"": ""2.0.5""
-                    }
-                }
-            }";
+        private readonly string dotNetCoreRuntimeVersion;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            string dotNetCoreRuntimeVersion,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed) =>
-                this.GetCompilerPathFunc = getCompilerPathFunc;
+            : base(baseTimeUsed, baseMemoryUsed)
+        {
+            this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.dotNetCoreRuntimeVersion = dotNetCoreRuntimeVersion;
+        }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
+
+        private string RuntimeConfigJsonTemplate => $@"
+            {{
+	            ""runtimeOptions"": {{
+                    ""framework"": {{
+                        ""name"": ""Microsoft.NETCore.App"",
+                        ""version"": ""{this.dotNetCoreRuntimeVersion}""
+                    }}
+                }}
+            }}";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
@@ -126,7 +132,7 @@
 
             compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
-            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
+            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, this.RuntimeConfigJsonTemplate);
 
             return executor;
         }

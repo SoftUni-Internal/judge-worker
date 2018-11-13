@@ -6,6 +6,7 @@
     using log4net;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class SubmissionProcessingStrategy<TSubmission> : ISubmissionProcessingStrategy<TSubmission>
@@ -51,8 +52,10 @@
 
         public abstract void OnError(IOjsSubmission submission);
 
-        protected abstract void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult);
+        protected virtual void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult) =>
+            throw new DerivedImplementationNotFoundException();
 
-        protected abstract void ProcessOutputExecutionResult(IExecutionResult<OutputResult> outputExecutionResult);
+        protected virtual void ProcessOutputExecutionResult(IExecutionResult<OutputResult> outputExecutionResult) =>
+            throw new DerivedImplementationNotFoundException();
     }
 }

@@ -4,60 +4,62 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        private const string RuntimeConfigJsonTemplate = @"
-            {
-	            ""runtimeOptions"": {
-                    ""framework"": {
-                        ""name"": ""Microsoft.NETCore.App"",
-                        ""version"": ""2.0.5""
-                    }
-                }
-            }";
+        private readonly string dotNetCoreRuntimeVersion;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            string dotNetCoreRuntimeVersion,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed) =>
-                this.GetCompilerPathFunc = getCompilerPathFunc;
+            : base(baseTimeUsed, baseMemoryUsed)
+        {
+            this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.dotNetCoreRuntimeVersion = dotNetCoreRuntimeVersion;
+        }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
-        {
-            var result = new ExecutionResult();
+        private string RuntimeConfigJsonTemplate => $@"
+            {{
+	            ""runtimeOptions"": {{
+                    ""framework"": {{
+                        ""name"": ""Microsoft.NETCore.App"",
+                        ""version"": ""{this.dotNetCoreRuntimeVersion}""
+                    }}
+                }}
+            }}";
 
-            // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
+        {
+            var result = new ExecutionResult<TestResult>();
+
+            var compileResult = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result);
+
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
-            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, RuntimeConfigJsonTemplate);
+            var executor = this.PrepareExecutor(
+                compileResult,
+                executionContext,
+                out var arguments,
+                out var compilerPath);
 
-            // Execute and check each test
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var checker = executionContext.Input.GetChecker();
 
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
-            var arguments = new[]
-            {
-                compilerResult.OutputFile
-            };
-
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     compilerPath,
@@ -73,10 +75,66 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;
+        }
+
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext)
+        {
+            var result = new ExecutionResult<OutputResult>();
+
+            var compileResult = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result);
+
+            if (!compileResult.IsCompiledSuccessfully)
+            {
+                return result;
+            }
+
+            var executor = this.PrepareExecutor(
+                compileResult,
+                executionContext,
+                out var arguments,
+                out var compilerPath);
+
+            var processExecutionResult = executor.Execute(
+                compilerPath,
+                executionContext.Input ?? string.Empty,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                arguments,
+                this.WorkingDirectory);
+
+            var outputResult = this.GetOutputResult(processExecutionResult);
+
+            result.Results.Add(outputResult);
+
+            return result;
+        }
+
+        private IExecutor PrepareExecutor<TInput>(
+            CompileResult compileResult,
+            IExecutionContext<TInput> executionContext,
+            out string[] arguments,
+            out string compilerPath)
+        {
+            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            arguments = new[]
+            {
+                compileResult.OutputFile
+            };
+
+            compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+
+            this.CreateRuntimeConfigJsonFile(this.WorkingDirectory, this.RuntimeConfigJsonTemplate);
+
+            return executor;
         }
 
         private void CreateRuntimeConfigJsonFile(string directory, string text)

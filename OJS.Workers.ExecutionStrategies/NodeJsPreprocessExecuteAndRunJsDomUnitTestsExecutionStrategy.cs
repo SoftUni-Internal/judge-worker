@@ -7,6 +7,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
         : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
@@ -136,7 +137,7 @@ it('Test{testsCount++}', function(done) {{
         }
 
         protected override List<TestResult> ProcessTests(
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -156,7 +157,7 @@ it('Test{testsCount++}', function(done) {{
 
             var mochaResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput);
             var currentTest = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "yes";
                 if (!string.IsNullOrEmpty(mochaResult.Error))
@@ -180,7 +181,7 @@ it('Test{testsCount++}', function(done) {{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected override string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
         {
             var code = context.Code.Trim(';');
             var processedCode = template
@@ -189,7 +190,7 @@ it('Test{testsCount++}', function(done) {{
                 .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                 .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                 .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                .Replace(TestsPlaceholder, this.BuildTests(context.Tests))
+                .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests))
                 .Replace(UserInputPlaceholder, code);
             return processedCode;
         }

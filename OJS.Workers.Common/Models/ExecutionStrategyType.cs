@@ -2,7 +2,7 @@
 {
     public enum ExecutionStrategyType
     {
-        DoNothing = 0,
+        NotFound = 0,
         CompileExecuteAndCheck = 1,
         NodeJsPreprocessExecuteAndCheck = 2,
         RemoteExecution = 3,
@@ -41,6 +41,7 @@
         PhpProjectWithDbExecutionStrategy = 36,
         DotNetCoreCompileExecuteAndCheck = 37,
         DotNetCoreUnitTestsExecutionStrategy = 38,
-        SolidityCompileDeployAndRunUnitTestsExecutionStrategy = 39
+        SolidityCompileDeployAndRunUnitTestsExecutionStrategy = 39,
+        DoNothing = 40,
     }
 }

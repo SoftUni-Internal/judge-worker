@@ -2,8 +2,9 @@
 {
     using System.IO;
 
-    using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class RubyExecutionStrategy : ExecutionStrategy
@@ -14,9 +15,10 @@
 
         public string RubyPath { get; set; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             result.IsCompiledSuccessfully = true;
 
@@ -25,12 +27,10 @@
             var arguments = new[] { submissionFilePath };
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
-            foreach (var test in executionContext.Tests)
+            var checker = executionContext.Input.GetChecker();
+
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.RubyPath,
@@ -45,7 +45,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             if (File.Exists(submissionFilePath))

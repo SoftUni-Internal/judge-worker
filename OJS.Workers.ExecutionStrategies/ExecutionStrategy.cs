@@ -6,12 +6,13 @@
 
     using log4net;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class ExecutionStrategy : IExecutionStrategy
     {
@@ -32,14 +33,32 @@
 
         protected string WorkingDirectory { get; set; }
 
-        public abstract ExecutionResult Execute(ExecutionContext executionContext);
+        public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
+        {
+            switch (executionContext)
+            {
+                case IExecutionContext<TestsInputModel> testsExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext);
+                case IExecutionContext<string> stringInputExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(stringInputExecutionContext);
+                default:
+                    return new ExecutionResult<TResult>
+                    {
+                        IsCompiledSuccessfully = false,
+                        CompilerComment = "Execution context not found"
+                    };
+            }
+        }
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
+
             try
             {
-                return this.Execute(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -57,31 +76,40 @@
             }
         }
 
-        protected ExecutionResult CompileExecuteAndCheck(
-            ExecutionContext executionContext,
+        protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext) =>
+                throw new DerivedImplementationNotFoundException();
+
+        protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext) =>
+                throw new DerivedImplementationNotFoundException();
+
+        protected IExecutionResult<TestResult> CompileExecuteAndCheck(
+            IExecutionContext<TestsInputModel> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutor executor,
             bool useSystemEncoding = true,
             bool dependOnExitCodeForRunTimeError = false)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, getCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            var compileResult = this.ExecuteCompiling(
+                executionContext,
+                getCompilerPathFunc,
+                result);
+
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
-            var outputFile = compilerResult.OutputFile;
+            var outputFile = compileResult.OutputFile;
 
             // Execute and check each test
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+            var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     outputFile,
@@ -100,7 +128,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;
@@ -148,18 +176,39 @@
             return testResult;
         }
 
-        protected CompileResult ExecuteCompiling(ExecutionContext executionContext, Func<CompilerType, string> getCompilerPathFunc, ExecutionResult result)
+        protected OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult) =>
+            new OutputResult
+            {
+                TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
+                MemoryUsed = (int)processExecutionResult.MemoryUsed,
+                ResultType = processExecutionResult.Type,
+                Output = string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput)
+                    ? processExecutionResult.ReceivedOutput
+                    : processExecutionResult.ErrorOutput
+            };
+
+        protected CompileResult ExecuteCompiling<TInput, TResult>(
+            IExecutionContext<TInput> executionContext,
+            Func<CompilerType, string> getCompilerPathFunc,
+            IExecutionResult<TResult> result)
+            where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
-            var compilerResult = this.Compile(executionContext.CompilerType, compilerPath, executionContext.AdditionalCompilerArguments, submissionFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            return compilerResult;
+            var compileResult = this.Compile(
+                executionContext.CompilerType,
+                compilerPath,
+                executionContext.AdditionalCompilerArguments,
+                submissionFilePath);
+
+            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
+            result.CompilerComment = compileResult.CompilerComment;
+
+            return compileResult;
         }
 
         protected virtual CompileResult Compile(

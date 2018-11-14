@@ -4,8 +4,7 @@
 
     using log4net;
 
-    using OJS.Workers.ExecutionStrategies;
-    using OJS.Workers.SubmissionProcessors.Models;
+    using OJS.Workers.Common;
 
     public interface ISubmissionProcessingStrategy<TSubmission>
     {
@@ -16,12 +15,13 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject);
 
-        SubmissionModel RetrieveSubmission();
+        IOjsSubmission RetrieveSubmission();
 
         void BeforeExecute();
 
-        void ProcessExecutionResult(ExecutionResult executionResult);
+        void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
+            where TResult : ISingleCodeRunResult, new();
 
-        void OnError(SubmissionModel submission);
+        void OnError(IOjsSubmission submission);
     }
 }

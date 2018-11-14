@@ -5,11 +5,11 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -70,21 +70,22 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmission = executionContext.FileContent;
 
             this.ExtractFilesInWorkingDirectory(userSubmission, this.UserProjectDirectory);
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
-            this.SaveTestFiles(executionContext.Tests, this.NUnitLiteConsoleAppDirectory);
+            this.SaveTestFiles(executionContext.Input.Tests, this.NUnitLiteConsoleAppDirectory);
             this.SaveSetupFixture(this.NUnitLiteConsoleAppDirectory);
 
             var userCsProjPaths = FileHelpers.FindAllFilesMatchingPattern(
@@ -112,16 +113,12 @@
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
             result = this.RunUnitTests(
                 compilerPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.GetChecker(),
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);

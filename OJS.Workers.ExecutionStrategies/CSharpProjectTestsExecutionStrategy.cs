@@ -8,12 +8,12 @@
 
     using Microsoft.Build.Evaluation;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CSharpProjectTestsExecutionStrategy : ExecutionStrategy
@@ -101,21 +101,22 @@
 
         protected List<string> TestPaths { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
             var userSubmissionContent = executionContext.FileContent;
 
             this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
 
             var csProjFilePath = this.GetCsProjFilePath();
 
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
             var project = new Project(csProjFilePath);
             var compileDirectory = project.DirectoryPath;
 
-            this.SaveTestFiles(executionContext.Tests, compileDirectory);
+            this.SaveTestFiles(executionContext.Input.Tests, compileDirectory);
             this.SaveSetupFixture(compileDirectory);
 
             this.CorrectProjectReferences(project);
@@ -139,16 +140,12 @@
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.GetChecker(),
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);
@@ -175,12 +172,12 @@
             }
         }
 
-        protected virtual ExecutionResult RunUnitTests(
+        protected virtual ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string compiledFile,
             string additionalExecutionArguments)
         {
@@ -202,14 +199,14 @@
 
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
 
-            if (failedTestsCount != errorsByFiles.Count || totalTestsCount != executionContext.Tests.Count())
+            if (failedTestsCount != errorsByFiles.Count || totalTestsCount != executionContext.Input.Tests.Count())
             {
                 throw new ArgumentException("Failing tests not captured properly, please contact an administrator");
             }
 
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testFile = this.TestNames[testIndex++];
@@ -219,7 +216,7 @@
                 }
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;

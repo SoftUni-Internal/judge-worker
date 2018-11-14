@@ -207,5 +207,7 @@
 
         public static int SolidityCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("SolidityCompilerProcessExitTimeOutMultiplier", 1);
+
+        public static string DotNetCoreRuntimeVersion => SettingsHelper.GetSetting("DotNetCoreRuntimeVersion");
     }
 }

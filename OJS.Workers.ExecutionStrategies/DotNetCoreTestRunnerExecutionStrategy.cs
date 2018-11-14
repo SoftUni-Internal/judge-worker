@@ -12,13 +12,14 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreTestRunnerExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         private const string DotNetCoreCsProjIdentifierPattern = "<Project";
-        private const string DotNetCoreCompiledFileExtention = ".dll";
-        private const string DotNetFrameworkCompiledFileExtention = ".exe";
+        private const string DotNetCoreCompiledFileExtension = ".dll";
+        private const string DotNetFrameworkCompiledFileExtension = ".exe";
         private const string SystemAssembly = "System.dll";
         private const string SystemCoreAssembly = "System.Core.dll";
         private const string MsCoreLibAssembly = "mscorlib.dll";
@@ -144,11 +145,12 @@
             : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPathFunc;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
             var submissionFilePath = $"{this.WorkingDirectory}\\{ZippedSubmissionName}";
@@ -204,10 +206,12 @@
             return result;
         }
 
-        private string PreprocessAndCompileTestRunner(ExecutionContext executionContext, string outputDirectory)
+        private string PreprocessAndCompileTestRunner(
+            IExecutionContext<TestsInputModel> executionContext,
+            string outputDirectory)
         {
             var testStrings = new List<string>();
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 testStrings.Add(TestTemplate.Replace(TestInputPlaceholder, test.Input));
             }
@@ -223,8 +227,8 @@
 
             var referencedTypes = Directory
                 .GetFiles(outputDirectory)
-                .Where(f => f.EndsWith(DotNetCoreCompiledFileExtention) ||
-                    f.EndsWith(DotNetFrameworkCompiledFileExtention))
+                .Where(f => f.EndsWith(DotNetCoreCompiledFileExtension) ||
+                    f.EndsWith(DotNetFrameworkCompiledFileExtension))
                 .ToArray();
 
             compilerParameters.ReferencedAssemblies.AddRange(referencedTypes);
@@ -240,14 +244,14 @@
 
         private void ProcessTests(
             ProcessExecutionResult processExecutionResult,
-            ExecutionContext executionContext,
-            ExecutionResult result)
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             var jsonResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput, true, true);
 
             var index = 0;
-            result.TestResults = new List<TestResult>();
-            foreach (var test in executionContext.Tests)
+
+            foreach (var test in executionContext.Input.Tests)
             {
                 var testResult = new TestResult
                 {
@@ -266,7 +270,7 @@
                     testResult.CheckerDetails = new CheckerDetails { Comment = "Test failed." };
                 }
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 index++;
             }
         }

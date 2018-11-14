@@ -5,10 +5,10 @@
     using System.IO;
     using System.Text;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -16,6 +16,7 @@
         protected const string TimeMeasurementFileName = "_$time.txt";
         protected const string SandboxExecutorClassName = "_$SandboxExecutor";
         protected const string JavaCompiledFileExtension = ".class";
+        private const double NanosecondsInOneMillisecond = 1000000;
 
         private readonly int baseUpdateTimeOffset;
 
@@ -159,9 +160,46 @@ class _$SandboxSecurityManager extends SecurityManager {
     }
 }";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected static void UpdateExecutionTime(
+            string timeMeasurementFilePath,
+            ProcessExecutionResult processExecutionResult,
+            int timeLimit,
+            int updateTimeOffset)
         {
-            var result = new ExecutionResult();
+            if (!File.Exists(timeMeasurementFilePath))
+            {
+                return;
+            }
+
+            var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
+            if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
+            {
+                var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
+                var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
+                var timeToSubtract = TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
+
+                processExecutionResult.TimeWorked = totalTimeUsed - timeToSubtract;
+
+                if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
+                    processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
+                {
+                    // The time from the time measurement file is under the time limit
+                    processExecutionResult.Type = ProcessExecutionResultType.Success;
+                }
+                else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
+                         processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
+                {
+                    processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
+                }
+            }
+
+            File.Delete(timeMeasurementFilePath);
+        }
+
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
+        {
+            var result = new ExecutionResult<TestResult>();
 
             // Copy the sandbox executor source code to a file in the working directory
             File.WriteAllText(this.SandboxExecutorSourceFilePath, this.SandboxExecutorCode);
@@ -202,12 +240,13 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
-            // Create an executor and a checker
+            // Create an executor and checker
             var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
+
+            var checker = executionContext.Input.GetChecker();
 
             // Process the submission and check each test
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.JavaExecutablePath,
@@ -225,52 +264,24 @@ class _$SandboxSecurityManager extends SecurityManager {
                     executionContext.TimeLimit,
                     this.baseUpdateTimeOffset);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
+                result.Results.Add(testResult);
             }
 
             return result;
         }
 
-        protected static void UpdateExecutionTime(
-            string timeMeasurementFilePath,
-            ProcessExecutionResult processExecutionResult,
-            int timeLimit,
-            int updateTimeOffset)
-        {
-            if (File.Exists(timeMeasurementFilePath))
-            {
-                var timeMeasurementFileContent = File.ReadAllText(timeMeasurementFilePath);
-                if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
-                {
-                    var totalTimeUsed = TimeSpan.FromMilliseconds((double)timeInNanoseconds / 1000000);
-                    var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
-
-                    processExecutionResult.TimeWorked = totalTimeUsed > timeOffset
-                        ? totalTimeUsed - timeOffset
-                        : totalTimeUsed;
-
-                    if (processExecutionResult.Type == ProcessExecutionResultType.TimeLimit &&
-                        processExecutionResult.TimeWorked.TotalMilliseconds <= timeLimit)
-                    {
-                        // The time from the time measurement file is under the time limit
-                        processExecutionResult.Type = ProcessExecutionResultType.Success;
-                    }
-                    else if (processExecutionResult.Type == ProcessExecutionResultType.Success &&
-                        processExecutionResult.TimeWorked.TotalMilliseconds > timeLimit)
-                    {
-                        processExecutionResult.Type = ProcessExecutionResultType.TimeLimit;
-                    }
-                }
-
-                File.Delete(timeMeasurementFilePath);
-            }
-        }
-
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext) =>
+        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>
             JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
 
-        protected virtual CompileResult DoCompile(ExecutionContext executionContext, string submissionFilePath)
+        protected virtual CompileResult DoCompile<TInput>(
+            IExecutionContext<TInput> executionContext,
+            string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

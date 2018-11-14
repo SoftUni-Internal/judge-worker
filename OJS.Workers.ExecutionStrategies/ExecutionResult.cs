@@ -2,12 +2,15 @@
 {
     using System.Collections.Generic;
 
-    public class ExecutionResult
+    using OJS.Workers.Common;
+
+    public class ExecutionResult<TResult> : IExecutionResult<TResult>
+        where TResult : ISingleCodeRunResult, new()
     {
         public bool IsCompiledSuccessfully { get; set; }
 
         public string CompilerComment { get; set; }
 
-        public List<TestResult> TestResults { get; set; } = new List<TestResult>();
+        public ICollection<TResult> Results { get; set; } = new List<TResult>();
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies
+﻿namespace OJS.Workers.ExecutionStrategies.Models
 {
     public class TestContext
     {

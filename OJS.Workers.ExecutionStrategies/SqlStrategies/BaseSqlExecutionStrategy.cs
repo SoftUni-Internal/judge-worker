@@ -6,10 +6,11 @@
 
     using MissingFeatures;
 
-    using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class BaseSqlExecutionStrategy : IExecutionStrategy
     {
@@ -22,14 +23,15 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public string WorkingDirectory { get; set; }
+        public string WorkingDirectory { get; set; } 
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             try
             {
-                return this.Execute(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -37,18 +39,32 @@
             }
         }
 
-        public abstract ExecutionResult Execute(ExecutionContext executionContext);
-
-        public virtual ExecutionResult Execute(
-            ExecutionContext executionContext,
-            Action<IDbConnection, TestContext, ExecutionResult> executionFlow)
+        public virtual IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            switch (executionContext)
+            {
+                case IExecutionContext<TestsInputModel> testsExecutionContext:
+                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
+                default:
+                    return new ExecutionResult<TResult>
+                    {
+                        IsCompiledSuccessfully = false,
+                        CompilerComment = "Execution context not found"
+                    };
+            }
+        }
+
+        public virtual IExecutionResult<TestResult> Execute(
+            IExecutionContext<TestsInputModel> executionContext,
+            Action<IDbConnection, TestContext, ExecutionResult<TestResult>> executionFlow)
+        {
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
 
             string databaseName = null;
             try
             {
-                foreach (var test in executionContext.Tests)
+                foreach (var test in executionContext.Input.Tests)
                 {
                     databaseName = this.GetDatabaseName();
 
@@ -79,6 +95,9 @@
         public abstract void DropDatabase(string databaseName);
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
+
+        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
+            IExecutionContext<TestsInputModel> executionContext);
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
@@ -164,16 +183,25 @@
             }
         }
 
-        protected void ProcessSqlResult(SqlResult sqlResult, ExecutionContext executionContext, TestContext test, ExecutionResult result)
+        protected void ProcessSqlResult(
+            SqlResult sqlResult,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test,
+            IExecutionResult<TestResult> result)
         {
             if (sqlResult.Completed)
             {
                 var joinedUserOutput = string.Join(Environment.NewLine, sqlResult.Results);
 
-                var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
-                var checkerResult = checker.Check(test.Input, joinedUserOutput, test.Output, test.IsTrialTest);
+                var checker = executionContext.Input.GetChecker();
 
-                result.TestResults.Add(new TestResult
+                var checkerResult = checker.Check(
+                    test.Input,
+                    joinedUserOutput,
+                    test.Output,
+                    test.IsTrialTest);
+
+                result.Results.Add(new TestResult
                 {
                     Id = test.Id,
                     ResultType = checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
@@ -182,7 +210,7 @@
             }
             else
             {
-                result.TestResults.Add(new TestResult
+                result.Results.Add(new TestResult
                 {
                     Id = test.Id,
                     TimeUsed = executionContext.TimeLimit,

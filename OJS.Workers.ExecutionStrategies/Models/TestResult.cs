@@ -1,20 +1,16 @@
-﻿namespace OJS.Workers.ExecutionStrategies
+﻿namespace OJS.Workers.ExecutionStrategies.Models
 {
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
 
-    public class TestResult
+    public class TestResult : SingleCodeRunResult
     {
         public int Id { get; set; }
 
         public TestRunResultType ResultType { get; set; }
 
-        public int TimeUsed { get; set; }
-
-        public int MemoryUsed { get; set; }
+        public CheckerDetails CheckerDetails { get; set; }
 
         public string ExecutionComment { get; set; }
-
-        public CheckerDetails CheckerDetails { get; set; }
     }
 }

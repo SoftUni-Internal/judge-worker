@@ -7,13 +7,13 @@
 
     using Microsoft.Build.Evaluation;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class CSharpUnitTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -29,9 +29,10 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
 
@@ -46,16 +47,12 @@
             this.CorrectProjectReferences(project);
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.GetChecker(),
                 result,
                 csProjFilePath,
                 AdditionalExecutionArguments);
@@ -63,12 +60,12 @@
             return result;
         }
 
-        protected override ExecutionResult RunUnitTests(
+        protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string csProjFilePath,
             string additionalExecutionArguments)
         {
@@ -80,7 +77,7 @@
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 
-            var tests = executionContext.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
+            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
 
             foreach (var test in tests)
             {
@@ -129,7 +126,7 @@
                 originalTestsPassed = processExecutionTestResult.originalTestsPassed;
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 count++;
             }
 

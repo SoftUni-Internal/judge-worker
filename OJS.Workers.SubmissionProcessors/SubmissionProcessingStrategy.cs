@@ -1,12 +1,13 @@
 ﻿namespace OJS.Workers.SubmissionProcessors
 {
+    using System;
     using System.Collections.Concurrent;
 
     using log4net;
 
     using OJS.Workers.Common;
-    using OJS.Workers.ExecutionStrategies;
-    using OJS.Workers.SubmissionProcessors.Models;
+    using OJS.Workers.Common.Exceptions;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class SubmissionProcessingStrategy<TSubmission> : ISubmissionProcessingStrategy<TSubmission>
     {
@@ -29,12 +30,32 @@
             this.SharedLockObject = sharedLockObject;
         }
 
+        public void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
+            where TResult : ISingleCodeRunResult, new()
+        {
+            switch (executionResult)
+            {
+                case IExecutionResult<TestResult> testsExecutionResult:
+                    this.ProcessTestsExecutionResult(testsExecutionResult);
+                    break;
+                case IExecutionResult<OutputResult> outputExecutionResult:
+                    this.ProcessOutputExecutionResult(outputExecutionResult);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid execution result", nameof(executionResult));
+            }
+        }
+
         public abstract void BeforeExecute();
 
-        public abstract SubmissionModel RetrieveSubmission();
+        public abstract IOjsSubmission RetrieveSubmission();
 
-        public abstract void ProcessExecutionResult(ExecutionResult executionResult);
+        public abstract void OnError(IOjsSubmission submission);
 
-        public abstract void OnError(SubmissionModel submission);
+        protected virtual void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult) =>
+            throw new DerivedImplementationNotFoundException();
+
+        protected virtual void ProcessOutputExecutionResult(IExecutionResult<OutputResult> outputExecutionResult) =>
+            throw new DerivedImplementationNotFoundException();
     }
 }

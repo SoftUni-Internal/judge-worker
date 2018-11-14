@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -167,9 +167,10 @@ process.stdin.on('end', function() {
             EvaluationPlaceholder +
             PostevaluationPlaceholder;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // In NodeJS there is no compilation
             result.IsCompiledSuccessfully = true;
@@ -184,12 +185,12 @@ process.stdin.on('end', function() {
 
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.GetChecker(),
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);
@@ -197,13 +198,17 @@ process.stdin.on('end', function() {
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        protected virtual List<TestResult> ProcessTests(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutor executor,
+            IChecker checker,
+            string codeSavePath)
         {
             var testResults = new List<TestResult>();
 
             var arguments = new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath };
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.NodeJsExecutablePath,
@@ -212,16 +217,21 @@ process.stdin.on('end', function() {
                     executionContext.MemoryLimit,
                     arguments);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
                 testResults.Add(testResult);
             }
 
             return testResults;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected virtual string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
         {
-            var problemSkeleton = context.TaskSkeletonAsString ??
+            var problemSkeleton = context.Input.TaskSkeletonAsString ??
                 "function adapter(input, code) { return code(input); }";
             var code = context.Code.Trim(';');
 

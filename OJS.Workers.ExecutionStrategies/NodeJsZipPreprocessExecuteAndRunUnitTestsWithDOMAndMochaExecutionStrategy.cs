@@ -5,9 +5,9 @@
     using System.IO;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy :
@@ -148,9 +148,10 @@ function afterBundling() {
     });
 }";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
 
             // Copy and unzip the file (save file to WorkingDirectory)
             this.CreateSubmissionFile(executionContext);
@@ -168,14 +169,12 @@ function afterBundling() {
             // Create a Restricted Process Executor
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
-            // Create a Checker using the information from the Execution Context
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
             // Process tests
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.GetChecker(),
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);
@@ -206,7 +205,7 @@ function afterBundling() {
             return testsCode;
         }
 
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -233,7 +232,10 @@ function afterBundling() {
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(
+            string template,
+            IExecutionContext<TestsInputModel> context,
+            string pathToFile)
         {
             var processedCode =
                 template.Replace(RequiredModules, this.JsCodeRequiredModules)
@@ -242,7 +244,7 @@ function afterBundling() {
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
                     .Replace(UserInputPlaceholder, pathToFile)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests));
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests));
 
             return processedCode;
         }

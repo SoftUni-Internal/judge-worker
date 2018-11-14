@@ -7,11 +7,11 @@
     using System.Text.RegularExpressions;
     using System.Xml;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaSpringAndHibernateProjectExecutionStrategy : JavaProjectTestsExecutionStrategy
@@ -138,9 +138,10 @@
 
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Create a temp file with the submission code
             string submissionFilePath;
@@ -187,6 +188,8 @@
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
+            var checker = executionContext.Input.GetChecker();
+
             var arguments = new List<string>
             {
                 this.ClassPath,
@@ -195,13 +198,9 @@
             };
 
             var testErrorMatcher = new Regex(JUnitFailedTestPattern);
-            var checker = Checker.CreateChecker(
-              executionContext.CheckerAssemblyName,
-              executionContext.CheckerTypeName,
-              executionContext.CheckerParameter);
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var testFile = this.TestNames[testIndex++];
                 arguments.Add(testFile);
@@ -223,8 +222,13 @@
 
                 var message = this.EvaluateJUnitOutput(processExecutionResult.ReceivedOutput, testErrorMatcher);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    message);
+
+                result.Results.Add(testResult);
 
                 arguments.Remove(testFile);
             }
@@ -249,7 +253,7 @@
             return message;
         }
 
-        protected override string PrepareSubmissionFile(ExecutionContext context)
+        protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -335,12 +339,14 @@
             DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
         }
 
-        protected override void AddTestsToUserSubmission(ExecutionContext context, string submissionZipFilePath)
+        protected override void AddTestsToUserSubmission(
+            IExecutionContext<TestsInputModel> context,
+            string submissionZipFilePath)
         {
             var testNumber = 0;
-            var filePaths = new string[context.Tests.Count()];
+            var filePaths = new string[context.Input.Tests.Count()];
 
-            foreach (var test in context.Tests)
+            foreach (var test in context.Input.Tests)
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =

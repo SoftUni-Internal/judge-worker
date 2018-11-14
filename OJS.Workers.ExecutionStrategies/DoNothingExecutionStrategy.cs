@@ -1,19 +1,20 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using System.Collections.Generic;
-
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
 
     public class DoNothingExecutionStrategy : IExecutionStrategy
     {
         protected string WorkingDirectory { get; set; }
 
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
+
             try
             {
-                return this.Execute(executionContext);
+                return this.Execute<TInput, TResult>(executionContext);
             }
             finally
             {
@@ -21,12 +22,12 @@
             }
         }
 
-        public ExecutionResult Execute(ExecutionContext executionContext) =>
-            new ExecutionResult
-            {
-                CompilerComment = null,
-                IsCompiledSuccessfully = true,
-                TestResults = new List<TestResult>()
-            };
+        public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new() =>
+                new ExecutionResult<TResult>
+                {
+                    CompilerComment = null,
+                    IsCompiledSuccessfully = true
+                };
     }
 }

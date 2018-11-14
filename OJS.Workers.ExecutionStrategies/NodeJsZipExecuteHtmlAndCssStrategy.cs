@@ -5,9 +5,9 @@
     using System.IO;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsZipExecuteHtmlAndCssStrategy : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
@@ -158,9 +158,10 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
             this.CreateSubmissionFile(executionContext);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
 
@@ -172,12 +173,12 @@ describe('TestDOMScope', function() {{
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.GetChecker(),
+                codeSavePath);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
             File.Delete(codeSavePath);
 
             return result;
@@ -207,10 +208,10 @@ describe('TestDOMScope', function() {{
         }
 
         protected override List<TestResult> ProcessTests(
-          ExecutionContext executionContext,
-          IExecutor executor,
-          IChecker checker,
-          string codeSavePath)
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutor executor,
+            IChecker checker,
+            string codeSavePath)
         {
             var testResults = new List<TestResult>();
             var arguments = new List<string>();
@@ -227,7 +228,7 @@ describe('TestDOMScope', function() {{
 
             var mochaResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput);
             var currentTest = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "yes";
                 if (!string.IsNullOrEmpty(mochaResult.Error))
@@ -251,7 +252,7 @@ describe('TestDOMScope', function() {{
             return testResults;
         }
 
-        protected virtual string CreateSubmissionFile(ExecutionContext executionContext)
+        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -278,7 +279,10 @@ describe('TestDOMScope', function() {{
             return submissionFilePath;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, ExecutionContext context, string pathToFile)
+        protected virtual string PreprocessJsSubmission(
+            string template,
+            IExecutionContext<TestsInputModel> context,
+            string pathToFile)
         {
             var userBaseDirectory = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
             userBaseDirectory = FileHelpers.ProcessModulePath(Path.GetDirectoryName(userBaseDirectory));
@@ -291,7 +295,7 @@ describe('TestDOMScope', function() {{
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
                     .Replace(UserInputPlaceholder, pathToFile)
                     .Replace(UserBaseDirectoryPlaceholder, userBaseDirectory)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests));
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests));
 
             return processedCode;
         }

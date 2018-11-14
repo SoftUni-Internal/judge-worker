@@ -1,12 +1,11 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class PhpProjectExecutionStrategy : ExecutionStrategy
@@ -36,9 +35,10 @@
 
         protected string PhpCliExecutablePath { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
@@ -59,15 +59,11 @@
 
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
-            result.TestResults = new List<TestResult>();
-
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            foreach (var test in executionContext.Tests)
+
+            var checker = executionContext.Input.GetChecker();
+
+            foreach (var test in executionContext.Input.Tests)
             {
                 File.WriteAllText(this.SuperGlobalsTemplatePath, test.Input);
 
@@ -84,7 +80,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;

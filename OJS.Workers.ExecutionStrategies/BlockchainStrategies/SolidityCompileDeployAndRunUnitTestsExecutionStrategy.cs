@@ -6,11 +6,11 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : ExecutionStrategy
@@ -69,28 +69,36 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
-            this.ExtractTestNames(executionContext.Tests);
+            this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
-            var compilerResult = this.ExecuteCompiling(executionContext, this.GetCompilerPathFunc, result);
-            if (!compilerResult.IsCompiledSuccessfully)
+            var compileResult = this.ExecuteCompiling(
+                executionContext,
+                this.GetCompilerPathFunc,
+                result);
+
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
 
-            var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compilerResult.OutputFile));
+            var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
 
             var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber);
 
             truffleProject.InitializeMigration(this.GetCompilerPathFunc(executionContext.CompilerType));
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
-            truffleProject.ImportJsUnitTests(executionContext.Tests);
+            truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
-            IExecutor executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+
+            var checker = executionContext.Input.GetChecker();
+
             ProcessExecutionResult processExecutionResult;
 
             // Run tests in the Ethereum Virtual Machine scope
@@ -117,7 +125,7 @@
             var (totalTestsCount, failingTestsCount) =
                 ExtractFailingTestsCount(processExecutionResult.ReceivedOutput);
 
-            if (totalTestsCount != executionContext.Tests.Count())
+            if (totalTestsCount != executionContext.Input.Tests.Count())
             {
                 throw new ArgumentException(
                     "Some of the tests contain more than one test per test case. Please contact an administrator");
@@ -130,13 +138,8 @@
                 throw new ArgumentException("Failing tests not captured properly. Please contact an administrator");
             }
 
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
             var testsCounter = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testName = this.TestNames[testsCounter++];
@@ -145,8 +148,13 @@
                     message = errorsByTestNames[testName];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    message);
+
+                result.Results.Add(testResult);
             }
 
             return result;

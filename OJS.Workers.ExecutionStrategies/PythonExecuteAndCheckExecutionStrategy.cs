@@ -1,11 +1,11 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class PythonExecuteAndCheckExecutionStrategy : ExecutionStrategy
@@ -29,9 +29,10 @@
             this.pythonExecutablePath = pythonExecutablePath;
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Python code is not compiled
             result.IsCompiledSuccessfully = true;
@@ -40,11 +41,10 @@
 
             // Process the submission and check each test
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
-            result.TestResults = new List<TestResult>();
+            var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     this.pythonExecutablePath,
@@ -56,8 +56,13 @@
                     false,
                     true);
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
+                result.Results.Add(testResult);
             }
 
             // Clean up

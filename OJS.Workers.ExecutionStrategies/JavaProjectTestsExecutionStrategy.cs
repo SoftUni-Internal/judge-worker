@@ -5,11 +5,11 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
@@ -95,9 +95,10 @@ class Classes{{
             }
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             // Create a temp file with the submission code
             string submissionFilePath;
@@ -117,18 +118,17 @@ class Classes{{
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPath;
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
-            if (!string.IsNullOrWhiteSpace(executionContext.TaskSkeletonAsString))
+            if (!string.IsNullOrWhiteSpace(executionContext.Input.TaskSkeletonAsString))
             {
                 FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
 
-                string className = JavaCodePreprocessorHelper.GetPublicClassName(executionContext.TaskSkeletonAsString);
-                string filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
-                File.WriteAllText(filePath, executionContext.TaskSkeletonAsString);
+                var className = JavaCodePreprocessorHelper
+                    .GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
+
+                var filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+
+                File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
 
                 var preprocessCompileResult = this.Compile(
@@ -212,7 +212,9 @@ class Classes{{
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
             var testIndex = 0;
 
-            foreach (var test in executionContext.Tests)
+            var checker = executionContext.Input.GetChecker();
+
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 var testFile = this.TestNames[testIndex++];
@@ -221,14 +223,19 @@ class Classes{{
                     message = errorsByFiles[testFile];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    message);
+
+                result.Results.Add(testResult);
             }
 
             return result;
         }
 
-        protected override string PrepareSubmissionFile(ExecutionContext context)
+        protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
@@ -240,12 +247,14 @@ class Classes{{
             return submissionFilePath;
         }
 
-        protected virtual void AddTestsToUserSubmission(ExecutionContext context, string submissionZipFilePath)
+        protected virtual void AddTestsToUserSubmission(
+            IExecutionContext<TestsInputModel> context,
+            string submissionZipFilePath)
         {
             var testNumber = 0;
-            var filePaths = new string[context.Tests.Count()];
+            var filePaths = new string[context.Input.Tests.Count()];
 
-            foreach (var test in context.Tests)
+            foreach (var test in context.Input.Tests)
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =

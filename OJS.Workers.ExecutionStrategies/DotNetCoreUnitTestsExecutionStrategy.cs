@@ -5,12 +5,12 @@
     using System.IO;
     using System.Linq;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreUnitTestsExecutionStrategy : DotNetCoreProjectTestsExecutionStrategy
@@ -34,14 +34,15 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmission = executionContext.FileContent;
 
@@ -56,16 +57,12 @@
             this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
 
             result = this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,
                 executionContext,
                 executor,
-                checker,
+                executionContext.Input.GetChecker(),
                 result,
                 string.Empty,
                 AdditionalExecutionArguments);
@@ -73,12 +70,12 @@
             return result;
         }
 
-        protected override ExecutionResult RunUnitTests(
+        protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string csProjFilePath,
             string additionalExecutionArguments)
         {
@@ -90,7 +87,7 @@
                 $"{this.NUnitLiteConsoleAppDirectory}\\{UnitTestStrategiesHelper.TestedCodeFileNameWithExtension}";
             var originalTestsPassed = -1;
 
-            var tests = executionContext.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
+            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
 
             for (var i = 0;  i < tests.Count; i++)
             {
@@ -141,7 +138,7 @@
                 originalTestsPassed = processExecutionTestResult.originalTestsPassed;
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
 
                 if (i < tests.Count - 1)
                 {

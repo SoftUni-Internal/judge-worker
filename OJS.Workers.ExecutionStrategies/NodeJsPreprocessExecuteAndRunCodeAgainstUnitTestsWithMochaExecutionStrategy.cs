@@ -6,9 +6,9 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy :
@@ -84,10 +84,11 @@ after(function() {
 
         private Random Random { get; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             // In NodeJS there is no compilation
-            var result = new ExecutionResult() { IsCompiledSuccessfully = true };
+            var result = new ExecutionResult<TestResult>() { IsCompiledSuccessfully = true };
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
 
@@ -100,12 +101,11 @@ after(function() {
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
 
             // Process the submission and check each test
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.Results = this.ProcessTests(
+                executionContext,
+                executor,
+                executionContext.Input.GetChecker(),
+                codeSavePath);
 
             // Clean up
             File.Delete(codeSavePath);
@@ -162,7 +162,7 @@ describe('Test {i} ', function(){{
         }
 
         protected override List<TestResult> ProcessTests(
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
             string codeSavePath)
@@ -188,7 +188,7 @@ describe('Test {i} ', function(){{
 
             // an offset for tracking the current subset of tests (by convention we always have 2 Zero tests)
             var testOffset = numberOfUserTests * 2;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var message = "Test Passed!";
                 TestResult testResult = null;
@@ -249,7 +249,7 @@ describe('Test {i} ', function(){{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, ExecutionContext context)
+        protected override string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
         {
             var code = context.Code.Trim(';');
 
@@ -259,7 +259,7 @@ describe('Test {i} ', function(){{
                     .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Tests))
+                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests))
                     .Replace(UserInputPlaceholder, code);
 
             return processedCode;

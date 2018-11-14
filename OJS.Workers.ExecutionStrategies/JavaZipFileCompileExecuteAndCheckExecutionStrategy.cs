@@ -8,6 +8,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class JavaZipFileCompileExecuteAndCheckExecutionStrategy : JavaPreprocessCompileExecuteAndCheckExecutionStrategy
     {
@@ -22,7 +23,7 @@
         {
         }
 
-        protected override string CreateSubmissionFile(ExecutionContext executionContext)
+        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 
@@ -38,7 +39,9 @@
             return this.PrepareSubmissionFile(executionContext.FileContent);
         }
 
-        protected override CompileResult DoCompile(ExecutionContext executionContext, string submissionFilePath)
+        protected override CompileResult DoCompile<TInput>(
+            IExecutionContext<TInput> executionContext,
+            string submissionFilePath)
         {
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
 

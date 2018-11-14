@@ -6,12 +6,12 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class JavaUnitTestsExecutionStrategy : JavaZipFileCompileExecuteAndCheckExecutionStrategy
@@ -114,9 +114,10 @@ public class _$TestRunner {{
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
             string submissionFilePath;
 
             try
@@ -135,15 +136,13 @@ public class _$TestRunner {{
             File.Delete(submissionFilePath);
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+
+            var checker = executionContext.Input.GetChecker();
 
             var originalTestsPassed = int.MaxValue;
             var count = 0;
 
-            var tests = executionContext.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
+            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
 
             foreach (var test in tests)
             {
@@ -231,8 +230,13 @@ public class _$TestRunner {{
                     }
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    message);
+
+                result.Results.Add(testResult);
                 count++;
             }
 
@@ -260,7 +264,7 @@ public class _$TestRunner {{
             return compilerResult;
         }
 
-        protected override string CreateSubmissionFile(ExecutionContext executionContext)
+        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
@@ -275,7 +279,7 @@ public class _$TestRunner {{
             return this.PrepareSubmissionFile(executionContext);
         }
 
-        protected virtual string PrepareSubmissionFile(ExecutionContext context)
+        protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);

@@ -1,7 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class CheckOnlyExecutionStrategy : ExecutionStrategy
     {
@@ -10,9 +10,10 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult
+            var result = new ExecutionResult<TestResult>
             {
                 IsCompiledSuccessfully = true
             };
@@ -23,12 +24,17 @@
                 ReceivedOutput = executionContext.Code
             };
 
-            var checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
+            var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
-                result.TestResults.Add(testResult);
+                var testResult = this.ExecuteAndCheckTest(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
+                result.Results.Add(testResult);
             }
 
             return result;

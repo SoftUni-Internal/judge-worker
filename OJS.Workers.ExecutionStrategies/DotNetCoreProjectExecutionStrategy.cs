@@ -2,9 +2,10 @@
 {
     using System;
 
-    using OJS.Workers.Checkers;
+    using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     public class DotNetCoreProjectExecutionStrategy : CSharpProjectTestsExecutionStrategy
@@ -19,11 +20,12 @@
         {
         }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
             executionContext.SanitizeContent();
 
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
 
@@ -48,10 +50,8 @@
             }
 
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
+
+            var checker = executionContext.Input.GetChecker();
 
             var arguments = new string[]
             {
@@ -59,7 +59,7 @@
                 AdditionalExecutionArguments
             };
 
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = executor.Execute(
                     compilerPath,
@@ -75,7 +75,7 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
             }
 
             return result;

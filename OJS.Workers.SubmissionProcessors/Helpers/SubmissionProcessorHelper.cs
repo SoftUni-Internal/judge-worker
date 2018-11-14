@@ -8,6 +8,7 @@
     using OJS.Workers.ExecutionStrategies.BlockchainStrategies;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb;
+    using OJS.Workers.SubmissionProcessors.Models;
 
     public static class SubmissionProcessorHelper
     {
@@ -37,6 +38,7 @@
                 case ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck:
                     executionStrategy = new DotNetCoreCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        Settings.DotNetCoreRuntimeVersion,
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
                     break;
@@ -357,5 +359,19 @@
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
         }
+
+        public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
+            OjsSubmission<TInput> submission) =>
+                new ExecutionContext<TInput>
+                {
+                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                    Code = submission.Code,
+                    FileContent = submission.FileContent,
+                    AllowedFileExtensions = submission.AllowedFileExtensions,
+                    CompilerType = submission.CompilerType,
+                    MemoryLimit = submission.MemoryLimit,
+                    TimeLimit = submission.TimeLimit,
+                    Input = submission.Input
+                };
     }
 }

@@ -6,6 +6,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class CSharpPerformanceProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -19,17 +20,17 @@
 
         protected List<string> TestClassNames { get; }
 
-        protected override ExecutionResult RunUnitTests(
+        protected override ExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
-            ExecutionContext executionContext,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult result,
+            ExecutionResult<TestResult> result,
             string compiledFile,
             string additionalExecutionArguments)
         {
             var testIndex = 0;
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 var arguments = new List<string> { $"--where \"class == {this.TestClassNames[testIndex]}\" \"{compiledFile}\"" };
                 arguments.AddRange(additionalExecutionArguments.Split(' '));
@@ -51,7 +52,7 @@
                 }
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 testIndex++;
             }
 

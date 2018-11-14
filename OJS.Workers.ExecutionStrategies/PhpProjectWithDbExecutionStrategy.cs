@@ -1,11 +1,10 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using System.Collections.Generic;
     using System.IO;
 
-    using OJS.Workers.Checkers;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
     using OJS.Workers.Executors;
 
@@ -43,33 +42,32 @@
 
         protected BaseMySqlExecutionStrategy MySqlHelperStrategy { get; set; }
 
-        public override ExecutionResult Execute(ExecutionContext executionContext)
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = new ExecutionResult();
+            var result = new ExecutionResult<TestResult>();
             var databaseName = this.MySqlHelperStrategy.GetDatabaseName();
 
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
 
-            string submissionPath =
-                $@"{this.WorkingDirectory}\\{ZippedSubmissionName}{Constants.ZipFileExtension}";
+            var submissionPath = this.GetZipFilePath(ZippedSubmissionName);
+
             File.WriteAllBytes(submissionPath, executionContext.FileContent);
             FileHelpers.UnzipFile(submissionPath, this.WorkingDirectory);
             File.Delete(submissionPath);
 
             this.ReplaceDatabaseConfigurationFile(databaseName);
+
             var applicationEntryPointPath = this.AddTestRunnerTemplateToApplicationEntryPoint();
+
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var checker = Checker.CreateChecker(
-                executionContext.CheckerAssemblyName,
-                executionContext.CheckerTypeName,
-                executionContext.CheckerParameter);
-
-            result.TestResults = new List<TestResult>();
-
             var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-            foreach (var test in executionContext.Tests)
+
+            var checker = executionContext.Input.GetChecker();
+
+            foreach (var test in executionContext.Input.Tests)
             {
                 var dbConnection = this.MySqlHelperStrategy.GetOpenConnection(databaseName);
                 dbConnection.Close();
@@ -89,12 +87,15 @@
                     checker,
                     processExecutionResult.ReceivedOutput);
 
-                result.TestResults.Add(testResult);
+                result.Results.Add(testResult);
                 this.MySqlHelperStrategy.DropDatabase(databaseName);
             }
 
             return result;
         }
+
+        private string GetZipFilePath(string zipFileName) =>
+            $@"{this.WorkingDirectory}\\{zipFileName}{Constants.ZipFileExtension}";
 
         private string AddTestRunnerTemplateToApplicationEntryPoint()
         {

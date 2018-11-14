@@ -4,15 +4,19 @@
     using System.IO;
 
     using Ionic.Zip;
+    using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class RemoteExecutionStrategy : IExecutionStrategy
     {
-        public ExecutionResult SafeExecute(ExecutionContext executionContext)
+        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             throw new NotImplementedException();
         }
 
-        public ExecutionResult Execute(ExecutionContext executionContext)
+        public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
+            where TResult : ISingleCodeRunResult, new()
         {
             throw new NotImplementedException();
 
@@ -41,7 +45,7 @@
              */
         }
 
-        private byte[] PreparePayloadFile(ExecutionContext executionContext)
+        private byte[] PreparePayloadFile(IExecutionContext<TestsInputModel> executionContext)
         {
             var tempFile = Path.GetTempFileName();
             tempFile += ".zip"; // TODO: Useless?
@@ -51,7 +55,7 @@
             zip.AddEntry("userCode.deflate", executionContext.FileContent);
 
             zip.AddDirectory("tests");
-            foreach (var test in executionContext.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
                 zip.AddEntry(string.Format("/tests/{0}", test.Id), test.Input);
             }

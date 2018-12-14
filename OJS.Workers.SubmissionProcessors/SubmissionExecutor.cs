@@ -18,7 +18,7 @@
         {
             var executionStrategy = this.CreateExecutionStrategy(submission);
 
-            var executionContext = this.CreateExecutionContext((OjsSubmission<TInput>)submission);
+            var executionContext = this.CreateExecutionContext<TInput>(submission);
 
             return this.ExecuteSubmission<TInput, TResult>(executionStrategy, executionContext, submission);
         }
@@ -39,11 +39,12 @@
             }
         }
 
-        private IExecutionContext<TInput> CreateExecutionContext<TInput>(OjsSubmission<TInput> submission)
+        private IExecutionContext<TInput> CreateExecutionContext<TInput>(IOjsSubmission submission)
         {
             try
             {
-                return SubmissionProcessorHelper.CreateExecutionContext(submission);
+                return SubmissionProcessorHelper.CreateExecutionContext(
+                    submission as OjsSubmission<TInput>);
             }
             catch (Exception ex)
             {

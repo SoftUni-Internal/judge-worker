@@ -361,17 +361,24 @@
         }
 
         public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
-            OjsSubmission<TInput> submission) =>
-                new ExecutionContext<TInput>
-                {
-                    AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                    Code = submission.Code,
-                    FileContent = submission.FileContent,
-                    AllowedFileExtensions = submission.AllowedFileExtensions,
-                    CompilerType = submission.CompilerType,
-                    MemoryLimit = submission.MemoryLimit,
-                    TimeLimit = submission.TimeLimit,
-                    Input = submission.Input
-                };
+            OjsSubmission<TInput> submission)
+        {
+            if (submission == null)
+            {
+                throw new ArgumentNullException(nameof(submission));
+            }
+
+            return new ExecutionContext<TInput>
+            {
+                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                Code = submission.Code,
+                FileContent = submission.FileContent,
+                AllowedFileExtensions = submission.AllowedFileExtensions,
+                CompilerType = submission.CompilerType,
+                MemoryLimit = submission.MemoryLimit,
+                TimeLimit = submission.TimeLimit,
+                Input = submission.Input
+            };
+        }
     }
 }

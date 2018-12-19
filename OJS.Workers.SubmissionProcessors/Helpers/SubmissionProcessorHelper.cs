@@ -332,6 +332,27 @@
             return executionStrategy;
         }
 
+        public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
+            OjsSubmission<TInput> submission)
+        {
+            if (submission == null)
+            {
+                throw new ArgumentNullException(nameof(submission));
+            }
+
+            return new ExecutionContext<TInput>
+            {
+                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                Code = submission.Code,
+                FileContent = submission.FileContent,
+                AllowedFileExtensions = submission.AllowedFileExtensions,
+                CompilerType = submission.CompilerType,
+                MemoryLimit = submission.MemoryLimit,
+                TimeLimit = submission.TimeLimit,
+                Input = submission.Input
+            };
+        }
+
         private static string GetCompilerPath(CompilerType type)
         {
             switch (type)
@@ -358,27 +379,6 @@
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
-        }
-
-        public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
-            OjsSubmission<TInput> submission)
-        {
-            if (submission == null)
-            {
-                throw new ArgumentNullException(nameof(submission));
-            }
-
-            return new ExecutionContext<TInput>
-            {
-                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                Code = submission.Code,
-                FileContent = submission.FileContent,
-                AllowedFileExtensions = submission.AllowedFileExtensions,
-                CompilerType = submission.CompilerType,
-                MemoryLimit = submission.MemoryLimit,
-                TimeLimit = submission.TimeLimit,
-                Input = submission.Input
-            };
         }
     }
 }

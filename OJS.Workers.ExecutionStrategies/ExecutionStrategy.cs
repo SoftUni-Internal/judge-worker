@@ -24,7 +24,7 @@
         {
             this.BaseTimeUsed = baseTimeUsed;
             this.BaseMemoryUsed = baseMemoryUsed;
-            this.logger = LogManager.GetLogger(Constants.LocalWorkerServiceLogName);
+            this.logger = LogManager.GetLogger(typeof(ExecutionStrategy));
         }
 
         protected int BaseTimeUsed { get; }

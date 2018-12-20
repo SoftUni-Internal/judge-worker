@@ -86,6 +86,7 @@
     <Compile Include="Extensions\CompilerTypeExtensions.cs" />
     <Compile Include="Extensions\CompressStringExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\Code.cs" />
     <Compile Include="Helpers\CSharpPreprocessorHelper.cs" />
     <Compile Include="Helpers\DirectoryHelpers.cs" />
     <Compile Include="Helpers\EncryptionHelper.cs" />

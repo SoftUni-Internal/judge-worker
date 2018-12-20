@@ -20,7 +20,8 @@
         /// <param name="testResultsRegexPattern">The Regex pattern used to catch the passing and failing tests</param>
         /// <param name="originalTestsPassed">The number of unit tests that have passed on the first test</param>
         /// <param name="isFirstTest">Bool indicating if the results are for the first test</param>
-        public static(string message, int originalTestsPassed) GetTestResult(
+        /// <returns></returns>
+        public static (string message, int originalTestsPassed) GetTestResult(
             string receivedOutput,
             string testResultsRegexPattern,
             int originalTestsPassed,

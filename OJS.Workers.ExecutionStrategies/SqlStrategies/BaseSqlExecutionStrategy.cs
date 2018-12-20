@@ -4,8 +4,6 @@
     using System.Data;
     using System.Globalization;
 
-    using MissingFeatures;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -23,7 +21,7 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public string WorkingDirectory { get; set; } 
+        public string WorkingDirectory { get; set; }
 
         public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()

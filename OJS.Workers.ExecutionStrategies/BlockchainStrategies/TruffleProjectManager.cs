@@ -159,7 +159,7 @@
                 var contractName = contract.Key;
                 var byteCode = contract.Value.byteCode;
                 var abi = contract.Value.abi;
-                
+
                 var buildContent = this.contractBuildTemplate
                     .Replace(ContractNamePlaceholder, contractName)
                     .Replace(AbiPlaceholder, abi)

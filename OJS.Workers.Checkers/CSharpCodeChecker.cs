@@ -36,8 +36,7 @@
 
         public override void SetParameter(string parameter)
         {
-            var customCheckerFromCache = this.cache[parameter] as IChecker;
-            if (customCheckerFromCache != null)
+            if (this.cache[parameter] is IChecker customCheckerFromCache)
             {
                 this.customChecker = customCheckerFromCache;
                 return;
@@ -79,18 +78,19 @@
                 throw new Exception("Implementation of OJS.Workers.Common.IChecker not found!");
             }
 
-            var instance = Activator.CreateInstance(type) as IChecker;
-            if (instance == null)
+            if (Activator.CreateInstance(type) is IChecker instance)
+            {
+                this.cache.Set(
+                    parameter,
+                    instance,
+                    new CacheItemPolicy { SlidingExpiration = TimeSpan.FromDays(CacheSlidingExpirationDays) });
+
+                this.customChecker = instance;
+            }
+            else
             {
                 throw new Exception($"Cannot create an instance of type {type.FullName}!");
             }
-
-            this.cache.Set(
-                parameter,
-                instance,
-                new CacheItemPolicy { SlidingExpiration = TimeSpan.FromDays(CacheSlidingExpirationDays) });
-
-            this.customChecker = instance;
         }
     }
 }

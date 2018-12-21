@@ -29,10 +29,10 @@ namespace OJS.Workers.Executors
             logger = LogManager.GetLogger(typeof(RestrictedProcessExecutor));
 
         /// <summary>
-        /// Initializes a new instance of the RestrictedProcessExecutor class with base time and memory used
+        /// Initializes a new instance of the <see cref="RestrictedProcessExecutor"/> class with base time and memory used.
         /// </summary>
-        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing</param>
-        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing</param>
+        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
+        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
         public RestrictedProcessExecutor(int baseTimeUsed, int baseMemoryUsed)
             : this()
         {
@@ -64,17 +64,14 @@ namespace OJS.Workers.Executors
             {
                 // Write to standard input using another thread
                 restrictedProcess.StandardInput.WriteLineAsync(inputData).ContinueWith(
-                    delegate
+                    _ =>
                     {
                         // ReSharper disable once AccessToDisposedClosure
                         if (!restrictedProcess.IsDisposed)
                         {
                             // ReSharper disable once AccessToDisposedClosure
                             restrictedProcess.StandardInput.FlushAsync().ContinueWith(
-                                delegate
-                                {
-                                    restrictedProcess.StandardInput.Close();
-                                });
+                                __ => restrictedProcess.StandardInput.Close());
                         }
                     });
 

@@ -24,10 +24,10 @@
             logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
 
         /// <summary>
-        /// Initializes a new instance of the StandardProcessExecutor class with base time and memory used
+        /// Initializes a new instance of the <see cref="StandardProcessExecutor"/> class with base time and memory used.
         /// </summary>
-        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing</param>
-        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing</param>
+        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
+        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
         public StandardProcessExecutor(int baseTimeUsed, int baseMemoryUsed)
             : this()
         {
@@ -81,15 +81,8 @@
 
                 // Write to standard input using another thread
                 process.StandardInput.WriteLineAsync(inputData).ContinueWith(
-                    delegate
-                    {
-                        // ReSharper disable once AccessToDisposedClosure
-                        process.StandardInput.FlushAsync().ContinueWith(
-                            delegate
-                            {
-                                process.StandardInput.Close();
-                            });
-                    });
+                    _ => process.StandardInput.FlushAsync().ContinueWith(
+                        __ => process.StandardInput.Close()));
 
                 // Read standard output using another thread to prevent process locking (waiting us to empty the output buffer)
                 var processOutputTask = process.StandardOutput.ReadToEndAsync().ContinueWith(

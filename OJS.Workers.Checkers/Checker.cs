@@ -57,15 +57,15 @@
             CheckerResultType resultType;
 
             var adminCheckerDetails = default(CheckerDetails);
-            int lineNumber = 0;
+            var lineNumber = 0;
             using (userFileReader)
             {
                 using (correctFileReader)
                 {
                     while (true)
                     {
-                        string userLine = userFileReader.ReadLine();
-                        string correctLine = correctFileReader.ReadLine();
+                        var userLine = userFileReader.ReadLine();
+                        var correctLine = correctFileReader.ReadLine();
 
                         if (userLine == null && correctLine == null)
                         {

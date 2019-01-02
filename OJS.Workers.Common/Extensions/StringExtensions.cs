@@ -12,7 +12,7 @@
                 return stringToTrim;
             }
 
-            return stringToTrim.Substring(0, maxLength) + (trimMessageToAppend ?? string.Empty);
+            return stringToTrim.Substring(0, maxLength) + trimMessageToAppend;
         }
 
         public static string GetStringWithEllipsisBetween(this string input, int startIndex, int endIndex)

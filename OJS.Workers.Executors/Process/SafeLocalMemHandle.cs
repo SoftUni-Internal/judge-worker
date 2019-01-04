@@ -7,6 +7,7 @@
     using Microsoft.Win32.SafeHandles;
 
     [SuppressUnmanagedCodeSecurity]
+    [HostProtection(SecurityAction.LinkDemand, MayLeakOnAbort = true)]
     public sealed class SafeLocalMemHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         internal SafeLocalMemHandle()

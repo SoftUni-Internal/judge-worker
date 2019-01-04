@@ -142,7 +142,7 @@
             {
                 command.CommandText = commandText;
 
-                return Code.ExecuteWithTimeLimit(
+                return CodeHelpers.ExecuteWithTimeLimit(
                     TimeSpan.FromMilliseconds(timeLimit),
                     () => command.ExecuteNonQuery());
             }
@@ -157,7 +157,7 @@
                 using (var reader = command.ExecuteReader())
                 {
                     var sqlTestResult = new SqlResult();
-                    sqlTestResult.Completed = Code.ExecuteWithTimeLimit(
+                    sqlTestResult.Completed = CodeHelpers.ExecuteWithTimeLimit(
                         TimeSpan.FromMilliseconds(timeLimit),
                         () =>
                         {

@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
 
-    public static class Code
+    public static class CodeHelpers
     {
         public static bool ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock)
         {

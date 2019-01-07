@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
   </PropertyGroup>
 
-  <Import Project="..\Analyzers\common.proj" />
+  <Import Condition=" '$(TargetFramework)' == 'netstandard2.0'" Project="..\Analyzers\common.proj" />
 
   <!-- common NuGet package refs that affect all projects -->
   <ItemGroup>
@@ -18,7 +18,7 @@
 
   <!-- .NET 4.7 references, compilation flags and build options -->
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net47'">
-    <DefineConstants>NET47;NETFULL</DefineConstants>
+    <DefineConstants>NET47;NETFRAMEWORK</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">

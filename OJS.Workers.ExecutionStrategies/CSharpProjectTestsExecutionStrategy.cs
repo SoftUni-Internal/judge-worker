@@ -107,9 +107,6 @@
             var result = new ExecutionResult<TestResult>();
             var userSubmissionContent = executionContext.FileContent;
 
-#if NETFULL
-            var a = 10;
-#endif
             this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
 
             var csProjFilePath = this.GetCsProjFilePath();

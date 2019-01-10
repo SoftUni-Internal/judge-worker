@@ -37,6 +37,7 @@
         public JavaSpringAndHibernateProjectExecutionStrategy(
             string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string javaLibrariesPath,
             string mavenPath,
             int baseTimeUsed,
@@ -44,6 +45,7 @@
             : base(
                 javaExecutablePath,
                 getCompilerPathFunc,
+                processExecutorFactory,
                 javaLibrariesPath,
                 baseTimeUsed,
                 baseMemoryUsed) =>

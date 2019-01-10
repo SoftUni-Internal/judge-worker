@@ -30,10 +30,11 @@
         public JavaUnitTestsExecutionStrategy(
             string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(javaExecutablePath, getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!Directory.Exists(javaLibrariesPath))
             {

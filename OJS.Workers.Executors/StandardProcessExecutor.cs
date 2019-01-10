@@ -7,9 +7,7 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-
     using log4net;
-
     using OJS.Workers.Common;
 
     // TODO: Implement memory constraints
@@ -19,6 +17,7 @@
 
         private readonly int baseTimeUsed;
         private readonly int baseMemoryUsed;
+        private readonly ITasksService tasksService;
 
         public StandardProcessExecutor() =>
             logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
@@ -28,11 +27,12 @@
         /// </summary>
         /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
         /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
-        public StandardProcessExecutor(int baseTimeUsed, int baseMemoryUsed)
+        public StandardProcessExecutor(int baseTimeUsed, int baseMemoryUsed, ITasksService tasksService)
             : this()
         {
             this.baseTimeUsed = baseTimeUsed;
             this.baseMemoryUsed = baseMemoryUsed;
+            this.tasksService = tasksService;
         }
 
         public ProcessExecutionResult Execute(
@@ -77,8 +77,10 @@
                     throw new Exception($"Could not start process: {fileName}!");
                 }
 
+                var startTime = process.StartTime;
+                #if !DEBUG
                 process.PriorityClass = ProcessPriorityClass.High;
-
+                #endif
                 // Write to standard input using another thread
                 process.StandardInput.WriteLineAsync(inputData).ContinueWith(
                     _ => process.StandardInput.FlushAsync().ContinueWith(
@@ -86,46 +88,43 @@
 
                 // Read standard output using another thread to prevent process locking (waiting us to empty the output buffer)
                 var processOutputTask = process.StandardOutput.ReadToEndAsync().ContinueWith(
-                    x =>
-                    {
-                        result.ReceivedOutput = x.Result;
-                    });
+                    x => { result.ReceivedOutput = x.Result; });
 
                 // Read standard error using another thread
                 var errorOutputTask = process.StandardError.ReadToEndAsync().ContinueWith(
-                    x =>
-                    {
-                        result.ErrorOutput = x.Result;
-                    });
+                    x => { result.ErrorOutput = x.Result; });
 
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
-                const int TimeIntervalBetweenTwoMemoryConsumptionRequests = 45;
-                var memoryTaskCancellationToken = new CancellationTokenSource();
-                var memoryTask = Task.Run(
+                const int memoryIntervalBetweenTwoMemoryConsumptionRequests = 45;
+                var memoryRunInBackgroundInfo = this.tasksService.RunWithInterval(
+                    memoryIntervalBetweenTwoMemoryConsumptionRequests,
                     () =>
                     {
-                        while (true)
+                        if (process.HasExited)
                         {
-                            // ReSharper disable once AccessToDisposedClosure
-                            if (process.HasExited)
-                            {
-                                return;
-                            }
-
-                            // ReSharper disable once AccessToDisposedClosure
-                            var peakWorkingSetSize = process.PeakWorkingSet64;
-
-                            result.MemoryUsed = Math.Max(result.MemoryUsed, peakWorkingSetSize);
-
-                            if (memoryTaskCancellationToken.IsCancellationRequested)
-                            {
-                                return;
-                            }
-
-                            Thread.Sleep(TimeIntervalBetweenTwoMemoryConsumptionRequests);
+                            return;
                         }
-                    },
-                    memoryTaskCancellationToken.Token);
+
+                        var peakWorkingSetSize = process.PeakWorkingSet64;
+                        Console.WriteLine(DateTime.Now + ": " + peakWorkingSetSize);
+
+                        result.MemoryUsed = Math.Max(result.MemoryUsed, peakWorkingSetSize);
+                    });
+
+                const int timeIntervalBetweenTwoTimeConsumptionRequests = 10;
+                var timeRunInBackgroundInfo = this.tasksService.RunWithInterval(
+                    timeIntervalBetweenTwoTimeConsumptionRequests,
+                    () =>
+                    {
+                        if (process.HasExited)
+                        {
+                            return;
+                        }
+
+                        result.PrivilegedProcessorTime = process.PrivilegedProcessorTime;
+                        result.UserProcessorTime = process.UserProcessorTime;
+                    });
+                // Read time consumption every few milliseconds to determine the peak memory usage of the process
 
                 // Wait the process to complete. Kill it after (timeLimit * 1.5) milliseconds if not completed.
                 // We are waiting the process for more than defined time and after this we compare the process time with the real time limit.
@@ -144,17 +143,27 @@
                     result.Type = ProcessExecutionResultType.TimeLimit;
                 }
 
-                // Close the memory consumption check thread
-                memoryTaskCancellationToken.Cancel();
                 try
                 {
                     // To be sure that memory consumption will be evaluated correctly
-                    memoryTask.Wait(TimeIntervalBetweenTwoMemoryConsumptionRequests);
+                    this.tasksService.Stop(memoryRunInBackgroundInfo);
                 }
                 catch (AggregateException ex)
                 {
                     logger.Warn("AggregateException caught.", ex.InnerException);
                 }
+
+                try
+                {
+                    // To be sure that memory consumption will be evaluated correctly
+                    this.tasksService.Stop(timeRunInBackgroundInfo);
+                }
+                catch (AggregateException ex)
+                {
+                    logger.Warn("AggregateException caught.", ex.InnerException);
+                }
+
+                // Close the time check thread
 
                 // Close the task that gets the process error output
                 try
@@ -180,9 +189,11 @@
 
                 // Report exit code and total process working time
                 result.ExitCode = process.ExitCode;
-                result.TimeWorked = process.ExitTime - process.StartTime;
-                result.PrivilegedProcessorTime = process.PrivilegedProcessorTime;
-                result.UserProcessorTime = process.UserProcessorTime;
+                result.TimeWorked = process.ExitTime - startTime;
+                result.ReceivedOutput += result.PrivilegedProcessorTime;
+                result.ReceivedOutput += "      ";
+                result.ReceivedOutput += result.UserProcessorTime;
+                result.ReceivedOutput += "      ";
             }
 
             if ((useProcessTime && result.TimeWorked.TotalMilliseconds > timeLimit) ||

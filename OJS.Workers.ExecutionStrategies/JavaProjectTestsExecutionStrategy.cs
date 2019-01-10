@@ -17,12 +17,14 @@
         public JavaProjectTestsExecutionStrategy(
             string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
                 javaExecutablePath,
                 getCompilerPathFunc,
+                processExecutorFactory,
                 javaLibrariesPath,
                 baseTimeUsed,
                 baseMemoryUsed) =>
@@ -144,7 +146,8 @@ class Classes{{
                     return result;
                 }
 
-                var preprocessExecutor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+                var preprocessExecutor = this.processExecutorFactory
+                    .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, ProcessExecutorType.Standard);
 
                 var preprocessArguments = new List<string>();
                 preprocessArguments.Add(this.ClassPath);

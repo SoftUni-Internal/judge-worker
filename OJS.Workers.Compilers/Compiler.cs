@@ -88,7 +88,7 @@
                 return new CompileResult(false, $"Input file not found! Searched in: {inputFile}");
             }
 
-            this.CompilationDirectory = $"{Path.GetDirectoryName(inputFile)}\\{CompilationDirectoryName}";
+            this.CompilationDirectory = Path.Combine(Path.GetDirectoryName(inputFile), CompilationDirectoryName);
             Directory.CreateDirectory(this.CompilationDirectory);
 
             // Move source file if needed

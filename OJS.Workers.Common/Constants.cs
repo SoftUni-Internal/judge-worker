@@ -46,7 +46,9 @@
         // Temp Directory folder paths
         public static readonly string ExecutionStrategiesWorkingDirectoryPath =
             Path.Combine(
-                Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine),
+                Path.GetTempPath(),
                 ExecutionStrategiesFolderName);
+
+        // Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine),
     }
 }

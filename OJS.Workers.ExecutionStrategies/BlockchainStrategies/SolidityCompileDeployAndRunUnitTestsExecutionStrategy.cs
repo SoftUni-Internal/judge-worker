@@ -23,9 +23,11 @@
         private readonly string ganacheCliNodeExecutablePath;
         private readonly string truffleCliNodeExecutablePath;
         private readonly int portNumber;
+        private readonly IProcessExecutorFactory processExecutorFactory;
 
         public SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string ganacheCliNodeExecutablePath,
             string truffleCliNodeExecutablePath,
@@ -60,6 +62,7 @@
             this.truffleCliNodeExecutablePath = truffleCliNodeExecutablePath;
             this.portNumber = portNumber;
             this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.processExecutorFactory = processExecutorFactory;
         }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
@@ -89,14 +92,14 @@
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
 
-            var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber);
+            var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber, this.processExecutorFactory);
 
             truffleProject.InitializeMigration(this.GetCompilerPathFunc(executionContext.CompilerType));
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
             truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
-            var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-
+            var executor = this.processExecutorFactory
+                .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, ProcessExecutorType.Standard);
             var checker = executionContext.Input.GetChecker();
 
             ProcessExecutionResult processExecutionResult;

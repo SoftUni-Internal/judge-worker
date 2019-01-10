@@ -66,7 +66,9 @@
                 }}
             }}";
 
-        public TruffleProjectManager(string directoryPath, int port)
+        private readonly IProcessExecutorFactory processExecutorFactory;
+
+        public TruffleProjectManager(string directoryPath, int port, IProcessExecutorFactory processExecutorFactory)
         {
             this.directoryPath = directoryPath;
             this.port = port;
@@ -76,6 +78,7 @@
             this.contractsDirectoryPath = contractsDir;
             this.testsDirectoryPath = testsDir;
             this.contractsBuildDirectory = contractsBuildDir;
+            this.processExecutorFactory = processExecutorFactory;
         }
 
         private string ConfigFile => $@"
@@ -91,7 +94,8 @@
 
         public void InitializeMigration(string compilerPath)
         {
-            var executor = new StandardProcessExecutor(0, 0);
+            var executor = this.processExecutorFactory
+                .CreateProcessExecutor(0, 0, ProcessExecutorType.Standard);
             var migrationsContractPath = Path.Combine(this.contractsDirectoryPath, MigrationsFileName);
 
             var arguments = new[]

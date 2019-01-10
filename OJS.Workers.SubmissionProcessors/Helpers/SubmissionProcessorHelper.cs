@@ -8,6 +8,8 @@
     using OJS.Workers.ExecutionStrategies.BlockchainStrategies;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb;
+    using OJS.Workers.Executors;
+    using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
 
     public static class SubmissionProcessorHelper
@@ -15,6 +17,8 @@
         public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, int portNumber)
         {
             IExecutionStrategy executionStrategy;
+            var tasksService = new TasksService();
+            var processExecutorFactory = new ProcessExecutorFactory(tasksService);
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
@@ -40,7 +44,8 @@
                         GetCompilerPath,
                         Settings.DotNetCoreRuntimeVersion,
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCscBaseMemoryUsedInBytes);
+                        Settings.DotNetCscBaseMemoryUsedInBytes,
+                        processExecutorFactory);
                     break;
                 case ExecutionStrategyType.DotNetCoreTestRunner:
                     executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
@@ -104,6 +109,7 @@
                     executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
                         Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
@@ -112,6 +118,7 @@
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
                         Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
@@ -119,6 +126,7 @@
                     executionStrategy = new JavaProjectTestsExecutionStrategy(
                         Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
@@ -127,6 +135,7 @@
                     executionStrategy = new JavaUnitTestsExecutionStrategy(
                         Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
@@ -135,6 +144,7 @@
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
                         Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaLibsPath,
                         Settings.MavenPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -273,6 +283,7 @@
                 case ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy:
                     executionStrategy = new SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.GanacheCliNodeExecutablePath,
                         Settings.TruffleCliNodeExecutablePath,

@@ -1,8 +1,10 @@
 ﻿namespace OJS.Workers.Compilers
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Runtime;
 
     public class CSharpDotNetCoreCompiler : Compiler
     {
@@ -29,8 +31,11 @@
             arguments.Append($"\"{this.cSharpDotNetCoreCompilerPath}\" ");
 
             // Give it all System references
-            var references = Directory.GetFiles(this.dotNetCoreSharedAssembliesPath).Where(f => f.Contains("System"));
+            var references = Directory.GetFiles(this.dotNetCoreSharedAssembliesPath)
+                .Where(f => f.Contains("System"))
+                .Where(f => f.EndsWith("dll"));
 
+            // var references = new List<string> { "System" };
             foreach (var reference in references)
             {
                 arguments.Append($"-r:\"{reference}\" ");

@@ -7,9 +7,6 @@
     {
         public static string GetSetting(string settingName)
         {
-#if NETFRAMEWORK
-            var a = "NET Standard";
-#endif
             if (ConfigurationManager.AppSettings[settingName] == null)
             {
                 throw new Exception($"{settingName} setting not found in App.config file!");

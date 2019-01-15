@@ -5,10 +5,10 @@
     public class CPlusPlusCodeChecker : Checker
     {
         public override Common.CheckerResult Check(string inputData, string receivedOutput, string expectedOutput, bool isTrialTest)
-         => throw new NotImplementedException();
+            => throw new NotImplementedException();
 
-     public override void SetParameter(string code)
-      => base.SetParameter(code);
+         public override void SetParameter(string code)
+            => base.SetParameter(code);
     }
 }
 

@@ -4,6 +4,7 @@
     using System.IO;
 
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
 
     public static class Constants
@@ -38,17 +39,42 @@
 
         public const string AppSettingsConfigSectionName = "appSettings";
 
+        // Docker container constants
+        public const string DockerEnvironmentVariableName = "ASPNETCORE_ENVIRONMENT";
+        public const string DockerEnvironmentVariableValue = "Docker";
+
         // Runtime constants
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
         public static readonly string CSharpFileExtension = $".{CompilerType.CSharp.GetFileExtension()}";
         public static readonly string ClassDelimiter = $"~~!!!==#==!!!~~{Environment.NewLine}";
 
         // Temp Directory folder paths
-        public static readonly string ExecutionStrategiesWorkingDirectoryPath =
-            Path.Combine(
-                Path.GetTempPath(),
-                ExecutionStrategiesFolderName);
+        public static string ExecutionStrategiesWorkingDirectoryPath
+        {
+            get
+            {
+                var rootPath = string.Empty;
 
-        // Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine),
+                if (OSPlatformHelpers.IsDockerContainer())
+                {
+                    rootPath = Path.GetTempPath();
+                }
+
+                if (OSPlatformHelpers.IsWindows())
+                {
+                    rootPath = Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine);
+                }
+
+                if (string.IsNullOrEmpty(rootPath))
+                {
+                    throw new InvalidOperationException(
+                        "Root path for the Execution strategies working directory cannot be empty or null");
+                }
+
+                return Path.Combine(
+                    rootPath,
+                    ExecutionStrategiesFolderName);
+            }
+        }
     }
 }

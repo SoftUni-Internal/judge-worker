@@ -2,6 +2,8 @@ namespace OJS.Workers.Executors
 {
     public enum ProcessExecutorType
     {
-        Restricted, Standard
+        None = 0,
+        Standard = 1,
+        Restricted = 2,
     }
 }

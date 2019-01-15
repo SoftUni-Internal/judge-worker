@@ -1,6 +1,7 @@
 namespace OJS.Workers.Executors.Implementations
 {
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
 
     public class ProcessExecutorFactory : IProcessExecutorFactory
     {
@@ -14,23 +15,20 @@ namespace OJS.Workers.Executors.Implementations
             int baseMemoryUsed,
             ProcessExecutorType type)
         {
-            // if (isPlatformDependent)
-            if (true)
+            if (OSPlatformHelpers.IsDockerContainer())
             {
                 return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
             }
 
-            if (type == ProcessExecutorType.Standard)
+            switch (type)
             {
-                return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
+                case ProcessExecutorType.Standard:
+                    return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
+                case ProcessExecutorType.Restricted:
+                    return new RestrictedProcessExecutor(baseTimeUsed, baseMemoryUsed);
+                default:
+                    return null;
             }
-
-            if (type == ProcessExecutorType.Restricted)
-            {
-                return new RestrictedProcessExecutor(baseTimeUsed, baseMemoryUsed);
-            }
-
-            return null;
         }
     }
 }

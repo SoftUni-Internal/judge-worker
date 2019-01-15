@@ -18,10 +18,7 @@
 
         private IChecker customChecker;
 
-        public CSharpCodeChecker()
-        {
-            this.cache = MemoryCache.Default;
-        }
+        public CSharpCodeChecker() => this.cache = MemoryCache.Default;
 
         public override CheckerResult Check(string inputData, string receivedOutput, string expectedOutput, bool isTrialTest)
         {

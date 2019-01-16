@@ -290,8 +290,7 @@
 
         protected void OverwriteApplicationProperties(string submissionZipFilePath)
         {
-            var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}\\{ApplicationPropertiesFileName}";
-            File.WriteAllText(fakeApplicationPropertiesPath, @"spring.jpa.hibernate.ddl-auto=create-drop
+            var fakeApplicationPropertiesText = @"spring.jpa.hibernate.ddl-auto=create-drop
             spring.jpa.database=HSQL
             #spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.HSQLDialect
             spring.datasource.driverClassName=org.hsqldb.jdbcDriver
@@ -299,7 +298,10 @@
             spring.datasource.username=sa
             spring.datasource.password=
             spring.main.web-environment=false
-            security.basic.enabled=false");
+            security.basic.enabled=false";
+
+            var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}\\{ApplicationPropertiesFileName}";
+            File.WriteAllText(fakeApplicationPropertiesPath, fakeApplicationPropertiesText);
 
             var pathsInZip = FileHelpers.GetFilePathsFromZip(submissionZipFilePath);
 

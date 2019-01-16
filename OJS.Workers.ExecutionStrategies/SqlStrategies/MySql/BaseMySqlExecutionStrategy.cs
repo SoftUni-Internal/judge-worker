@@ -46,19 +46,21 @@
             {
                 connection.Open();
 
-                this.ExecuteNonQuery(connection, $"CREATE DATABASE `{databaseName}`;");
+                var createDatabaseQuery = $"CREATE DATABASE `{databaseName}`;";
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $@"
-CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'localhost';
-SET PASSWORD FOR '{this.restrictedUserId}'@'localhost'='{this.restrictedUserPassword}'");
+                var createUserQuery = $@"
+                    CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'localhost';
+                    SET PASSWORD FOR '{this.restrictedUserId}'@'localhost'='{this.restrictedUserPassword}'";
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $@"
-GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'localhost';
-FLUSH PRIVILEGES;");
+                var grandPrivilegesToUserQuery = $@"
+                    GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'localhost';
+                    FLUSH PRIVILEGES;";
+
+                this.ExecuteNonQuery(connection, createDatabaseQuery);
+
+                this.ExecuteNonQuery(connection, createUserQuery);
+
+                this.ExecuteNonQuery(connection, grandPrivilegesToUserQuery);
             }
 
             var createdDbConnectionString =

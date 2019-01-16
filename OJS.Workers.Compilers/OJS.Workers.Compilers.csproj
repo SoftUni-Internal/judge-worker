@@ -8,8 +8,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <Import Condition=" '$(TargetFramework)' == 'netstandard2.0'" Project="..\Analyzers\common.proj" />
-
   <!-- common NuGet package refs that affect all projects -->
   <ItemGroup>
     <PackageReference Include="DotNetZip" Version="1.13.0" />

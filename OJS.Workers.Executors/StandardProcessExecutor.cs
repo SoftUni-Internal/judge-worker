@@ -99,6 +99,7 @@
                 var errorOutputTask = process.StandardError.ReadToEndAsync().ContinueWith(
                     x => { result.ErrorOutput = x.Result; });
 
+                // TODO: make it work on Linux
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
                 var memorySamplingThreadInfo = this.StartMemorySamplingThread(process, result);
 

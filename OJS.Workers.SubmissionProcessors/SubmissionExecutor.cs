@@ -6,19 +6,19 @@
     using OJS.Workers.SubmissionProcessors.Helpers;
     using OJS.Workers.SubmissionProcessors.Models;
 
-    public class SubmissionExecutor
+    public class SubmissionExecutor : ISubmissionExecutor
     {
         private readonly int portNumber;
 
         public SubmissionExecutor(int portNumber) => this.portNumber = portNumber;
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(
-            OjsSubmission<TInput> submission)
+            IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
             var executionStrategy = this.CreateExecutionStrategy(submission);
 
-            var executionContext = this.CreateExecutionContext(submission);
+            var executionContext = this.CreateExecutionContext<TInput>(submission);
 
             return this.ExecuteSubmission<TInput, TResult>(executionStrategy, executionContext, submission);
         }
@@ -39,11 +39,12 @@
             }
         }
 
-        private IExecutionContext<TInput> CreateExecutionContext<TInput>(OjsSubmission<TInput> submission)
+        private IExecutionContext<TInput> CreateExecutionContext<TInput>(IOjsSubmission submission)
         {
             try
             {
-                return SubmissionProcessorHelper.CreateExecutionContext(submission);
+                return SubmissionProcessorHelper.CreateExecutionContext(
+                    submission as OjsSubmission<TInput>);
             }
             catch (Exception ex)
             {

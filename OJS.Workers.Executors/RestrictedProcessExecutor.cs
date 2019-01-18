@@ -18,6 +18,7 @@ namespace OJS.Workers.Executors
     {
         private const int TimeIntervalBetweenTwoMemoryConsumptionRequests = 45;
         private const int TimeBeforeClosingOutputStreams = 300;
+        private const int MinimumMemoryLimitInBytes = 1 * 1024 * 1024;
 
         private static ILog logger;
 
@@ -51,8 +52,7 @@ namespace OJS.Workers.Executors
             bool dependOnExitCodeForRunTimeError = false,
             double timeoutMultiplier = 1.5)
         {
-            timeLimit = timeLimit + this.baseTimeUsed;
-            memoryLimit = memoryLimit + this.baseMemoryUsed;
+            this.AdjustTimeAndMemoryLimits(ref timeLimit, ref memoryLimit);
 
             var result = new ProcessExecutionResult { Type = ProcessExecutionResultType.Success };
             if (workingDirectory == null)
@@ -192,6 +192,17 @@ namespace OJS.Workers.Executors
             result.ApplyTimeAndMemoryOffset(this.baseTimeUsed, this.baseMemoryUsed);
 
             return result;
+        }
+
+        private void AdjustTimeAndMemoryLimits(ref int timeLimit, ref int memoryLimit)
+        {
+            timeLimit += this.baseTimeUsed;
+            memoryLimit += this.baseMemoryUsed;
+
+            if (memoryLimit < MinimumMemoryLimitInBytes)
+            {
+                memoryLimit = MinimumMemoryLimitInBytes;
+            }
         }
     }
 }

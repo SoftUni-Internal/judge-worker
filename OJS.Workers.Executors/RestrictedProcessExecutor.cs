@@ -18,7 +18,7 @@ namespace OJS.Workers.Executors
     {
         private const int TimeIntervalBetweenTwoMemoryConsumptionRequests = 45;
         private const int TimeBeforeClosingOutputStreams = 300;
-        private const int MinimumMemoryLimitInBytes = 1 * 1024 * 1024;
+        private const int MinimumMemoryLimitInBytes = 5 * 1024 * 1024;
 
         private static ILog logger;
 

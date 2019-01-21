@@ -15,6 +15,7 @@
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
     {
         public NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -27,6 +28,7 @@
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
+                processExecutorFactory,
                 nodeJsExecutablePath,
                 mochaModulePath,
                 chaiModulePath,
@@ -90,7 +92,7 @@ after(function() {
             // In NodeJS there is no compilation
             var result = new ExecutionResult<TestResult>() { IsCompiledSuccessfully = true };
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             // Preprocess the user submission
             var codeToExecute = this.PreprocessJsSubmission(

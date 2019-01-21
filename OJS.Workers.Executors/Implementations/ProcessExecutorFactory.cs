@@ -25,7 +25,7 @@ namespace OJS.Workers.Executors.Implementations
                 case ProcessExecutorType.Standard:
                     return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
                 case ProcessExecutorType.Restricted:
-                    return new RestrictedProcessExecutor(baseTimeUsed, baseMemoryUsed);
+                    return new RestrictedProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
                 default:
                     return null;
             }

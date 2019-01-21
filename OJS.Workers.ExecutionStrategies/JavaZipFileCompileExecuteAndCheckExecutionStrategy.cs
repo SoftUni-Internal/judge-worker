@@ -16,12 +16,12 @@
         protected const string SubmissionFileName = "_$submission";
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
+            string javaExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
         }
 

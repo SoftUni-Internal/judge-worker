@@ -140,9 +140,10 @@
 
         public DotNetCoreTestRunnerExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPathFunc;
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
@@ -184,7 +185,8 @@
                 executionContext,
                 Path.GetDirectoryName(compileResult.OutputFile));
 
-            IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+
             var processExecutionResult = executor.Execute(
                 outputAssemblyPath,
                 string.Empty,

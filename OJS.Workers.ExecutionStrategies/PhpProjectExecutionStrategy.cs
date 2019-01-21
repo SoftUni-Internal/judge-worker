@@ -16,10 +16,11 @@
         private const string SuperGlobalsRequireStatementTemplate = "<?php require_once '##templateName##'; ?>";
 
         public PhpProjectExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string phpCliExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(phpCliExecutablePath))
             {
@@ -59,7 +60,7 @@
 
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

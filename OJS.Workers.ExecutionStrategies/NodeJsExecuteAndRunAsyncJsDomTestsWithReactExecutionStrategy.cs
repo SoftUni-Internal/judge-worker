@@ -8,11 +8,13 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy :
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
     {
         public NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -30,6 +32,7 @@
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
+                processExecutorFactory,
                 nodeJsExecutablePath,
                 mochaModulePath,
                 chaiModulePath,

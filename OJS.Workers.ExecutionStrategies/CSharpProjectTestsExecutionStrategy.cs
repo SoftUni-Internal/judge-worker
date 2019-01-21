@@ -62,9 +62,10 @@
 
         public CSharpProjectTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-                : base(baseTimeUsed, baseMemoryUsed)
+                : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             this.GetCompilerPathFunc = getCompilerPathFunc;
             this.TestNames = new List<string>();
@@ -72,11 +73,12 @@
         }
 
         public CSharpProjectTestsExecutionStrategy(
-            string nUnitConsoleRunnerPath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string nUnitConsoleRunnerPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(nUnitConsoleRunnerPath))
             {
@@ -139,7 +141,7 @@
             // Delete tests before execution so the user can't access them
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,

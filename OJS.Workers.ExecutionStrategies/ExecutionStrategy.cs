@@ -13,17 +13,24 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public abstract class ExecutionStrategy : IExecutionStrategy
     {
         protected const string RemoveMacFolderPattern = "__MACOSX/*";
 
+        protected readonly IProcessExecutorFactory ProcessExecutorFactory;
+
         private readonly ILog logger;
 
-        protected ExecutionStrategy(int baseTimeUsed, int baseMemoryUsed)
+        protected ExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
+            int baseTimeUsed,
+            int baseMemoryUsed)
         {
             this.BaseTimeUsed = baseTimeUsed;
             this.BaseMemoryUsed = baseMemoryUsed;
+            this.ProcessExecutorFactory = processExecutorFactory;
             this.logger = LogManager.GetLogger(typeof(ExecutionStrategy));
         }
 
@@ -75,6 +82,10 @@
                 });
             }
         }
+
+        protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType) =>
+            this.ProcessExecutorFactory
+                .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, processExecutorType);
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext) =>

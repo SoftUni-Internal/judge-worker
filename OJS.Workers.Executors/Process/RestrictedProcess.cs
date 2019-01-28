@@ -205,10 +205,6 @@
 
         public bool IsDisposed { get; private set; }
 
-        public void Start()
-        {
-        }
-
         public void Start(int timeLimit, int memoryLimit)
         {
             try

@@ -74,6 +74,9 @@ namespace OJS.Workers.Executors
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
                 var memorySamplingThreadInfo = this.StartMemorySamplingThread(restrictedProcess, result);
 
+                // Start the process
+                restrictedProcess.Start(timeLimit, memoryLimit);
+
                 // Wait the process to complete. Kill it after (timeLimit * 1.5) milliseconds if not completed.
                 // We are waiting the process for more than defined time and after this we compare the process time with the real time limit.
                 var exited = restrictedProcess.WaitForExit((int)(timeLimit * timeoutMultiplier));

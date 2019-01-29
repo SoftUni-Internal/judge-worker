@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.Common.Helpers
 {
     using System;
-    using System.IO;
 
     using Microsoft.Extensions.Configuration;
 
@@ -41,7 +40,6 @@
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appSettings.{env}.json", optional: true, reloadOnChange: true)
                 .Add(new LegacyConfigurationProvider())

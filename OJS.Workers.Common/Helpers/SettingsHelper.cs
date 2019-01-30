@@ -40,7 +40,7 @@
 
         private static IConfiguration BuildConfiguration()
         {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var env = Environment.GetEnvironmentVariable(AspNetCoreEnvironmentVariable);
 
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

@@ -6,8 +6,7 @@
 
     public class LegacyConfigurationProvider : ConfigurationProvider, IConfigurationSource
     {
-        public static bool HasSettings()
-            => ConfigurationManager.AppSettings.HasKeys();
+        public static bool HasSettings() => ConfigurationManager.AppSettings.HasKeys();
 
         public override void Load()
         {

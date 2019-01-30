@@ -9,6 +9,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
         private readonly string dotNetCoreRuntimeVersion;
@@ -145,7 +147,7 @@
                 .Select(Path.GetFileNameWithoutExtension)
                 .First();
 
-            var jsonFileName = $"{compiledFileName}.runtimeconfig.json";
+            var jsonFileName = $"{compiledFileName}.runtimeconfig{JsonFileExtension}";
 
             var jsonFilePath = Path.Combine(directory, jsonFileName);
 

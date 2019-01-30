@@ -5,6 +5,8 @@
 
     using Microsoft.Extensions.Configuration;
 
+    using static Constants;
+
     public static class SettingsHelper
     {
         private static readonly IConfiguration Configuration;
@@ -42,8 +44,8 @@
 
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appSettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appSettings.{env}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appSettings{JsonFileExtension}", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appSettings.{env}{JsonFileExtension}", optional: true, reloadOnChange: true)
                 .Add(new LegacyConfigurationProvider())
                 .Build();
         }

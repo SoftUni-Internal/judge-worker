@@ -4,8 +4,6 @@
     using System.IO;
     using System.Threading;
 
-    using MissingFeatures;
-
     public static class DirectoryHelpers
     {
         private const int ThreadSleepMilliseconds = 1000;
@@ -49,7 +47,11 @@
             if (Directory.Exists(path))
             {
                 var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                Directory.EnumerateFileSystemEntries(path, "*", searchOption).ForEach(x => File.SetAttributes(x, FileAttributes.Normal));
+
+                foreach (var fileSystemEntry in Directory.EnumerateFileSystemEntries(path, "*", searchOption))
+                {
+                    File.SetAttributes(fileSystemEntry, FileAttributes.Normal);
+                }
 
                 Directory.Delete(path, recursive);
             }

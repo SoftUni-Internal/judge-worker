@@ -11,16 +11,12 @@
     {
         public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
-        {
-            throw new NotImplementedException();
-
-            /*
+            => throw new NotImplementedException();
+        /*
             var request = new PayloadSettings
                               {
                                   Id = executionContext.SubmissionId,
@@ -43,7 +39,6 @@
 
             // TODO: Parse response
              */
-        }
 
         private byte[] PreparePayloadFile(IExecutionContext<TestsInputModel> executionContext)
         {

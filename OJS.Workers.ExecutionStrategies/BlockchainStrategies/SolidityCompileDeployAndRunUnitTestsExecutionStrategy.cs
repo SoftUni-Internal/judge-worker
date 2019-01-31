@@ -26,13 +26,14 @@
 
         public SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string ganacheCliNodeExecutablePath,
             string truffleCliNodeExecutablePath,
             int portNumber,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -89,14 +90,16 @@
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
 
-            var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber);
+            var truffleProject = new TruffleProjectManager(
+                this.WorkingDirectory,
+                this.portNumber,
+                this.ProcessExecutorFactory);
 
             truffleProject.InitializeMigration(this.GetCompilerPathFunc(executionContext.CompilerType));
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
             truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
-            var executor = new StandardProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
             var checker = executionContext.Input.GetChecker();
 
             ProcessExecutionResult processExecutionResult;

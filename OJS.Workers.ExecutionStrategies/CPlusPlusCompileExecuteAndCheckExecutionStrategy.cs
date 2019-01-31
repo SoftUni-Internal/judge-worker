@@ -11,21 +11,20 @@
     {
         public CPlusPlusCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
-            IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-
             var result = this.CompileExecuteAndCheck(
                 executionContext,
                 this.GetCompilerPathFunc,
-                executor,
+                this.CreateExecutor(ProcessExecutorType.Restricted),
                 useSystemEncoding: false,
                 dependOnExitCodeForRunTimeError: true);
 

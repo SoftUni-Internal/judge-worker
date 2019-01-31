@@ -8,11 +8,13 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
         : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
     {
         public NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -25,6 +27,7 @@
             int baseTimeUsed,
             int baseMemoryUsed) // TODO: make this modular by getting requires from test
             : base(
+                processExecutorFactory,
                 nodeJsExecutablePath,
                 mochaModulePath,
                 chaiModulePath,

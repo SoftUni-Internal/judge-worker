@@ -10,8 +10,9 @@
     using System.Text;
 
     using Microsoft.Win32.SafeHandles;
-
     using OJS.Workers.Executors.JobObjects;
+
+    using static OJS.Workers.Common.Constants;
 
     public class RestrictedProcess : IDisposable
     {
@@ -25,7 +26,7 @@
             string fileName,
             string workingDirectory,
             IEnumerable<string> arguments = null,
-            int bufferSize = 4096,
+            int bufferSize = ProcessDefaultBufferSizeInBytes,
             bool useSystemEncoding = false)
         {
             // Initialize fields
@@ -272,7 +273,7 @@
             startupInfo.Flags = (int)StartupInfoFlags.STARTF_USESTDHANDLES;
             this.CreatePipe(out standardInputWritePipeHandle, out startupInfo.StandardInputHandle, true, bufferSize);
             this.CreatePipe(out standardOutputReadPipeHandle, out startupInfo.StandardOutputHandle, false, bufferSize);
-            this.CreatePipe(out standardErrorReadPipeHandle, out startupInfo.StandardErrorHandle, false, 4096);
+            this.CreatePipe(out standardErrorReadPipeHandle, out startupInfo.StandardErrorHandle, false, ProcessDefaultBufferSizeInBytes);
 
             this.StandardInput = new StreamWriter(
                 new FileStream(standardInputWritePipeHandle, FileAccess.Write, bufferSize, false),
@@ -287,10 +288,10 @@
                 true,
                 bufferSize);
             this.StandardError = new StreamReader(
-                new FileStream(standardErrorReadPipeHandle, FileAccess.Read, 4096, false),
+                new FileStream(standardErrorReadPipeHandle, FileAccess.Read, ProcessDefaultBufferSizeInBytes, false),
                 useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
                 true,
-                4096);
+                ProcessDefaultBufferSizeInBytes);
 
             /*
              * Child processes that use such C run-time functions as printf() and fprintf() can behave poorly when redirected.

@@ -54,7 +54,7 @@
 
             if (resultType == CheckerResultType.Ok)
             {
-                for (int i = 0; i < userLines.Count; i++)
+                for (var i = 0; i < userLines.Count; i++)
                 {
                     if (!this.AreEqualExactLines(userLines[i], correctLines[i]))
                     {

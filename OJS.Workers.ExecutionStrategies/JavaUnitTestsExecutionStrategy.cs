@@ -28,12 +28,13 @@
         protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
         public JavaUnitTestsExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string javaExecutablePath,
             string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
             if (!Directory.Exists(javaLibrariesPath))
             {
@@ -135,7 +136,7 @@ public class _$TestRunner {{
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
             File.Delete(submissionFilePath);
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

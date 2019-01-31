@@ -50,28 +50,29 @@
             {
                 connection.Open();
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $"CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');");
+                var createDatabaseQuery =
+                    $"CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');";
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $@"
-IF NOT EXISTS (SELECT name FROM master.sys.server_principals WHERE name=N'{this.restrictedUserId}')
-BEGIN
-    CREATE LOGIN [{this.restrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
-    DEFAULT_DATABASE=[master],
-    DEFAULT_LANGUAGE=[us_english],
-    CHECK_EXPIRATION=OFF,
-    CHECK_POLICY=ON;
-END;");
+                var createLoginQuery = $@"
+                    IF NOT EXISTS (SELECT name FROM master.sys.server_principals WHERE name=N'{this.restrictedUserId}')
+                    BEGIN
+                    CREATE LOGIN [{this.restrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
+                    DEFAULT_DATABASE=[master],
+                    DEFAULT_LANGUAGE=[us_english],
+                    CHECK_EXPIRATION=OFF,
+                    CHECK_POLICY=ON;
+                    END;";
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $@"
-USE [{databaseName}];
-CREATE USER [{this.restrictedUserId}] FOR LOGIN [{this.restrictedUserId}];
-ALTER ROLE [db_owner] ADD MEMBER [{this.restrictedUserId}];");
+                var createUserAsDbOwnerQuery = $@"
+                    USE [{databaseName}];
+                    CREATE USER [{this.restrictedUserId}] FOR LOGIN [{this.restrictedUserId}];
+                    ALTER ROLE [db_owner] ADD MEMBER [{this.restrictedUserId}];";
+
+                this.ExecuteNonQuery(connection, createDatabaseQuery);
+
+                this.ExecuteNonQuery(connection, createLoginQuery);
+
+                this.ExecuteNonQuery(connection, createUserAsDbOwnerQuery);
             }
 
             var createdDbConnectionString =
@@ -88,14 +89,14 @@ ALTER ROLE [db_owner] ADD MEMBER [{this.restrictedUserId}];");
             {
                 connection.Open();
 
-                this.ExecuteNonQuery(
-                    connection,
-                    $@"
-IF EXISTS (SELECT name FROM master.sys.databases WHERE name=N'{databaseName}')
-BEGIN
-    ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE [{databaseName}];
-END;");
+                var dropDatabaseQuery = $@"
+                    IF EXISTS (SELECT name FROM master.sys.databases WHERE name=N'{databaseName}')
+                    BEGIN
+                    ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                    DROP DATABASE [{databaseName}];
+                    END;";
+
+                this.ExecuteNonQuery(connection, dropDatabaseQuery);
             }
         }
 

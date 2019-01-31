@@ -28,9 +28,10 @@
 
         public DotNetCoreUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-                : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+                : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
         }
 
@@ -56,7 +57,7 @@
 
             this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result = this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,

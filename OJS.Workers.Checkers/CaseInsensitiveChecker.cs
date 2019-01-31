@@ -4,14 +4,21 @@
 
     public class CaseInsensitiveChecker : Checker
     {
-        public CaseInsensitiveChecker()
-        {
-            this.IgnoreCharCasing = true;
-        }
+        public CaseInsensitiveChecker() => this.IgnoreCharCasing = true;
 
-        public override CheckerResult Check(string inputData, string receivedOutput, string expectedOutput, bool isTrialTest)
+        public override CheckerResult Check(
+            string inputData,
+            string receivedOutput,
+            string expectedOutput,
+            bool isTrialTest)
         {
-            var result = this.CheckLineByLine(inputData, receivedOutput, expectedOutput, this.AreEqualCaseInsensitiveLines, isTrialTest);
+            var result = this.CheckLineByLine(
+                inputData,
+                receivedOutput,
+                expectedOutput,
+                this.AreEqualCaseInsensitiveLines,
+                isTrialTest);
+
             return result;
         }
     }

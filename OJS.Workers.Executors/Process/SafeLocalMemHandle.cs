@@ -18,13 +18,9 @@
         [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
         internal SafeLocalMemHandle(IntPtr existingHandle, bool ownsHandle)
             : base(ownsHandle)
-        {
-            this.SetHandle(existingHandle);
-        }
+            => this.SetHandle(existingHandle);
 
         protected override bool ReleaseHandle()
-        {
-            return NativeMethods.LocalFree(this.handle) == IntPtr.Zero;
-        }
+            => NativeMethods.LocalFree(this.handle) == IntPtr.Zero;
     }
 }

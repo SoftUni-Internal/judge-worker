@@ -4,6 +4,8 @@
     using System.Linq;
     using System.Text;
 
+    using OJS.Workers.Common;
+
     public class CSharpDotNetCoreCompiler : Compiler
     {
         private readonly string cSharpDotNetCoreCompilerPath;
@@ -19,7 +21,8 @@
             this.dotNetCoreSharedAssembliesPath = dotNetCoreSharedAssembliesPath;
         }
 
-        public override string GetOutputFileName(string inputFileName) => inputFileName + ".dll";
+        public override string GetOutputFileName(string inputFileName)
+            => inputFileName + Constants.ClassLibraryFileExtension;
 
         public override string BuildCompilerArguments(string inputFile, string outputFile, string additionalArguments)
         {
@@ -29,8 +32,11 @@
             arguments.Append($"\"{this.cSharpDotNetCoreCompilerPath}\" ");
 
             // Give it all System references
-            var references = Directory.GetFiles(this.dotNetCoreSharedAssembliesPath).Where(f => f.Contains("System"));
+            var references = Directory.GetFiles(this.dotNetCoreSharedAssembliesPath)
+                .Where(f => f.Contains("System"))
+                .Where(f => f.EndsWith(Constants.ClassLibraryFileExtension));
 
+            // var references = new List<string> { "System" };
             foreach (var reference in references)
             {
                 arguments.Append($"-r:\"{reference}\" ");

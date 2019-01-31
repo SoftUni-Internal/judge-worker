@@ -9,17 +9,19 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class JavaZipFileCompileExecuteAndCheckExecutionStrategy : JavaPreprocessCompileExecuteAndCheckExecutionStrategy
     {
         protected const string SubmissionFileName = "_$submission";
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string javaExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
         }
 

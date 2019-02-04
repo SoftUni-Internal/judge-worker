@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -11,19 +12,17 @@
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
         private readonly string dotNetCoreRuntimeVersion;
-        private readonly IProcessExecutorFactory processExecutorFactory;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string dotNetCoreRuntimeVersion,
             int baseTimeUsed,
-            int baseMemoryUsed,
-            IProcessExecutorFactory processExecutorFactory)
-            : base(baseTimeUsed, baseMemoryUsed)
+            int baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             this.GetCompilerPathFunc = getCompilerPathFunc;
             this.dotNetCoreRuntimeVersion = dotNetCoreRuntimeVersion;
-            this.processExecutorFactory = processExecutorFactory;
         }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
@@ -125,10 +124,7 @@
             out string[] arguments,
             out string compilerPath)
         {
-            var executor = this.processExecutorFactory.CreateProcessExecutor(
-                this.BaseTimeUsed,
-                this.BaseMemoryUsed,
-                ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             arguments = new[]
             {

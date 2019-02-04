@@ -35,7 +35,8 @@
         public const string ExecutionStrategiesFolderName = "ExecutionStrategies";
 
         // Other
-        public const int DefaultProcessExitTimeOutMilliseconds = 5000; // ms
+        public const int DefaultProcessExitTimeOutMilliseconds = 5000;
+        public const int ProcessDefaultBufferSizeInBytes = 4096;
 
         public const string AppSettingsConfigSectionName = "appSettings";
 

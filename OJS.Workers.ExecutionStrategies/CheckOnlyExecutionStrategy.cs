@@ -2,11 +2,15 @@
 {
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class CheckOnlyExecutionStrategy : ExecutionStrategy
     {
-        public CheckOnlyExecutionStrategy(int baseTimeUsed, int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+        public CheckOnlyExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
+            int baseTimeUsed,
+            int baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
         }
 

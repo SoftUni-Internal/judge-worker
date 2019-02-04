@@ -58,9 +58,10 @@
 
         public DotNetCoreProjectTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
         }
 
@@ -112,7 +113,7 @@
             // Delete tests before execution so the user can't access them
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result = this.RunUnitTests(
                 compilerPath,

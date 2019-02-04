@@ -5,7 +5,7 @@
 
     using Microsoft.Extensions.Configuration;
 
-    using static Constants;
+    using static OJS.Workers.Common.Constants;
 
     public static class SettingsHelper
     {

@@ -15,7 +15,7 @@
                 return;
             }
 
-            if (result.Output.Length <= lengthLimit)
+            if (result.Output?.Length <= lengthLimit)
             {
                 appendMessage = string.Empty;
             }

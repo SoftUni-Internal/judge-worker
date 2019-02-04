@@ -10,7 +10,7 @@
 
         public static void LimitLength(this OutputResult result, int lengthLimit, string appendMessage = null)
         {
-            if (result == null || result.Output == null)
+            if (result?.Output == null)
             {
                 return;
             }

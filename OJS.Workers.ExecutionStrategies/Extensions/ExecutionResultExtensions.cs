@@ -10,19 +10,15 @@
 
         public static void LimitLength(this OutputResult result, int lengthLimit, string appendMessage = null)
         {
-            if (result == null)
+            if (result == null || result.Output == null)
             {
                 return;
             }
 
-            if (result.Output?.Length <= lengthLimit)
-            {
-                appendMessage = string.Empty;
-            }
-            else if (appendMessage == null)
-            {
-                appendMessage = string.Format(ExceededOutputMaxLengthDefaultWarningMessageFormat, lengthLimit);
-            }
+            appendMessage = result.Output.Length <= lengthLimit
+                ? string.Empty
+                : appendMessage
+                    ?? string.Format(ExceededOutputMaxLengthDefaultWarningMessageFormat, lengthLimit);
 
             result.Output = result.Output.MaxLength(lengthLimit) + appendMessage;
         }

@@ -16,7 +16,7 @@
         protected override void ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
-            => this.ExecuteAgainstTests(
+            => this.Execute(
                 executionContext,
                 result,
                 (connection, test) =>

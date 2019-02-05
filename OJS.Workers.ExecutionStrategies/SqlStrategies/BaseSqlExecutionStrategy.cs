@@ -21,7 +21,7 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public virtual IExecutionResult<TestResult> ExecuteAgainstTests(
+        public virtual IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result,
             Action<IDbConnection, TestContext> executionFlow)

@@ -226,10 +226,7 @@
 
         [ResourceExposure(ResourceScope.Machine)]
         [ResourceConsumption(ResourceScope.Machine)]
-        public void Kill()
-        {
-            NativeMethods.TerminateProcess(this.safeProcessHandle, -1);
-        }
+        public void Kill() => NativeMethods.TerminateProcess(this.safeProcessHandle, -1);
 
         public bool WaitForExit(int milliseconds)
         {
@@ -237,10 +234,7 @@
             return result != 258; // TODO: Extract as constant and check all cases (http://msdn.microsoft.com/en-us/library/windows/desktop/ms687032%28v=vs.85%29.aspx)
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-        }
+        public void Dispose() => this.Dispose(true);
 
         protected virtual void Dispose(bool disposing)
         {
@@ -261,32 +255,35 @@
         private void RedirectStandardIoHandles(ref StartupInfo startupInfo, int bufferSize, bool useSystemEncoding)
         {
             // Some of this code is based on System.Diagnostics.Process.StartWithCreateProcess method implementation
-            SafeFileHandle standardInputWritePipeHandle;
-            SafeFileHandle standardOutputReadPipeHandle;
-            SafeFileHandle standardErrorReadPipeHandle;
-
             // http://support.microsoft.com/kb/190351 (How to spawn console processes with redirected standard handles)
             // If the dwFlags member is set to STARTF_USESTDHANDLES, then the following STARTUPINFO members specify the standard handles of the child console based process:
             // HANDLE hStdInput - Standard input handle of the child process.
             // HANDLE hStdOutput - Standard output handle of the child process.
             // HANDLE hStdError - Standard error handle of the child process.
             startupInfo.Flags = (int)StartupInfoFlags.STARTF_USESTDHANDLES;
-            this.CreatePipe(out standardInputWritePipeHandle, out startupInfo.StandardInputHandle, true, bufferSize);
-            this.CreatePipe(out standardOutputReadPipeHandle, out startupInfo.StandardOutputHandle, false, bufferSize);
-            this.CreatePipe(out standardErrorReadPipeHandle, out startupInfo.StandardErrorHandle, false, ProcessDefaultBufferSizeInBytes);
+            this.CreatePipe(out var standardInputWritePipeHandle, out startupInfo.StandardInputHandle, true, bufferSize);
+            this.CreatePipe(out var standardOutputReadPipeHandle, out startupInfo.StandardOutputHandle, false, bufferSize);
+            this.CreatePipe(
+                out var standardErrorReadPipeHandle,
+                out startupInfo.StandardErrorHandle,
+                false,
+                ProcessDefaultBufferSizeInBytes);
 
-            this.StandardInput = new StreamWriter(
-                new FileStream(standardInputWritePipeHandle, FileAccess.Write, bufferSize, false),
-                useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
-                bufferSize)
+            this.StandardInput =
+                new StreamWriter(
+                    new FileStream(standardInputWritePipeHandle, FileAccess.Write, bufferSize, false),
+                    useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
+                    bufferSize)
                 {
                     AutoFlush = true
                 };
+
             this.StandardOutput = new StreamReader(
                 new FileStream(standardOutputReadPipeHandle, FileAccess.Read, bufferSize, false),
                 useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
                 true,
                 bufferSize);
+
             this.StandardError = new StreamReader(
                 new FileStream(standardErrorReadPipeHandle, FileAccess.Read, ProcessDefaultBufferSizeInBytes, false),
                 useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),

@@ -83,8 +83,8 @@
             }
         }
 
-        protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType) =>
-            this.ProcessExecutorFactory
+        protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType)
+            => this.ProcessExecutorFactory
                 .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, processExecutorType);
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(

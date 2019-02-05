@@ -60,19 +60,13 @@ namespace OJS.Workers.Executors
                 var processOutputTask = restrictedProcess
                     .StandardOutput
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        return result.ReceivedOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ReceivedOutput = x.Result);
 
                 // Read standard error using another thread
                 var errorOutputTask = restrictedProcess
                     .StandardError
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        return result.ErrorOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ErrorOutput = x.Result);
 
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
                 var memorySamplingThreadInfo = this.StartMemorySamplingThread(restrictedProcess, result);

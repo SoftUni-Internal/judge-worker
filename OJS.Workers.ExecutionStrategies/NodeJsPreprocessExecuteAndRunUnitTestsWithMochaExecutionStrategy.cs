@@ -7,6 +7,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
         : NodeJsPreprocessExecuteAndCheckExecutionStrategy
@@ -14,6 +15,7 @@
         protected const string TestsPlaceholder = "#testsCode#";
 
         public NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -22,7 +24,7 @@
             string underscoreModulePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(nodeJsExecutablePath, underscoreModulePath, baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, nodeJsExecutablePath, underscoreModulePath, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(mochaModulePath))
             {

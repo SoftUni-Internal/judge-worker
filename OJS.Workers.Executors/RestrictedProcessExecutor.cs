@@ -5,62 +5,43 @@ namespace OJS.Workers.Executors
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     using log4net;
 
     using OJS.Workers.Common;
     using OJS.Workers.Executors.Process;
 
-    public class RestrictedProcessExecutor : IExecutor
+    using static OJS.Workers.Common.Constants;
+
+    public class RestrictedProcessExecutor : ProcessExecutor
     {
-        private const int TimeIntervalBetweenTwoMemoryConsumptionRequests = 45;
         private const int TimeBeforeClosingOutputStreams = 300;
-        private const int MinimumMemoryLimitInBytes = 5 * 1024 * 1024;
 
         private static ILog logger;
 
-        private readonly int baseTimeUsed;
-        private readonly int baseMemoryUsed;
+        public RestrictedProcessExecutor(int baseTimeUsed, int baseMemoryUsed, ITasksService tasksService)
+            : base(baseTimeUsed, baseMemoryUsed, tasksService)
+            => logger = LogManager.GetLogger(typeof(RestrictedProcessExecutor));
 
-        public RestrictedProcessExecutor() =>
-            logger = LogManager.GetLogger(typeof(RestrictedProcessExecutor));
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestrictedProcessExecutor"/> class with base time and memory used.
-        /// </summary>
-        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
-        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
-        public RestrictedProcessExecutor(int baseTimeUsed, int baseMemoryUsed)
-            : this()
-        {
-            this.baseTimeUsed = baseTimeUsed;
-            this.baseMemoryUsed = baseMemoryUsed;
-        }
-
-        public ProcessExecutionResult Execute(
+        protected override ProcessExecutionResult InternalExecute(
             string fileName,
             string inputData,
             int timeLimit,
             int memoryLimit,
-            IEnumerable<string> executionArguments = null,
-            string workingDirectory = null,
-            bool useProcessTime = false,
-            bool useSystemEncoding = false,
-            bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = 1.5)
+            IEnumerable<string> executionArguments,
+            string workingDirectory,
+            bool useSystemEncoding,
+            double timeoutMultiplier)
         {
-            this.AdjustTimeAndMemoryLimits(ref timeLimit, ref memoryLimit);
-
             var result = new ProcessExecutionResult { Type = ProcessExecutionResultType.Success };
-            if (workingDirectory == null)
-            {
-                workingDirectory = new FileInfo(fileName).DirectoryName;
-            }
+            var bufferSize = Math.Max(ProcessDefaultBufferSizeInBytes, (inputData.Length * 2) + 4);
 
-            using (var restrictedProcess = new RestrictedProcess(fileName, workingDirectory, executionArguments, Math.Max(4096, (inputData.Length * 2) + 4), useSystemEncoding))
+            using (var restrictedProcess = new RestrictedProcess(
+                fileName,
+                workingDirectory,
+                executionArguments,
+                bufferSize,
+                useSystemEncoding))
             {
                 // Write to standard input using another thread
                 restrictedProcess.StandardInput.WriteLineAsync(inputData).ContinueWith(
@@ -76,40 +57,19 @@ namespace OJS.Workers.Executors
                     });
 
                 // Read standard output using another thread to prevent process locking (waiting us to empty the output buffer)
-                var processOutputTask = restrictedProcess.StandardOutput.ReadToEndAsync().ContinueWith(
-                    x =>
-                    {
-                        result.ReceivedOutput = x.Result;
-                    });
+                var processOutputTask = restrictedProcess
+                    .StandardOutput
+                    .ReadToEndAsync()
+                    .ContinueWith(x => result.ReceivedOutput = x.Result);
 
                 // Read standard error using another thread
-                var errorOutputTask = restrictedProcess.StandardError.ReadToEndAsync().ContinueWith(
-                    x =>
-                    {
-                        result.ErrorOutput = x.Result;
-                    });
+                var errorOutputTask = restrictedProcess
+                    .StandardError
+                    .ReadToEndAsync()
+                    .ContinueWith(x => result.ErrorOutput = x.Result);
 
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
-                var memoryTaskCancellationToken = new CancellationTokenSource();
-                var memoryTask = Task.Run(
-                    () =>
-                    {
-                        while (true)
-                        {
-                            // ReSharper disable once AccessToDisposedClosure
-                            var peakWorkingSetSize = restrictedProcess.PeakWorkingSetSize;
-
-                            result.MemoryUsed = Math.Max(result.MemoryUsed, peakWorkingSetSize);
-
-                            if (memoryTaskCancellationToken.IsCancellationRequested)
-                            {
-                                return;
-                            }
-
-                            Thread.Sleep(TimeIntervalBetweenTwoMemoryConsumptionRequests);
-                        }
-                    },
-                    memoryTaskCancellationToken.Token);
+                var memorySamplingThreadInfo = this.StartMemorySamplingThread(restrictedProcess, result);
 
                 // Start the process
                 restrictedProcess.Start(timeLimit, memoryLimit);
@@ -122,18 +82,16 @@ namespace OJS.Workers.Executors
                     restrictedProcess.Kill();
 
                     // Wait for the associated process to exit before continuing
-                    restrictedProcess.WaitForExit(Constants.DefaultProcessExitTimeOutMilliseconds);
+                    restrictedProcess.WaitForExit(DefaultProcessExitTimeOutMilliseconds);
 
                     result.ProcessWasKilled = true;
                     result.Type = ProcessExecutionResultType.TimeLimit;
                 }
 
                 // Close the memory consumption check thread
-                memoryTaskCancellationToken.Cancel();
                 try
                 {
-                    // To be sure that memory consumption will be evaluated correctly
-                    memoryTask.Wait(TimeIntervalBetweenTwoMemoryConsumptionRequests);
+                    this.TasksService.Stop(memorySamplingThreadInfo);
                 }
                 catch (AggregateException ex)
                 {
@@ -169,37 +127,7 @@ namespace OJS.Workers.Executors
                 result.UserProcessorTime = restrictedProcess.UserProcessorTime;
             }
 
-            if ((useProcessTime && result.TimeWorked.TotalMilliseconds > timeLimit) ||
-                result.TotalProcessorTime.TotalMilliseconds > timeLimit)
-            {
-                result.Type = ProcessExecutionResultType.TimeLimit;
-            }
-
-            if (result.MemoryUsed > memoryLimit)
-            {
-                result.Type = ProcessExecutionResultType.MemoryLimit;
-            }
-
-            if (!string.IsNullOrEmpty(result.ErrorOutput) ||
-                (dependOnExitCodeForRunTimeError && result.ExitCode < -1))
-            {
-                result.Type = ProcessExecutionResultType.RunTimeError;
-            }
-
-            result.ApplyTimeAndMemoryOffset(this.baseTimeUsed, this.baseMemoryUsed);
-
             return result;
-        }
-
-        private void AdjustTimeAndMemoryLimits(ref int timeLimit, ref int memoryLimit)
-        {
-            timeLimit += this.baseTimeUsed;
-            memoryLimit += this.baseMemoryUsed;
-
-            if (memoryLimit < MinimumMemoryLimitInBytes)
-            {
-                memoryLimit = MinimumMemoryLimitInBytes;
-            }
         }
     }
 }

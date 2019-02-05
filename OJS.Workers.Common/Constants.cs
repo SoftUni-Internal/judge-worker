@@ -35,13 +35,13 @@
         public const string ExecutionStrategiesFolderName = "ExecutionStrategies";
 
         // Other
-        public const int DefaultProcessExitTimeOutMilliseconds = 5000; // ms
+        public const int DefaultProcessExitTimeOutMilliseconds = 5000;
+        public const int ProcessDefaultBufferSizeInBytes = 4096;
 
         public const string AppSettingsConfigSectionName = "appSettings";
 
-        // Docker container constants
-        public const string DockerEnvironmentVariableName = "ASPNETCORE_ENVIRONMENT";
-        public const string DockerEnvironmentVariableValue = "Docker";
+        // Environment variables
+        public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
 
         // Runtime constants
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";

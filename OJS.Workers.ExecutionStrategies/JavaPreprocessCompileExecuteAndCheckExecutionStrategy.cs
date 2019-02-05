@@ -16,27 +16,25 @@
         protected const string TimeMeasurementFileName = "_$time.txt";
         protected const string SandboxExecutorClassName = "_$SandboxExecutor";
         protected const string JavaCompiledFileExtension = ".class";
-        protected readonly IProcessExecutorFactory processExecutorFactory;
 
         private const double NanosecondsInOneMillisecond = 1000000;
 
         private readonly int baseUpdateTimeOffset;
 
         public JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
+            string javaExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed,
             int baseUpdateTimeOffset = 0)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(javaExecutablePath))
             {
                 throw new ArgumentException($"Java not found in: {javaExecutablePath}!", nameof(javaExecutablePath));
             }
 
-            this.processExecutorFactory = processExecutorFactory;
             this.baseUpdateTimeOffset = baseUpdateTimeOffset;
             this.JavaExecutablePath = javaExecutablePath;
             this.GetCompilerPathFunc = getCompilerPathFunc;
@@ -245,8 +243,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
             // Create an executor and checker
-            var executor = this.processExecutorFactory
-                .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, ProcessExecutorType.Standard);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             var checker = executionContext.Input.GetChecker();
 

@@ -22,11 +22,12 @@
         protected const string AdapterFunctionPlaceholder = "#adapterFunctionCode#";
 
         public NodeJsPreprocessExecuteAndCheckExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string underscoreModulePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -184,7 +185,7 @@ process.stdin.on('end', function() {
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
 
             // Process the submission and check each test
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result.Results = this.ProcessTests(
                 executionContext,

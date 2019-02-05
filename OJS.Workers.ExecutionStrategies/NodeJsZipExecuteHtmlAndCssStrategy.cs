@@ -17,6 +17,7 @@
         protected const string UserBaseDirectoryPlaceholder = "#userBaseDirectoryPlaceholder#";
 
         public NodeJsZipExecuteHtmlAndCssStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -30,6 +31,7 @@
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
+                processExecutorFactory,
                 nodeJsExecutablePath,
                 mochaModulePath,
                 chaiModulePath,
@@ -171,7 +173,7 @@ describe('TestDOMScope', function() {{
                 this.ProgramEntryPath);
 
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result.Results = this.ProcessTests(
                 executionContext,

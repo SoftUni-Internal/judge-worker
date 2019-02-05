@@ -140,10 +140,11 @@
 
         public DotNetCoreTestRunnerExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
-                this.getCompilerPathFunc = getCompilerPathFunc;
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            => this.getCompilerPathFunc = getCompilerPathFunc;
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
@@ -184,7 +185,8 @@
                 executionContext,
                 Path.GetDirectoryName(compileResult.OutputFile));
 
-            IExecutor executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+
             var processExecutionResult = executor.Execute(
                 outputAssemblyPath,
                 string.Empty,
@@ -275,7 +277,7 @@
             }
         }
 
-        private bool IsDotNetCoreFile(string filePath) =>
-            File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
+        private bool IsDotNetCoreFile(string filePath)
+            => File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
     }
 }

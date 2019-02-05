@@ -9,9 +9,13 @@
 
     public class RubyExecutionStrategy : ExecutionStrategy
     {
-        public RubyExecutionStrategy(string rubyPath, int baseTimeUsed, int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed) =>
-                this.RubyPath = rubyPath;
+        public RubyExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
+            string rubyPath,
+            int baseTimeUsed,
+            int baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            => this.RubyPath = rubyPath;
 
         public string RubyPath { get; set; }
 
@@ -26,7 +30,7 @@
 
             var arguments = new[] { submissionFilePath };
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

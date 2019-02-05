@@ -35,17 +35,17 @@
         private static readonly string MavenBuildErrorPattern = @"\[ERROR\](?:\s)*((?:.*)\n|\r|(\r\n))*(?=\[INFO\]\s\d)";
 
         public JavaSpringAndHibernateProjectExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
+            string javaExecutablePath,
             string javaLibrariesPath,
             string mavenPath,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
-                javaExecutablePath,
                 getCompilerPathFunc,
                 processExecutorFactory,
+                javaExecutablePath,
                 javaLibrariesPath,
                 baseTimeUsed,
                 baseMemoryUsed) =>
@@ -165,7 +165,7 @@
 
             var mavenArgs = new[] { $"-f {pomXmlPath} clean package -DskipTests" };
 
-            var mavenExecutor = new StandardProcessExecutor();
+            var mavenExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             var packageExecutionResult = mavenExecutor.Execute(
               this.MavenPath,
@@ -188,7 +188,7 @@
                 return result;
             }
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

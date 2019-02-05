@@ -1,4 +1,4 @@
-namespace OJS.Workers.Executors
+namespace OJS.Workers.Executors.Implementations
 {
     using System;
     using System.Threading;

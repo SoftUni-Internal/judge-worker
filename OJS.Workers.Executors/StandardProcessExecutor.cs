@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Text;
 
     using log4net;
@@ -12,51 +11,27 @@
     using OJS.Workers.Common.Helpers;
 
     // TODO: Implement memory constraints
-    public class StandardProcessExecutor : IExecutor
+    public class StandardProcessExecutor : ProcessExecutor
     {
+        private const int TimeBeforeClosingOutputStreams = 100;
+
         private static ILog logger;
 
-        private readonly int baseTimeUsed;
-        private readonly int baseMemoryUsed;
-        private readonly ITasksService tasksService;
-
-        public StandardProcessExecutor() =>
-            logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="StandardProcessExecutor"/> class with base time and memory used.
-        /// </summary>
-        /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
-        /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
-        /// <param name="tasksService">Service for running tasks.</param>
         public StandardProcessExecutor(int baseTimeUsed, int baseMemoryUsed, ITasksService tasksService)
-            : this()
-        {
-            this.baseTimeUsed = baseTimeUsed;
-            this.baseMemoryUsed = baseMemoryUsed;
-            this.tasksService = tasksService;
-        }
+            : base(baseTimeUsed, baseMemoryUsed, tasksService)
+            => logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
 
-        public ProcessExecutionResult Execute(
+        protected override ProcessExecutionResult InternalExecute(
             string fileName,
             string inputData,
             int timeLimit,
             int memoryLimit,
-            IEnumerable<string> executionArguments = null,
-            string workingDirectory = null,
-            bool useProcessTime = false,
-            bool useSystemEncoding = false,
-            bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = 1.5)
+            IEnumerable<string> executionArguments,
+            string workingDirectory,
+            bool useSystemEncoding,
+            double timeoutMultiplier)
         {
-            timeLimit = timeLimit + this.baseTimeUsed;
-            memoryLimit = memoryLimit + this.baseMemoryUsed;
-
             var result = new ProcessExecutionResult { Type = ProcessExecutionResultType.Success };
-            if (workingDirectory == null)
-            {
-                workingDirectory = new FileInfo(fileName).DirectoryName;
-            }
 
             var processStartInfo = new ProcessStartInfo(fileName)
             {
@@ -87,17 +62,26 @@
                 }
 
                 // Write to standard input using another thread
-                process.StandardInput.WriteLineAsync(inputData).ContinueWith(
-                    _ => process.StandardInput.FlushAsync().ContinueWith(
-                        __ => process.StandardInput.Close()));
+                process
+                    .StandardInput
+                    .WriteLineAsync(inputData)
+                    .ContinueWith(_ =>
+                        process
+                            .StandardInput
+                            .FlushAsync()
+                            .ContinueWith(__ => process.StandardInput.Close()));
 
                 // Read standard output using another thread to prevent process locking (waiting us to empty the output buffer)
-                var processOutputTask = process.StandardOutput.ReadToEndAsync().ContinueWith(
-                    x => { result.ReceivedOutput = x.Result; });
+                var processOutputTask = process
+                    .StandardOutput
+                    .ReadToEndAsync()
+                    .ContinueWith(x => result.ReceivedOutput = x.Result);
 
                 // Read standard error using another thread
-                var errorOutputTask = process.StandardError.ReadToEndAsync().ContinueWith(
-                    x => { result.ErrorOutput = x.Result; });
+                var errorOutputTask = process
+                    .StandardError
+                    .ReadToEndAsync()
+                    .ContinueWith(x => result.ErrorOutput = x.Result);
 
                 // TODO: make it work on Linux
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
@@ -130,19 +114,19 @@
                 // Close the memory check thread
                 try
                 {
-                    this.tasksService.Stop(memorySamplingThreadInfo);
+                    this.TasksService.Stop(memorySamplingThreadInfo);
                 }
                 catch (AggregateException ex)
                 {
                     logger.Warn("AggregateException caught.", ex.InnerException);
                 }
 
-                // Close the time check thread if open
+                // Close the time sampling thread if open
                 if (timeSamplingThreadInfo != null)
                 {
                     try
                     {
-                        this.tasksService.Stop(timeSamplingThreadInfo);
+                        this.TasksService.Stop(timeSamplingThreadInfo);
                     }
                     catch (AggregateException ex)
                     {
@@ -153,7 +137,7 @@
                 // Close the task that gets the process error output
                 try
                 {
-                    errorOutputTask.Wait(100);
+                    errorOutputTask.Wait(TimeBeforeClosingOutputStreams);
                 }
                 catch (AggregateException ex)
                 {
@@ -163,7 +147,7 @@
                 // Close the task that gets the process output
                 try
                 {
-                    processOutputTask.Wait(100);
+                    processOutputTask.Wait(TimeBeforeClosingOutputStreams);
                 }
                 catch (AggregateException ex)
                 {
@@ -183,67 +167,7 @@
                 }
             }
 
-            if ((useProcessTime && result.TimeWorked.TotalMilliseconds > timeLimit) ||
-                result.TotalProcessorTime.TotalMilliseconds > timeLimit)
-            {
-                result.Type = ProcessExecutionResultType.TimeLimit;
-            }
-
-            if (result.MemoryUsed > memoryLimit)
-            {
-                result.Type = ProcessExecutionResultType.MemoryLimit;
-            }
-
-            if (!string.IsNullOrEmpty(result.ErrorOutput) ||
-                (dependOnExitCodeForRunTimeError && result.ExitCode < -1))
-            {
-                result.Type = ProcessExecutionResultType.RunTimeError;
-            }
-
-            result.ApplyTimeAndMemoryOffset(this.baseTimeUsed, this.baseMemoryUsed);
-
             return result;
-        }
-
-        private TaskInfo StartMemorySamplingThread(
-            System.Diagnostics.Process process,
-            ProcessExecutionResult result)
-        {
-            const int memoryIntervalBetweenTwoMemoryConsumptionRequests = 45;
-            var memorySamplingRunInBackgroundInfo = this.tasksService.RunWithInterval(
-                memoryIntervalBetweenTwoMemoryConsumptionRequests,
-                () =>
-                {
-                    if (process.HasExited)
-                    {
-                        return;
-                    }
-
-                    result.MemoryUsed = Math.Max(result.MemoryUsed, process.PeakWorkingSet64);
-                });
-
-            return memorySamplingRunInBackgroundInfo;
-        }
-
-        private TaskInfo StartProcessorTimeSamplingThread(
-            System.Diagnostics.Process process,
-            ProcessExecutionResult result)
-        {
-            const int timeIntervalBetweenTwoTimeConsumptionRequests = 10;
-            var timeSamplingRunInBackgroundInfo = this.tasksService.RunWithInterval(
-                timeIntervalBetweenTwoTimeConsumptionRequests,
-                () =>
-                {
-                    if (process.HasExited)
-                    {
-                        return;
-                    }
-
-                    result.PrivilegedProcessorTime = process.PrivilegedProcessorTime;
-                    result.UserProcessorTime = process.UserProcessorTime;
-                });
-
-            return timeSamplingRunInBackgroundInfo;
         }
     }
 }

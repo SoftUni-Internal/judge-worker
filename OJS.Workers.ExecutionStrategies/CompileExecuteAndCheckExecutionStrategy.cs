@@ -9,17 +9,13 @@
 
     public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        private readonly IExecutor executor;
-
         public CompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
-        {
-            this.GetCompilerPathFunc = getCompilerPathFunc;
-            this.executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
-        }
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            => this.GetCompilerPathFunc = getCompilerPathFunc;
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
@@ -28,7 +24,7 @@
                 this.CompileExecuteAndCheck(
                     executionContext,
                     this.GetCompilerPathFunc,
-                    this.executor);
+                    this.CreateExecutor(ProcessExecutorType.Restricted));
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext)
@@ -45,7 +41,9 @@
                 return result;
             }
 
-            var processExecutionResult = this.executor.Execute(
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+
+            var processExecutionResult = executor.Execute(
                 compileResult.OutputFile,
                 executionContext.Input ?? string.Empty,
                 executionContext.TimeLimit,

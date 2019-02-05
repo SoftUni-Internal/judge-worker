@@ -21,9 +21,10 @@
 
         public CPlusPlusZipFileExecutionStrategy(
             Func<CompilerType, string> getCompilerPath,
+            IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed) =>
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPath;
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
@@ -57,7 +58,7 @@
 
             result.IsCompiledSuccessfully = true;
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

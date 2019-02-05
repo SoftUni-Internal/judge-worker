@@ -23,7 +23,6 @@
         private readonly string ganacheCliNodeExecutablePath;
         private readonly string truffleCliNodeExecutablePath;
         private readonly int portNumber;
-        private readonly IProcessExecutorFactory processExecutorFactory;
 
         public SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -34,7 +33,7 @@
             int portNumber,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -62,7 +61,6 @@
             this.truffleCliNodeExecutablePath = truffleCliNodeExecutablePath;
             this.portNumber = portNumber;
             this.GetCompilerPathFunc = getCompilerPathFunc;
-            this.processExecutorFactory = processExecutorFactory;
         }
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
@@ -92,14 +90,16 @@
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
 
-            var truffleProject = new TruffleProjectManager(this.WorkingDirectory, this.portNumber, this.processExecutorFactory);
+            var truffleProject = new TruffleProjectManager(
+                this.WorkingDirectory,
+                this.portNumber,
+                this.ProcessExecutorFactory);
 
             truffleProject.InitializeMigration(this.GetCompilerPathFunc(executionContext.CompilerType));
             truffleProject.CreateJsonBuildForContracts(compiledContracts);
             truffleProject.ImportJsUnitTests(executionContext.Input.Tests);
 
-            var executor = this.processExecutorFactory
-                .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, ProcessExecutorType.Standard);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
             var checker = executionContext.Input.GetChecker();
 
             ProcessExecutionResult processExecutionResult;

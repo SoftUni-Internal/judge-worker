@@ -143,8 +143,8 @@
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
-                this.getCompilerPathFunc = getCompilerPathFunc;
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            => this.getCompilerPathFunc = getCompilerPathFunc;
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
@@ -277,7 +277,7 @@
             }
         }
 
-        private bool IsDotNetCoreFile(string filePath) =>
-            File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
+        private bool IsDotNetCoreFile(string filePath)
+            => File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
     }
 }

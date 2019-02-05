@@ -11,6 +11,8 @@ namespace OJS.Workers.Executors
     using OJS.Workers.Common;
     using OJS.Workers.Executors.Process;
 
+    using static OJS.Workers.Common.Constants;
+
     public class RestrictedProcessExecutor : ProcessExecutor
     {
         private const int TimeBeforeClosingOutputStreams = 300;
@@ -32,12 +34,13 @@ namespace OJS.Workers.Executors
             double timeoutMultiplier)
         {
             var result = new ProcessExecutionResult { Type = ProcessExecutionResultType.Success };
+            var bufferSize = Math.Max(ProcessDefaultBufferSizeInBytes, (inputData.Length * 2) + 4);
 
             using (var restrictedProcess = new RestrictedProcess(
                 fileName,
                 workingDirectory,
                 executionArguments,
-                Math.Max(4096, (inputData.Length * 2) + 4),
+                bufferSize,
                 useSystemEncoding))
             {
                 // Write to standard input using another thread
@@ -57,19 +60,13 @@ namespace OJS.Workers.Executors
                 var processOutputTask = restrictedProcess
                     .StandardOutput
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        return result.ReceivedOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ReceivedOutput = x.Result);
 
                 // Read standard error using another thread
                 var errorOutputTask = restrictedProcess
                     .StandardError
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        return result.ErrorOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ErrorOutput = x.Result);
 
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process
                 var memorySamplingThreadInfo = this.StartMemorySamplingThread(restrictedProcess, result);
@@ -85,7 +82,7 @@ namespace OJS.Workers.Executors
                     restrictedProcess.Kill();
 
                     // Wait for the associated process to exit before continuing
-                    restrictedProcess.WaitForExit(Constants.DefaultProcessExitTimeOutMilliseconds);
+                    restrictedProcess.WaitForExit(DefaultProcessExitTimeOutMilliseconds);
 
                     result.ProcessWasKilled = true;
                     result.Type = ProcessExecutionResultType.TimeLimit;

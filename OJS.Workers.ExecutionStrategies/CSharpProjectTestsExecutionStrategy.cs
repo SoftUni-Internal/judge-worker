@@ -65,7 +65,7 @@
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
             int baseMemoryUsed)
-                : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             this.GetCompilerPathFunc = getCompilerPathFunc;
             this.TestNames = new List<string>();

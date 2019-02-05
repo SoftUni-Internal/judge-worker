@@ -65,27 +65,23 @@
                 process
                     .StandardInput
                     .WriteLineAsync(inputData)
-                    .ContinueWith(
-                        _ => process.StandardInput.FlushAsync().ContinueWith(
-                            __ => process.StandardInput.Close()));
+                    .ContinueWith(_ =>
+                        process
+                            .StandardInput
+                            .FlushAsync()
+                            .ContinueWith(__ => process.StandardInput.Close()));
 
                 // Read standard output using another thread to prevent process locking (waiting us to empty the output buffer)
                 var processOutputTask = process
                     .StandardOutput
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        result.ReceivedOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ReceivedOutput = x.Result);
 
                 // Read standard error using another thread
                 var errorOutputTask = process
                     .StandardError
                     .ReadToEndAsync()
-                    .ContinueWith(x =>
-                    {
-                        result.ErrorOutput = x.Result;
-                    });
+                    .ContinueWith(x => result.ErrorOutput = x.Result);
 
                 // TODO: make it work on Linux
                 // Read memory consumption every few milliseconds to determine the peak memory usage of the process

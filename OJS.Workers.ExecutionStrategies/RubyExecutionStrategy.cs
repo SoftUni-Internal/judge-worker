@@ -14,8 +14,8 @@
             string rubyPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
-                this.RubyPath = rubyPath;
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            => this.RubyPath = rubyPath;
 
         public string RubyPath { get; set; }
 

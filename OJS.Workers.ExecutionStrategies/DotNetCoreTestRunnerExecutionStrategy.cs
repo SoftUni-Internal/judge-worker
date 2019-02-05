@@ -277,7 +277,7 @@
             }
         }
 
-        private bool IsDotNetCoreFile(string filePath) =>
-            File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
+        private bool IsDotNetCoreFile(string filePath)
+            => File.ReadAllLines(filePath)[0].StartsWith(DotNetCoreCsProjIdentifierPattern);
     }
 }

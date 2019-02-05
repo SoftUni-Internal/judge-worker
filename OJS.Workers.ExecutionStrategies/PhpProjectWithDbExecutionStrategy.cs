@@ -43,10 +43,10 @@
 
         protected BaseMySqlExecutionStrategy MySqlHelperStrategy { get; set; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
             var databaseName = this.MySqlHelperStrategy.GetDatabaseName();
 
             // PHP code is not compiled
@@ -91,8 +91,6 @@
                 result.Results.Add(testResult);
                 this.MySqlHelperStrategy.DropDatabase(databaseName);
             }
-
-            return result;
         }
 
         private string GetZipFilePath(string zipFileName) =>

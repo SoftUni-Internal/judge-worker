@@ -13,17 +13,17 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteCompetitive(
-            IExecutionContext<TestsInputModel> executionContext)
-        {
-            return this.Execute(
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+            => this.ExecuteAgainstTests(
                 executionContext,
-                (connection, test, result) =>
+                result,
+                (connection, test) =>
                 {
                     this.ExecuteNonQuery(connection, test.Input);
                     var sqlTestResult = this.ExecuteReader(connection, executionContext.Code, executionContext.TimeLimit);
                     this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
                 });
-        }
     }
 }

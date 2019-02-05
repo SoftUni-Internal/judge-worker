@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -150,10 +151,11 @@ function afterBundling() {
     });
 }";
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
+            result.IsCompiledSuccessfully = true;
 
             // Copy and unzip the file (save file to WorkingDirectory)
             this.CreateSubmissionFile(executionContext);
@@ -172,16 +174,14 @@ function afterBundling() {
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             // Process tests
-            result.Results = this.ProcessTests(
+            result.Results.AddRange(this.ProcessTests(
                 executionContext,
                 executor,
                 executionContext.Input.GetChecker(),
-                codeSavePath);
+                codeSavePath));
 
             // Clean up
             File.Delete(codeSavePath);
-
-            return result;
         }
 
         protected override string BuildTests(IEnumerable<TestContext> tests)

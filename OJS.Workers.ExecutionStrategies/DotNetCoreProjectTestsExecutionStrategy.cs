@@ -71,15 +71,14 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             executionContext.SanitizeContent();
 
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
-
-            var result = new ExecutionResult<TestResult>();
 
             var userSubmission = executionContext.FileContent;
 
@@ -107,7 +106,7 @@
             if (!result.IsCompiledSuccessfully)
             {
                 result.CompilerComment = compilerResult.CompilerComment;
-                return result;
+                return;
             }
 
             // Delete tests before execution so the user can't access them
@@ -115,7 +114,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result = this.RunUnitTests(
+            this.RunUnitTests(
                 compilerPath,
                 executionContext,
                 executor,
@@ -123,8 +122,6 @@
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);
-
-            return result;
         }
 
         protected (string csProjTemplate, string csProjPath) CreateNUnitLiteConsoleApp(

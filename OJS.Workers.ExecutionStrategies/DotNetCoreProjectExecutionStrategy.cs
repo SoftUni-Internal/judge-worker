@@ -21,12 +21,11 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             executionContext.SanitizeContent();
-
-            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
 
@@ -47,7 +46,7 @@
             if (!result.IsCompiledSuccessfully)
             {
                 result.CompilerComment = compilerResult.CompilerComment;
-                return result;
+                return;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -78,8 +77,6 @@
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
     }
 }

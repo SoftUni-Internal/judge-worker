@@ -146,12 +146,11 @@
             : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
             => this.getCompilerPathFunc = getCompilerPathFunc;
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             executionContext.SanitizeContent();
-
-            var result = new ExecutionResult<TestResult>();
 
             var userSubmissionContent = executionContext.FileContent;
             var submissionFilePath = $"{this.WorkingDirectory}\\{ZippedSubmissionName}";
@@ -176,7 +175,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
@@ -205,7 +204,6 @@
             }
 
             this.ProcessTests(processExecutionResult, executionContext, result);
-            return result;
         }
 
         private string PreprocessAndCompileTestRunner(

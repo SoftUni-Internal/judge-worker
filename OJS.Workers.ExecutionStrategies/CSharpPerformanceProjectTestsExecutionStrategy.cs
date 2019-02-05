@@ -22,12 +22,12 @@
 
         protected List<string> TestClassNames { get; }
 
-        protected override ExecutionResult<TestResult> RunUnitTests(
+        protected override void RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult<TestResult> result,
+            IExecutionResult<TestResult> result,
             string compiledFile,
             string additionalExecutionArguments)
         {
@@ -57,8 +57,6 @@
                 result.Results.Add(testResult);
                 testIndex++;
             }
-
-            return result;
         }
 
         protected override void ExtractTestNames(IEnumerable<TestContext> tests)

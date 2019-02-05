@@ -18,17 +18,15 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
-        {
-            var result = this.CompileExecuteAndCheck(
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+            => this.CompileExecuteAndCheck(
                 executionContext,
+                result,
                 this.GetCompilerPathFunc,
                 this.CreateExecutor(ProcessExecutorType.Restricted),
                 useSystemEncoding: false,
                 dependOnExitCodeForRunTimeError: true);
-
-            return result;
-        }
     }
 }

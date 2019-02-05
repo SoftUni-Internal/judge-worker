@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -160,10 +161,12 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
+            result.IsCompiledSuccessfully = true;
+
             this.CreateSubmissionFile(executionContext);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
 
@@ -175,15 +178,13 @@ describe('TestDOMScope', function() {{
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result.Results = this.ProcessTests(
+            result.Results.AddRange(this.ProcessTests(
                 executionContext,
                 executor,
                 executionContext.Input.GetChecker(),
-                codeSavePath);
+                codeSavePath));
 
             File.Delete(codeSavePath);
-
-            return result;
         }
 
         protected virtual string BuildTests(IEnumerable<TestContext> tests)

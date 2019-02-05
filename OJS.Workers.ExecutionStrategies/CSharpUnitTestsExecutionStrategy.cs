@@ -30,11 +30,10 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             var userSubmissionContent = executionContext.FileContent;
 
             this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
@@ -49,7 +48,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result = this.RunUnitTests(
+            this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
@@ -57,16 +56,14 @@
                 result,
                 csProjFilePath,
                 AdditionalExecutionArguments);
-
-            return result;
         }
 
-        protected override ExecutionResult<TestResult> RunUnitTests(
+        protected override void RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult<TestResult> result,
+            IExecutionResult<TestResult> result,
             string csProjFilePath,
             string additionalExecutionArguments)
         {
@@ -98,7 +95,7 @@
 
                 if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return result;
+                    return;
                 }
 
                 // Delete tests before execution so the user can't acces them
@@ -130,8 +127,6 @@
                 result.Results.Add(testResult);
                 count++;
             }
-
-            return result;
         }
 
         protected override CompileResult Compile(

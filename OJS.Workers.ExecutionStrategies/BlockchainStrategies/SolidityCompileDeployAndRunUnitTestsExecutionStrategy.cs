@@ -13,7 +13,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : ExecutionStrategy
+    public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : BaseCodeExecutionStrategy
     {
         private const string TestsCountRegexPattern = @"^\s*(\d+)\s{1}passing\s\(\d+\w+\)\s*((\d+)\sfailing\s*$)*";
         private const string TestNamesSearchPattern = @"it\((""|')(.+)(?:\1)(?=\s*,)";
@@ -70,11 +70,10 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             this.ExtractTestNames(executionContext.Input.Tests);
 
             // Compile the file
@@ -85,7 +84,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
@@ -159,8 +158,6 @@
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
         private static Dictionary<string, (string byteCode, string abi)> GetCompiledContracts(

@@ -10,7 +10,7 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public abstract class BaseSqlExecutionStrategy : IExecutionStrategy
+    public abstract class BaseSqlExecutionStrategy : ExecutionStrategy
     {
         protected static readonly Type DecimalType = typeof(decimal);
         protected static readonly Type DoubleType = typeof(double);
@@ -21,43 +21,12 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public string WorkingDirectory { get; set; }
-
-        public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
-            where TResult : ISingleCodeRunResult, new()
-        {
-            this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
-            try
-            {
-                return this.Execute<TInput, TResult>(executionContext);
-            }
-            finally
-            {
-                DirectoryHelpers.SafeDeleteDirectory(this.WorkingDirectory, true);
-            }
-        }
-
-        public virtual IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
-            where TResult : ISingleCodeRunResult, new()
-        {
-            switch (executionContext)
-            {
-                case IExecutionContext<TestsInputModel> testsExecutionContext:
-                    return (IExecutionResult<TResult>)this.ExecuteCompetitive(testsExecutionContext);
-                default:
-                    return new ExecutionResult<TResult>
-                    {
-                        IsCompiledSuccessfully = false,
-                        CompilerComment = "Execution context not found"
-                    };
-            }
-        }
-
-        public virtual IExecutionResult<TestResult> Execute(
+        public virtual IExecutionResult<TestResult> ExecuteAgainstTests(
             IExecutionContext<TestsInputModel> executionContext,
-            Action<IDbConnection, TestContext, ExecutionResult<TestResult>> executionFlow)
+            IExecutionResult<TestResult> result,
+            Action<IDbConnection, TestContext> executionFlow)
         {
-            var result = new ExecutionResult<TestResult> { IsCompiledSuccessfully = true };
+            result.IsCompiledSuccessfully = true;
 
             string databaseName = null;
             try
@@ -68,7 +37,7 @@
 
                     using (var connection = this.GetOpenConnection(databaseName))
                     {
-                        executionFlow(connection, test, result);
+                        executionFlow(connection, test);
                     }
 
                     this.DropDatabase(databaseName);
@@ -93,9 +62,6 @@
         public abstract void DropDatabase(string databaseName);
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
-
-        protected abstract IExecutionResult<TestResult> ExecuteCompetitive(
-            IExecutionContext<TestsInputModel> executionContext);
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

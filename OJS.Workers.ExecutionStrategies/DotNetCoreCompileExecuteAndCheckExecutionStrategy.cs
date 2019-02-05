@@ -11,7 +11,7 @@
 
     using static OJS.Workers.Common.Constants;
 
-    public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         private readonly string dotNetCoreRuntimeVersion;
 
@@ -39,11 +39,10 @@
                 }}
             }}";
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
@@ -51,7 +50,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             var executor = this.PrepareExecutor(
@@ -80,15 +79,12 @@
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
-        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext)
+        protected override void ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
         {
-            var result = new ExecutionResult<OutputResult>();
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
@@ -96,7 +92,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             var executor = this.PrepareExecutor(
@@ -116,8 +112,6 @@
             var outputResult = this.GetOutputResult(processExecutionResult);
 
             result.Results.Add(outputResult);
-
-            return result;
         }
 
         private IExecutor PrepareExecutor<TInput>(

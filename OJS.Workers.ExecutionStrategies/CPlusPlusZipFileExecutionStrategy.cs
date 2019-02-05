@@ -12,7 +12,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CPlusPlusZipFileExecutionStrategy : ExecutionStrategy
+    public class CPlusPlusZipFileExecutionStrategy : BaseCodeExecutionStrategy
     {
         private const string SubmissionName = "UserSubmission.zip";
         private const string FileNameAndExtensionPattern = @"//((\w+)\.(cpp|h))//";
@@ -27,11 +27,10 @@
             : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPath;
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             var submissionDestination = $@"{this.WorkingDirectory}\{SubmissionName}";
 
             File.WriteAllBytes(submissionDestination, executionContext.FileContent);
@@ -53,7 +52,7 @@
 
             if (!compilationResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             result.IsCompiledSuccessfully = true;
@@ -83,8 +82,6 @@
 
                 result.Results.Add(testResults);
             }
-
-            return result;
         }
 
         private IEnumerable<string> ExtractTaskSkeleton(string executionContextTaskSkeletonAsString)

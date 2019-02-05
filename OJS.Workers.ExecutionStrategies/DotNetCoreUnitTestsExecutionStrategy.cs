@@ -35,15 +35,14 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             executionContext.SanitizeContent();
 
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
-
-            var result = new ExecutionResult<TestResult>();
 
             var userSubmission = executionContext.FileContent;
 
@@ -59,7 +58,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result = this.RunUnitTests(
+            this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,
                 executionContext,
                 executor,
@@ -67,16 +66,14 @@
                 result,
                 string.Empty,
                 AdditionalExecutionArguments);
-
-            return result;
         }
 
-        protected override ExecutionResult<TestResult> RunUnitTests(
+        protected override void RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult<TestResult> result,
+            IExecutionResult<TestResult> result,
             string csProjFilePath,
             string additionalExecutionArguments)
         {
@@ -110,7 +107,7 @@
 
                 if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return result;
+                    return;
                 }
 
                 // Delete tests before execution so the user can't acces them
@@ -147,8 +144,6 @@
                     this.CreateNUnitLiteConsoleAppCsProjFile(this.nUnitLiteConsoleAppCsProjTemplate);
                 }
             }
-
-            return result;
         }
 
         private void MoveUserCsFilesToNunitLiteConsoleAppFolder()

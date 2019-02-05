@@ -4,7 +4,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CheckOnlyExecutionStrategy : ExecutionStrategy
+    public class CheckOnlyExecutionStrategy : BaseCodeExecutionStrategy
     {
         public CheckOnlyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -14,13 +14,11 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>
-            {
-                IsCompiledSuccessfully = true
-            };
+            result.IsCompiledSuccessfully = true;
 
             var processExecutionResult = new ProcessExecutionResult
             {
@@ -40,8 +38,6 @@
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
     }
 }

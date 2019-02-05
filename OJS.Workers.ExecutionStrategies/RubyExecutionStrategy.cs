@@ -7,7 +7,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class RubyExecutionStrategy : ExecutionStrategy
+    public class RubyExecutionStrategy : BaseCodeExecutionStrategy
     {
         public RubyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -19,11 +19,10 @@
 
         public string RubyPath { get; set; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             result.IsCompiledSuccessfully = true;
 
             var submissionFilePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
@@ -56,8 +55,6 @@
             {
                 File.Delete(submissionFilePath);
             }
-
-            return result;
         }
     }
 }

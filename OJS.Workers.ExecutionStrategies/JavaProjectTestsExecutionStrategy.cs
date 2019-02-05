@@ -36,9 +36,7 @@
 
         protected override string JUnitTestRunnerCode
         {
-            get
-            {
-                return $@"
+            get => $@"
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -94,14 +92,12 @@ public class _$TestRunner {{
 class Classes{{
     public static Map<String, Class> allClasses = new HashMap<>();
 }}";
-            }
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // Create a temp file with the submission code
             string submissionFilePath;
             try
@@ -113,7 +109,7 @@ class Classes{{
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = exception.Message;
 
-                return result;
+                return;
             }
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
@@ -143,7 +139,7 @@ class Classes{{
                 result.CompilerComment = preprocessCompileResult.CompilerComment;
                 if (!result.IsCompiledSuccessfully)
                 {
-                    return result;
+                    return;
                 }
 
                 var preprocessExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
@@ -188,7 +184,7 @@ class Classes{{
             result.CompilerComment = compilerResult.CompilerComment;
             if (!result.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             var arguments = new List<string>
@@ -233,8 +229,6 @@ class Classes{{
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
         protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)

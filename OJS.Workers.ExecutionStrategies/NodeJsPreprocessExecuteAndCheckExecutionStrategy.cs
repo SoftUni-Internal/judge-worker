@@ -5,11 +5,12 @@
     using System.IO;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         protected const string LatestEcmaScriptFeaturesEnabledFlag = "--harmony";
 
@@ -168,11 +169,10 @@ process.stdin.on('end', function() {
             EvaluationPlaceholder +
             PostevaluationPlaceholder;
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // In NodeJS there is no compilation
             result.IsCompiledSuccessfully = true;
 
@@ -187,16 +187,14 @@ process.stdin.on('end', function() {
             // Process the submission and check each test
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result.Results = this.ProcessTests(
+            result.Results.AddRange(this.ProcessTests(
                 executionContext,
                 executor,
                 executionContext.Input.GetChecker(),
-                codeSavePath);
+                codeSavePath));
 
             // Clean up
             File.Delete(codeSavePath);
-
-            return result;
         }
 
         protected virtual List<TestResult> ProcessTests(

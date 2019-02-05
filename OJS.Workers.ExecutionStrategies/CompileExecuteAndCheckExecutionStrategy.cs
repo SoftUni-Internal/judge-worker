@@ -7,7 +7,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class CompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         public CompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -19,18 +19,19 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext) =>
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result) =>
                 this.CompileExecuteAndCheck(
                     executionContext,
+                    result,
                     this.GetCompilerPathFunc,
                     this.CreateExecutor(ProcessExecutorType.Restricted));
 
-        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext)
+        protected override void ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
         {
-            var result = new ExecutionResult<OutputResult>();
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
@@ -38,7 +39,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -52,8 +53,6 @@
                 this.WorkingDirectory);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
-
-            return result;
         }
     }
 }

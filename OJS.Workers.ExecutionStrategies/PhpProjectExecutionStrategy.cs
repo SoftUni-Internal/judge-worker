@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PhpProjectExecutionStrategy : ExecutionStrategy
+    public class PhpProjectExecutionStrategy : BaseCodeExecutionStrategy
     {
         protected const string ZippedSubmissionName = "_$Submission";
         protected const string ApplicationEntryPoint = "index.php";
@@ -36,11 +36,10 @@
 
         protected string PhpCliExecutablePath { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
 
@@ -83,8 +82,6 @@
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
         protected void RequireSuperGlobalsTemplateInUserCode(string pathToSubmissionEntryPoint)

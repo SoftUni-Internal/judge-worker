@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PhpCgiExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class PhpCgiExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         private const string FileToExecuteOption = "--file";
 
@@ -29,11 +29,10 @@
             this.phpCgiExecutablePath = phpCgiExecutablePath;
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // PHP code is not compiled
             result.IsCompiledSuccessfully = true;
 
@@ -64,8 +63,6 @@
 
             // Clean up
             File.Delete(codeSavePath);
-
-            return result;
         }
     }
 }

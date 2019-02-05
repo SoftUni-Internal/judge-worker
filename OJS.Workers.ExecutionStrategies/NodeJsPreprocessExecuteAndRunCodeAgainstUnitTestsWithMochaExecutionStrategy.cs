@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -86,11 +87,12 @@ after(function() {
 
         private Random Random { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             // In NodeJS there is no compilation
-            var result = new ExecutionResult<TestResult>() { IsCompiledSuccessfully = true };
+            result.IsCompiledSuccessfully = true;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
@@ -103,16 +105,14 @@ after(function() {
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
 
             // Process the submission and check each test
-            result.Results = this.ProcessTests(
+            result.Results.AddRange(this.ProcessTests(
                 executionContext,
                 executor,
                 executionContext.Input.GetChecker(),
-                codeSavePath);
+                codeSavePath));
 
             // Clean up
             File.Delete(codeSavePath);
-
-            return result;
         }
 
         protected override string BuildTests(IEnumerable<TestContext> tests)

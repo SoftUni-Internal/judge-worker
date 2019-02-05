@@ -16,7 +16,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CSharpProjectTestsExecutionStrategy : ExecutionStrategy
+    public class CSharpProjectTestsExecutionStrategy : BaseCodeExecutionStrategy
     {
         protected const string SetupFixtureTemplate = @"
         using System;
@@ -103,10 +103,10 @@
 
         protected List<string> TestPaths { get; }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
             var userSubmissionContent = executionContext.FileContent;
 
             this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
@@ -135,7 +135,7 @@
 
             if (!compilerResult.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             // Delete tests before execution so the user can't access them
@@ -143,7 +143,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result = this.RunUnitTests(
+            this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
@@ -151,8 +151,6 @@
                 result,
                 compilerResult.OutputFile,
                 AdditionalExecutionArguments);
-
-            return result;
         }
 
         protected void SaveSetupFixture(string directory)
@@ -174,12 +172,12 @@
             }
         }
 
-        protected virtual ExecutionResult<TestResult> RunUnitTests(
+        protected virtual void RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
             IChecker checker,
-            ExecutionResult<TestResult> result,
+            IExecutionResult<TestResult> result,
             string compiledFile,
             string additionalExecutionArguments)
         {
@@ -220,8 +218,6 @@
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
         protected virtual Dictionary<string, string> GetTestErrors(string receivedOutput)

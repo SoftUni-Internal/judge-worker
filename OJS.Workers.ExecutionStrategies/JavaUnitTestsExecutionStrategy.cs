@@ -56,9 +56,7 @@
 
         protected virtual string JUnitTestRunnerCode
         {
-            get
-            {
-                return $@"
+            get => $@"
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
@@ -110,15 +108,14 @@ public class _$TestRunner {{
         System.out.printf(""Total Tests: %d Successful: %d Failed: %d"", total, successful, failed);
     }}
 }}";
-            }
         }
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
             string submissionFilePath;
 
             try
@@ -130,7 +127,7 @@ public class _$TestRunner {{
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = exception.Message;
 
-                return result;
+                return;
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -156,7 +153,7 @@ public class _$TestRunner {{
                     {
                         result.IsCompiledSuccessfully = false;
                         result.CompilerComment = IncorrectTestFormat;
-                        return result;
+                        return;
                     }
 
                     var filename = name.Groups[1].Value.Replace("/", "\\");
@@ -184,7 +181,7 @@ public class _$TestRunner {{
                 result.CompilerComment = compilerResult.CompilerComment;
                 if (!result.IsCompiledSuccessfully)
                 {
-                    return result;
+                    return;
                 }
 
                 fileNames.ForEach(File.Delete);
@@ -240,8 +237,6 @@ public class _$TestRunner {{
                 result.Results.Add(testResult);
                 count++;
             }
-
-            return result;
         }
 
         protected override CompileResult Compile(

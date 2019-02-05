@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PythonExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class PythonExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
@@ -30,11 +30,10 @@
             this.pythonExecutablePath = pythonExecutablePath;
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // Python code is not compiled
             result.IsCompiledSuccessfully = true;
 
@@ -68,8 +67,6 @@
 
             // Clean up
             File.Delete(codeSavePath);
-
-            return result;
         }
     }
 }

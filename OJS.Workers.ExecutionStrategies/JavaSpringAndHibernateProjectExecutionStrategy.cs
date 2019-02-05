@@ -140,11 +140,10 @@
 
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // Create a temp file with the submission code
             string submissionFilePath;
             try
@@ -156,7 +155,7 @@
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = exception.Message;
 
-                return result;
+                return;
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -185,7 +184,7 @@
                 var mavenBuildErrors = new Regex(MavenBuildErrorPattern);
                 var errorMatch = mavenBuildErrors.Match(packageExecutionResult.ReceivedOutput);
                 result.CompilerComment = $"{errorMatch.Groups[0]}";
-                return result;
+                return;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -234,8 +233,6 @@
 
                 arguments.Remove(testFile);
             }
-
-            return result;
         }
 
         protected string EvaluateJUnitOutput(string testOutput, Regex testErrorMatcher)

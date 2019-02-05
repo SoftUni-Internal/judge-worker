@@ -11,7 +11,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
     {
         protected const string TimeMeasurementFileName = "_$time.txt";
         protected const string SandboxExecutorClassName = "_$SandboxExecutor";
@@ -198,11 +198,10 @@ class _$SandboxSecurityManager extends SecurityManager {
             File.Delete(timeMeasurementFilePath);
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext)
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
-            var result = new ExecutionResult<TestResult>();
-
             // Copy the sandbox executor source code to a file in the working directory
             File.WriteAllText(this.SandboxExecutorSourceFilePath, this.SandboxExecutorCode);
 
@@ -217,7 +216,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = exception.Message;
 
-                return result;
+                return;
             }
 
             var compilerResult = this.DoCompile(executionContext, submissionFilePath);
@@ -227,7 +226,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             result.CompilerComment = compilerResult.CompilerComment;
             if (!result.IsCompiledSuccessfully)
             {
-                return result;
+                return;
             }
 
             // Prepare execution process arguments and time measurement info
@@ -274,8 +273,6 @@ class _$SandboxSecurityManager extends SecurityManager {
 
                 result.Results.Add(testResult);
             }
-
-            return result;
         }
 
         protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>

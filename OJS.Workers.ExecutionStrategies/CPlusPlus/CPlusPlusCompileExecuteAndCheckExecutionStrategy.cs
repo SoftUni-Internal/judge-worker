@@ -18,7 +18,7 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
             => this.CompileExecuteAndCheck(

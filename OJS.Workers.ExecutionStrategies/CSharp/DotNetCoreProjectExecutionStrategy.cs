@@ -3,6 +3,7 @@
     using System;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -21,7 +22,7 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -41,12 +42,9 @@
                 executionContext.AdditionalCompilerArguments,
                 csProjFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-
-            if (!result.IsCompiledSuccessfully)
+            if (!compilerResult.IsCompiledSuccessfully)
             {
-                result.CompilerComment = compilerResult.CompilerComment;
-                return;
+                return result.CompilationFail(compilerResult.CompilerComment);
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -77,6 +75,8 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
     }
 }

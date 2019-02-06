@@ -151,7 +151,7 @@ function afterBundling() {
     });
 }";
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -182,6 +182,8 @@ function afterBundling() {
 
             // Clean up
             File.Delete(codeSavePath);
+
+            return result;
         }
 
         protected override string BuildTests(IEnumerable<TestContext> tests)

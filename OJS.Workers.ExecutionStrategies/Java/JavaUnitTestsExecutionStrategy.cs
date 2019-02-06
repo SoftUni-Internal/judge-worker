@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
@@ -112,7 +113,7 @@ public class _$TestRunner {{
 
         protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -124,10 +125,7 @@ public class _$TestRunner {{
             }
             catch (ArgumentException exception)
             {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return;
+                return result.CompilationFail(exception.Message);
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -151,9 +149,7 @@ public class _$TestRunner {{
                     var name = Regex.Match(projectClass, FilenameRegex);
                     if (!name.Success)
                     {
-                        result.IsCompiledSuccessfully = false;
-                        result.CompilerComment = IncorrectTestFormat;
-                        return;
+                        return result.CompilationFail(IncorrectTestFormat);
                     }
 
                     var filename = name.Groups[1].Value.Replace("/", "\\");
@@ -176,13 +172,12 @@ public class _$TestRunner {{
                     combinedArguments,
                     this.WorkingDirectory);
 
-                var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*;{compilerResult.OutputFile}""";
-                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-                result.CompilerComment = compilerResult.CompilerComment;
-                if (!result.IsCompiledSuccessfully)
+                if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return;
+                    return result.CompilationFail(compilerResult.CompilerComment);
                 }
+
+                var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*;{compilerResult.OutputFile}""";
 
                 fileNames.ForEach(File.Delete);
 
@@ -237,6 +232,8 @@ public class _$TestRunner {{
                 result.Results.Add(testResult);
                 count++;
             }
+
+            return result;
         }
 
         protected override CompileResult Compile(

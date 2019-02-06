@@ -8,6 +8,7 @@
     using System.Xml;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
@@ -140,7 +141,7 @@
 
         protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -152,10 +153,7 @@
             }
             catch (ArgumentException exception)
             {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return;
+                return result.CompilationFail(exception.Message);
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -177,14 +175,14 @@
             var mavenBuildOutput = new Regex(MavenBuildOutputPattern);
             var compilationMatch = mavenBuildOutput.Match(packageExecutionResult.ReceivedOutput);
 
-            result.IsCompiledSuccessfully = compilationMatch.Groups[1].Value == "SUCCESS";
+            var isCompiledSuccessfully = compilationMatch.Groups[1].Value == "SUCCESS";
 
-            if (!result.IsCompiledSuccessfully)
+            if (!isCompiledSuccessfully)
             {
                 var mavenBuildErrors = new Regex(MavenBuildErrorPattern);
                 var errorMatch = mavenBuildErrors.Match(packageExecutionResult.ReceivedOutput);
-                result.CompilerComment = $"{errorMatch.Groups[0]}";
-                return;
+
+                return result.CompilationFail($"{errorMatch.Groups[0]}");
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -233,6 +231,8 @@
 
                 arguments.Remove(testFile);
             }
+
+            return result;
         }
 
         protected string EvaluateJUnitOutput(string testOutput, Regex testErrorMatcher)

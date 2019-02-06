@@ -20,26 +20,7 @@
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
-        {
-            var result = new ExecutionResult<TResult>();
-
-            if (executionContext is IExecutionContext<string> stringInputExecutionContext &&
-                result is IExecutionResult<OutputResult> outputResult)
-            {
-                this.ExecuteAgainstSimpleInput(stringInputExecutionContext, outputResult);
-            }
-            else if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
-                result is IExecutionResult<TestResult> testsResult)
-            {
-                this.ExecuteAgainstTestsInput(testsExecutionContext, testsResult);
-            }
-            else
-            {
-                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
-            }
-
-            return result;
-        }
+            => this.InternalExecute(executionContext, new ExecutionResult<TResult>());
 
         public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
@@ -66,14 +47,37 @@
             }
         }
 
-        protected virtual void ExecuteAgainstSimpleInput(
+        protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,
             IExecutionResult<OutputResult> result)
             => throw new DerivedImplementationNotFoundException();
 
-        protected virtual void ExecuteAgainstTestsInput(
+        protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
             => throw new DerivedImplementationNotFoundException();
+
+        private IExecutionResult<TResult> InternalExecute<TInput, TResult>(
+            IExecutionContext<TInput> executionContext,
+            IExecutionResult<TResult> result)
+            where TResult : ISingleCodeRunResult, new()
+        {
+            if (executionContext is IExecutionContext<string> stringInputExecutionContext &&
+                result is IExecutionResult<OutputResult> outputResult)
+            {
+                return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(
+                    stringInputExecutionContext,
+                    outputResult);
+            }
+            else if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
+                result is IExecutionResult<TestResult> testsResult)
+            {
+                return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext, testsResult);
+            }
+            else
+            {
+                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -27,7 +28,7 @@
             : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed) =>
                 this.getCompilerPathFunc = getCompilerPath;
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -52,10 +53,8 @@
 
             if (!compilationResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compilationResult.CompilerComment);
             }
-
-            result.IsCompiledSuccessfully = true;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
@@ -82,6 +81,8 @@
 
                 result.Results.Add(testResults);
             }
+
+            return result;
         }
 
         private IEnumerable<string> ExtractTaskSkeleton(string executionContextTaskSkeletonAsString)

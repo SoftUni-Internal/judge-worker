@@ -6,6 +6,7 @@
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
@@ -94,7 +95,7 @@ class Classes{{
 }}";
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -106,10 +107,7 @@ class Classes{{
             }
             catch (ArgumentException exception)
             {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return;
+                return result.CompilationFail(exception.Message);
             }
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
@@ -135,11 +133,9 @@ class Classes{{
                     combinedArguments,
                     submissionFilePath);
 
-                result.IsCompiledSuccessfully = preprocessCompileResult.IsCompiledSuccessfully;
-                result.CompilerComment = preprocessCompileResult.CompilerComment;
-                if (!result.IsCompiledSuccessfully)
+                if (!preprocessCompileResult.IsCompiledSuccessfully)
                 {
-                    return;
+                    return result.CompilationFail(preprocessCompileResult.CompilerComment);
                 }
 
                 var preprocessExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
@@ -180,11 +176,9 @@ class Classes{{
                 combinedArguments,
                 submissionFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            if (!result.IsCompiledSuccessfully)
+            if (!compilerResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compilerResult.CompilerComment);
             }
 
             var arguments = new List<string>
@@ -229,6 +223,8 @@ class Classes{{
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)

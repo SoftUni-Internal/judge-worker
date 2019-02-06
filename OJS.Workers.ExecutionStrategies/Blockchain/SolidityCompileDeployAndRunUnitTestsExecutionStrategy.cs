@@ -70,7 +70,7 @@
 
         private IList<string> TestNames { get; } = new List<string>();
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -84,7 +84,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));
@@ -158,6 +158,8 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         private static Dictionary<string, (string byteCode, string abi)> GetCompiledContracts(

@@ -6,6 +6,7 @@
     using System.Text;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -198,7 +199,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             File.Delete(timeMeasurementFilePath);
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -213,20 +214,14 @@ class _$SandboxSecurityManager extends SecurityManager {
             }
             catch (ArgumentException exception)
             {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return;
+                return result.CompilationFail(exception.Message);
             }
 
             var compilerResult = this.DoCompile(executionContext, submissionFilePath);
 
-            // Assign compiled result info to the execution result
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            if (!result.IsCompiledSuccessfully)
+            if (!compilerResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compilerResult.CompilerComment);
             }
 
             // Prepare execution process arguments and time measurement info
@@ -273,6 +268,8 @@ class _$SandboxSecurityManager extends SecurityManager {
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>

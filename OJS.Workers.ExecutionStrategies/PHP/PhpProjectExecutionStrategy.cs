@@ -36,7 +36,7 @@
 
         protected string PhpCliExecutablePath { get; }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -82,6 +82,8 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         protected void RequireSuperGlobalsTemplateInUserCode(string pathToSubmissionEntryPoint)

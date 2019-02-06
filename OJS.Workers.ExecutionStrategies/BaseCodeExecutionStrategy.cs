@@ -35,7 +35,7 @@
             => this.ProcessExecutorFactory
                 .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, processExecutorType);
 
-        protected void CompileExecuteAndCheck(
+        protected IExecutionResult<TestResult> CompileExecuteAndCheck(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result,
             Func<CompilerType, string> getCompilerPathFunc,
@@ -51,7 +51,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
 
             var outputFile = compileResult.OutputFile;
@@ -80,6 +80,8 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         protected TestResult CheckAndGetTestResult(
@@ -152,9 +154,6 @@
                 compilerPath,
                 executionContext.AdditionalCompilerArguments,
                 submissionFilePath);
-
-            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
-            result.CompilerComment = compileResult.CompilerComment;
 
             return compileResult;
         }

@@ -3,6 +3,7 @@
     using System;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -19,7 +20,7 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
             => this.CompileExecuteAndCheck(
@@ -28,7 +29,7 @@
                 this.GetCompilerPathFunc,
                 this.CreateExecutor(ProcessExecutorType.Restricted));
 
-        protected override void ExecuteAgainstSimpleInput(
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,
             IExecutionResult<OutputResult> result)
         {
@@ -39,7 +40,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
@@ -53,6 +54,8 @@
                 this.WorkingDirectory);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
+
+            return result;
         }
     }
 }

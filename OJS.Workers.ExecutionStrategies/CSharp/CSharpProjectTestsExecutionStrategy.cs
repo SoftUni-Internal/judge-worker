@@ -103,7 +103,7 @@
 
         protected List<string> TestPaths { get; }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -130,12 +130,9 @@
                 executionContext.AdditionalCompilerArguments,
                 csProjFilePath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-
             if (!compilerResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compilerResult.CompilerComment);
             }
 
             // Delete tests before execution so the user can't access them
@@ -143,7 +140,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            this.RunUnitTests(
+            return this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
@@ -172,7 +169,7 @@
             }
         }
 
-        protected virtual void RunUnitTests(
+        protected virtual IExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
@@ -218,6 +215,8 @@
                 var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, message);
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
         protected virtual Dictionary<string, string> GetTestErrors(string receivedOutput)

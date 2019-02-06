@@ -8,6 +8,7 @@
     using Microsoft.Build.Evaluation;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
@@ -30,7 +31,7 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -48,7 +49,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            this.RunUnitTests(
+            return this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,
                 executionContext,
                 executor,
@@ -58,7 +59,7 @@
                 AdditionalExecutionArguments);
         }
 
-        protected override void RunUnitTests(
+        protected override IExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
@@ -90,12 +91,9 @@
                     executionContext.AdditionalCompilerArguments,
                     csProjFilePath);
 
-                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-                result.CompilerComment = compilerResult.CompilerComment;
-
                 if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return;
+                    return result.CompilationFail(compilerResult.CompilerComment);
                 }
 
                 // Delete tests before execution so the user can't acces them
@@ -127,6 +125,8 @@
                 result.Results.Add(testResult);
                 count++;
             }
+
+            return result;
         }
 
         protected override CompileResult Compile(

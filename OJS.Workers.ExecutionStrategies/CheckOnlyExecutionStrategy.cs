@@ -14,12 +14,10 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.IsCompiledSuccessfully = true;
-
             var processExecutionResult = new ProcessExecutionResult
             {
                 Type = ProcessExecutionResultType.Success,
@@ -38,6 +36,8 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
     }
 }

@@ -161,7 +161,7 @@ describe('TestDOMScope', function() {{
 
         protected override string JsCodeEvaluation => TestsPlaceholder;
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -185,6 +185,8 @@ describe('TestDOMScope', function() {{
                 codeSavePath));
 
             File.Delete(codeSavePath);
+
+            return result;
         }
 
         protected virtual string BuildTests(IEnumerable<TestContext> tests)

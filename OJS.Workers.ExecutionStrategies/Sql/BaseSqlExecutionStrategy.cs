@@ -27,7 +27,7 @@
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
-        protected virtual void Execute(
+        protected virtual IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result,
             Action<IDbConnection, TestContext> executionFlow)
@@ -56,9 +56,10 @@
                     this.DropDatabase(databaseName);
                 }
 
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = ex.Message;
+                return result.CompilationFail(ex.Message);
             }
+
+            return result;
         }
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)

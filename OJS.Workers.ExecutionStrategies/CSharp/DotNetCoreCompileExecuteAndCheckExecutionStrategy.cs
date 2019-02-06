@@ -5,6 +5,7 @@
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -39,7 +40,7 @@
                 }}
             }}";
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -50,7 +51,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
 
             var executor = this.PrepareExecutor(
@@ -79,9 +80,11 @@
 
                 result.Results.Add(testResult);
             }
+
+            return result;
         }
 
-        protected override void ExecuteAgainstSimpleInput(
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,
             IExecutionResult<OutputResult> result)
         {
@@ -92,7 +95,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
 
             var executor = this.PrepareExecutor(
@@ -112,6 +115,8 @@
             var outputResult = this.GetOutputResult(processExecutionResult);
 
             result.Results.Add(outputResult);
+
+            return result;
         }
 
         private IExecutor PrepareExecutor<TInput>(

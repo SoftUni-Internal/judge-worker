@@ -9,6 +9,7 @@
     using Microsoft.CSharp;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -146,7 +147,7 @@
             : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
             => this.getCompilerPathFunc = getCompilerPathFunc;
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -175,10 +176,8 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return;
+                return result.CompilationFail(compileResult.CompilerComment);
             }
-
-            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
 
             var outputAssemblyPath = this.PreprocessAndCompileTestRunner(
                 executionContext,
@@ -204,6 +203,8 @@
             }
 
             this.ProcessTests(processExecutionResult, executionContext, result);
+
+            return result;
         }
 
         private string PreprocessAndCompileTestRunner(

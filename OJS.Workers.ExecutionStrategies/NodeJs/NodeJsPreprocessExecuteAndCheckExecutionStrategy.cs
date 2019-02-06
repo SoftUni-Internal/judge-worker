@@ -169,7 +169,7 @@ process.stdin.on('end', function() {
             EvaluationPlaceholder +
             PostevaluationPlaceholder;
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -195,6 +195,8 @@ process.stdin.on('end', function() {
 
             // Clean up
             File.Delete(codeSavePath);
+
+            return result;
         }
 
         protected virtual List<TestResult> ProcessTests(

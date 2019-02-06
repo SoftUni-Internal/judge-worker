@@ -6,6 +6,7 @@
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -35,7 +36,7 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -58,7 +59,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            this.RunUnitTests(
+            return this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,
                 executionContext,
                 executor,
@@ -68,7 +69,7 @@
                 AdditionalExecutionArguments);
         }
 
-        protected override void RunUnitTests(
+        protected override IExecutionResult<TestResult> RunUnitTests(
             string consoleRunnerPath,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
@@ -102,12 +103,9 @@
                     executionContext.AdditionalCompilerArguments,
                     consoleRunnerPath);
 
-                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-                result.CompilerComment = compilerResult.CompilerComment;
-
                 if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return;
+                    return result.CompilationFail(compilerResult.CompilerComment);
                 }
 
                 // Delete tests before execution so the user can't acces them
@@ -144,6 +142,8 @@
                     this.CreateNUnitLiteConsoleAppCsProjFile(this.nUnitLiteConsoleAppCsProjTemplate);
                 }
             }
+
+            return result;
         }
 
         private void MoveUserCsFilesToNunitLiteConsoleAppFolder()

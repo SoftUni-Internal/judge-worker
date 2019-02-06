@@ -87,7 +87,7 @@ after(function() {
 
         private Random Random { get; }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -113,6 +113,8 @@ after(function() {
 
             // Clean up
             File.Delete(codeSavePath);
+
+            return result;
         }
 
         protected override string BuildTests(IEnumerable<TestContext> tests)

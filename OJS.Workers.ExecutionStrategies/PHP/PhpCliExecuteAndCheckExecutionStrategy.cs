@@ -27,7 +27,7 @@
             this.phpCliExecutablePath = phpCliExecutablePath;
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -61,6 +61,8 @@
 
             // Clean up
             File.Delete(codeSavePath);
+
+            return result;
         }
     }
 }

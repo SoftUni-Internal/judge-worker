@@ -6,6 +6,7 @@
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -71,7 +72,7 @@
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
@@ -101,12 +102,9 @@
                 executionContext.AdditionalCompilerArguments,
                 nUnitLiteConsoleApp.csProjPath);
 
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-
-            if (!result.IsCompiledSuccessfully)
+            if (!compilerResult.IsCompiledSuccessfully)
             {
-                result.CompilerComment = compilerResult.CompilerComment;
-                return;
+                return result.CompilationFail(compilerResult.CompilerComment);
             }
 
             // Delete tests before execution so the user can't access them
@@ -114,7 +112,7 @@
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            this.RunUnitTests(
+            return this.RunUnitTests(
                 compilerPath,
                 executionContext,
                 executor,

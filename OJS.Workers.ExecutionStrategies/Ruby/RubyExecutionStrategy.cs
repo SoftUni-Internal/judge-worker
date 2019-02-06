@@ -19,12 +19,10 @@
 
         public string RubyPath { get; set; }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.IsCompiledSuccessfully = true;
-
             var submissionFilePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
 
             var arguments = new[] { submissionFilePath };
@@ -55,6 +53,8 @@
             {
                 File.Delete(submissionFilePath);
             }
+
+            return result;
         }
     }
 }

@@ -124,8 +124,8 @@
             return testResult;
         }
 
-        protected OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult) =>
-            new OutputResult
+        protected OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult)
+            => new OutputResult
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,

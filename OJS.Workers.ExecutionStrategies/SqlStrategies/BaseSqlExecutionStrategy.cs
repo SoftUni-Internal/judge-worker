@@ -5,6 +5,7 @@
     using System.Globalization;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -21,10 +22,22 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
-        public virtual IExecutionResult<TestResult> Execute(
+        public abstract IDbConnection GetOpenConnection(string databaseName);
+
+        public abstract void DropDatabase(string databaseName);
+
+        public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
+
+        protected virtual void ExecuteAgainstTest(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result,
-            Action<IDbConnection, TestContext> executionFlow)
+            IDbConnection connection,
+            TestContext test)
+            => throw new DerivedImplementationNotFoundException();
+
+        protected override void ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
         {
             result.IsCompiledSuccessfully = true;
 
@@ -37,7 +50,7 @@
 
                     using (var connection = this.GetOpenConnection(databaseName))
                     {
-                        executionFlow(connection, test);
+                        this.ExecuteAgainstTest(executionContext, result, connection, test);
                     }
 
                     this.DropDatabase(databaseName);
@@ -53,15 +66,7 @@
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = ex.Message;
             }
-
-            return result;
         }
-
-        public abstract IDbConnection GetOpenConnection(string databaseName);
-
-        public abstract void DropDatabase(string databaseName);
-
-        public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
         protected virtual string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

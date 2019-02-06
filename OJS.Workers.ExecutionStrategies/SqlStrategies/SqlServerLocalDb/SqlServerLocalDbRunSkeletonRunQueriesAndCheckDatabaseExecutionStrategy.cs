@@ -1,5 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb
 {
+    using System.Data;
+
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
@@ -14,18 +16,16 @@
         {
         }
 
-        protected override void ExecuteAgainstTestsInput(
+        protected override void ExecuteAgainstTest(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
-            => this.Execute(
-                executionContext,
-                result,
-                (connection, test) =>
-                {
-                    this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
-                    this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
-                    var sqlTestResult = this.ExecuteReader(connection, test.Input);
-                    this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
-                });
+            IExecutionResult<TestResult> result,
+            IDbConnection connection,
+            TestContext test)
+        {
+            this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
+            this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
+            var sqlTestResult = this.ExecuteReader(connection, test.Input);
+            this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
+        }
     }
 }

@@ -21,12 +21,12 @@
 
         protected override void ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result) =>
-                this.CompileExecuteAndCheck(
-                    executionContext,
-                    result,
-                    this.GetCompilerPathFunc,
-                    this.CreateExecutor(ProcessExecutorType.Restricted));
+            IExecutionResult<TestResult> result)
+            => this.CompileExecuteAndCheck(
+                executionContext,
+                result,
+                this.GetCompilerPathFunc,
+                this.CreateExecutor(ProcessExecutorType.Restricted));
 
         protected override void ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,

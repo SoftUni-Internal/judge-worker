@@ -56,7 +56,8 @@
                     this.DropDatabase(databaseName);
                 }
 
-                return result.CompilationFail(ex.Message);
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = ex.Message;
             }
 
             return result;

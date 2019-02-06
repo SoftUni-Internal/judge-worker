@@ -7,13 +7,12 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CPlusPlusZipFileExecutionStrategy : BaseCodeExecutionStrategy
+    public class CPlusPlusZipFileExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         private const string SubmissionName = "UserSubmission.zip";
         private const string FileNameAndExtensionPattern = @"//((\w+)\.(cpp|h))//";
@@ -53,8 +52,10 @@
 
             if (!compilationResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilationResult.CompilerComment);
+                return result;
             }
+
+            result.IsCompiledSuccessfully = true;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 

@@ -10,7 +10,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
         protected const string LatestEcmaScriptFeaturesEnabledFlag = "--harmony";
 
@@ -173,9 +173,6 @@ process.stdin.on('end', function() {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // In NodeJS there is no compilation
-            result.IsCompiledSuccessfully = true;
-
             // Preprocess the user submission
             var codeToExecute = this.PreprocessJsSubmission(
                 this.JsCodeTemplate,

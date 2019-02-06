@@ -57,7 +57,7 @@
             IExecutionResult<TestResult> result)
             => throw new DerivedImplementationNotFoundException();
 
-        private IExecutionResult<TResult> InternalExecute<TInput, TResult>(
+        protected virtual IExecutionResult<TResult> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
             IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()

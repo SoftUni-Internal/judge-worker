@@ -7,7 +7,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class RubyExecutionStrategy : BaseCodeExecutionStrategy
+    public class RubyExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
         public RubyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

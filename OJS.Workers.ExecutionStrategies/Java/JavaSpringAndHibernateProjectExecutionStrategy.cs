@@ -8,7 +8,6 @@
     using System.Xml;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
@@ -153,7 +152,10 @@
             }
             catch (ArgumentException exception)
             {
-                return result.CompilationFail(exception.Message);
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return result;
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -175,14 +177,14 @@
             var mavenBuildOutput = new Regex(MavenBuildOutputPattern);
             var compilationMatch = mavenBuildOutput.Match(packageExecutionResult.ReceivedOutput);
 
-            var isCompiledSuccessfully = compilationMatch.Groups[1].Value == "SUCCESS";
+            result.IsCompiledSuccessfully = compilationMatch.Groups[1].Value == "SUCCESS";
 
-            if (!isCompiledSuccessfully)
+            if (!result.IsCompiledSuccessfully)
             {
                 var mavenBuildErrors = new Regex(MavenBuildErrorPattern);
                 var errorMatch = mavenBuildErrors.Match(packageExecutionResult.ReceivedOutput);
-
-                return result.CompilationFail($"{errorMatch.Groups[0]}");
+                result.CompilerComment = $"{errorMatch.Groups[0]}";
+                return result;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);

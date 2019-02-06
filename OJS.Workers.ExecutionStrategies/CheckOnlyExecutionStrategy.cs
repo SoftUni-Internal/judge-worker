@@ -4,7 +4,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CheckOnlyExecutionStrategy : BaseCodeExecutionStrategy
+    public class CheckOnlyExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         public CheckOnlyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -18,6 +18,8 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
+            result.IsCompiledSuccessfully = true;
+
             var processExecutionResult = new ProcessExecutionResult
             {
                 Type = ProcessExecutionResultType.Success,

@@ -13,7 +13,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : BaseCodeExecutionStrategy
+    public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         private const string TestsCountRegexPattern = @"^\s*(\d+)\s{1}passing\s\(\d+\w+\)\s*((\d+)\sfailing\s*$)*";
         private const string TestNamesSearchPattern = @"it\((""|')(.+)(?:\1)(?=\s*,)";
@@ -84,7 +84,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compileResult.CompilerComment);
+                return result;
             }
 
             var compiledContracts = GetCompiledContracts(Path.GetDirectoryName(compileResult.OutputFile));

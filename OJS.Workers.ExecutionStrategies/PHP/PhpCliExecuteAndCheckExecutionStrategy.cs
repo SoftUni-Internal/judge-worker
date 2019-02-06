@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PhpCliExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class PhpCliExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
         private readonly string phpCliExecutablePath;
 
@@ -31,9 +31,6 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // PHP code is not compiled
-            result.IsCompiledSuccessfully = true;
-
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
 
             // Process the submission and check each test

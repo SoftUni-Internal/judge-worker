@@ -5,14 +5,13 @@
     using System.Linq;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
     using static OJS.Workers.Common.Constants;
 
-    public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         private readonly string dotNetCoreRuntimeVersion;
 
@@ -51,8 +50,10 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compileResult.CompilerComment);
+                return result;
             }
+
+            result.IsCompiledSuccessfully = true;
 
             var executor = this.PrepareExecutor(
                 compileResult,
@@ -95,7 +96,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compileResult.CompilerComment);
+                return result;
             }
 
             var executor = this.PrepareExecutor(

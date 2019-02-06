@@ -6,7 +6,6 @@
     using System.Linq;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
@@ -107,7 +106,10 @@ class Classes{{
             }
             catch (ArgumentException exception)
             {
-                return result.CompilationFail(exception.Message);
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return result;
             }
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
@@ -133,9 +135,11 @@ class Classes{{
                     combinedArguments,
                     submissionFilePath);
 
-                if (!preprocessCompileResult.IsCompiledSuccessfully)
+                result.IsCompiledSuccessfully = preprocessCompileResult.IsCompiledSuccessfully;
+                result.CompilerComment = preprocessCompileResult.CompilerComment;
+                if (!result.IsCompiledSuccessfully)
                 {
-                    return result.CompilationFail(preprocessCompileResult.CompilerComment);
+                    return result;
                 }
 
                 var preprocessExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
@@ -176,9 +180,11 @@ class Classes{{
                 combinedArguments,
                 submissionFilePath);
 
-            if (!compilerResult.IsCompiledSuccessfully)
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilerResult.CompilerComment;
+            if (!result.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilerResult.CompilerComment);
+                return result;
             }
 
             var arguments = new List<string>

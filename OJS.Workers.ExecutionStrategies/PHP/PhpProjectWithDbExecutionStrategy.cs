@@ -47,9 +47,6 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // PHP code is not compiled
-            result.IsCompiledSuccessfully = true;
-
             var databaseName = this.MySqlHelperStrategy.GetDatabaseName();
 
             var submissionPath = this.GetZipFilePath(ZippedSubmissionName);

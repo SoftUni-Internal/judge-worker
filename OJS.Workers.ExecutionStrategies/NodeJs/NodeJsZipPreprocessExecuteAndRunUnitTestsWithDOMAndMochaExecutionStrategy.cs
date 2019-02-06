@@ -155,8 +155,6 @@ function afterBundling() {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.IsCompiledSuccessfully = true;
-
             // Copy and unzip the file (save file to WorkingDirectory)
             this.CreateSubmissionFile(executionContext);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, AppJsFileName);

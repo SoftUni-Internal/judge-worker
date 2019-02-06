@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PythonExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
@@ -34,9 +34,6 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // Python code is not compiled
-            result.IsCompiledSuccessfully = true;
-
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
 
             // Process the submission and check each test

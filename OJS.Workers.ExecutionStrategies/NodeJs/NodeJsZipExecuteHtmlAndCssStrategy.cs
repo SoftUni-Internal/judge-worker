@@ -165,8 +165,6 @@ describe('TestDOMScope', function() {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.IsCompiledSuccessfully = true;
-
             this.CreateSubmissionFile(executionContext);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
 

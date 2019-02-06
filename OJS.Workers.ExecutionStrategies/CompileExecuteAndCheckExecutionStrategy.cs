@@ -3,12 +3,11 @@
     using System;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class CompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         public CompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -40,7 +39,7 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compileResult.CompilerComment);
+                return result;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);

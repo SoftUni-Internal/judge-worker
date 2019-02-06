@@ -6,7 +6,6 @@
     using System.Linq;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -102,9 +101,12 @@
                 executionContext.AdditionalCompilerArguments,
                 nUnitLiteConsoleApp.csProjPath);
 
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+
             if (!compilerResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilerResult.CompilerComment);
+                result.CompilerComment = compilerResult.CompilerComment;
+                return result;
             }
 
             // Delete tests before execution so the user can't access them

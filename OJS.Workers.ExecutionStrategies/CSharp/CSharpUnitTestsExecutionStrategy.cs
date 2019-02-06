@@ -8,7 +8,6 @@
     using Microsoft.Build.Evaluation;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
@@ -91,9 +90,12 @@
                     executionContext.AdditionalCompilerArguments,
                     csProjFilePath);
 
+                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+                result.CompilerComment = compilerResult.CompilerComment;
+
                 if (!compilerResult.IsCompiledSuccessfully)
                 {
-                    return result.CompilationFail(compilerResult.CompilerComment);
+                    return result;
                 }
 
                 // Delete tests before execution so the user can't acces them

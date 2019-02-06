@@ -7,7 +7,6 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
@@ -125,7 +124,10 @@ public class _$TestRunner {{
             }
             catch (ArgumentException exception)
             {
-                return result.CompilationFail(exception.Message);
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return result;
             }
 
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
@@ -149,7 +151,9 @@ public class _$TestRunner {{
                     var name = Regex.Match(projectClass, FilenameRegex);
                     if (!name.Success)
                     {
-                        return result.CompilationFail(IncorrectTestFormat);
+                        result.IsCompiledSuccessfully = false;
+                        result.CompilerComment = IncorrectTestFormat;
+                        return result;
                     }
 
                     var filename = name.Groups[1].Value.Replace("/", "\\");
@@ -172,12 +176,13 @@ public class _$TestRunner {{
                     combinedArguments,
                     this.WorkingDirectory);
 
-                if (!compilerResult.IsCompiledSuccessfully)
-                {
-                    return result.CompilationFail(compilerResult.CompilerComment);
-                }
-
                 var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*;{compilerResult.OutputFile}""";
+                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+                result.CompilerComment = compilerResult.CompilerComment;
+                if (!result.IsCompiledSuccessfully)
+                {
+                    return result;
+                }
 
                 fileNames.ForEach(File.Delete);
 

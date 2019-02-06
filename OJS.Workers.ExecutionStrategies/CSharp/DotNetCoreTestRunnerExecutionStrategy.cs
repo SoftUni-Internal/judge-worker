@@ -9,7 +9,6 @@
     using Microsoft.CSharp;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -176,8 +175,10 @@
 
             if (!compileResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compileResult.CompilerComment);
+                return result;
             }
+
+            result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
 
             var outputAssemblyPath = this.PreprocessAndCompileTestRunner(
                 executionContext,

@@ -16,7 +16,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CSharpProjectTestsExecutionStrategy : BaseCodeExecutionStrategy
+    public class CSharpProjectTestsExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         protected const string SetupFixtureTemplate = @"
         using System;
@@ -130,9 +130,12 @@
                 executionContext.AdditionalCompilerArguments,
                 csProjFilePath);
 
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilerResult.CompilerComment;
+
             if (!compilerResult.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilerResult.CompilerComment);
+                return result;
             }
 
             // Delete tests before execution so the user can't access them

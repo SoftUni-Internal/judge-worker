@@ -6,13 +6,12 @@
     using System.Text;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : BaseCodeExecutionStrategy
+    public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         protected const string TimeMeasurementFileName = "_$time.txt";
         protected const string SandboxExecutorClassName = "_$SandboxExecutor";
@@ -214,14 +213,20 @@ class _$SandboxSecurityManager extends SecurityManager {
             }
             catch (ArgumentException exception)
             {
-                return result.CompilationFail(exception.Message);
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return result;
             }
 
             var compilerResult = this.DoCompile(executionContext, submissionFilePath);
 
-            if (!compilerResult.IsCompiledSuccessfully)
+            // Assign compiled result info to the execution result
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilerResult.CompilerComment;
+            if (!result.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilerResult.CompilerComment);
+                return result;
             }
 
             // Prepare execution process arguments and time measurement info

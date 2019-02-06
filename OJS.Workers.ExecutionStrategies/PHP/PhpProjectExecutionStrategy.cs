@@ -8,7 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PhpProjectExecutionStrategy : BaseCodeExecutionStrategy
+    public class PhpProjectExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
         protected const string ZippedSubmissionName = "_$Submission";
         protected const string ApplicationEntryPoint = "index.php";
@@ -40,9 +40,6 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // PHP code is not compiled
-            result.IsCompiledSuccessfully = true;
-
             string submissionPath =
                 $@"{this.WorkingDirectory}\\{ZippedSubmissionName}{Constants.ZipFileExtension}";
             File.WriteAllBytes(submissionPath, executionContext.FileContent);

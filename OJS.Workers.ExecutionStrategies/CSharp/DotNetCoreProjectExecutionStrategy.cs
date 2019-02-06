@@ -42,9 +42,12 @@
                 executionContext.AdditionalCompilerArguments,
                 csProjFilePath);
 
-            if (!compilerResult.IsCompiledSuccessfully)
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+
+            if (!result.IsCompiledSuccessfully)
             {
-                return result.CompilationFail(compilerResult.CompilerComment);
+                result.CompilerComment = compilerResult.CompilerComment;
+                return result;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);

@@ -204,7 +204,6 @@
             }
 
             this.ProcessTests(processExecutionResult, executionContext, result);
-
             return result;
         }
 

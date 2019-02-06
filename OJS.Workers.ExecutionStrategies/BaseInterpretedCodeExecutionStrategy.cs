@@ -17,10 +17,9 @@
             IExecutionContext<TInput> executionContext,
             IExecutionResult<TResult> result)
         {
-            result = base.InternalExecute(executionContext, result);
-
             result.IsCompiledSuccessfully = true;
-            result.CompilerComment = null;
+
+            result = base.InternalExecute(executionContext, result);
 
             return result;
         }

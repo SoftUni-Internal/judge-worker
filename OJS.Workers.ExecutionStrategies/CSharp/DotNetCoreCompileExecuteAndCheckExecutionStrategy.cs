@@ -53,8 +53,6 @@
                 return result;
             }
 
-            result.IsCompiledSuccessfully = true;
-
             var executor = this.PrepareExecutor(
                 compileResult,
                 executionContext,

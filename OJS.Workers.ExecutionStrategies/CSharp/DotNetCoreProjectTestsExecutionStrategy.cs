@@ -103,7 +103,7 @@
 
             result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
 
-            if (!compilerResult.IsCompiledSuccessfully)
+            if (!result.IsCompiledSuccessfully)
             {
                 result.CompilerComment = compilerResult.CompilerComment;
                 return result;

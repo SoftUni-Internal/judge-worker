@@ -71,7 +71,7 @@
                     arguments,
                     this.WorkingDirectory);
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

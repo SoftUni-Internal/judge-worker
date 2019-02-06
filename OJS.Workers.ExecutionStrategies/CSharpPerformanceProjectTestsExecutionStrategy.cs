@@ -53,7 +53,7 @@
                     message = errorsByFiles[testFile];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, message);
+                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, message);
                 result.Results.Add(testResult);
                 testIndex++;
             }

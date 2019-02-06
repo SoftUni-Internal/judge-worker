@@ -265,7 +265,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                     executionContext.TimeLimit,
                     this.baseUpdateTimeOffset);
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

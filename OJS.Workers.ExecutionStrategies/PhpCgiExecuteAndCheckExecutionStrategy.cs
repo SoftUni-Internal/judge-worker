@@ -52,7 +52,7 @@
                     executionContext.MemoryLimit,
                     new[] { FileToExecuteOption, codeSavePath, $"\"{test.Input}\"" });
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

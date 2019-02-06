@@ -229,7 +229,7 @@ it('Test{testsCount++}', function(done) {{
                     message = $"Unexpected error: {mochaResult.TestErrors[currentTest]}";
                 }
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

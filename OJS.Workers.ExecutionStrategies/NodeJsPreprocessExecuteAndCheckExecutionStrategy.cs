@@ -216,7 +216,7 @@ process.stdin.on('end', function() {
                     executionContext.MemoryLimit,
                     arguments);
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

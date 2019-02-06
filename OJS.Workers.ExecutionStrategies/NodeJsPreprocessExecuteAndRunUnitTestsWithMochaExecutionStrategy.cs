@@ -155,7 +155,7 @@ describe('TestScope', function() {
                     message = $"Unexpected error: {mochaResult.TestErrors[0]}";
                 }
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

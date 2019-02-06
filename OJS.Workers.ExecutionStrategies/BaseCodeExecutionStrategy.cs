@@ -72,7 +72,7 @@
                     useSystemEncoding,
                     dependOnExitCodeForRunTimeError);
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,
@@ -82,7 +82,7 @@
             }
         }
 
-        protected TestResult ExecuteAndCheckTest(
+        protected TestResult CheckAndGetTestResult(
             TestContext test,
             ProcessExecutionResult processExecutionResult,
             IChecker checker,

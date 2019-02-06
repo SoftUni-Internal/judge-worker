@@ -74,7 +74,7 @@
                     useSystemEncoding: false,
                     dependOnExitCodeForRunTimeError: true);
 
-                var testResults = this.ExecuteAndCheckTest(
+                var testResults = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

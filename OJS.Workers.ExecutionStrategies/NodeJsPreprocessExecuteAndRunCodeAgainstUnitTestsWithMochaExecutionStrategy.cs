@@ -205,7 +205,7 @@ describe('Test {i} ', function(){{
                         message = $"Insufficient amount of tests, you have to have atleast {minTestCount} tests!";
                     }
 
-                    testResult = this.ExecuteAndCheckTest(
+                    testResult = this.CheckAndGetTestResult(
                         test,
                         processExecutionResult,
                         checker,
@@ -222,7 +222,7 @@ describe('Test {i} ', function(){{
                         message = "Error: Some tests failed while running the correct solution!";
                     }
 
-                    testResult = this.ExecuteAndCheckTest(
+                    testResult = this.CheckAndGetTestResult(
                         test,
                         processExecutionResult,
                         checker,
@@ -236,7 +236,7 @@ describe('Test {i} ', function(){{
                         message = "No unit test covering this functionality!";
                     }
 
-                    testResult = this.ExecuteAndCheckTest(
+                    testResult = this.CheckAndGetTestResult(
                         test,
                         processExecutionResult,
                         checker,

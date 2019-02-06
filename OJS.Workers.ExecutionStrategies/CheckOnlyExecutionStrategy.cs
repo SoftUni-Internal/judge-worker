@@ -30,7 +30,7 @@
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

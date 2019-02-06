@@ -221,7 +221,7 @@ class Classes{{
                     message = errorsByFiles[testFile];
                 }
 
-                var testResult = this.ExecuteAndCheckTest(
+                var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
                     checker,

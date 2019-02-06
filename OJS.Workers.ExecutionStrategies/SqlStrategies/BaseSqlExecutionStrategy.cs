@@ -5,7 +5,6 @@
     using System.Globalization;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -28,16 +27,10 @@
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
-        protected virtual void ExecuteAgainstTest(
+        protected virtual void Execute(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result,
-            IDbConnection connection,
-            TestContext test)
-            => throw new DerivedImplementationNotFoundException();
-
-        protected override void ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+            Action<IDbConnection, TestContext> executionFlow)
         {
             result.IsCompiledSuccessfully = true;
 
@@ -50,7 +43,7 @@
 
                     using (var connection = this.GetOpenConnection(databaseName))
                     {
-                        this.ExecuteAgainstTest(executionContext, result, connection, test);
+                        executionFlow(connection, test);
                     }
 
                     this.DropDatabase(databaseName);

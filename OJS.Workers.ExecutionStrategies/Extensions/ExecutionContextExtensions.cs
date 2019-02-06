@@ -9,6 +9,7 @@
     using Ionic.Zip;
 
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.CSharp;
 
     public static class ExecutionContextExtensions
     {

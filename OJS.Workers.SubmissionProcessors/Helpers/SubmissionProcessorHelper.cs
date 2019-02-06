@@ -5,9 +5,17 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
-    using OJS.Workers.ExecutionStrategies.BlockchainStrategies;
-    using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
-    using OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb;
+    using OJS.Workers.ExecutionStrategies.Blockchain;
+    using OJS.Workers.ExecutionStrategies.CPlusPlus;
+    using OJS.Workers.ExecutionStrategies.CSharp;
+    using OJS.Workers.ExecutionStrategies.Java;
+    using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.ExecutionStrategies.NodeJs;
+    using OJS.Workers.ExecutionStrategies.PHP;
+    using OJS.Workers.ExecutionStrategies.Python;
+    using OJS.Workers.ExecutionStrategies.Ruby;
+    using OJS.Workers.ExecutionStrategies.Sql.MySql;
+    using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
 

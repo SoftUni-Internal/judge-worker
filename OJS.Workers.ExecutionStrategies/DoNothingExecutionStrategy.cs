@@ -2,6 +2,7 @@
 {
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public class DoNothingExecutionStrategy : IExecutionStrategy
     {

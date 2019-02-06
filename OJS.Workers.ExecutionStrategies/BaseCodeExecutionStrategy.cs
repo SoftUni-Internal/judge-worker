@@ -11,7 +11,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public abstract class BaseCodeExecutionStrategy : ExecutionStrategy
+    public abstract class BaseCodeExecutionStrategy : BaseExecutionStrategy
     {
         protected const string RemoveMacFolderPattern = "__MACOSX/*";
 

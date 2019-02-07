@@ -61,14 +61,19 @@
             else if (processExecutionResult.Type == ProcessExecutionResultType.Success)
             {
                 var checkerResult = checker.Check(test.Input, receivedOutput, test.Output, test.IsTrialTest);
-                testResult.ResultType = checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer;
+
+                testResult.ResultType = checkerResult.IsCorrect
+                    ? TestRunResultType.CorrectAnswer
+                    : TestRunResultType.WrongAnswer;
 
                 // TODO: Do something with checkerResult.ResultType
                 testResult.CheckerDetails = checkerResult.CheckerDetails;
             }
             else
             {
-                throw new ArgumentOutOfRangeException(nameof(processExecutionResult), "Invalid ProcessExecutionResultType value.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(processExecutionResult),
+                    "Invalid ProcessExecutionResultType value.");
             }
 
             return testResult;

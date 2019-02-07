@@ -19,9 +19,7 @@
         {
             result.IsCompiledSuccessfully = true;
 
-            result = base.InternalExecute(executionContext, result);
-
-            return result;
+            return base.InternalExecute(executionContext, result);
         }
     }
 }

@@ -31,8 +31,11 @@
             {
                 return this.Execute<TInput, TResult>(executionContext);
             }
+            // Catch logic is handled by the caller
             finally
             {
+                // Use another thread for deletion of the working directory,
+                // because we don't want the execution flow to wait for the clean up
                 Task.Run(() =>
                 {
                     try
@@ -41,6 +44,11 @@
                     }
                     catch (Exception ex)
                     {
+                        // Sometimes deletion of the working directory cannot be done,
+                        // because the process did not released it yet, which is nondeterministic.
+                        // Problems in the deletion of leftover files should not break the execution flow,
+                        // because the execution is already completed and results are generated.
+                        // Only log the exception and continue.
                         this.logger.Error("executionStrategy.SafeDeleteDirectory has thrown an exception:", ex);
                     }
                 });

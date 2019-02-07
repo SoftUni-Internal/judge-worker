@@ -91,9 +91,6 @@ after(function() {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // In NodeJS there is no compilation
-            result.IsCompiledSuccessfully = true;
-
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             // Preprocess the user submission

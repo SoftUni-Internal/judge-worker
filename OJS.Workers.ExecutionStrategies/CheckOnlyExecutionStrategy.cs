@@ -4,7 +4,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CheckOnlyExecutionStrategy : BaseCompiledCodeExecutionStrategy
+    public class CheckOnlyExecutionStrategy : BaseCodeExecutionStrategy
     {
         public CheckOnlyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

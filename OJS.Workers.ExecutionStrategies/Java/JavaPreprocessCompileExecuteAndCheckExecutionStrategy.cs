@@ -45,7 +45,7 @@
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         protected string SandboxExecutorSourceFilePath =>
-            $"{this.WorkingDirectory}\\{SandboxExecutorClassName}{Constants.JavaSourceFileExtension}";
+            $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
 
         protected string SandboxExecutorCode => @"
 import java.io.File;
@@ -202,44 +202,12 @@ class _$SandboxSecurityManager extends SecurityManager {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // Copy the sandbox executor source code to a file in the working directory
-            File.WriteAllText(this.SandboxExecutorSourceFilePath, this.SandboxExecutorCode);
+            var compileResult = this.SetupAndCompile(executionContext, result);
 
-            // Create a temp file with the submission code
-            string submissionFilePath;
-            try
-            {
-                submissionFilePath = this.CreateSubmissionFile(executionContext);
-            }
-            catch (ArgumentException exception)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return result;
-            }
-
-            var compilerResult = this.DoCompile(executionContext, submissionFilePath);
-
-            // Assign compiled result info to the execution result
-            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-            result.CompilerComment = compilerResult.CompilerComment;
-            if (!result.IsCompiledSuccessfully)
+            if (!compileResult.IsCompiledSuccessfully)
             {
                 return result;
             }
-
-            // Prepare execution process arguments and time measurement info
-            var classPathArgument = $"-classpath \"{this.WorkingDirectory}\"";
-
-            var classToExecuteFilePath = compilerResult.OutputFile;
-            var classToExecute = classToExecuteFilePath
-                .Substring(
-                    this.WorkingDirectory.Length + 1,
-                    classToExecuteFilePath.Length - this.WorkingDirectory.Length - JavaCompiledFileExtension.Length - 1)
-                .Replace('\\', '.');
-
-            var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
             // Create an executor and checker
             var executor = this.CreateExecutor(ProcessExecutorType.Standard);
@@ -249,21 +217,11 @@ class _$SandboxSecurityManager extends SecurityManager {
             // Process the submission and check each test
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = executor.Execute(
-                    this.JavaExecutablePath,
-                    test.Input,
-                    executionContext.TimeLimit * 2, // Java virtual machine takes more time to start up
-                    executionContext.MemoryLimit,
-                    new[] { classPathArgument, SandboxExecutorClassName, classToExecute, $"\"{timeMeasurementFilePath}\"" },
-                    null,
-                    false,
-                    true);
-
-                UpdateExecutionTime(
-                    timeMeasurementFilePath,
-                    processExecutionResult,
-                    executionContext.TimeLimit,
-                    this.baseUpdateTimeOffset);
+                var processExecutionResult = this.Execute(
+                    executor,
+                    executionContext,
+                    compileResult.OutputFile,
+                    test.Input);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -277,7 +235,31 @@ class _$SandboxSecurityManager extends SecurityManager {
             return result;
         }
 
-        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext) =>
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
+        {
+            var compileResult = this.SetupAndCompile(executionContext, result);
+
+            if (!compileResult.IsCompiledSuccessfully)
+            {
+                return result;
+            }
+
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
+
+            var processExecutionResult = this.Execute(
+                executor,
+                executionContext,
+                compileResult.OutputFile,
+                executionContext.Input);
+
+            result.Results.Add(this.GetOutputResult(processExecutionResult));
+
+            return result;
+        }
+
+        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext) =>
             JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
 
         protected virtual CompileResult DoCompile<TInput>(
@@ -292,6 +274,73 @@ class _$SandboxSecurityManager extends SecurityManager {
                 compilerPath,
                 executionContext.AdditionalCompilerArguments,
                 new[] { this.SandboxExecutorSourceFilePath, submissionFilePath });
+
+            return compilerResult;
+        }
+
+        private ProcessExecutionResult Execute<TInput>(
+            IExecutor executor,
+            IExecutionContext<TInput> executionContext,
+            string filePath,
+            string input)
+        {
+            // Prepare execution process arguments and time measurement info
+            var classPathArgument = $"-classpath \"{this.WorkingDirectory}\"";
+
+            var classToExecute = filePath
+                .Substring(
+                    this.WorkingDirectory.Length + 1,
+                    filePath.Length - this.WorkingDirectory.Length - JavaCompiledFileExtension.Length - 1)
+                .Replace('\\', '.');
+
+            var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
+
+            var processExecutionResult = executor.Execute(
+                    this.JavaExecutablePath,
+                    input,
+                    executionContext.TimeLimit * 2, // Java virtual machine takes more time to start up
+                    executionContext.MemoryLimit,
+                    new[] { classPathArgument, SandboxExecutorClassName, classToExecute, $"\"{timeMeasurementFilePath}\"" },
+                    null,
+                    false,
+                    true);
+
+            UpdateExecutionTime(
+                timeMeasurementFilePath,
+                processExecutionResult,
+                executionContext.TimeLimit,
+                this.baseUpdateTimeOffset);
+
+            return processExecutionResult;
+        }
+
+        private CompileResult SetupAndCompile<TInput, TResult>(
+            IExecutionContext<TInput> executionContext,
+            IExecutionResult<TResult> result)
+            where TResult : ISingleCodeRunResult, new()
+        {
+            // Copy the sandbox executor source code to a file in the working directory
+            File.WriteAllText(this.SandboxExecutorSourceFilePath, this.SandboxExecutorCode);
+
+            // Create a temp file with the submission code
+            string submissionFilePath;
+            try
+            {
+                submissionFilePath = this.CreateSubmissionFile(executionContext);
+            }
+            catch (ArgumentException exception)
+            {
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return new CompileResult(false, exception.Message);
+            }
+
+            var compilerResult = this.DoCompile(executionContext, submissionFilePath);
+
+            // Assign compiled result info to the execution result
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilerResult.CompilerComment;
 
             return compilerResult;
         }

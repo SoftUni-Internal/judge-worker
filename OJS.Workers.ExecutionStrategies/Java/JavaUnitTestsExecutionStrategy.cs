@@ -262,7 +262,7 @@ public class _$TestRunner {{
             return compilerResult;
         }
 
-        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
+        protected override string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
@@ -274,7 +274,7 @@ public class _$TestRunner {{
                 throw new ArgumentException("Submission file is not a zip file!");
             }
 
-            return this.PrepareSubmissionFile(executionContext);
+            return this.PrepareSubmissionFile((IExecutionContext<TestsInputModel>)executionContext);
         }
 
         protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)

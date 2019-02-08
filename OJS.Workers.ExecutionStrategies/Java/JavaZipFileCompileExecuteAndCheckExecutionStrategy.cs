@@ -25,7 +25,7 @@
         {
         }
 
-        protected override string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
+        protected override string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
 

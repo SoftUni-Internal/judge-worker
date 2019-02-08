@@ -30,8 +30,8 @@
             try
             {
                 return this.Execute<TInput, TResult>(executionContext);
+                // Catch logic is handled by the caller
             }
-            // Catch logic is handled by the caller
             finally
             {
                 // Use another thread for deletion of the working directory,

@@ -22,7 +22,7 @@
         protected const string NodeDisablePlaceholder = "#nodeDisableCode";
         protected const string AdapterFunctionPlaceholder = "#adapterFunctionCode#";
 
-        private const string DefaultAdapterFunctionCode = "function adapter(input, code) { return code(input); }";
+        private const string DefaultAdapterFunctionCode = "(input, code) => code(input);";
 
         public NodeJsPreprocessExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

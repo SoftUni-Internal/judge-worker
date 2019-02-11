@@ -237,7 +237,7 @@ process.stdin.on('end', function() {
 
         protected virtual string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
         {
-            var problemSkeleton = (context.Input as TestsInputModel).TaskSkeletonAsString
+            var problemSkeleton = (context.Input as TestsInputModel)?.TaskSkeletonAsString
                 ?? DefaultAdapterFunctionCode;
             var code = context.Code.Trim(';');
 

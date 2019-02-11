@@ -260,7 +260,7 @@ describe('Test {i} ', function(){{
                     .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                    .Replace(TestsPlaceholder, this.BuildTests((context.Input as TestsInputModel).Tests))
+                    .Replace(TestsPlaceholder, this.BuildTests((context.Input as TestsInputModel)?.Tests))
                     .Replace(UserInputPlaceholder, code);
 
             return processedCode;

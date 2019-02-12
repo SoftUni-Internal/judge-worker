@@ -102,39 +102,41 @@
                     break;
                 case ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck:
                     executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-                        Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        Settings.JavaExecutablePath,
+                        Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
                     break;
                 case ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck:
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-                        Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        Settings.JavaExecutablePath,
+                        Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaProjectTestsExecutionStrategy:
                     executionStrategy = new JavaProjectTestsExecutionStrategy(
-                        Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaUnitTestsExecutionStrategy:
                     executionStrategy = new JavaUnitTestsExecutionStrategy(
-                        Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy:
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
-                        Settings.JavaExecutablePath,
                         GetCompilerPath,
+                        Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.MavenPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,

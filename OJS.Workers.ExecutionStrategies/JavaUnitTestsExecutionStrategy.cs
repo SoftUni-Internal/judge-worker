@@ -28,30 +28,20 @@
         protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
         public JavaUnitTestsExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
-            string javaLibrariesPath,
+            string javaExecutablePath,
+            string javaLibsPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
-        {
-            if (!Directory.Exists(javaLibrariesPath))
-            {
-                throw new ArgumentException(
-                    $"Java libraries not found in: {javaLibrariesPath}",
-                    nameof(javaLibrariesPath));
-            }
-
-            this.JavaLibrariesPath = javaLibrariesPath;
-            this.TestNames = new List<string>();
-        }
-
-        protected string JavaLibrariesPath { get; }
+            : base(getCompilerPathFunc, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
+            => this.TestNames = new List<string>();
 
         protected string JUnitTestRunnerSourceFilePath =>
             $"{this.WorkingDirectory}\\{JUnitRunnerClassName}{Constants.JavaSourceFileExtension}";
 
         protected List<string> TestNames { get; }
+
+        protected override string ClassPathArgument => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
         protected virtual string JUnitTestRunnerCode
         {
@@ -112,8 +102,6 @@ public class _$TestRunner {{
             }
         }
 
-        protected virtual string ClassPath => $@" -classpath ""{this.JavaLibrariesPath}*""";
-
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
         {
@@ -170,7 +158,7 @@ public class _$TestRunner {{
                 }
 
                 var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-                var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPath;
+                var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
                 var compilerResult = this.Compile(
                     executionContext.CompilerType,

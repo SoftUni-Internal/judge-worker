@@ -15,11 +15,12 @@
         protected const string SubmissionFileName = "_$submission";
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            string javaExecutablePath,
+            string javaLibsPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(javaExecutablePath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
         {
         }
 
@@ -49,7 +50,7 @@
             var compilerResult = this.Compile(
                 executionContext.CompilerType,
                 compilerPath,
-                executionContext.AdditionalCompilerArguments,
+                executionContext.AdditionalCompilerArguments + this.ClassPathArgument,
                 submissionFilePath);
 
             return compilerResult;

@@ -21,8 +21,9 @@
         private readonly int baseUpdateTimeOffset;
 
         public JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            string javaExecutablePath,
+            string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed,
             int baseUpdateTimeOffset = 0)
@@ -33,17 +34,30 @@
                 throw new ArgumentException($"Java not found in: {javaExecutablePath}!", nameof(javaExecutablePath));
             }
 
-            this.baseUpdateTimeOffset = baseUpdateTimeOffset;
-            this.JavaExecutablePath = javaExecutablePath;
+            if (!Directory.Exists(javaLibrariesPath))
+            {
+                throw new ArgumentException(
+                    $"Java libraries not found in: {javaLibrariesPath}",
+                    nameof(javaLibrariesPath));
+            }
+
             this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.JavaExecutablePath = javaExecutablePath;
+            this.JavaLibrariesPath = javaLibrariesPath;
+            this.baseUpdateTimeOffset = baseUpdateTimeOffset;
         }
 
         protected string JavaExecutablePath { get; }
 
+        protected string JavaLibrariesPath { get; }
+
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected string SandboxExecutorSourceFilePath =>
-            $"{this.WorkingDirectory}\\{SandboxExecutorClassName}{Constants.JavaSourceFileExtension}";
+        protected virtual string ClassPathArgument
+            => $@" -cp ""{this.JavaLibrariesPath}*;{this.WorkingDirectory}"" ";
+
+        protected string SandboxExecutorSourceFilePath
+            => $"{this.WorkingDirectory}\\{SandboxExecutorClassName}{Constants.JavaSourceFileExtension}";
 
         protected string SandboxExecutorCode => @"
 import java.io.File;
@@ -229,8 +243,6 @@ class _$SandboxSecurityManager extends SecurityManager {
             }
 
             // Prepare execution process arguments and time measurement info
-            var classPathArgument = $"-classpath \"{this.WorkingDirectory}\"";
-
             var classToExecuteFilePath = compilerResult.OutputFile;
             var classToExecute = classToExecuteFilePath
                 .Substring(
@@ -245,6 +257,14 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             var checker = executionContext.Input.GetChecker();
 
+            var arguments = new[]
+            {
+                this.ClassPathArgument,
+                SandboxExecutorClassName,
+                classToExecute,
+                $"\"{timeMeasurementFilePath}\""
+            };
+
             // Process the submission and check each test
             foreach (var test in executionContext.Input.Tests)
             {
@@ -253,7 +273,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                     test.Input,
                     executionContext.TimeLimit * 2, // Java virtual machine takes more time to start up
                     executionContext.MemoryLimit,
-                    new[] { classPathArgument, SandboxExecutorClassName, classToExecute, $"\"{timeMeasurementFilePath}\"" },
+                    arguments,
                     null,
                     false,
                     true);

@@ -35,15 +35,15 @@
         private static readonly string MavenBuildErrorPattern = @"\[ERROR\](?:\s)*((?:.*)\n|\r|(\r\n))*(?=\[INFO\]\s\d)";
 
         public JavaSpringAndHibernateProjectExecutionStrategy(
-            string javaExecutablePath,
             Func<CompilerType, string> getCompilerPathFunc,
+            string javaExecutablePath,
             string javaLibrariesPath,
             string mavenPath,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
-                javaExecutablePath,
                 getCompilerPathFunc,
+                javaExecutablePath,
                 javaLibrariesPath,
                 baseTimeUsed,
                 baseMemoryUsed) =>
@@ -136,7 +136,7 @@
         </plugins>
     </build>";
 
-        protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
+        protected override string ClassPathArgument => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext)
@@ -192,7 +192,7 @@
 
             var arguments = new List<string>
             {
-                this.ClassPath,
+                this.ClassPathArgument,
                 AdditionalExecutionArguments,
                 JUnitRunnerConsolePath
             };

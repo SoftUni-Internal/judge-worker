@@ -34,24 +34,15 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
+            var codeSavePath = this.SaveCode(executionContext);
 
-            // Process the submission and check each test
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor();
 
             var checker = executionContext.Input.GetChecker();
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = executor.Execute(
-                    this.pythonExecutablePath,
-                    test.Input,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                    new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, codeSavePath },
-                    null,
-                    false,
-                    true);
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -62,10 +53,47 @@
                 result.Results.Add(testResult);
             }
 
-            // Clean up
-            File.Delete(codeSavePath);
+            return result;
+        }
+
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
+        {
+            var codeSavePath = this.SaveCode(executionContext);
+
+            var executor = this.CreateExecutor();
+
+            var processExecutionResult = this.Execute(
+                executionContext,
+                executor,
+                codeSavePath,
+                executionContext.Input);
+
+            result.Results.Add(this.GetOutputResult(processExecutionResult));
 
             return result;
         }
+
+        private string SaveCode<TInput>(IExecutionContext<TInput> executionContext)
+            => FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
+
+        private IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Restricted);
+
+        private ProcessExecutionResult Execute<TInput>(
+            IExecutionContext<TInput> executionContext,
+            IExecutor executor,
+            string codeSavePath,
+            string input)
+            => executor.Execute(
+                this.pythonExecutablePath,
+                input,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, codeSavePath },
+                null,
+                false,
+                true);
     }
 }

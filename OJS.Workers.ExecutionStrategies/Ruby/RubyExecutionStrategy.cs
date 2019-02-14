@@ -3,7 +3,6 @@
     using System.IO;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -23,7 +22,7 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var submissionFilePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
+            var submissionFilePath = this.SaveCodeToTempFile(executionContext);
 
             var arguments = new[] { submissionFilePath };
 

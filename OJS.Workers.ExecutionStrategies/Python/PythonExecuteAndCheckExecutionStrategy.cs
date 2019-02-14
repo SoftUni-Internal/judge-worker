@@ -31,18 +31,18 @@
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionContext<TestsInputModel> context,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = this.SaveCode(executionContext);
+            var codeSavePath = this.SaveCodeToTempFile(context);
 
             var executor = this.CreateExecutor();
 
-            var checker = executionContext.Input.GetChecker();
+            var checker = context.Input.GetChecker();
 
-            foreach (var test in executionContext.Input.Tests)
+            foreach (var test in context.Input.Tests)
             {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                var processExecutionResult = this.Execute(context, executor, codeSavePath, test.Input);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -57,26 +57,19 @@
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<string> context,
             IExecutionResult<OutputResult> result)
         {
-            var codeSavePath = this.SaveCode(executionContext);
+            var codeSavePath = this.SaveCodeToTempFile(context);
 
             var executor = this.CreateExecutor();
 
-            var processExecutionResult = this.Execute(
-                executionContext,
-                executor,
-                codeSavePath,
-                executionContext.Input);
+            var processExecutionResult = this.Execute(context, executor, codeSavePath, context.Input);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
 
             return result;
         }
-
-        private string SaveCode<TInput>(IExecutionContext<TInput> executionContext)
-            => FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
 
         private IExecutor CreateExecutor()
             => this.CreateExecutor(ProcessExecutorType.Restricted);

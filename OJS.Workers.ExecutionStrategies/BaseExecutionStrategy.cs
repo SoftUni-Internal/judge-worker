@@ -57,34 +57,36 @@
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,
-            IExecutionResult<OutputResult> result)
+            IExecutionResult<OutputResult> executionResult)
             => throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+            IExecutionResult<TestResult> executionResult)
             => throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TResult> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> executionResult)
             where TResult : ISingleCodeRunResult, new()
         {
             if (executionContext is IExecutionContext<string> stringInputExecutionContext &&
-                result is IExecutionResult<OutputResult> outputResult)
+                executionResult is IExecutionResult<OutputResult> outputExecutionResult)
             {
                 return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(
                     stringInputExecutionContext,
-                    outputResult);
+                    outputExecutionResult);
             }
             else if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
-                result is IExecutionResult<TestResult> testsResult)
+                executionResult is IExecutionResult<TestResult> testsExecutionResult)
             {
-                return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext, testsResult);
+                return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(
+                    testsExecutionContext,
+                    testsExecutionResult);
             }
             else
             {
-                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
+                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, executionResult);
             }
         }
     }

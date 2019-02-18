@@ -44,10 +44,11 @@
 
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected string SandboxExecutorSourceFilePath =>
-            $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
+        protected string SandboxExecutorSourceFilePath
+            => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
 
-        protected string SandboxExecutorCode => @"
+        protected string SandboxExecutorCode
+            => @"
 import java.io.File;
 import java.io.FilePermission;
 import java.io.FileWriter;
@@ -259,8 +260,10 @@ class _$SandboxSecurityManager extends SecurityManager {
             return result;
         }
 
-        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext) =>
-            JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
+        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
+            => JavaCodePreprocessorHelper.CreateSubmissionFile(
+                executionContext.Code,
+                this.WorkingDirectory);
 
         protected virtual CompileResult DoCompile<TInput>(
             IExecutionContext<TInput> executionContext,
@@ -295,12 +298,19 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
 
+            var executionArguments = new[] {
+                classPathArgument,
+                SandboxExecutorClassName,
+                classToExecute,
+                $"\"{timeMeasurementFilePath}\""
+            };
+
             var processExecutionResult = executor.Execute(
                     this.JavaExecutablePath,
                     input,
                     executionContext.TimeLimit * 2, // Java virtual machine takes more time to start up
                     executionContext.MemoryLimit,
-                    new[] { classPathArgument, SandboxExecutorClassName, classToExecute, $"\"{timeMeasurementFilePath}\"" },
+                    executionArguments,
                     null,
                     false,
                     true);

@@ -11,14 +11,14 @@
 
     public abstract class SubmissionProcessingStrategy<TSubmission> : ISubmissionProcessingStrategy<TSubmission>
     {
+        public int JobLoopWaitTimeInMilliseconds { get; protected set; } =
+            Constants.DefaultJobLoopWaitTimeInMilliseconds;
+
         protected ILog Logger { get; private set; }
 
         protected ConcurrentQueue<TSubmission> SubmissionsForProcessing { get; private set; }
 
         protected object SharedLockObject { get; private set; }
-
-        public int JobLoopWaitTimeInMilliseconds { get; protected set; } =
-            Constants.DefaultJobLoopWaitTimeInMilliseconds;
 
         public virtual void Initialize(
             ILog logger,

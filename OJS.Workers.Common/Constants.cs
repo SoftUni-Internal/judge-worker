@@ -4,6 +4,7 @@
     using System.IO;
 
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
 
     public static class Constants
@@ -34,9 +35,13 @@
         public const string ExecutionStrategiesFolderName = "ExecutionStrategies";
 
         // Other
-        public const int DefaultProcessExitTimeOutMilliseconds = 5000; // ms
+        public const int DefaultProcessExitTimeOutMilliseconds = 5000;
+        public const int ProcessDefaultBufferSizeInBytes = 4096;
 
         public const string AppSettingsConfigSectionName = "appSettings";
+
+        // Environment variables
+        public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
 
         // Runtime constants
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
@@ -44,9 +49,32 @@
         public static readonly string ClassDelimiter = $"~~!!!==#==!!!~~{Environment.NewLine}";
 
         // Temp Directory folder paths
-        public static readonly string ExecutionStrategiesWorkingDirectoryPath =
-            Path.Combine(
-                Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine),
-                ExecutionStrategiesFolderName);
+        public static string ExecutionStrategiesWorkingDirectoryPath
+        {
+            get
+            {
+                var rootPath = string.Empty;
+
+                if (OSPlatformHelpers.IsDockerContainer())
+                {
+                    rootPath = Path.GetTempPath();
+                }
+
+                if (OSPlatformHelpers.IsWindows())
+                {
+                    rootPath = Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine);
+                }
+
+                if (string.IsNullOrEmpty(rootPath))
+                {
+                    throw new InvalidOperationException(
+                        "Root path for the Execution strategies working directory cannot be empty or null");
+                }
+
+                return Path.Combine(
+                    rootPath,
+                    ExecutionStrategiesFolderName);
+            }
+        }
     }
 }

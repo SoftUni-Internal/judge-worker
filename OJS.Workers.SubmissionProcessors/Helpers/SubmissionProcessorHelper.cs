@@ -8,6 +8,7 @@
     using OJS.Workers.ExecutionStrategies.BlockchainStrategies;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.MySql;
     using OJS.Workers.ExecutionStrategies.SqlStrategies.SqlServerLocalDb;
+    using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
 
     public static class SubmissionProcessorHelper
@@ -15,29 +16,35 @@
         public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, int portNumber)
         {
             IExecutionStrategy executionStrategy;
+            var tasksService = new TasksService();
+            var processExecutorFactory = new ProcessExecutorFactory(tasksService);
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
                     executionStrategy = new CompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy:
                     executionStrategy = new CPlusPlusCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.GPlusPlusBaseTimeUsedInMilliseconds,
                         Settings.GPlusPlusBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy:
                     executionStrategy = new CPlusPlusZipFileExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.GPlusPlusBaseTimeUsedInMilliseconds,
                         Settings.GPlusPlusBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck:
                     executionStrategy = new DotNetCoreCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.DotNetCoreRuntimeVersion,
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
@@ -45,57 +52,66 @@
                 case ExecutionStrategyType.DotNetCoreTestRunner:
                     executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreUnitTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CSharpUnitTestsExecutionStrategy:
                     executionStrategy = new CSharpUnitTestsExecutionStrategy(
-                        Settings.NUnitConsoleRunnerPath,
                         GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.NUnitConsoleRunnerPath,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CSharpProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpProjectTestsExecutionStrategy(
-                        Settings.NUnitConsoleRunnerPath,
                         GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.NUnitConsoleRunnerPath,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CSharpPerformanceProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpPerformanceProjectTestsExecutionStrategy(
-                        Settings.NUnitConsoleRunnerPath,
                         GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.NUnitConsoleRunnerPath,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CSharpAspProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpAspProjectTestsExecutionStrategy(
-                        Settings.NUnitConsoleRunnerPath,
                         GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.NUnitConsoleRunnerPath,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.RubyExecutionStrategy:
                     executionStrategy = new RubyExecutionStrategy(
+                        processExecutorFactory,
                         Settings.RubyPath,
                         Settings.RubyBaseTimeUsedInMilliseconds,
                         Settings.RubyBaseMemoryUsedInBytes);
@@ -103,6 +119,7 @@
                 case ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck:
                     executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -112,6 +129,7 @@
                 case ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck:
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -120,6 +138,7 @@
                 case ExecutionStrategyType.JavaProjectTestsExecutionStrategy:
                     executionStrategy = new JavaProjectTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -128,6 +147,7 @@
                 case ExecutionStrategyType.JavaUnitTestsExecutionStrategy:
                     executionStrategy = new JavaUnitTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -136,6 +156,7 @@
                 case ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy:
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.MavenPath,
@@ -144,6 +165,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.UnderscoreModulePath,
                         Settings.NodeJsBaseTimeUsedInMilliseconds * 2,
@@ -151,6 +173,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -162,6 +185,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
                     executionStrategy = new NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -179,6 +203,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -193,6 +218,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -207,6 +233,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
                     executionStrategy = new NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -226,6 +253,7 @@
                     break;
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
                     executionStrategy = new NodeJsZipExecuteHtmlAndCssStrategy(
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
@@ -241,18 +269,21 @@
                     break;
                 case ExecutionStrategyType.PythonExecuteAndCheck:
                     executionStrategy = new PythonExecuteAndCheckExecutionStrategy(
+                        processExecutorFactory,
                         Settings.PythonExecutablePath,
                         Settings.PythonBaseTimeUsedInMilliseconds,
                         Settings.PythonBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.PhpProjectExecutionStrategy:
                     executionStrategy = new PhpProjectExecutionStrategy(
+                        processExecutorFactory,
                         Settings.PhpCliExecutablePath,
                         Settings.PhpCliBaseTimeUsedInMilliseconds,
                         Settings.PhpCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.PhpProjectWithDbExecutionStrategy:
                     executionStrategy = new PhpProjectWithDbExecutionStrategy(
+                        processExecutorFactory,
                         Settings.PhpCliExecutablePath,
                         Settings.MySqlSysDbConnectionString,
                         Settings.MySqlRestrictedUserId,
@@ -262,12 +293,14 @@
                     break;
                 case ExecutionStrategyType.PhpCgiExecuteAndCheck:
                     executionStrategy = new PhpCgiExecuteAndCheckExecutionStrategy(
+                        processExecutorFactory,
                         Settings.PhpCgiExecutablePath,
                         Settings.PhpCgiBaseTimeUsedInMilliseconds,
                         Settings.PhpCgiBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.PhpCliExecuteAndCheck:
                     executionStrategy = new PhpCliExecuteAndCheckExecutionStrategy(
+                        processExecutorFactory,
                         Settings.PhpCliExecutablePath,
                         Settings.PhpCliBaseTimeUsedInMilliseconds,
                         Settings.PhpCliBaseMemoryUsedInBytes);
@@ -275,6 +308,7 @@
                 case ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy:
                     executionStrategy = new SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
                         GetCompilerPath,
+                        processExecutorFactory,
                         Settings.NodeJsExecutablePath,
                         Settings.GanacheCliNodeExecutablePath,
                         Settings.TruffleCliNodeExecutablePath,
@@ -325,13 +359,34 @@
                     executionStrategy = new RemoteExecutionStrategy();
                     break;
                 case ExecutionStrategyType.CheckOnly:
-                    executionStrategy = new CheckOnlyExecutionStrategy(0, 0);
+                    executionStrategy = new CheckOnlyExecutionStrategy(processExecutorFactory, 0, 0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
             return executionStrategy;
+        }
+
+        public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
+            OjsSubmission<TInput> submission)
+        {
+            if (submission == null)
+            {
+                throw new ArgumentNullException(nameof(submission));
+            }
+
+            return new ExecutionContext<TInput>
+            {
+                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
+                Code = submission.Code,
+                FileContent = submission.FileContent,
+                AllowedFileExtensions = submission.AllowedFileExtensions,
+                CompilerType = submission.CompilerType,
+                MemoryLimit = submission.MemoryLimit,
+                TimeLimit = submission.TimeLimit,
+                Input = submission.Input
+            };
         }
 
         private static string GetCompilerPath(CompilerType type)
@@ -360,27 +415,6 @@
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
-        }
-
-        public static IExecutionContext<TInput> CreateExecutionContext<TInput>(
-            OjsSubmission<TInput> submission)
-        {
-            if (submission == null)
-            {
-                throw new ArgumentNullException(nameof(submission));
-            }
-
-            return new ExecutionContext<TInput>
-            {
-                AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
-                Code = submission.Code,
-                FileContent = submission.FileContent,
-                AllowedFileExtensions = submission.AllowedFileExtensions,
-                CompilerType = submission.CompilerType,
-                MemoryLimit = submission.MemoryLimit,
-                TimeLimit = submission.TimeLimit,
-                Input = submission.Input
-            };
         }
     }
 }

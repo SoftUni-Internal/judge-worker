@@ -7,16 +7,18 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class CSharpPerformanceProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         public CSharpPerformanceProjectTestsExecutionStrategy(
-            string nUnitConsoleRunnerPath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string nUnitConsoleRunnerPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(nUnitConsoleRunnerPath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed) =>
-                this.TestClassNames = new List<string>();
+            : base(getCompilerPathFunc, processExecutorFactory, nUnitConsoleRunnerPath, baseTimeUsed, baseMemoryUsed)
+            => this.TestClassNames = new List<string>();
 
         protected List<string> TestClassNames { get; }
 

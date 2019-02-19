@@ -9,16 +9,19 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
         private readonly string dotNetCoreRuntimeVersion;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string dotNetCoreRuntimeVersion,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             this.GetCompilerPathFunc = getCompilerPathFunc;
             this.dotNetCoreRuntimeVersion = dotNetCoreRuntimeVersion;
@@ -123,7 +126,7 @@
             out string[] arguments,
             out string compilerPath)
         {
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             arguments = new[]
             {
@@ -144,7 +147,7 @@
                 .Select(Path.GetFileNameWithoutExtension)
                 .First();
 
-            var jsonFileName = $"{compiledFileName}.runtimeconfig.json";
+            var jsonFileName = $"{compiledFileName}.runtimeconfig{JsonFileExtension}";
 
             var jsonFilePath = Path.Combine(directory, jsonFileName);
 

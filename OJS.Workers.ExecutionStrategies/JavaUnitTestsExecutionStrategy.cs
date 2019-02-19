@@ -29,11 +29,18 @@
 
         public JavaUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
-            string javaLibsPath,
+            string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
+            : base(
+                getCompilerPathFunc,
+                processExecutorFactory,
+                javaExecutablePath,
+                javaLibrariesPath,
+                baseTimeUsed,
+                baseMemoryUsed)
             => this.TestNames = new List<string>();
 
         protected string JUnitTestRunnerSourceFilePath =>
@@ -123,7 +130,7 @@ public class _$TestRunner {{
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
             File.Delete(submissionFilePath);
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

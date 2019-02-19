@@ -1,28 +1,53 @@
 ﻿namespace OJS.Workers.Common.Helpers
 {
     using System;
-    using System.Configuration;
+    using System.IO;
+
+    using Microsoft.Extensions.Configuration;
+
+    using static OJS.Workers.Common.Constants;
 
     public static class SettingsHelper
     {
-        public static string GetSetting(string settingName)
-        {
-            if (ConfigurationManager.AppSettings[settingName] == null)
-            {
-                throw new Exception($"{settingName} setting not found in App.config file!");
-            }
+        private static readonly IConfiguration Configuration;
 
-            return ConfigurationManager.AppSettings[settingName];
-        }
+        static SettingsHelper() => Configuration = BuildConfiguration();
+
+        public static string GetSetting(string settingName)
+            => GetSection(settingName)?.Value
+                ?? throw new Exception($"{settingName} setting not found in Config file!");
 
         public static T GetSettingOrDefault<T>(string settingName, T defaultValue)
         {
-            if (ConfigurationManager.AppSettings[settingName] == null)
+            var section = GetSection(settingName);
+
+            return section?.Value == null
+                ? defaultValue
+                : (T)Convert.ChangeType(section.Value, typeof(T));
+        }
+
+        private static IConfigurationSection GetSection(string settingName)
+        {
+            var section = Configuration.GetSection($"OjsWorkersConfig:{settingName}");
+
+            if (LegacyConfigurationProvider.HasSettings())
             {
-                return defaultValue;
+                section = Configuration.GetSection($"{settingName}");
             }
 
-            return (T)Convert.ChangeType(ConfigurationManager.AppSettings[settingName], typeof(T));
+            return section;
+        }
+
+        private static IConfiguration BuildConfiguration()
+        {
+            var env = Environment.GetEnvironmentVariable(AspNetCoreEnvironmentVariable);
+
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile($"appSettings{JsonFileExtension}", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appSettings.{env}{JsonFileExtension}", optional: true, reloadOnChange: true)
+                .Add(new LegacyConfigurationProvider())
+                .Build();
         }
     }
 }

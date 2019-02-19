@@ -6,6 +6,7 @@
 
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.Executors;
 
     public class CSharpAspProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -16,11 +17,12 @@
             @"Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc";
 
         public CSharpAspProjectTestsExecutionStrategy(
-            string nUnitConsoleRunnerPath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string nUnitConsoleRunnerPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(nUnitConsoleRunnerPath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, nUnitConsoleRunnerPath, baseTimeUsed, baseMemoryUsed)
         {
         }
 

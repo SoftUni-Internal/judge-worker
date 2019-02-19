@@ -21,11 +21,12 @@
         private const string NUnitFrameworkPackageName = "nunit.framework";
 
         public CSharpUnitTestsExecutionStrategy(
-            string nUnitConsoleRunnerPath,
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
+            string nUnitConsoleRunnerPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(nUnitConsoleRunnerPath, getCompilerPathFunc, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, nUnitConsoleRunnerPath, baseTimeUsed, baseMemoryUsed)
         {
         }
 
@@ -46,7 +47,7 @@
 
             this.CorrectProjectReferences(project);
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             result = this.RunUnitTests(
                 this.NUnitConsoleRunnerPath,

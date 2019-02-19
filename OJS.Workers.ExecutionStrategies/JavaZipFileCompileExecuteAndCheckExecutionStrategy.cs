@@ -9,6 +9,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class JavaZipFileCompileExecuteAndCheckExecutionStrategy : JavaPreprocessCompileExecuteAndCheckExecutionStrategy
     {
@@ -16,11 +17,12 @@
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibsPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
+            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
         {
         }
 

@@ -45,8 +45,8 @@
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.10.1"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""2.1.1"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""2.1.1"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""2.2.0"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""2.2.0"" />
                 </ItemGroup>
                 <ItemGroup>
                     {ProjectReferencesPlaceholder}

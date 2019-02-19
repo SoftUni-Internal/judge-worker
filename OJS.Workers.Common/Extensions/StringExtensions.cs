@@ -5,15 +5,10 @@
 
     public static class StringExtensions
     {
-        public static string MaxLength(this string stringToTrim, int maxLength, string trimMessageToAppend = null)
-        {
-            if (stringToTrim == null || stringToTrim.Length <= maxLength)
-            {
-                return stringToTrim;
-            }
-
-            return stringToTrim.Substring(0, maxLength) + trimMessageToAppend;
-        }
+        public static string MaxLength(this string stringToTrim, int maxLength)
+            => stringToTrim == null || stringToTrim.Length <= maxLength
+                ? stringToTrim
+                : stringToTrim.Substring(0, maxLength);
 
         public static string GetStringWithEllipsisBetween(this string input, int startIndex, int endIndex)
         {

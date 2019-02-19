@@ -7,7 +7,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CompileExecuteAndCheckExecutionStrategy : ExecutionStrategy
+    public class CompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         public CompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -20,17 +20,18 @@
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext) =>
-                this.CompileExecuteAndCheck(
-                    executionContext,
-                    this.GetCompilerPathFunc,
-                    this.CreateExecutor(ProcessExecutorType.Restricted));
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+            => this.CompileExecuteAndCheck(
+                executionContext,
+                result,
+                this.GetCompilerPathFunc,
+                this.CreateExecutor(ProcessExecutorType.Restricted));
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext)
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
         {
-            var result = new ExecutionResult<OutputResult>();
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,

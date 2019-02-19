@@ -22,7 +22,13 @@
             string javaLibsPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, javaLibsPath, baseTimeUsed, baseMemoryUsed)
+            : base(
+                getCompilerPathFunc,
+                processExecutorFactory,
+                javaExecutablePath,
+                javaLibsPath,
+                baseTimeUsed,
+                baseMemoryUsed)
         {
         }
 

@@ -1,35 +1,45 @@
-﻿namespace OJS.Workers.ExecutionStrategies
+﻿namespace OJS.Workers.ExecutionStrategies.Ruby
 {
+    using System.IO;
+
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class CheckOnlyExecutionStrategy : BaseCodeExecutionStrategy
+    public class RubyExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        public CheckOnlyExecutionStrategy(
+        public RubyExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
+            string rubyPath,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
-        {
-        }
+            => this.RubyPath = rubyPath;
+
+        public string RubyPath { get; set; }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.IsCompiledSuccessfully = true;
+            var submissionFilePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
 
-            var processExecutionResult = new ProcessExecutionResult
-            {
-                Type = ProcessExecutionResultType.Success,
-                ReceivedOutput = executionContext.Code
-            };
+            var arguments = new[] { submissionFilePath };
+
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 
             foreach (var test in executionContext.Input.Tests)
             {
+                var processExecutionResult = executor.Execute(
+                    this.RubyPath,
+                    test.Input,
+                    executionContext.TimeLimit,
+                    executionContext.MemoryLimit,
+                    arguments);
+
                 var testResult = this.CheckAndGetTestResult(
                     test,
                     processExecutionResult,
@@ -37,6 +47,11 @@
                     processExecutionResult.ReceivedOutput);
 
                 result.Results.Add(testResult);
+            }
+
+            if (File.Exists(submissionFilePath))
+            {
+                File.Delete(submissionFilePath);
             }
 
             return result;

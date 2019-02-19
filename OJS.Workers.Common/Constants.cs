@@ -40,9 +40,8 @@
 
         public const string AppSettingsConfigSectionName = "appSettings";
 
-        // Docker container constants
-        public const string DockerEnvironmentVariableName = "ASPNETCORE_ENVIRONMENT";
-        public const string DockerEnvironmentVariableValue = "Docker";
+        // Environment variables
+        public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
 
         // Runtime constants
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";

@@ -31,7 +31,7 @@
         {
             this.Name = name;
 
-            this.logger = LogManager.GetLogger(name);
+            this.logger = LogManager.GetLogger(typeof(SubmissionProcessor<TSubmission>));
             this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initializing...");
 
             this.stopping = false;
@@ -40,7 +40,6 @@
             this.submissionsForProcessing = submissionsForProcessing;
             this.portNumber = portNumber;
             this.sharedLockObject = sharedLockObject;
-
 
             this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
         }

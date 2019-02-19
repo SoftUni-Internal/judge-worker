@@ -17,6 +17,7 @@
         protected const string SubmissionFileName = "_$submission";
 
         public NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
             string mochaModulePath,
             string chaiModulePath,
@@ -32,6 +33,7 @@
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
+                processExecutorFactory,
                 nodeJsExecutablePath,
                 mochaModulePath,
                 chaiModulePath,
@@ -167,7 +169,7 @@ function afterBundling() {
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
 
             // Create a Restricted Process Executor
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             // Process tests
             result.Results = this.ProcessTests(

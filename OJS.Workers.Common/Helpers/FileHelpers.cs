@@ -21,7 +21,7 @@
         {
             var tempFilePath = Path.GetTempFileName();
             File.Delete(tempFilePath);
-            var fullTempFilePath = $"{directory}\\{Path.GetFileName(tempFilePath)}";
+            var fullTempFilePath = Path.Combine(directory, Path.GetFileName(tempFilePath));
             File.WriteAllText(fullTempFilePath, stringToWrite);
             return fullTempFilePath;
         }
@@ -37,7 +37,7 @@
         {
             var tempFilePath = Path.GetTempFileName();
             File.Delete(tempFilePath);
-            var fullTempFilePath = $"{directory}\\{Path.GetFileName(tempFilePath)}";
+            var fullTempFilePath = Path.Combine(directory, Path.GetFileName(tempFilePath));
             File.WriteAllBytes(fullTempFilePath, dataToWrite);
             return fullTempFilePath;
         }

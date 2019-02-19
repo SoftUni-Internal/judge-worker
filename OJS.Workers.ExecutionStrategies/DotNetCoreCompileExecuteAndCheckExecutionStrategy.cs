@@ -15,10 +15,11 @@
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
+            IProcessExecutorFactory processExecutorFactory,
             string dotNetCoreRuntimeVersion,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
             this.GetCompilerPathFunc = getCompilerPathFunc;
             this.dotNetCoreRuntimeVersion = dotNetCoreRuntimeVersion;
@@ -123,7 +124,7 @@
             out string[] arguments,
             out string compilerPath)
         {
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             arguments = new[]
             {

@@ -32,6 +32,9 @@
 
         protected IDependencyContainer DependencyContainer { get; private set; }
 
+        protected virtual int TimeBeforeAbortingThreadsInMilliseconds =>
+            Constants.DefaultTimeBeforeAbortingThreadsInMilliseconds;
+
         protected override void OnStart(string[] args)
         {
             this.Logger.Info($"{Constants.LocalWorkerServiceName} starting...");
@@ -73,9 +76,6 @@
         protected virtual IDependencyContainer GetDependencyContainer() =>
             throw new InvalidOperationException(
                 $"{nameof(this.GetDependencyContainer)} method required but not implemented in derived service");
-
-        protected virtual int TimeBeforeAbortingThreadsInMilliseconds =>
-            Constants.DefaultTimeBeforeAbortingThreadsInMilliseconds;
 
         private void SpawnSubmissionProcessorsAndThreads()
         {

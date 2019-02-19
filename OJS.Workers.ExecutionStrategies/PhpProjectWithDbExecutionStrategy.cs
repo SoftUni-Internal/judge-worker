@@ -16,13 +16,14 @@
         private readonly string restrictedUserPassword;
 
         public PhpProjectWithDbExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
             string phpCliExecutablePath,
             string sysDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(phpCliExecutablePath, baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, phpCliExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
             this.MySqlHelperStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(
                 sysDbConnectionString,
@@ -63,7 +64,7 @@
 
             this.RequireSuperGlobalsTemplateInUserCode(applicationEntryPointPath);
 
-            var executor = new RestrictedProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

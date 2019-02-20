@@ -191,8 +191,8 @@ class _$SandboxSecurityManager extends SecurityManager {
             if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
             {
                 var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
-                var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
-                var timeToSubtract = TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
+                var timeOffset = TimeSpan.FromMilliseconds(Math.Abs(updateTimeOffset));
+                var timeToSubtract = timeOffset < totalTimeUsed ? timeOffset : TimeSpan.Zero;
 
                 processExecutionResult.TimeWorked = totalTimeUsed - timeToSubtract;
 

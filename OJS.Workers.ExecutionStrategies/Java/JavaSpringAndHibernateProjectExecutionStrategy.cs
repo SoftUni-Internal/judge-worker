@@ -48,8 +48,8 @@
                 javaExecutablePath,
                 javaLibrariesPath,
                 baseTimeUsed,
-                baseMemoryUsed) =>
-                    this.MavenPath = mavenPath;
+                baseMemoryUsed)
+            => this.MavenPath = mavenPath;
 
         // Property contains Dictionary<GroupId, Tuple<ArtifactId, Version>>
         public Dictionary<string, Tuple<string, string>> Dependencies =>
@@ -138,7 +138,7 @@
         </plugins>
     </build>";
 
-        protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
+        protected override string ClassPathArgument => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -193,7 +193,7 @@
 
             var arguments = new List<string>
             {
-                this.ClassPath,
+                this.ClassPathArgument,
                 AdditionalExecutionArguments,
                 JUnitRunnerConsolePath
             };

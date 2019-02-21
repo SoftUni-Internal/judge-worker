@@ -32,7 +32,8 @@
 
         protected List<string> UserClassNames { get; }
 
-        protected override string ClassPath => $@" -classpath ""{this.WorkingDirectory};{this.JavaLibrariesPath}*""";
+        protected override string ClassPathArgument
+            => $@" -classpath ""{this.WorkingDirectory};{this.JavaLibrariesPath}*""";
 
         protected override string JUnitTestRunnerCode
         {
@@ -113,7 +114,7 @@ class Classes{{
             }
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPath;
+            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
@@ -145,7 +146,7 @@ class Classes{{
                 var preprocessExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
 
                 var preprocessArguments = new List<string>();
-                preprocessArguments.Add(this.ClassPath);
+                preprocessArguments.Add(this.ClassPathArgument);
                 preprocessArguments.Add(AdditionalExecutionArguments);
                 preprocessArguments.Add(className);
                 preprocessArguments.Add(this.WorkingDirectory);
@@ -189,7 +190,7 @@ class Classes{{
 
             var arguments = new List<string>
             {
-                this.ClassPath,
+                this.ClassPathArgument,
                 AdditionalExecutionArguments,
                 JUnitRunnerClassName
             };

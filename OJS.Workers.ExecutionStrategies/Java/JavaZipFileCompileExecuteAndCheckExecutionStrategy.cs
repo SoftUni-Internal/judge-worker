@@ -19,9 +19,16 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
+            string javaLibsPath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(getCompilerPathFunc, processExecutorFactory, javaExecutablePath, baseTimeUsed, baseMemoryUsed)
+            : base(
+                getCompilerPathFunc,
+                processExecutorFactory,
+                javaExecutablePath,
+                javaLibsPath,
+                baseTimeUsed,
+                baseMemoryUsed)
         {
         }
 
@@ -51,7 +58,7 @@
             var compilerResult = this.Compile(
                 executionContext.CompilerType,
                 compilerPath,
-                executionContext.AdditionalCompilerArguments,
+                executionContext.AdditionalCompilerArguments + this.ClassPathArgument,
                 submissionFilePath);
 
             return compilerResult;

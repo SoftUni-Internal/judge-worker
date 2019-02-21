@@ -307,9 +307,10 @@ class _$SandboxSecurityManager extends SecurityManager {
                     filePath.Length - this.WorkingDirectory.Length - JavaCompiledFileExtension.Length - 1)
                 .Replace('\\', '.');
 
-            var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
+            var timeMeasurementFilePath = Path.Combine(this.WorkingDirectory, TimeMeasurementFileName);
 
-            var executionArguments = new[] {
+            var executionArguments = new[]
+            {
                 this.ClassPathArgument,
                 SandboxExecutorClassName,
                 classToExecute,

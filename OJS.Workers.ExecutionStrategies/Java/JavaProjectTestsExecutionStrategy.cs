@@ -32,6 +32,9 @@
 
         protected List<string> UserClassNames { get; }
 
+        protected override string ClassPathArgument
+            => $@" -classpath ""{this.WorkingDirectory};{this.JavaLibrariesPath}*""";
+
         protected override string JUnitTestRunnerCode
         {
             get => $@"

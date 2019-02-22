@@ -10,9 +10,10 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaSpringAndHibernateProjectExecutionStrategy : JavaProjectTestsExecutionStrategy
     {
@@ -138,7 +139,8 @@
         </plugins>
     </build>";
 
-        protected override string ClassPathArgument => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
+        protected override string ClassPathArgument
+            => $"-cp {this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}\\target\\* ";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -214,7 +216,7 @@
                 arguments,
                 this.WorkingDirectory);
 
-                JavaStrategiesHelper.ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
+                ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
                 if (processExecutionResult.ReceivedOutput.Contains($"Could not find class: {testFile}"))
                 {

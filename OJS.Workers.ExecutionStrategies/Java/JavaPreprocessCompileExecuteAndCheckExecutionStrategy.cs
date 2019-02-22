@@ -11,6 +11,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+
     public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         protected const string TimeMeasurementFileName = "_$time.txt";
@@ -59,7 +61,7 @@
             => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
 
         protected virtual string ClassPathArgument
-            => $@" -cp ""{this.JavaLibrariesPath}*;{this.WorkingDirectory}"" ";
+            => $@" -cp ""{this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}"" ";
 
         protected string SandboxExecutorCode
             => @"

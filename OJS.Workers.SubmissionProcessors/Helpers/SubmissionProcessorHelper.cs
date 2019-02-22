@@ -129,6 +129,7 @@
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.JavaExecutablePath,
+                        Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
@@ -138,6 +139,7 @@
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.JavaExecutablePath,
+                        Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;

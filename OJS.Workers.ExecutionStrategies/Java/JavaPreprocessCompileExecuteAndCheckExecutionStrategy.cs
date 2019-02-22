@@ -11,6 +11,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+
     public class JavaPreprocessCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         protected const string TimeMeasurementFileName = "_$time.txt";
@@ -25,6 +27,7 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
+            string javaLibrariesPath,
             int baseTimeUsed,
             int baseMemoryUsed,
             int baseUpdateTimeOffset = 0)
@@ -35,19 +38,33 @@
                 throw new ArgumentException($"Java not found in: {javaExecutablePath}!", nameof(javaExecutablePath));
             }
 
-            this.baseUpdateTimeOffset = baseUpdateTimeOffset;
-            this.JavaExecutablePath = javaExecutablePath;
+            if (!Directory.Exists(javaLibrariesPath))
+            {
+                throw new ArgumentException(
+                    $"Java libraries not found in: {javaLibrariesPath}",
+                    nameof(javaLibrariesPath));
+            }
+
             this.GetCompilerPathFunc = getCompilerPathFunc;
+            this.JavaExecutablePath = javaExecutablePath;
+            this.JavaLibrariesPath = javaLibrariesPath;
+            this.baseUpdateTimeOffset = baseUpdateTimeOffset;
         }
 
         protected string JavaExecutablePath { get; }
 
+        protected string JavaLibrariesPath { get; }
+
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
-        protected string SandboxExecutorSourceFilePath =>
-            $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
+        protected string SandboxExecutorSourceFilePath
+            => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
 
-        protected string SandboxExecutorCode => @"
+        protected virtual string ClassPathArgument
+            => $@" -cp ""{this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}"" ";
+
+        protected string SandboxExecutorCode
+            => @"
 import java.io.File;
 import java.io.FilePermission;
 import java.io.FileWriter;
@@ -177,8 +194,8 @@ class _$SandboxSecurityManager extends SecurityManager {
             if (long.TryParse(timeMeasurementFileContent, out var timeInNanoseconds))
             {
                 var totalTimeUsed = TimeSpan.FromMilliseconds(timeInNanoseconds / NanosecondsInOneMillisecond);
-                var timeOffset = TimeSpan.FromMilliseconds(updateTimeOffset);
-                var timeToSubtract = TimeSpan.FromTicks(Math.Max(totalTimeUsed.Ticks - timeOffset.Ticks, 0));
+                var timeOffset = TimeSpan.FromMilliseconds(Math.Abs(updateTimeOffset));
+                var timeToSubtract = timeOffset < totalTimeUsed ? timeOffset : TimeSpan.Zero;
 
                 processExecutionResult.TimeWorked = totalTimeUsed - timeToSubtract;
 
@@ -259,8 +276,10 @@ class _$SandboxSecurityManager extends SecurityManager {
             return result;
         }
 
-        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext) =>
-            JavaCodePreprocessorHelper.CreateSubmissionFile(executionContext.Code, this.WorkingDirectory);
+        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
+            => JavaCodePreprocessorHelper.CreateSubmissionFile(
+                executionContext.Code,
+                this.WorkingDirectory);
 
         protected virtual CompileResult DoCompile<TInput>(
             IExecutionContext<TInput> executionContext,
@@ -284,23 +303,28 @@ class _$SandboxSecurityManager extends SecurityManager {
             string filePath,
             string input)
         {
-            // Prepare execution process arguments and time measurement info
-            var classPathArgument = $"-classpath \"{this.WorkingDirectory}\"";
-
             var classToExecute = filePath
                 .Substring(
                     this.WorkingDirectory.Length + 1,
                     filePath.Length - this.WorkingDirectory.Length - JavaCompiledFileExtension.Length - 1)
                 .Replace('\\', '.');
 
-            var timeMeasurementFilePath = $"{this.WorkingDirectory}\\{TimeMeasurementFileName}";
+            var timeMeasurementFilePath = Path.Combine(this.WorkingDirectory, TimeMeasurementFileName);
+
+            var executionArguments = new[]
+            {
+                this.ClassPathArgument,
+                SandboxExecutorClassName,
+                classToExecute,
+                $"\"{timeMeasurementFilePath}\""
+            };
 
             var processExecutionResult = executor.Execute(
                     this.JavaExecutablePath,
                     input,
                     executionContext.TimeLimit * 2, // Java virtual machine takes more time to start up
                     executionContext.MemoryLimit,
-                    new[] { classPathArgument, SandboxExecutorClassName, classToExecute, $"\"{timeMeasurementFilePath}\"" },
+                    executionArguments,
                     null,
                     false,
                     true);

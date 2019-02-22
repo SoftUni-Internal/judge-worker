@@ -10,9 +10,10 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaSpringAndHibernateProjectExecutionStrategy : JavaProjectTestsExecutionStrategy
     {
@@ -48,8 +49,8 @@
                 javaExecutablePath,
                 javaLibrariesPath,
                 baseTimeUsed,
-                baseMemoryUsed) =>
-                    this.MavenPath = mavenPath;
+                baseMemoryUsed)
+            => this.MavenPath = mavenPath;
 
         // Property contains Dictionary<GroupId, Tuple<ArtifactId, Version>>
         public Dictionary<string, Tuple<string, string>> Dependencies =>
@@ -138,7 +139,8 @@
         </plugins>
     </build>";
 
-        protected override string ClassPath => $"-cp {this.JavaLibrariesPath}*;{this.WorkingDirectory}\\target\\* ";
+        protected override string ClassPathArgument
+            => $"-cp {this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}\\target\\* ";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -193,7 +195,7 @@
 
             var arguments = new List<string>
             {
-                this.ClassPath,
+                this.ClassPathArgument,
                 AdditionalExecutionArguments,
                 JUnitRunnerConsolePath
             };
@@ -214,7 +216,7 @@
                 arguments,
                 this.WorkingDirectory);
 
-                JavaStrategiesHelper.ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
+                ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
                 if (processExecutionResult.ReceivedOutput.Contains($"Could not find class: {testFile}"))
                 {

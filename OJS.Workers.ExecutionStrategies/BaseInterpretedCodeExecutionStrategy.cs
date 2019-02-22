@@ -15,11 +15,11 @@
 
         protected override IExecutionResult<TResult> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            IExecutionResult<TResult> executionResult)
+            IExecutionResult<TResult> result)
         {
-            executionResult.IsCompiledSuccessfully = true;
+            result.IsCompiledSuccessfully = true;
 
-            return base.InternalExecute(executionContext, executionResult);
+            return base.InternalExecute(executionContext, result);
         }
     }
 }

@@ -14,7 +14,7 @@
     {
         private readonly ILog logger;
 
-        public BaseExecutionStrategy() => this.logger = LogManager.GetLogger(typeof(BaseExecutionStrategy));
+        protected BaseExecutionStrategy() => this.logger = LogManager.GetLogger(typeof(BaseExecutionStrategy));
 
         protected string WorkingDirectory { get; set; }
 
@@ -57,37 +57,36 @@
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
             IExecutionContext<string> executionContext,
-            IExecutionResult<OutputResult> executionResult)
+            IExecutionResult<OutputResult> result)
             => throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> executionResult)
+            IExecutionResult<TestResult> result)
             => throw new DerivedImplementationNotFoundException();
 
         protected virtual IExecutionResult<TResult> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            IExecutionResult<TResult> executionResult)
+            IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()
         {
             if (executionContext is IExecutionContext<string> stringInputExecutionContext &&
-                executionResult is IExecutionResult<OutputResult> outputExecutionResult)
+                result is IExecutionResult<OutputResult> outputResult)
             {
                 return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(
                     stringInputExecutionContext,
-                    outputExecutionResult);
+                    outputResult);
             }
-            else if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
-                executionResult is IExecutionResult<TestResult> testsExecutionResult)
+
+            if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
+                result is IExecutionResult<TestResult> testsResult)
             {
                 return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(
                     testsExecutionContext,
-                    testsExecutionResult);
+                    testsResult);
             }
-            else
-            {
-                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, executionResult);
-            }
+
+            throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
         }
     }
 }

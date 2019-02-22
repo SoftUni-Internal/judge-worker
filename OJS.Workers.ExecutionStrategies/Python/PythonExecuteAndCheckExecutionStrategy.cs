@@ -4,7 +4,6 @@
     using System.IO;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -31,18 +30,18 @@
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> context,
+            IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = this.SaveCodeToTempFile(context);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             var executor = this.CreateExecutor();
 
-            var checker = context.Input.GetChecker();
+            var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in context.Input.Tests)
+            foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = this.Execute(context, executor, codeSavePath, test.Input);
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -57,14 +56,18 @@
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> context,
+            IExecutionContext<string> executionContext,
             IExecutionResult<OutputResult> result)
         {
-            var codeSavePath = this.SaveCodeToTempFile(context);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             var executor = this.CreateExecutor();
 
-            var processExecutionResult = this.Execute(context, executor, codeSavePath, context.Input);
+            var processExecutionResult = this.Execute(
+                executionContext,
+                executor,
+                codeSavePath,
+                executionContext.Input);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
 

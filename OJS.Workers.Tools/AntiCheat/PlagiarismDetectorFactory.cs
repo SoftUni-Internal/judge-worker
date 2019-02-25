@@ -25,12 +25,24 @@
                         context.CompilerPath,
                         new DotNetDisassembler(context.DisassemblerPath),
                         context.SimilarityFinder);
+
+                case PlagiarismDetectorType.CSharpDotNetCoreCompileDisassemble:
+                    return new CSharpDotNetCoreCompileDisasaemblePlagiarismDetector(
+                        new CSharpDotNetCoreCompiler(
+                            Settings.CSharpDotNetCoreCompilerProcessExitTimeOutMultiplier,
+                            Settings.CSharpDotNetCoreCompilerPath,
+                            Settings.DotNetCoreSharedAssembliesPath),
+                        context.CompilerPath,
+                        new DotNetDisassembler(context.DisassemblerPath),
+                        context.SimilarityFinder);
+
                 case PlagiarismDetectorType.JavaCompileDisassemble:
                     return new JavaCompileDisassemblePlagiarismDetector(
                         new JavaCompiler(Settings.JavaCompilerProcessExitTimeOutMultiplier),
                         context.CompilerPath,
                         new JavaDisassembler(context.DisassemblerPath),
                         context.SimilarityFinder);
+
                 case PlagiarismDetectorType.PlainText:
                     return new PlainTextPlagiarismDetector(context.SimilarityFinder);
                 default:

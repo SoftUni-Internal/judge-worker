@@ -12,5 +12,8 @@
 
         [Description("Текст")]
         PlainText = 3,
+
+        [Description("C# код (.NET Core)")]
+        CSharpDotNetCoreCompileDisassemble = 4,
     }
 }

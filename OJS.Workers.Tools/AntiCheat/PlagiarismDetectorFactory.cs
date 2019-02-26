@@ -45,6 +45,7 @@
 
                 case PlagiarismDetectorType.PlainText:
                     return new PlainTextPlagiarismDetector(context.SimilarityFinder);
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context), "Invalid plagiarism detector type!");
             }

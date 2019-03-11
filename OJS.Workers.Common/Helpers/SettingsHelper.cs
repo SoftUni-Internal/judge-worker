@@ -44,8 +44,8 @@
 
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appSettings{JsonFileExtension}", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appSettings.{env}{JsonFileExtension}", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings{JsonFileExtension}", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env}{JsonFileExtension}", optional: true, reloadOnChange: true)
                 .Add(new LegacyConfigurationProvider())
                 .Build();
         }

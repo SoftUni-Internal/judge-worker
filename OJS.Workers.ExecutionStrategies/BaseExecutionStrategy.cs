@@ -14,7 +14,7 @@
     {
         private readonly ILog logger;
 
-        public BaseExecutionStrategy() => this.logger = LogManager.GetLogger(typeof(BaseExecutionStrategy));
+        protected BaseExecutionStrategy() => this.logger = LogManager.GetLogger(typeof(BaseExecutionStrategy));
 
         protected string WorkingDirectory { get; set; }
 
@@ -77,15 +77,16 @@
                     stringInputExecutionContext,
                     outputResult);
             }
-            else if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
+
+            if (executionContext is IExecutionContext<TestsInputModel> testsExecutionContext &&
                 result is IExecutionResult<TestResult> testsResult)
             {
-                return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(testsExecutionContext, testsResult);
+                return (IExecutionResult<TResult>)this.ExecuteAgainstTestsInput(
+                    testsExecutionContext,
+                    testsResult);
             }
-            else
-            {
-                throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
-            }
+
+            throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
         }
     }
 }

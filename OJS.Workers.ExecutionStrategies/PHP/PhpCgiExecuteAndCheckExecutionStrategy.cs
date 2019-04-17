@@ -4,7 +4,6 @@
     using System.IO;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -33,7 +32,7 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             // Process the submission and check each test
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);

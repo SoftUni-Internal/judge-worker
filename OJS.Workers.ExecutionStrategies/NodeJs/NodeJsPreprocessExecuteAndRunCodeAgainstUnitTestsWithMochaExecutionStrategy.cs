@@ -8,7 +8,6 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -93,13 +92,7 @@ after(function() {
         {
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            // Preprocess the user submission
-            var codeToExecute = this.PreprocessJsSubmission(
-                this.JsCodeTemplate,
-                executionContext);
-
-            // Save the preprocessed submission which is ready for execution
-            var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             // Process the submission and check each test
             result.Results.AddRange(this.ProcessTests(

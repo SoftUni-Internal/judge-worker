@@ -4,6 +4,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -31,6 +32,11 @@
         protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType)
             => this.ProcessExecutorFactory
                 .CreateProcessExecutor(this.BaseTimeUsed, this.BaseMemoryUsed, processExecutorType);
+
+        protected virtual string SaveCodeToTempFile<TINput>(IExecutionContext<TINput> executionContext)
+            => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
+                ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
+                : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
         protected TestResult CheckAndGetTestResult(
             TestContext test,

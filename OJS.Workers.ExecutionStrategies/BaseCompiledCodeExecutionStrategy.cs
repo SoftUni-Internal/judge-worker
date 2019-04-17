@@ -75,9 +75,7 @@
             IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()
         {
-            var submissionFilePath = string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
-                ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
-                : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
+            var submissionFilePath = this.SaveCodeToTempFile(executionContext);
 
             var compilerPath = getCompilerPathFunc(executionContext.CompilerType);
 

@@ -175,7 +175,7 @@ process.stdin.on('end', function() {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = this.SaveExecutionCode(executionContext);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
@@ -192,7 +192,7 @@ process.stdin.on('end', function() {
             IExecutionContext<string> executionContext,
             IExecutionResult<OutputResult> result)
         {
-            var codeSavePath = this.SaveExecutionCode(executionContext);
+            var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
@@ -253,7 +253,7 @@ process.stdin.on('end', function() {
             return processedCode;
         }
 
-        private string SaveExecutionCode<TInput>(IExecutionContext<TInput> executionContext)
+        protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
         {
             // Preprocess the user submission
             var codeToExecute = this.PreprocessJsSubmission(

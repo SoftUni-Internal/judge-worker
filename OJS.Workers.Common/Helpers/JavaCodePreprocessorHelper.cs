@@ -16,7 +16,7 @@
         {
             sourceCode = Regex.Replace(sourceCode, PackageNameRegEx, string.Empty);
             var className = GetClassName(sourceCode);
-            var submissionFilePath = $"{directory}\\{className}";
+            var submissionFilePath = Path.Combine(directory, className);
 
             File.WriteAllText(submissionFilePath, sourceCode);
 

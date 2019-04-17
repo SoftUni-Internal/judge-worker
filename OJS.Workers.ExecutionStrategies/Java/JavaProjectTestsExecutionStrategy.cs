@@ -8,9 +8,10 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
     {
@@ -33,7 +34,7 @@
         protected List<string> UserClassNames { get; }
 
         protected override string ClassPathArgument
-            => $@" -classpath ""{this.WorkingDirectory};{this.JavaLibrariesPath}*""";
+            => $@" -classpath ""{this.WorkingDirectory}{ClassPathArgumentSeparator}{this.JavaLibrariesPath}*""";
 
         protected override string JUnitTestRunnerCode
         {
@@ -160,7 +161,7 @@ class Classes{{
                     preprocessArguments,
                     this.WorkingDirectory);
 
-                JavaStrategiesHelper.ValidateJvmInitialization(preprocessExecutionResult.ReceivedOutput);
+                ValidateJvmInitialization(preprocessExecutionResult.ReceivedOutput);
 
                 var filesToAdd = preprocessExecutionResult
                     .ReceivedOutput
@@ -206,7 +207,7 @@ class Classes{{
                 this.WorkingDirectory,
                 true);
 
-            JavaStrategiesHelper.ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
+            ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
             var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
             var testIndex = 0;

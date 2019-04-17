@@ -2,6 +2,8 @@
 {
     using System;
 
+    using OJS.Workers.Common.Helpers;
+
     internal static class JavaStrategiesHelper
     {
         private const string JvmInsufficientMemoryMessage =
@@ -12,26 +14,29 @@
 
         private const string JvmInitializationErrorMessage = "Error occurred during initialization of VM";
 
+        public static char ClassPathArgumentSeparator
+            => OSPlatformHelpers.IsWindows() ? ';' : ':';
+
         /// <summary>
         /// Validates if the Java Virtual Machine has been initialized successfully,
         /// by checking for critical error messages and throws exception when has any.
         /// </summary>
-        /// <param name="processRecievedOutput">The recieved output from the process executor</param>
-        public static void ValidateJvmInitialization(string processRecievedOutput)
+        /// <param name="processReceivedOutput">The received output from the process executor</param>
+        public static void ValidateJvmInitialization(string processReceivedOutput)
         {
             const string errorMessageAppender = " Please contact an administrator.";
 
-            if (processRecievedOutput.Contains(JvmInsufficientMemoryMessage))
+            if (processReceivedOutput.Contains(JvmInsufficientMemoryMessage))
             {
                 throw new InsufficientMemoryException(JvmInsufficientMemoryMessage + errorMessageAppender);
             }
 
-            if (processRecievedOutput.Contains(JvmFailedToReserveMemoryMessage))
+            if (processReceivedOutput.Contains(JvmFailedToReserveMemoryMessage))
             {
                 throw new InsufficientMemoryException(JvmFailedToReserveMemoryMessage + errorMessageAppender);
             }
 
-            if (processRecievedOutput.Contains(JvmInitializationErrorMessage))
+            if (processReceivedOutput.Contains(JvmInitializationErrorMessage))
             {
                 throw new Exception(JvmInitializationErrorMessage + errorMessageAppender);
             }

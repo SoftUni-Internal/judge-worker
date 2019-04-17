@@ -250,7 +250,7 @@ describe('Test {i} ', function(){{
             return testResults;
         }
 
-        protected override string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
+        protected override string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
         {
             var code = context.Code.Trim(';');
 
@@ -260,7 +260,7 @@ describe('Test {i} ', function(){{
                     .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                     .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                     .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                    .Replace(TestsPlaceholder, this.BuildTests(context.Input.Tests))
+                    .Replace(TestsPlaceholder, this.BuildTests((context.Input as TestsInputModel)?.Tests))
                     .Replace(UserInputPlaceholder, code);
 
             return processedCode;

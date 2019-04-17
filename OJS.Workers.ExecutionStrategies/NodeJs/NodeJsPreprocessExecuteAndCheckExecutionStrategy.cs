@@ -22,6 +22,8 @@
         protected const string NodeDisablePlaceholder = "#nodeDisableCode";
         protected const string AdapterFunctionPlaceholder = "#adapterFunctionCode#";
 
+        private const string DefaultAdapterFunctionCode = "(input, code) => code(input);";
+
         public NodeJsPreprocessExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string nodeJsExecutablePath,
@@ -173,25 +175,34 @@ process.stdin.on('end', function() {
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // Preprocess the user submission
-            var codeToExecute = this.PreprocessJsSubmission(
-                this.JsCodeTemplate,
-                executionContext);
+            var codeSavePath = this.SaveExecutionCode(executionContext);
 
-            // Save the preprocessed submission which is ready for execution
-            var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
-
-            // Process the submission and check each test
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
-            result.Results.AddRange(this.ProcessTests(
+            var checker = executionContext.Input.GetChecker();
+
+            var testResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+
+            result.Results.AddRange(testResults);
+
+            return result;
+        }
+
+        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
+            IExecutionContext<string> executionContext,
+            IExecutionResult<OutputResult> result)
+        {
+            var codeSavePath = this.SaveExecutionCode(executionContext);
+
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+
+            var processExecutionResult = this.ExecuteCode(
                 executionContext,
                 executor,
-                executionContext.Input.GetChecker(),
-                codeSavePath));
+                codeSavePath,
+                executionContext.Input);
 
-            // Clean up
-            File.Delete(codeSavePath);
+            result.Results.Add(this.GetOutputResult(processExecutionResult));
 
             return result;
         }
@@ -204,16 +215,13 @@ process.stdin.on('end', function() {
         {
             var testResults = new List<TestResult>();
 
-            var arguments = new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath };
-
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = executor.Execute(
-                    this.NodeJsExecutablePath,
-                    test.Input,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                    arguments);
+                var processExecutionResult = this.ExecuteCode(
+                    executionContext,
+                    executor,
+                    codeSavePath,
+                    test.Input);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -227,10 +235,10 @@ process.stdin.on('end', function() {
             return testResults;
         }
 
-        protected virtual string PreprocessJsSubmission(string template, IExecutionContext<TestsInputModel> context)
+        protected virtual string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
         {
-            var problemSkeleton = context.Input.TaskSkeletonAsString ??
-                "function adapter(input, code) { return code(input); }";
+            var problemSkeleton = (context.Input as TestsInputModel)?.TaskSkeletonAsString
+                ?? DefaultAdapterFunctionCode;
             var code = context.Code.Trim(';');
 
             var processedCode = template
@@ -244,5 +252,28 @@ process.stdin.on('end', function() {
 
             return processedCode;
         }
+
+        private string SaveExecutionCode<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            // Preprocess the user submission
+            var codeToExecute = this.PreprocessJsSubmission(
+                this.JsCodeTemplate,
+                executionContext);
+
+            // Save the preprocessed submission which is ready for execution
+            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
+        }
+
+        private ProcessExecutionResult ExecuteCode<TInput>(
+            IExecutionContext<TInput> executionContext,
+            IExecutor executor,
+            string codeSavePath,
+            string input)
+            => executor.Execute(
+                this.NodeJsExecutablePath,
+                input,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath });
     }
 }

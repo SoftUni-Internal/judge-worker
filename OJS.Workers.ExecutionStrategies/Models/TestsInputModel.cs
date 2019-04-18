@@ -6,9 +6,11 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
 
+    using static OJS.Workers.Common.Constants;
+
     public class TestsInputModel
     {
-        public string CheckerAssemblyName { get; set; }
+        public string CheckerAssemblyName { get; set; } = DefaultCheckerAssemblyName + ClassLibraryFileExtension;
 
         public string CheckerTypeName { get; set; }
 

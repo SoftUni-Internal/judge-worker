@@ -9,10 +9,7 @@
 
     public abstract class Checker : IChecker
     {
-        protected Checker()
-        {
-            this.IgnoreCharCasing = false;
-        }
+        protected Checker() => this.IgnoreCharCasing = false;
 
         protected bool IgnoreCharCasing { get; set; }
 
@@ -37,9 +34,7 @@
             bool isTrialTest);
 
         public virtual void SetParameter(string parameter)
-        {
-            throw new InvalidOperationException("This checker doesn't support parameters");
-        }
+            => throw new InvalidOperationException("This checker doesn't support parameters");
 
         protected CheckerResult CheckLineByLine(
             string inputData,
@@ -124,24 +119,16 @@
         }
 
         protected bool AreEqualExactLines(string userLine, string correctLine)
-        {
-            return userLine.Equals(correctLine, StringComparison.InvariantCulture);
-        }
+            => userLine.Equals(correctLine, StringComparison.InvariantCulture);
 
         protected bool AreEqualTrimmedLines(string userLine, string correctLine)
-        {
-            return userLine.Trim().Equals(correctLine.Trim(), StringComparison.InvariantCulture);
-        }
+            => userLine.Trim().Equals(correctLine.Trim(), StringComparison.InvariantCulture);
 
         protected bool AreEqualEndTrimmedLines(string userLine, string correctLine)
-        {
-            return userLine.TrimEnd().Equals(correctLine.TrimEnd(), StringComparison.InvariantCulture);
-        }
+            => userLine.TrimEnd().Equals(correctLine.TrimEnd(), StringComparison.InvariantCulture);
 
         protected bool AreEqualCaseInsensitiveLines(string userLine, string correctLine)
-        {
-            return userLine.ToLower().Equals(correctLine.ToLower(), StringComparison.InvariantCulture);
-        }
+            => userLine.ToLower().Equals(correctLine.ToLower(), StringComparison.InvariantCulture);
 
         protected virtual CheckerDetails PrepareAdminCheckerDetailsForDifferentLines(
             int lineNumber,

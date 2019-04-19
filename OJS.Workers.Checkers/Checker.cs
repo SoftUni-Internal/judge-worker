@@ -6,6 +6,9 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
+
+    using static OJS.Workers.Common.Constants;
 
     public abstract class Checker : IChecker
     {
@@ -15,8 +18,12 @@
 
         public static IChecker CreateChecker(string assemblyName, string typeName, string parameter)
         {
-            var assembly = Assembly.LoadFile(AppDomain.CurrentDomain.BaseDirectory + assemblyName);
-            var type = assembly.GetType(typeName);
+            var assemblyFilePath = FileHelpers.BuildPath(
+                AppDomain.CurrentDomain.BaseDirectory,
+                $"{assemblyName}{ClassLibraryFileExtension}");
+
+            var assembly = Assembly.LoadFile(assemblyFilePath);
+            var type = assembly.GetType($"{assemblyName}.{typeName}");
             var checker = (IChecker)Activator.CreateInstance(type);
 
             if (parameter != null)

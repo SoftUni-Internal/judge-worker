@@ -10,7 +10,7 @@
 
     public class TestsInputModel
     {
-        public string CheckerAssemblyName { get; set; } = DefaultCheckerAssemblyName + ClassLibraryFileExtension;
+        public string CheckerAssemblyName { get; set; } = DefaultCheckerAssemblyName;
 
         public string CheckerTypeName { get; set; }
 

@@ -68,6 +68,8 @@
 
         public static string ReactDomModulePath => SettingsHelper.GetSetting("ReactDOMModulePath");
 
+        public static string NodeFetchModulePath => SettingsHelper.GetSetting("NodeFetchModulePath");
+
         public static string BootstrapModulePath => SettingsHelper.GetSetting("BootstrapModulePath");
 
         public static string BootstrapCssPath => SettingsHelper.GetSetting("BootstrapCssPath");

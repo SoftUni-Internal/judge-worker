@@ -256,6 +256,7 @@
                         Settings.ReactJsxPluginPath,
                         Settings.ReactModulePath,
                         Settings.ReactDomModulePath,
+                        Settings.NodeFetchModulePath,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;

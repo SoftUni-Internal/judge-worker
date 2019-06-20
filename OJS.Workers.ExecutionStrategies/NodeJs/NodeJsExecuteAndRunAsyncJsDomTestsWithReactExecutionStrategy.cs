@@ -29,6 +29,7 @@
             string reactJsxPluginPath,
             string reactModulePath,
             string reactDomModulePath,
+            string nodeFetchModulePath,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
@@ -80,11 +81,19 @@
                     nameof(reactDomModulePath));
             }
 
+            if (!Directory.Exists(nodeFetchModulePath))
+            {
+                throw new ArgumentException(
+                    $"node-fetch Module not found in: {nodeFetchModulePath}",
+                    nameof(nodeFetchModulePath));
+            }
+
             this.SinonJsDomModulePath = FileHelpers.ProcessModulePath(sinonJsDomModulePath);
             this.BabelCoreModulePath = FileHelpers.ProcessModulePath(babelCoreModulePath);
             this.ReactJsxPluginPath = FileHelpers.ProcessModulePath(reactJsxPluginPath);
             this.ReactModulePath = FileHelpers.ProcessModulePath(reactModulePath);
             this.ReactDomModulePath = FileHelpers.ProcessModulePath(reactDomModulePath);
+            this.NodeFetchModulePath = FileHelpers.ProcessModulePath(nodeFetchModulePath);
         }
 
         protected string SinonJsDomModulePath { get; }
@@ -96,6 +105,8 @@
         protected string ReactModulePath { get; }
 
         protected string ReactDomModulePath { get; }
+
+        protected string NodeFetchModulePath { get; }
 
         protected override string JsCodeTemplate =>
     RequiredModules + $@";
@@ -115,7 +126,8 @@
     React = require('" + this.ReactModulePath + @"'),
     ReactDOM = require('" + this.ReactDomModulePath + @"'),
     babel = require('" + this.BabelCoreModulePath + @"'),
-    reactJsxPlugin = require('" + this.ReactJsxPluginPath + @"')";
+    reactJsxPlugin = require('" + this.ReactJsxPluginPath + @"'),
+    fetch = require('" + this.NodeFetchModulePath + @"')";
 
         protected override string JsNodeDisableCode => base.JsNodeDisableCode + @"
 fs = undefined;";
@@ -135,6 +147,7 @@ describe('TestDOMScope', function() {{
                 global.document = window.document;
                 global.$ = jq(window);
                 global.handlebars = handlebars;
+                global.fetch = fetch;
                 Object.getOwnPropertyNames(window)
                     .filter(function (prop) {{
                         return prop.toLowerCase().indexOf('html') >= 0;

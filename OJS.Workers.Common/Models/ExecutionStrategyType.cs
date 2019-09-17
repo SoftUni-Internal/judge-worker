@@ -43,5 +43,6 @@
         DotNetCoreUnitTestsExecutionStrategy = 38,
         SolidityCompileDeployAndRunUnitTestsExecutionStrategy = 39,
         DoNothing = 40,
+        PythonUnitTests = 41,
     }
 }

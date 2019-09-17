@@ -17,11 +17,26 @@
             return tempFilePath;
         }
 
-        public static string SaveStringToTempFile(string directory, string stringToWrite)
+        public static string SaveStringToTempFile(string directory, string stringToWrite, string fileExtension = null)
         {
             var tempFilePath = Path.GetTempFileName();
             File.Delete(tempFilePath);
-            var fullTempFilePath = Path.Combine(directory, Path.GetFileName(tempFilePath));
+
+            var fileName = Path.GetFileName(tempFilePath);
+            if (!string.IsNullOrWhiteSpace(fileExtension))
+            {
+                var tempFileExtension = Path.GetExtension(tempFilePath);
+                fileName = fileName.Replace(tempFileExtension, fileExtension);
+            }
+
+            var fullTempFilePath = Path.Combine(directory, fileName);
+            File.WriteAllText(fullTempFilePath, stringToWrite);
+            return fullTempFilePath;
+        }
+
+        public static string SaveStringToFile(string directory, string stringToWrite, string fileName)
+        {
+            var fullTempFilePath = Path.Combine(directory, fileName);
             File.WriteAllText(fullTempFilePath, stringToWrite);
             return fullTempFilePath;
         }

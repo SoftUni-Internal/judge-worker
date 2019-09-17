@@ -30,6 +30,7 @@
         public const string SolidityFileExtension = ".sol";
         public const string ByteCodeFileExtension = ".bin";
         public const string AbiFileExtension = ".abi";
+        public const string PythonFileExtension = ".py";
 
         // Folder names
         public const string ExecutionStrategiesFolderName = "ExecutionStrategies";

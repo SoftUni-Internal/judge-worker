@@ -1,47 +1,42 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
-    using System.IO;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
+    public class PythonCodeExecuteAgainstUnitTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
-        protected readonly string PythonExecutablePath;
-
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
+        private const string NameForModule = "activities.py";
 
-        public PythonExecuteAndCheckExecutionStrategy(
+        public PythonCodeExecuteAgainstUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, pythonExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
-            if (!File.Exists(pythonExecutablePath))
-            {
-                throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
-            }
-
-            this.PythonExecutablePath = pythonExecutablePath;
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var codeSavePath = this.SaveCodeToTempFile(executionContext);
-
             var executor = this.CreateExecutor();
 
             var checker = executionContext.Input.GetChecker();
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                var codeAndTestFile = this.SaveCodeAndTest(executionContext, test);
+
+                var testSaveFullPath = this.SaveTestToTempFile(test);
+
+                var processExecutionResult = this.Execute(executionContext, executor, codeAndTestFile, string.Empty);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -55,41 +50,29 @@
             return result;
         }
 
-        protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
-            IExecutionResult<OutputResult> result)
+        protected string SaveCodeAndTest<TInput>(IExecutionContext<TInput> execution, TestContext test)
         {
-            var codeSavePath = this.SaveCodeToTempFile(executionContext);
+            var codeAndTestText = execution.Code + Environment.NewLine + test.Input;
 
-            var executor = this.CreateExecutor();
-
-            var processExecutionResult = this.Execute(
-                executionContext,
-                executor,
-                codeSavePath,
-                executionContext.Input);
-
-            result.Results.Add(this.GetOutputResult(processExecutionResult));
-
-            return result;
+            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeAndTestText);
         }
 
-        protected IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Restricted);
-
-        protected virtual ProcessExecutionResult Execute<TInput>(
+        protected override ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
-            string codeSavePath,
+            string testsSavePath,
             string input)
             => executor.Execute(
                 this.PythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, codeSavePath },
+                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, testsSavePath },
                 null,
                 false,
                 true);
+
+        protected string SaveTestToTempFile(TestContext test)
+            => FileHelpers.SaveStringToTempFile(this.WorkingDirectory, test.Input);
     }
 }

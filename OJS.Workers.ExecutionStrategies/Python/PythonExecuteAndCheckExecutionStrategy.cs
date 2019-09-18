@@ -41,7 +41,7 @@
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -74,10 +74,14 @@
             return result;
         }
 
-        private IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Restricted);
+        protected virtual ProcessExecutionResult Execute(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutor executor,
+            string codeSavePath,
+            TestContext test)
+            => this.Execute(executionContext, executor, codeSavePath, test.Input);
 
-        private ProcessExecutionResult Execute<TInput>(
+        protected ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,
@@ -91,5 +95,8 @@
                 null,
                 false,
                 true);
+
+        private IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Restricted);
     }
 }

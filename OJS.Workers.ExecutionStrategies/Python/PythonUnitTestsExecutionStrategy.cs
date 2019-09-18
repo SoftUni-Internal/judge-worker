@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
-    using System.IO;
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
@@ -9,75 +8,47 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
-    using static OJS.Workers.Common.Constants;
-
-    public class PythonUnitTestsExecutionStrategy : BaseInterpretedCodeExecutionStrategy
+    public class PythonUnitTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
-        private const string UnitTestArgument = "-m unittest";
-        private const string BufferArgument = "--buffer";
         private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
+        private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
         private const string ClassNameNotFoundErrorMessage =
             "class_name is required in Solution Skeleton. Please contact an Administrator.";
-
-        private readonly string pythonExecutablePath;
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             int baseTimeUsed,
             int baseMemoryUsed)
-            : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            : base(processExecutorFactory, pythonExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
-            if (!File.Exists(pythonExecutablePath))
-            {
-                throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
-            }
-
-            this.pythonExecutablePath = pythonExecutablePath;
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+        protected override ProcessExecutionResult Execute(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+            IExecutor executor,
+            string codeSavePath,
+            TestContext test)
         {
-            var codeSavePath = FileHelpers.SaveStringToTempFile(
-                this.WorkingDirectory,
+            FileHelpers.WriteAllText(codeSavePath, test.Input + Environment.NewLine + executionContext.Code);
+
+            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
+
+            return processExecutionResult;
+        }
+
+        protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            var className = this.GetTestCodeClassName(executionContext.Input as TestsInputModel);
+            var classImportPattern = string.Format(ImportTargetClassRegexPattern, className);
+
+            executionContext.Code = Regex.Replace(
                 executionContext.Code,
-                PythonFileExtension);
+                classImportPattern,
+                string.Empty,
+                RegexOptions.Multiline);
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
-
-            var checker = executionContext.Input.GetChecker();
-
-            var className = this.GetTestCodeClassName(executionContext.Input);
-
-            foreach (var test in executionContext.Input.Tests)
-            {
-                FileHelpers.SaveStringToFile(
-                    this.WorkingDirectory,
-                    test.Input,
-                    className);
-
-                var processExecutionResult = executor.Execute(
-                    this.pythonExecutablePath,
-                    string.Empty,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                    new[] { UnitTestArgument, BufferArgument, codeSavePath },
-                    this.WorkingDirectory,
-                    false,
-                    true);
-
-                var testResult = this.CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    processExecutionResult.ReceivedOutput);
-
-                result.Results.Add(testResult);
-            }
-
-            return result;
+            return base.SaveCodeToTempFile(executionContext);
         }
 
         private string GetTestCodeClassName(TestsInputModel testsInput)
@@ -91,7 +62,7 @@
                 throw new ArgumentException(ClassNameNotFoundErrorMessage);
             }
 
-            return className + PythonFileExtension;
+            return className;
         }
     }
 }

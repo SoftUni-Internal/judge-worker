@@ -34,13 +34,6 @@
             return fullTempFilePath;
         }
 
-        public static string SaveStringToFile(string directory, string stringToWrite, string fileName)
-        {
-            var fullTempFilePath = Path.Combine(directory, fileName);
-            File.WriteAllText(fullTempFilePath, stringToWrite);
-            return fullTempFilePath;
-        }
-
         public static string SaveByteArrayToTempFile(byte[] dataToWrite)
         {
             var tempFilePath = Path.GetFileName(Path.GetTempFileName());
@@ -175,6 +168,9 @@
         }
 
         public static string ProcessModulePath(string path) => path.Replace('\\', '/');
+
+        public static void WriteAllText(string filePath, string text)
+            => File.WriteAllText(filePath, text);
 
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {

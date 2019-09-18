@@ -304,6 +304,20 @@
             return (totalTestsCount, failedTestsCount);
         }
 
+        protected (int totalTests, int passedTests) ExtractTotalAndPassedTestsCount(MatchCollection matches)
+        {
+            // Grabs the last match from a match collection,
+            // since the NUnit output is always the last one,
+            // thus ensuring that the tests output is the genuine one,
+            // preventing the user from tampering with it
+            var lastMatch = matches[matches.Count - 1];
+
+            var totalTests = int.Parse(lastMatch.Groups[1].Value);
+            var passedTests = int.Parse(lastMatch.Groups[2].Value);
+
+            return (totalTests, passedTests);
+        }
+
         protected virtual string GetCsProjFilePath() => FileHelpers.FindFileMatchingPattern(
             this.WorkingDirectory,
             CsProjFileSearchPattern,

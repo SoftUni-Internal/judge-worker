@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
@@ -126,11 +127,14 @@
                     useProcessTime: false,
                     useSystemEncoding: true);
 
+                var testResultsRegex = new Regex(TestResultsRegex);
+
                 var processExecutionTestResult = UnitTestStrategiesHelper.GetTestResult(
                     processExecutionResult.ReceivedOutput,
-                    TestResultsRegex,
+                    testResultsRegex,
                     originalTestsPassed,
-                    i == 0);
+                    i == 0,
+                    this.ExtractTotalAndPassedTestsCount);
 
                 var message = processExecutionTestResult.message;
                 originalTestsPassed = processExecutionTestResult.originalTestsPassed;

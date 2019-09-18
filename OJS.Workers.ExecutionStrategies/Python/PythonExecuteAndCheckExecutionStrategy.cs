@@ -39,20 +39,7 @@
 
             var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test);
-
-                var testResult = this.CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    processExecutionResult.ReceivedOutput);
-
-                result.Results.Add(testResult);
-            }
-
-            return result;
+            return this.RunTests(codeSavePath, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
@@ -74,14 +61,30 @@
             return result;
         }
 
-        protected virtual ProcessExecutionResult Execute(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutor executor,
+        protected virtual IExecutionResult<TestResult> RunTests(
             string codeSavePath,
-            TestContext test)
-            => this.Execute(executionContext, executor, codeSavePath, test.Input);
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            foreach (var test in executionContext.Input.Tests)
+            {
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
 
-        protected ProcessExecutionResult Execute<TInput>(
+                var testResult = this.CheckAndGetTestResult(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
+                result.Results.Add(testResult);
+            }
+
+            return result;
+        }
+
+        protected virtual ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,

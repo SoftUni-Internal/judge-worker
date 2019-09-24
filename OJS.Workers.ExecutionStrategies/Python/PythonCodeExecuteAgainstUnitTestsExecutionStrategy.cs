@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
+    using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
@@ -11,7 +12,10 @@
     {
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
-        private const string NameForModule = "activities.py";
+        private const string ErrorsTestRegex = @"ERROR:(?:.|\r\n|\r|\n)*?(^[^\s]*Error.*)";
+        private const string FailedTestRegex = @"FAIL:(?:.|\r\n|\r|\n)*?(^[^\s]*Error.*)";
+        private const string SuccessTestRegex = @"[.]+(?!F|E)([\n]|[\r]|[\r\n])*[-]*(?!\d)[\s\S]*?OK";
+        private const string SavedSyntaxErrorRegex = @"line[\s\S]*?SyntaxError: invalid syntax";
 
         public PythonCodeExecuteAgainstUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -37,6 +41,42 @@
                 var testSaveFullPath = this.SaveTestToTempFile(test);
 
                 var processExecutionResult = this.Execute(executionContext, executor, codeAndTestFile, string.Empty);
+
+                if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
+                {
+                    var errors = Regex.Match(processExecutionResult.ErrorOutput, ErrorsTestRegex, RegexOptions.Multiline).Groups[1].ToString();
+
+                    if (!string.IsNullOrWhiteSpace(errors))
+                    {
+                        processExecutionResult.ErrorOutput = errors;
+                    }
+
+                    var syntaxError = Regex.Match(processExecutionResult.ErrorOutput, SavedSyntaxErrorRegex);
+
+                    if (!string.IsNullOrWhiteSpace(syntaxError.Value))
+                    {
+                        processExecutionResult.Type = ProcessExecutionResultType.RunTimeError;
+                        processExecutionResult.ErrorOutput = syntaxError.Value;
+                    }
+
+                    var failedTestError = Regex.Match(processExecutionResult.ErrorOutput, FailedTestRegex, RegexOptions.Multiline).Groups[1].ToString();
+
+                    if (!string.IsNullOrWhiteSpace(failedTestError))
+                    {
+                        processExecutionResult.Type = ProcessExecutionResultType.Success;
+                        processExecutionResult.ReceivedOutput = failedTestError;
+                    }
+
+                    var successTest = Regex.IsMatch(processExecutionResult.ErrorOutput, SuccessTestRegex);
+
+                    if (successTest)
+                    {
+                        var message = "Test Passed!";
+                        processExecutionResult.ReceivedOutput = message;
+                        processExecutionResult.Type = ProcessExecutionResultType.Success;
+                        processExecutionResult.ErrorOutput = string.Empty;
+                    }
+                }
 
                 var testResult = this.CheckAndGetTestResult(
                     test,

@@ -42,6 +42,8 @@
 
                 var processExecutionResult = this.Execute(executionContext, executor, codeAndTestFile, string.Empty);
 
+                var message = "Test Passed!";
+
                 if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
                 {
                     var errors = Regex.Match(processExecutionResult.ErrorOutput, ErrorsTestRegex, RegexOptions.Multiline).Groups[1].ToString();
@@ -64,14 +66,13 @@
                     if (!string.IsNullOrWhiteSpace(failedTestError))
                     {
                         processExecutionResult.Type = ProcessExecutionResultType.Success;
-                        processExecutionResult.ReceivedOutput = failedTestError;
+                        message = failedTestError;
                     }
 
                     var successTest = Regex.IsMatch(processExecutionResult.ErrorOutput, SuccessTestRegex);
 
                     if (successTest)
                     {
-                        var message = "Test Passed!";
                         processExecutionResult.ReceivedOutput = message;
                         processExecutionResult.Type = ProcessExecutionResultType.Success;
                         processExecutionResult.ErrorOutput = string.Empty;
@@ -82,7 +83,7 @@
                     test,
                     processExecutionResult,
                     checker,
-                    processExecutionResult.ReceivedOutput);
+                    message);
 
                 result.Results.Add(testResult);
             }

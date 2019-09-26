@@ -9,10 +9,10 @@
 
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        protected readonly string PythonExecutablePath;
-
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
+
+        private readonly string pythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -26,7 +26,7 @@
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }
 
-            this.PythonExecutablePath = pythonExecutablePath;
+            this.pythonExecutablePath = pythonExecutablePath;
         }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
@@ -39,20 +39,7 @@
 
             var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
-
-                var testResult = this.CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    processExecutionResult.ReceivedOutput);
-
-                result.Results.Add(testResult);
-            }
-
-            return result;
+            return this.RunTests(codeSavePath, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
@@ -74,8 +61,28 @@
             return result;
         }
 
-        protected IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Restricted);
+        protected virtual IExecutionResult<TestResult> RunTests(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            foreach (var test in executionContext.Input.Tests)
+            {
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+
+                var testResult = this.CheckAndGetTestResult(
+                    test,
+                    processExecutionResult,
+                    checker,
+                    processExecutionResult.ReceivedOutput);
+
+                result.Results.Add(testResult);
+            }
+
+            return result;
+        }
 
         protected virtual ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
@@ -83,7 +90,7 @@
             string codeSavePath,
             string input)
             => executor.Execute(
-                this.PythonExecutablePath,
+                this.pythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
@@ -91,5 +98,8 @@
                 null,
                 false,
                 true);
+
+        private IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Restricted);
     }
 }

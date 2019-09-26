@@ -14,9 +14,14 @@
     {
         private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
-        private const string TestResultsRegexPattern = @"^([.FE]+)\s*$";
+        private const char PassedTestMarker = '.';
+        private const char FailedTestMarker = 'F';
+        private const char ErrorInTestMarker = 'E';
         private const string ClassNameNotFoundErrorMessage =
             "class_name is required in Solution Skeleton. Please contact an Administrator.";
+
+        private readonly string testResultsRegexPattern =
+            $@"^([{PassedTestMarker}{FailedTestMarker}{ErrorInTestMarker}]+)\s*$";
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -46,7 +51,7 @@
 
                 var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
 
-                var testResultsRegex = new Regex(TestResultsRegexPattern, RegexOptions.Multiline);
+                var testResultsRegex = new Regex(this.testResultsRegexPattern, RegexOptions.Multiline);
 
                 var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
                     processExecutionResult.ReceivedOutput,
@@ -96,7 +101,7 @@
             var testRuns = testRunsPattern.ToCharArray();
 
             var totalTests = testRuns.Length;
-            var passedTests = testRuns.Count(c => c == '.');
+            var passedTests = testRuns.Count(c => c == PassedTestMarker);
 
             return (totalTests, passedTests);
         }
@@ -106,9 +111,10 @@
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
 
             if (processExecutionResult.Type == ProcessExecutionResultType.RunTimeError &&
-                Regex.IsMatch(output, TestResultsRegexPattern, RegexOptions.Multiline))
+                Regex.IsMatch(output, this.testResultsRegexPattern, RegexOptions.Multiline))
             {
                 processExecutionResult.ReceivedOutput = output;
+                processExecutionResult.ErrorOutput = string.Empty;
                 processExecutionResult.Type = ProcessExecutionResultType.Success;
             }
         }

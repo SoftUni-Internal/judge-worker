@@ -24,7 +24,7 @@
         {
         }
 
-        private static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
+        protected static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
 
         private static Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
 
@@ -87,6 +87,13 @@
             return processExecutionResult;
         }
 
+        protected void WriteTestInCodeFile(string code, string codeSavePath, string testContent)
+        {
+            var codeAndTestText = code + Environment.NewLine + testContent;
+
+            FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
+        }
+
         private void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
@@ -98,13 +105,6 @@
                 processExecutionResult.ErrorOutput = string.Empty;
                 processExecutionResult.Type = ProcessExecutionResultType.Success;
             }
-        }
-
-        private void WriteTestInCodeFile(string code, string codeSavePath, string testContent)
-        {
-            var codeAndTestText = code + Environment.NewLine + testContent;
-
-            FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
         }
     }
 }

@@ -76,7 +76,7 @@
 
         (int totalTests, int passedTests) ExtractTestsCountFromMatchCollection(MatchCollection matches)
         {
-            var testRunsPattern = matches[0].Groups[1].Value;
+            var testRunsPattern = matches[0].Groups[1].Value.Trim();
 
             var testRuns = testRunsPattern.ToCharArray();
 

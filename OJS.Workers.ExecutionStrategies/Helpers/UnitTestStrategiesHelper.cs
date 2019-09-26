@@ -32,7 +32,7 @@
             var matches = regex.Matches(receivedOutput);
             if (matches.Count == 0)
             {
-                throw new ArgumentException("The process did not produce any output!");
+                throw new ArgumentException("The process did not produce any valid output!");
             }
 
             var (totalTests, passedTests) = testsCountExtractor(matches);

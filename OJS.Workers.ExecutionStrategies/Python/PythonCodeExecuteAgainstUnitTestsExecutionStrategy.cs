@@ -10,12 +10,10 @@
 
     public class PythonCodeExecuteAgainstUnitTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
-        private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
-        private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
-        private const string ErrorsTestRegex = @"ERROR:(?:.|\r\n|\r|\n)*?(^[^\s]*Error.*)";
-        private const string FailedTestRegex = @"FAIL:(?:.|\r\n|\r|\n)*?(^[^\s]*Error.*)";
-        private const string SuccessTestRegex = @"[.]+(?!F|E)([\n]|[\r]|[\r\n])*[-]*(?!\d)[\s\S]*?OK";
-        private const string SavedSyntaxErrorRegex = @"line[\s\S]*?SyntaxError: invalid syntax";
+        private const string ErrorInTestRegexPattern = @"^ERROR:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
+        private const string FailedTestRegexPattern = @"^FAIL:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
+        private const string SuccessTestsRegexPattern = @"^[.]+\s*(?=[-]+).+(?<=\r\n|\r|\n)OK\s*$";
+        private const string TestResultsRegexPattern = @"^([.FE]+)\s*.+(?<=\r\n|\r|\n)(OK|FAILED\s\(.+\))\s*$";
 
         public PythonCodeExecuteAgainstUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -26,57 +24,44 @@
         {
         }
 
-        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+        private static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
+
+        private static Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
+
+        private static Regex ErrorsInTestsRegex => new Regex(ErrorInTestRegexPattern, RegexOptions.Multiline);
+
+        private static Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
+
+        protected override IExecutionResult<TestResult> RunTests(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var executor = this.CreateExecutor();
-
-            var checker = executionContext.Input.GetChecker();
-
             foreach (var test in executionContext.Input.Tests)
             {
-                var codeAndTestFile = this.SaveCodeAndTest(executionContext, test);
+                this.WriteTestInCodeFile(executionContext.Code, codeSavePath, test.Input);
 
-                var testSaveFullPath = this.SaveTestToTempFile(test);
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
 
-                var processExecutionResult = this.Execute(executionContext, executor, codeAndTestFile, string.Empty);
+                var message = "Failing tests are not captured correctly. Please contact an Administrator.";
 
-                var message = "Test Passed!";
+                var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
+                var failedTestMatch = FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
 
-                if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
+                if (errorMatch.Success)
                 {
-                    var errors = Regex.Match(processExecutionResult.ErrorOutput, ErrorsTestRegex, RegexOptions.Multiline).Groups[1].ToString();
-
-                    if (!string.IsNullOrWhiteSpace(errors))
-                    {
-                        processExecutionResult.ErrorOutput = errors;
-                    }
-
-                    var syntaxError = Regex.Match(processExecutionResult.ErrorOutput, SavedSyntaxErrorRegex);
-
-                    if (!string.IsNullOrWhiteSpace(syntaxError.Value))
-                    {
-                        processExecutionResult.Type = ProcessExecutionResultType.RunTimeError;
-                        processExecutionResult.ErrorOutput = syntaxError.Value;
-                    }
-
-                    var failedTestError = Regex.Match(processExecutionResult.ErrorOutput, FailedTestRegex, RegexOptions.Multiline).Groups[1].ToString();
-
-                    if (!string.IsNullOrWhiteSpace(failedTestError))
-                    {
-                        processExecutionResult.Type = ProcessExecutionResultType.Success;
-                        message = failedTestError;
-                    }
-
-                    var successTest = Regex.IsMatch(processExecutionResult.ErrorOutput, SuccessTestRegex);
-
-                    if (successTest)
-                    {
-                        processExecutionResult.ReceivedOutput = message;
-                        processExecutionResult.Type = ProcessExecutionResultType.Success;
-                        processExecutionResult.ErrorOutput = string.Empty;
-                    }
+                    processExecutionResult.ErrorOutput = errorMatch.Groups[1].Value;
+                    processExecutionResult.Type = ProcessExecutionResultType.RunTimeError;
+                }
+                else if (failedTestMatch.Success)
+                {
+                    message = failedTestMatch.Groups[1].Value;
+                }
+                else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
+                {
+                    message = "Test Passed!";
                 }
 
                 var testResult = this.CheckAndGetTestResult(
@@ -91,29 +76,35 @@
             return result;
         }
 
-        protected string SaveCodeAndTest<TInput>(IExecutionContext<TInput> execution, TestContext test)
-        {
-            var codeAndTestText = execution.Code + Environment.NewLine + test.Input;
-
-            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeAndTestText);
-        }
-
         protected override ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
-            string testsSavePath,
+            string codeSavePath,
             string input)
-            => executor.Execute(
-                this.PythonExecutablePath,
-                input,
-                executionContext.TimeLimit,
-                executionContext.MemoryLimit,
-                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, testsSavePath },
-                null,
-                false,
-                true);
+        {
+            var processExecutionResult = base.Execute(executionContext, executor, codeSavePath, input);
+            this.FixReceivedOutput(processExecutionResult);
+            return processExecutionResult;
+        }
 
-        protected string SaveTestToTempFile(TestContext test)
-            => FileHelpers.SaveStringToTempFile(this.WorkingDirectory, test.Input);
+        private void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
+        {
+            var output = processExecutionResult.ErrorOutput ?? string.Empty;
+
+            if (processExecutionResult.Type == ProcessExecutionResultType.RunTimeError &&
+                TestsRegex.IsMatch(output))
+            {
+                processExecutionResult.ReceivedOutput = output;
+                processExecutionResult.ErrorOutput = string.Empty;
+                processExecutionResult.Type = ProcessExecutionResultType.Success;
+            }
+        }
+
+        private void WriteTestInCodeFile(string code, string codeSavePath, string testContent)
+        {
+            var codeAndTestText = code + Environment.NewLine + testContent;
+
+            FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
+        }
     }
 }

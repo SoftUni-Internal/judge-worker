@@ -32,48 +32,43 @@
 
         private static Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
 
-        protected override IExecutionResult<TestResult> RunTests(
+        protected override TestResult RunIndividualTest(
             string codeSavePath,
             IExecutor executor,
             IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+            TestContext test)
         {
-            foreach (var test in executionContext.Input.Tests)
+            this.WriteTestInCodeFile(executionContext.Code, codeSavePath, test.Input);
+
+            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
+
+            var message = "Failing tests are not captured correctly. Please contact an Administrator.";
+
+            var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
+            var failedTestMatch = FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
+
+            if (errorMatch.Success)
             {
-                this.WriteTestInCodeFile(executionContext.Code, codeSavePath, test.Input);
-
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
-
-                var message = "Failing tests are not captured correctly. Please contact an Administrator.";
-
-                var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
-                var failedTestMatch = FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
-
-                if (errorMatch.Success)
-                {
-                    processExecutionResult.ErrorOutput = errorMatch.Groups[1].Value;
-                    processExecutionResult.Type = ProcessExecutionResultType.RunTimeError;
-                }
-                else if (failedTestMatch.Success)
-                {
-                    message = failedTestMatch.Groups[1].Value;
-                }
-                else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
-                {
-                    message = "Test Passed!";
-                }
-
-                var testResult = this.CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    message);
-
-                result.Results.Add(testResult);
+                processExecutionResult.ErrorOutput = errorMatch.Groups[1].Value;
+                processExecutionResult.Type = ProcessExecutionResultType.RunTimeError;
+            }
+            else if (failedTestMatch.Success)
+            {
+                message = failedTestMatch.Groups[1].Value;
+            }
+            else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
+            {
+                message = "Test Passed!";
             }
 
-            return result;
+            var testResult = this.CheckAndGetTestResult(
+                test,
+                processExecutionResult,
+                checker,
+                message);
+
+            return testResult;
         }
 
         protected override ProcessExecutionResult Execute<TInput>(

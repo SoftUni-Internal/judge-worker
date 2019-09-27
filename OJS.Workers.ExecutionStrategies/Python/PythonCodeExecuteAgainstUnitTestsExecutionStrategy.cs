@@ -91,8 +91,7 @@
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
 
-            if (processExecutionResult.Type == ProcessExecutionResultType.RunTimeError &&
-                TestsRegex.IsMatch(output))
+            if (TestsRegex.IsMatch(output))
             {
                 processExecutionResult.ReceivedOutput = output;
                 processExecutionResult.ErrorOutput = string.Empty;

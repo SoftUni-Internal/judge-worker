@@ -161,6 +161,8 @@
 
         public static string ProcessModulePath(string path) => path.Replace('\\', '/');
 
+        public static string BuildPath(params string[] paths) => Path.Combine(paths);
+
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {
             var files = new List<string>(

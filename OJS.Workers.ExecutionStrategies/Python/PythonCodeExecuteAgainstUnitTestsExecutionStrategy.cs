@@ -8,6 +8,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class PythonCodeExecuteAgainstUnitTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string ErrorInTestRegexPattern = @"^ERROR:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
@@ -59,7 +61,7 @@
             }
             else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
             {
-                message = "Test Passed!";
+                message = TestPassedMessage;
             }
 
             var testResult = this.CheckAndGetTestResult(

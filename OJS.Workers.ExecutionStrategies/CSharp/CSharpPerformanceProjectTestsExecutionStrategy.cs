@@ -9,6 +9,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class CSharpPerformanceProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         public CSharpPerformanceProjectTestsExecutionStrategy(
@@ -46,7 +48,7 @@
 
                 var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
 
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
                 var testFile = this.TestNames[testIndex];
                 if (errorsByFiles.ContainsKey(testFile))
                 {

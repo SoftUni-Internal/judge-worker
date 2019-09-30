@@ -3,14 +3,14 @@
     using System;
     using System.Text.RegularExpressions;
 
-    using OJS.Workers.Common;
+    using static OJS.Workers.Common.Constants;
 
     internal static class UnitTestStrategiesHelper
     {
         public const string TestedCodeFileName = "TestedCode";
 
         public static readonly string TestedCodeFileNameWithExtension =
-            $"{TestedCodeFileName}{Constants.CSharpFileExtension}";
+            $"{TestedCodeFileName}{CSharpFileExtension}";
 
         /// <summary>
         /// Gets the output message and the count of the original tests passed,
@@ -37,7 +37,7 @@
 
             var (totalTests, passedTests) = testsCountExtractor(matches);
 
-            var message = "Test Passed!";
+            var message = TestPassedMessage;
 
             if (totalTests == 0)
             {
@@ -58,7 +58,7 @@
                 }
                 else
                 {
-                    message = "Test Passed!";
+                    message = TestPassedMessage;
                 }
             }
 

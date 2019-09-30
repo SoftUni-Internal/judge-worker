@@ -11,6 +11,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy :
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
     {
@@ -184,7 +186,7 @@ describe('Test {i} ', function(){{
             var testOffset = numberOfUserTests * 2;
             foreach (var test in executionContext.Input.Tests)
             {
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
                 TestResult testResult = null;
                 if (testCount == 0)
                 {

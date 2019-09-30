@@ -11,6 +11,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
     using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
@@ -126,7 +127,7 @@ class Classes{{
                 var className = JavaCodePreprocessorHelper
                     .GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
 
-                var filePath = $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+                var filePath = $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
 
                 File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
@@ -216,7 +217,7 @@ class Classes{{
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
                 var testFile = this.TestNames[testIndex++];
                 if (errorsByFiles.ContainsKey(testFile))
                 {
@@ -258,7 +259,7 @@ class Classes{{
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                    $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+                    $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
 
                 File.WriteAllText(testFileName, test.Input);
                 filePaths[testNumber] = testFileName;
@@ -283,7 +284,7 @@ class Classes{{
         {
             this.UserClassNames.AddRange(
                 FileHelpers.GetFilePathsFromZip(submissionFilePath)
-                    .Where(x => !x.EndsWith("/") && x.EndsWith(Constants.JavaSourceFileExtension))
+                    .Where(x => !x.EndsWith("/") && x.EndsWith(JavaSourceFileExtension))
                     .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
                     .Select(x => x.Replace("/", ".")));
         }

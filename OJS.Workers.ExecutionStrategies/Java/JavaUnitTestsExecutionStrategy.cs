@@ -14,6 +14,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class JavaUnitTestsExecutionStrategy : JavaZipFileCompileExecuteAndCheckExecutionStrategy
     {
         protected const string IncorrectTestFormat =
@@ -44,7 +46,7 @@
             => this.TestNames = new List<string>();
 
         protected string JUnitTestRunnerSourceFilePath =>
-            $"{this.WorkingDirectory}\\{JUnitRunnerClassName}{Constants.JavaSourceFileExtension}";
+            $"{this.WorkingDirectory}\\{JUnitRunnerClassName}{JavaSourceFileExtension}";
 
         protected List<string> TestNames { get; }
 
@@ -139,7 +141,7 @@ public class _$TestRunner {{
             foreach (var test in tests)
             {
                 var fileNames = new List<string>();
-                var classes = test.Input.Split(new[] { Constants.ClassDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+                var classes = test.Input.Split(new[] { ClassDelimiter }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var projectClass in classes)
                 {
                     var name = Regex.Match(projectClass, FilenameRegex);
@@ -202,7 +204,7 @@ public class _$TestRunner {{
                 // Construct and figure out what the Test results are
                 this.ExtractTestResult(processExecutionResult.ReceivedOutput, out var passedTests, out var totalTests);
 
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
 
                 if (totalTests == 0)
                 {
@@ -263,7 +265,7 @@ public class _$TestRunner {{
                 ? $".{trimmedAllowedFileExtensions}"
                 : trimmedAllowedFileExtensions;
 
-            if (allowedFileExtensions != Constants.ZipFileExtension)
+            if (allowedFileExtensions != ZipFileExtension)
             {
                 throw new ArgumentException("Submission file is not a zip file!");
             }
@@ -293,7 +295,7 @@ public class _$TestRunner {{
         private void ExtractUserTestFiles(string submissionFilePath)
         {
             var fileNames = FileHelpers.GetFilePathsFromZip(submissionFilePath)
-                .Where(x => x.EndsWith(Constants.JavaSourceFileExtension));
+                .Where(x => x.EndsWith(JavaSourceFileExtension));
             this.TestNames.AddRange(fileNames);
         }
 

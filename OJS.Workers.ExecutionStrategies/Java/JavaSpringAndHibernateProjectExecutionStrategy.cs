@@ -13,6 +13,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
     using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaSpringAndHibernateProjectExecutionStrategy : JavaProjectTestsExecutionStrategy
@@ -241,7 +242,7 @@
 
         protected string EvaluateJUnitOutput(string testOutput, Regex testErrorMatcher)
         {
-            var message = "Test Passed!";
+            var message = TestPassedMessage;
             var errorMatches = testErrorMatcher.Matches(testOutput);
 
             if (errorMatches.Count > 0)
@@ -286,7 +287,7 @@
             var fileNameWithoutExtension = this.MainClassFileName.Substring(
                 this.MainClassFileName.LastIndexOf(".", StringComparison.Ordinal) + 1);
 
-            this.MainClassFileName = fileNameWithoutExtension + Constants.JavaSourceFileExtension;
+            this.MainClassFileName = fileNameWithoutExtension + JavaSourceFileExtension;
         }
 
         protected void OverwriteApplicationProperties(string submissionZipFilePath)
@@ -355,7 +356,7 @@
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                        $"{this.WorkingDirectory}\\{className}{Constants.JavaSourceFileExtension}";
+                        $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
                 File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
                 filePaths[testNumber] = testFileName;
                 this.TestNames.Add($"{this.PackageName}.{className}");
@@ -373,7 +374,7 @@
         {
             this.UserClassNames.AddRange(FileHelpers
                 .GetFilePathsFromZip(submissionFilePath)
-                .Where(x => !x.EndsWith("/") && x.EndsWith(Constants.JavaSourceFileExtension))
+                .Where(x => !x.EndsWith("/") && x.EndsWith(JavaSourceFileExtension))
                     .Select(x => x.Contains(IntelliJProjectTemplatePattern)
                     ? x.Substring(x.LastIndexOf(
                         IntelliJProjectTemplatePattern,

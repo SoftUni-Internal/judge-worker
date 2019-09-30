@@ -81,6 +81,8 @@
             var testRuns = testRunsPattern.ToCharArray();
 
             var totalTests = testRuns.Length;
+
+            // '.' indicates passed test in the unittest console output e.g. "...F..F"
             var passedTests = testRuns.Count(c => c == '.');
 
             return (totalTests, passedTests);

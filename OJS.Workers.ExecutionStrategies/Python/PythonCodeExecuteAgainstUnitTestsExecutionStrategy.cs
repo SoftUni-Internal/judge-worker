@@ -12,8 +12,8 @@
     {
         private const string ErrorInTestRegexPattern = @"^ERROR:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
         private const string FailedTestRegexPattern = @"^FAIL:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
-        private const string SuccessTestsRegexPattern = @"^[.]+\s*(?=[-]+).+(?<=\r\n|\r|\n)OK\s*$";
-        private const string TestResultsRegexPattern = @"^([.FE]+)\s*.+(?<=\r\n|\r|\n)(OK|FAILED\s\(.+\))\s*$";
+        private const string SuccessTestsRegexPattern = @"^[.]+\s*[-]{2,}.+(?<=\r\n|\r|\n)OK(?=\s*?$)";
+        private const string TestResultsRegexPattern = @"^([.FE]+)\s*.+(?<=\r\n|\r|\n)(OK|FAILED\s\(.+\))(?=\s*?$)";
 
         public PythonCodeExecuteAgainstUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

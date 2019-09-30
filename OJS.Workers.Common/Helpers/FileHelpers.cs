@@ -161,6 +161,8 @@
 
         public static string ProcessModulePath(string path) => path.Replace('\\', '/');
 
+        public static string BuildPath(params string[] paths) => Path.Combine(paths);
+
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
 

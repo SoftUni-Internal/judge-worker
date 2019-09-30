@@ -6,20 +6,24 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
+
+    using static OJS.Workers.Common.Constants;
 
     public abstract class Checker : IChecker
     {
-        protected Checker()
-        {
-            this.IgnoreCharCasing = false;
-        }
+        protected Checker() => this.IgnoreCharCasing = false;
 
         protected bool IgnoreCharCasing { get; set; }
 
         public static IChecker CreateChecker(string assemblyName, string typeName, string parameter)
         {
-            var assembly = Assembly.LoadFile(AppDomain.CurrentDomain.BaseDirectory + assemblyName);
-            var type = assembly.GetType(typeName);
+            var assemblyFilePath = FileHelpers.BuildPath(
+                AppDomain.CurrentDomain.BaseDirectory,
+                $"{assemblyName}{ClassLibraryFileExtension}");
+
+            var assembly = Assembly.LoadFile(assemblyFilePath);
+            var type = assembly.GetType($"{assemblyName}.{typeName}");
             var checker = (IChecker)Activator.CreateInstance(type);
 
             if (parameter != null)
@@ -37,9 +41,7 @@
             bool isTrialTest);
 
         public virtual void SetParameter(string parameter)
-        {
-            throw new InvalidOperationException("This checker doesn't support parameters");
-        }
+            => throw new InvalidOperationException("This checker doesn't support parameters");
 
         protected CheckerResult CheckLineByLine(
             string inputData,
@@ -124,24 +126,16 @@
         }
 
         protected bool AreEqualExactLines(string userLine, string correctLine)
-        {
-            return userLine.Equals(correctLine, StringComparison.InvariantCulture);
-        }
+            => userLine.Equals(correctLine, StringComparison.InvariantCulture);
 
         protected bool AreEqualTrimmedLines(string userLine, string correctLine)
-        {
-            return userLine.Trim().Equals(correctLine.Trim(), StringComparison.InvariantCulture);
-        }
+            => userLine.Trim().Equals(correctLine.Trim(), StringComparison.InvariantCulture);
 
         protected bool AreEqualEndTrimmedLines(string userLine, string correctLine)
-        {
-            return userLine.TrimEnd().Equals(correctLine.TrimEnd(), StringComparison.InvariantCulture);
-        }
+            => userLine.TrimEnd().Equals(correctLine.TrimEnd(), StringComparison.InvariantCulture);
 
         protected bool AreEqualCaseInsensitiveLines(string userLine, string correctLine)
-        {
-            return userLine.ToLower().Equals(correctLine.ToLower(), StringComparison.InvariantCulture);
-        }
+            => userLine.ToLower().Equals(correctLine.ToLower(), StringComparison.InvariantCulture);
 
         protected virtual CheckerDetails PrepareAdminCheckerDetailsForDifferentLines(
             int lineNumber,

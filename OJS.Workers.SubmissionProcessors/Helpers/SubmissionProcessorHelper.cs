@@ -283,6 +283,13 @@
                         Settings.PythonBaseTimeUsedInMilliseconds,
                         Settings.PythonBaseMemoryUsedInBytes);
                     break;
+                case ExecutionStrategyType.PythonUnitTests:
+                    executionStrategy = new PythonUnitTestsExecutionStrategy(
+                        processExecutorFactory,
+                        Settings.PythonExecutablePath,
+                        Settings.PythonBaseTimeUsedInMilliseconds,
+                        Settings.PythonBaseMemoryUsedInBytes);
+                    break;
                 case ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests:
                     executionStrategy = new PythonCodeExecuteAgainstUnitTestsExecutionStrategy(
                         processExecutorFactory,

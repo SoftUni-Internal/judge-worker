@@ -13,6 +13,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class SolidityCompileDeployAndRunUnitTestsExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         private const string TestsCountRegexPattern = @"^\s*(\d+)\s{1}passing\s\(\d+\w+\)\s*((\d+)\sfailing\s*$)*";
@@ -66,7 +68,7 @@
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         private static string TestFileNameSearchPattern =>
-            $@"{TruffleProjectManager.TestFileNamePrefix}(\d+){Constants.JavaScriptFileExtension}";
+            $@"{TruffleProjectManager.TestFileNamePrefix}(\d+){JavaScriptFileExtension}";
 
         private IList<string> TestNames { get; } = new List<string>();
 
@@ -143,7 +145,7 @@
             var testsCounter = 0;
             foreach (var test in executionContext.Input.Tests)
             {
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
                 var testName = this.TestNames[testsCounter++];
                 if (errorsByTestNames.ContainsKey(testName))
                 {
@@ -177,11 +179,11 @@
                 string byteCode = null;
                 string abi = null;
 
-                if (file.Extension == Constants.ByteCodeFileExtension)
+                if (file.Extension == ByteCodeFileExtension)
                 {
                     byteCode = fileContent;
                 }
-                else if (file.Extension == Constants.AbiFileExtension)
+                else if (file.Extension == AbiFileExtension)
                 {
                     abi = fileContent;
                 }

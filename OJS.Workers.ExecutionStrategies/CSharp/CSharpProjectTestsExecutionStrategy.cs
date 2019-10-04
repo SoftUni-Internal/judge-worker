@@ -16,6 +16,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class CSharpProjectTestsExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
         protected const string SetupFixtureTemplate = @"
@@ -155,7 +157,7 @@
 
         protected void SaveSetupFixture(string directory)
         {
-            this.SetupFixturePath = $"{directory}\\{SetupFixtureFileName}{Constants.CSharpFileExtension}";
+            this.SetupFixturePath = $"{directory}\\{SetupFixtureFileName}{CSharpFileExtension}";
             File.WriteAllText(this.SetupFixturePath, SetupFixtureTemplate);
             this.TestPaths.Add(this.SetupFixturePath);
         }
@@ -166,7 +168,7 @@
             foreach (var test in tests)
             {
                 var testName = this.TestNames[index++];
-                var testedCodePath = $"{compileDirectory}\\{testName}{Constants.CSharpFileExtension}";
+                var testedCodePath = $"{compileDirectory}\\{testName}{CSharpFileExtension}";
                 this.TestPaths.Add(testedCodePath);
                 File.WriteAllText(testedCodePath, test.Input);
             }
@@ -208,7 +210,7 @@
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var message = "Test Passed!";
+                var message = TestPassedMessage;
                 var testFile = this.TestNames[testIndex++];
                 if (errorsByFiles.ContainsKey(testFile))
                 {
@@ -302,6 +304,20 @@
             var failedTestsCount = int.Parse(testsSummaryMatches[testsSummaryMatches.Count - 1].Groups[3].Value);
             var totalTestsCount = int.Parse(testsSummaryMatches[testsSummaryMatches.Count - 1].Groups[1].Value);
             return (totalTestsCount, failedTestsCount);
+        }
+
+        protected (int totalTests, int passedTests) ExtractTotalAndPassedTestsCount(MatchCollection matches)
+        {
+            // Grabs the last match from a match collection,
+            // since the NUnit output is always the last one,
+            // thus ensuring that the tests output is the genuine one,
+            // preventing the user from tampering with it
+            var lastMatch = matches[matches.Count - 1];
+
+            var totalTests = int.Parse(lastMatch.Groups[1].Value);
+            var passedTests = int.Parse(lastMatch.Groups[2].Value);
+
+            return (totalTests, passedTests);
         }
 
         protected virtual string GetCsProjFilePath() => FileHelpers.FindFileMatchingPattern(

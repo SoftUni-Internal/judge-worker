@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using Microsoft.Build.Evaluation;
 
@@ -114,11 +115,14 @@
                     false,
                     true);
 
+                var testResultsRegex = new Regex(TestResultsRegex);
+
                 var processExecutionTestResult = UnitTestStrategiesHelper.GetTestResult(
                     processExecutionResult.ReceivedOutput,
-                    TestResultsRegex,
+                    testResultsRegex,
                     originalTestsPassed,
-                    count == 0);
+                    count == 0,
+                    this.ExtractTotalAndPassedTestsCount);
 
                 var message = processExecutionTestResult.message;
                 originalTestsPassed = processExecutionTestResult.originalTestsPassed;

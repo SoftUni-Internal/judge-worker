@@ -42,6 +42,8 @@
 
         public const string AppSettingsConfigSectionName = "appSettings";
 
+        public const string TestPassedMessage = "Test Passed!";
+
         // Environment variables
         public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
 

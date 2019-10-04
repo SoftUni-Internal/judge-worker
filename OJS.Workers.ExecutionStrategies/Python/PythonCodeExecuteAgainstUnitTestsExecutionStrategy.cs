@@ -8,6 +8,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.Common.Constants;
+
     public class PythonCodeExecuteAgainstUnitTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string ErrorInTestRegexPattern = @"^ERROR:[\s\S]+(^\w*Error:[\s\S]+)(?=^-{2,})";
@@ -24,7 +26,7 @@
         {
         }
 
-        private static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
+        protected static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
 
         private static Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
 
@@ -59,7 +61,7 @@
             }
             else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
             {
-                message = "Test Passed!";
+                message = TestPassedMessage;
             }
 
             var testResult = this.CheckAndGetTestResult(
@@ -82,6 +84,13 @@
             return processExecutionResult;
         }
 
+        protected void WriteTestInCodeFile(string code, string codeSavePath, string testContent)
+        {
+            var codeAndTestText = code + Environment.NewLine + testContent;
+
+            FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
+        }
+
         private void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
@@ -92,13 +101,6 @@
                 processExecutionResult.ErrorOutput = string.Empty;
                 processExecutionResult.Type = ProcessExecutionResultType.Success;
             }
-        }
-
-        private void WriteTestInCodeFile(string code, string codeSavePath, string testContent)
-        {
-            var codeAndTestText = code + Environment.NewLine + testContent;
-
-            FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
         }
     }
 }

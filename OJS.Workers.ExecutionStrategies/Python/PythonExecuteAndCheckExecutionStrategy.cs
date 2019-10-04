@@ -2,8 +2,10 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -39,20 +41,7 @@
 
             var checker = executionContext.Input.GetChecker();
 
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
-
-                var testResult = this.CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    processExecutionResult.ReceivedOutput);
-
-                result.Results.Add(testResult);
-            }
-
-            return result;
+            return this.RunTests(codeSavePath, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
@@ -74,10 +63,44 @@
             return result;
         }
 
-        private IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Restricted);
+        protected virtual IExecutionResult<TestResult> RunTests(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            result.Results.AddRange(
+                executionContext.Input.Tests
+                    .Select(test => this.RunIndividualTest(
+                        codeSavePath,
+                        executor,
+                        checker,
+                        executionContext,
+                        test)));
 
-        private ProcessExecutionResult Execute<TInput>(
+            return result;
+        }
+
+        protected virtual TestResult RunIndividualTest(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test)
+        {
+            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+
+            var testResult = this.CheckAndGetTestResult(
+                test,
+                processExecutionResult,
+                checker,
+                processExecutionResult.ReceivedOutput);
+
+            return testResult;
+        }
+
+        protected virtual ProcessExecutionResult Execute<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,
@@ -91,5 +114,8 @@
                 null,
                 false,
                 true);
+
+        private IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Restricted);
     }
 }

@@ -163,6 +163,9 @@
 
         public static string BuildPath(params string[] paths) => Path.Combine(paths);
 
+        public static void WriteAllText(string filePath, string text)
+            => File.WriteAllText(filePath, text);
+
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {
             var files = new List<string>(

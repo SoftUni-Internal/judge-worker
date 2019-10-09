@@ -9,6 +9,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -31,6 +32,8 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
+            executionContext.SanitizeContent();
+
             var submissionDestination = $@"{this.WorkingDirectory}\{SubmissionName}";
 
             File.WriteAllBytes(submissionDestination, executionContext.FileContent);

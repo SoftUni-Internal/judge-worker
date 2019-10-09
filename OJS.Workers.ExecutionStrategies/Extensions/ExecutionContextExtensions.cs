@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -39,6 +40,26 @@
         {
             var processAccessRightsPattern = @"(PROCESS_[A-Z_]+)|(0x0[0-9]+)";
 
+            var functionsToDisable = new[]
+            {
+                "OpenProcess",
+                "OpenThread",
+                "GetProcessId",
+                "GetThreadId",
+                "GetCurrentProcess",
+                "GetCurrentThread",
+                "GetCurrentProcessId",
+                "GetCurrentThreadId",
+                "TerminateProcess",
+                "TerminateThread",
+                "SwitchToThread",
+                "SuspendThread",
+            }
+            .Select(f => f + "\\s*\\(")
+            .ToList();
+
+            var functionsToDisableRegexPattern = string.Join("|", functionsToDisable);
+
             if (ExecutionContextContainsZipFile(executionContext))
             {
                 executionContext.FileContent = SanitizeZipFileContent(
@@ -49,7 +70,10 @@
             executionContext.Code = SanitizeCode(executionContext.Code);
 
             string SanitizeCode(string code)
-                => Regex.Replace(code, processAccessRightsPattern, string.Empty);
+            {
+                code = Regex.Replace(code, processAccessRightsPattern, string.Empty);
+                return Regex.Replace(code, functionsToDisableRegexPattern, string.Empty);
+            }
         }
 
         private static void SanitizeDotNetCoreZipFile<TInput>(IExecutionContext<TInput> executionContext)

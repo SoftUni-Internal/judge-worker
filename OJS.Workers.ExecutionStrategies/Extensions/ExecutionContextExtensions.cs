@@ -37,7 +37,6 @@
 
         private static void SanitizeCPlusPlusCode<TInput>(IExecutionContext<TInput> executionContext)
         {
-            var tlHelp32LibPattern = @"(#?\s*(include|import)\s+<\s*tlhelp32.h\s*>\s*)";
             var processAccessRightsPattern = @"(PROCESS_[A-Z_]+)|(0x0[0-9]+)";
 
             if (ExecutionContextContainsZipFile(executionContext))
@@ -50,10 +49,7 @@
             executionContext.Code = SanitizeCode(executionContext.Code);
 
             string SanitizeCode(string code)
-            {
-                code = Regex.Replace(code, tlHelp32LibPattern, string.Empty);
-                return Regex.Replace(code, processAccessRightsPattern, string.Empty);
-            }
+                => Regex.Replace(code, processAccessRightsPattern, string.Empty);
         }
 
         private static void SanitizeDotNetCoreZipFile<TInput>(IExecutionContext<TInput> executionContext)

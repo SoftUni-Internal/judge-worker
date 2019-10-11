@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@
     using Ionic.Zip;
 
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
 
     public static class ExecutionContextExtensions
@@ -27,6 +29,50 @@
                 case nameof(DotNetCoreTestRunnerExecutionStrategy):
                     SanitizeDotNetCoreZipFile(executionContext);
                     break;
+                case nameof(CPlusPlusCompileExecuteAndCheckExecutionStrategy):
+                case nameof(CPlusPlusZipFileExecutionStrategy):
+                    SanitizeCPlusPlusCode(executionContext);
+                    break;
+            }
+        }
+
+        private static void SanitizeCPlusPlusCode<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            var processAccessRightsPattern = @"(PROCESS_[A-Z_]+)|(0x0[0-9]+)";
+
+            var functionsToDisable = new[]
+            {
+                "OpenProcess",
+                "OpenThread",
+                "GetProcessId",
+                "GetThreadId",
+                "GetCurrentProcess",
+                "GetCurrentThread",
+                "GetCurrentProcessId",
+                "GetCurrentThreadId",
+                "TerminateProcess",
+                "TerminateThread",
+                "SwitchToThread",
+                "SuspendThread",
+            }
+            .Select(f => f + "\\s*\\(")
+            .ToList();
+
+            var functionsToDisableRegexPattern = string.Join("|", functionsToDisable);
+
+            if (ExecutionContextContainsZipFile(executionContext))
+            {
+                executionContext.FileContent = SanitizeZipFileContent(
+                    executionContext.FileContent,
+                    SanitizeCode);
+            }
+
+            executionContext.Code = SanitizeCode(executionContext.Code);
+
+            string SanitizeCode(string code)
+            {
+                code = Regex.Replace(code, processAccessRightsPattern, string.Empty);
+                return Regex.Replace(code, functionsToDisableRegexPattern, string.Empty);
             }
         }
 

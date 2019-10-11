@@ -4,6 +4,7 @@
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -21,12 +22,16 @@
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
-            => this.CompileExecuteAndCheck(
+        {
+            executionContext.SanitizeContent();
+
+            return this.CompileExecuteAndCheck(
                 executionContext,
                 result,
                 this.GetCompilerPathFunc,
                 this.CreateExecutor(ProcessExecutorType.Restricted),
                 useSystemEncoding: false,
                 dependOnExitCodeForRunTimeError: true);
+        }
     }
 }

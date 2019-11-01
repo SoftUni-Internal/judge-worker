@@ -41,7 +41,7 @@
             <Project Sdk=""Microsoft.NET.Sdk"">
                 <PropertyGroup>
                     <OutputType>Exe</OutputType>
-                    <TargetFramework>netcoreapp2.1</TargetFramework>
+                    <TargetFramework>netcoreapp3.0</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.10.1"" />

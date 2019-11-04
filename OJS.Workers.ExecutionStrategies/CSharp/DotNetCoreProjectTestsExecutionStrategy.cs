@@ -140,7 +140,7 @@
             var references = projectsToTestCsProjPaths
                 .Select(path => this.projectReferenceTemplate.Replace(ProjectPathPlaceholder, path));
 
-            if (projectsToTestCsProjPaths.Any(x => Regex.IsMatch(File.ReadAllText(x), DotNetCoreVersionRegexPattern)))
+            if (projectsToTestCsProjPaths.Any(x => Regex.IsMatch(FileHelpers.ReadAllText(x), DotNetCoreVersionRegexPattern)))
             {
                 microsoftEFCoreVersion = "2.2.0";
             }

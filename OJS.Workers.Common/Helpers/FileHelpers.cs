@@ -166,6 +166,9 @@
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
 
+        public static string ReadAllText(string filePath)
+            => File.ReadAllText(filePath);
+
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {
             var files = new List<string>(

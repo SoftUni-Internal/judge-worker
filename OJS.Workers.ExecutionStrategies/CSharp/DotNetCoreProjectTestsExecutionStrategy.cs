@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
@@ -17,8 +18,10 @@
         protected new const string AdditionalExecutionArguments = "--noresult";
         protected const string CsProjFileExtension = ".csproj";
 
+        private const string DotNetCoreVersionRegexPattern = @"<TargetFramework\s*>\s*netcoreapp[12]\.";
         private const string ProjectPathPlaceholder = "##projectPath##";
         private const string ProjectReferencesPlaceholder = "##ProjectReferences##";
+        private const string MicrosoftEFCoreVersionPlaceholder = "##MicrosoftEFCoreVersionReferences##";
         private const string NUnitLiteConsoleAppFolderName = "NUnitLiteConsoleApp";
         private const string UserSubmissionFolderName = "UserProject";
         private const string NUnitLiteConsoleAppProgramName = "Program";
@@ -37,6 +40,8 @@
                 }
             }";
 
+        private static string microsoftEFCoreVersion = "3.0.0";
+
         private readonly string nUnitLiteConsoleAppCsProjTemplate = $@"
             <Project Sdk=""Microsoft.NET.Sdk"">
                 <PropertyGroup>
@@ -45,8 +50,8 @@
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""3.0.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""3.0.0"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{MicrosoftEFCoreVersionPlaceholder}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{MicrosoftEFCoreVersionPlaceholder}"" />
                 </ItemGroup>
                 <ItemGroup>
                     {ProjectReferencesPlaceholder}
@@ -135,8 +140,14 @@
             var references = projectsToTestCsProjPaths
                 .Select(path => this.projectReferenceTemplate.Replace(ProjectPathPlaceholder, path));
 
+            if (projectsToTestCsProjPaths.Any(x => Regex.IsMatch(File.ReadAllText(x), DotNetCoreVersionRegexPattern)))
+            {
+                microsoftEFCoreVersion = "2.2.0";
+            }
+
             var csProjTemplate = this.nUnitLiteConsoleAppCsProjTemplate
-                .Replace(ProjectReferencesPlaceholder, string.Join(Environment.NewLine, references));
+                .Replace(ProjectReferencesPlaceholder, string.Join(Environment.NewLine, references))
+                .Replace(MicrosoftEFCoreVersionPlaceholder, microsoftEFCoreVersion);
 
             var csProjPath = this.CreateNUnitLiteConsoleAppCsProjFile(csProjTemplate);
 

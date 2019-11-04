@@ -44,9 +44,9 @@
                     <TargetFramework>netcoreapp3.0</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
-                    <PackageReference Include=""NUnitLite"" Version=""3.10.1"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""2.2.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""2.2.0"" />
+                    <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""3.0.0"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""3.0.0"" />
                 </ItemGroup>
                 <ItemGroup>
                     {ProjectReferencesPlaceholder}

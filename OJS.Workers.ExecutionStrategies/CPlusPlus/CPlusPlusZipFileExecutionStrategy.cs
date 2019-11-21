@@ -53,12 +53,13 @@
                 executionContext.AdditionalCompilerArguments,
                 submissionDestination);
 
+            result.IsCompiledSuccessfully = compilationResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilationResult.CompilerComment;
+
             if (!compilationResult.IsCompiledSuccessfully)
             {
                 return result;
             }
-
-            result.IsCompiledSuccessfully = true;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 

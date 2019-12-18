@@ -1,5 +1,6 @@
 namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
 {
+    using System;
     using System.Linq;
     using System.Text.RegularExpressions;
 
@@ -47,7 +48,8 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
         private static string RemoveProcessAccessRights(string content)
             => Regex.Replace(content, ProcessAccessRightsPattern, string.Empty);
 
+        // using Environment.NewLine to preserve line numbers
         private static string RemoveVisualStudioPrecompiledHeader(string content)
-            => Regex.Replace(content, VisualStudioPrecompiledHeaderPattern, string.Empty);
+            => Regex.Replace(content, VisualStudioPrecompiledHeaderPattern, Environment.NewLine);
     }
 }

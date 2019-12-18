@@ -7,9 +7,19 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
     public class CPlusPlusSanitizer : BaseCodeSanitizer
     {
         private const string ProcessAccessRightsPattern = @"(PROCESS_[A-Z_]+)|(0x0[0-9]+)";
+        private const string VisualStudioPrecompiledHeaderPattern = @"#\s*include\s+\""pch\.h\""\s*";
 
         /// <inheritdoc/>
         protected override string DoSanitize(string content)
+        {
+            content = RemoveProcessAccessRights(content);
+            content = RemoveProcessAndThreadAccessFunctions(content);
+            content = RemoveVisualStudioPrecompiledHeader(content);
+
+            return content;
+        }
+
+        private static string RemoveProcessAndThreadAccessFunctions(string content)
         {
             var functionsToDisable = new[]
             {
@@ -26,13 +36,18 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
                 "SwitchToThread",
                 "SuspendThread",
             }
-            .Select(f => f + "\\s*\\(")
+            .Select(f => "\\s+" + f + "\\s*\\(")
             .ToList();
 
             var functionsToDisableRegexPattern = string.Join("|", functionsToDisable);
 
-            content = Regex.Replace(content, ProcessAccessRightsPattern, string.Empty);
             return Regex.Replace(content, functionsToDisableRegexPattern, string.Empty);
         }
+
+        private static string RemoveProcessAccessRights(string content)
+            => Regex.Replace(content, ProcessAccessRightsPattern, string.Empty);
+
+        private static string RemoveVisualStudioPrecompiledHeader(string content)
+            => Regex.Replace(content, VisualStudioPrecompiledHeaderPattern, string.Empty);
     }
 }

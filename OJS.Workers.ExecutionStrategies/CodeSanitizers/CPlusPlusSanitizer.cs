@@ -37,7 +37,7 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
                 "SwitchToThread",
                 "SuspendThread",
             }
-            .Select(f => "\\s+" + f + "\\s*\\(")
+            .Select(f => f + "\\s*\\(")
             .ToList();
 
             var functionsToDisableRegexPattern = string.Join("|", functionsToDisable);

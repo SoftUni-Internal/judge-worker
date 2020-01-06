@@ -9,6 +9,7 @@
     using Microsoft.Build.Evaluation;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -298,7 +299,7 @@
             var testsSummaryMatches = testsSummaryMatcher.Matches(testsOutput);
             if (testsSummaryMatches.Count == 0)
             {
-                throw new ArgumentException("The process did not produce any output!");
+                throw new InvalidProcessExecutionOutput();
             }
 
             var failedTestsCount = int.Parse(testsSummaryMatches[testsSummaryMatches.Count - 1].Groups[3].Value);

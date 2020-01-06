@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Helpers
 {
     using System;
+    using System.Text.RegularExpressions;
 
     using OJS.Workers.Common.Helpers;
 
@@ -13,6 +14,10 @@
             "Failed to allocate initial concurrent mark overflow mark stack.";
 
         private const string JvmInitializationErrorMessage = "Error occurred during initialization of VM";
+
+        private const string JvmThreadInitializationErrorPattern = @"\[os,\s*thread\]\s+Failed to start thread";
+
+        private const string JvmThreadInitializationErrorMessage = "Failed to start thread.";
 
         public static char ClassPathArgumentSeparator
             => OSPlatformHelpers.IsWindows() ? ';' : ':';
@@ -39,6 +44,11 @@
             if (processReceivedOutput.Contains(JvmInitializationErrorMessage))
             {
                 throw new Exception(JvmInitializationErrorMessage + errorMessageAppender);
+            }
+
+            if (Regex.IsMatch(processReceivedOutput, JvmThreadInitializationErrorPattern))
+            {
+                throw new Exception(JvmThreadInitializationErrorMessage + errorMessageAppender);
             }
         }
     }

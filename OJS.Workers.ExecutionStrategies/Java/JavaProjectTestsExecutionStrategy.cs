@@ -6,6 +6,7 @@
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -291,6 +292,11 @@ class Classes{{
 
         private Dictionary<string, string> GetTestErrors(string receivedOutput)
         {
+            if (string.IsNullOrWhiteSpace(receivedOutput))
+            {
+                throw new InvalidProcessExecutionOutput();
+            }
+
             var errorsByFiles = new Dictionary<string, string>();
             var output = new StringReader(receivedOutput);
             var line = output.ReadLine();

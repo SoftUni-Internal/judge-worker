@@ -3,6 +3,8 @@
     using System;
     using System.Text.RegularExpressions;
 
+    using OJS.Workers.Common.Exceptions;
+
     using static OJS.Workers.Common.Constants;
 
     internal static class UnitTestStrategiesHelper
@@ -32,7 +34,7 @@
             var matches = regex.Matches(receivedOutput);
             if (matches.Count == 0)
             {
-                throw new ArgumentException("The process did not produce any valid output!");
+                throw new InvalidProcessExecutionOutput();
             }
 
             var (totalTests, passedTests) = testsCountExtractor(matches);

@@ -219,7 +219,13 @@ class Classes{{
 
             ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
-            var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
+            Dictionary<string, string> errorsByFiles = null;
+
+            if (processExecutionResult.Type == ProcessExecutionResultType.Success)
+            {
+                errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
+            }
+
             var testIndex = 0;
 
             var checker = executionContext.Input.GetChecker();
@@ -228,7 +234,7 @@ class Classes{{
             {
                 var message = TestPassedMessage;
                 var testFile = this.TestNames[testIndex++];
-                if (errorsByFiles.ContainsKey(testFile))
+                if (errorsByFiles?.ContainsKey(testFile) ?? false)
                 {
                     message = errorsByFiles[testFile];
                 }

@@ -327,9 +327,9 @@ class Classes{{
                     throw new InvalidProcessExecutionOutputException();
                 }
 
-                var isTestSuccesful = bool.Parse(testResultRegex.Match(line).Groups[1].Value);
+                var isTestSuccessful = bool.Parse(testResultRegex.Match(line).Groups[1].Value);
 
-                if (!isTestSuccesful)
+                if (!isTestSuccessful)
                 {
                     var errorLine = output.ReadLine();
                     var errorMessage = errorLine.Substring(firstSpaceIndex);

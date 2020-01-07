@@ -34,7 +34,7 @@
             var matches = regex.Matches(receivedOutput);
             if (matches.Count == 0)
             {
-                throw new InvalidProcessExecutionOutput();
+                throw new InvalidProcessExecutionOutputException();
             }
 
             var (totalTests, passedTests) = testsCountExtractor(matches);

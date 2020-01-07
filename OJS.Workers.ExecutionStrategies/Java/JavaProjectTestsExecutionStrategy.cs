@@ -294,7 +294,7 @@ class Classes{{
         {
             if (string.IsNullOrWhiteSpace(receivedOutput))
             {
-                throw new InvalidProcessExecutionOutput();
+                throw new InvalidProcessExecutionOutputException();
             }
 
             var errorsByFiles = new Dictionary<string, string>();

@@ -299,7 +299,7 @@
             var testsSummaryMatches = testsSummaryMatcher.Matches(testsOutput);
             if (testsSummaryMatches.Count == 0)
             {
-                throw new InvalidProcessExecutionOutput();
+                throw new InvalidProcessExecutionOutputException();
             }
 
             var failedTestsCount = int.Parse(testsSummaryMatches[testsSummaryMatches.Count - 1].Groups[3].Value);

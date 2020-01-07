@@ -228,7 +228,7 @@
             }
             else
             {
-                throw new InvalidProcessExecutionOutput();
+                throw new InvalidProcessExecutionOutputException();
             }
 
             return (totalTestsCount, failingTestsCount);

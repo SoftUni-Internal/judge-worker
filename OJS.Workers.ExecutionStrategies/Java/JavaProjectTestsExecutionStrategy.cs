@@ -322,6 +322,8 @@ class Classes{{
                 var firstSpaceIndex = line.IndexOf(" ", StringComparison.Ordinal);
                 var fileName = line.Substring(0, firstSpaceIndex);
 
+                // Validating that test name is the same as the one from the output
+                // ensuring the output is from the JUnit test runner
                 if (testName != fileName)
                 {
                     throw new InvalidProcessExecutionOutputException();

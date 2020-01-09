@@ -19,7 +19,7 @@
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
     {
         private const string TestRanPrefix = "Test Ran. Successful:";
-        private readonly string testRunResultRegexPattern = $@"(?:{TestRanPrefix})\s*(true|false)";
+        private readonly string testResultRegexPattern = $@"(?:{TestRanPrefix})\s*(true|false)";
 
         public JavaProjectTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -313,7 +313,7 @@ class Classes{{
 
             var errorsByFiles = new Dictionary<string, string>();
             var output = new StringReader(receivedOutput);
-            var testResultRegex = new Regex(this.testRunResultRegexPattern);
+            var testResultRegex = new Regex(this.testResultRegexPattern);
 
             foreach (var testName in this.TestNames)
             {

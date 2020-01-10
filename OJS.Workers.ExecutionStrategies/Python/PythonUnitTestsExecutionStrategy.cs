@@ -14,10 +14,10 @@
         private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
         private const string SolutionSkeletonMissingErrorMessage =
-            "Solution Skeleton is required. Please contant an Administrator.";
+            "Solution Skeleton is required. Should be in the format: \"# class_name \" followed by the test class's name.";
 
         private const string ClassNameNotFoundErrorMessage =
-            "class_name is required in Solution Skeleton. Please contact an Administrator.";
+            "class_name not found in Solution Skeleton. Expecting \"# class_name \" followed by the test class's name.";
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

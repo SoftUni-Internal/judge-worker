@@ -37,7 +37,7 @@
         {
             var originalTestsPassed = -1;
 
-            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
+            var tests = executionContext.Input.Tests.OrderByDescending(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -47,16 +47,22 @@
 
                 var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
 
-                var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
-                    processExecutionResult.ReceivedOutput,
-                    TestsRegex,
-                    originalTestsPassed,
-                    i == 0,
-                    this.ExtractTestsCountFromMatchCollection);
+                var endMessage = string.Empty;
 
-                originalTestsPassed = testsPassed;
+                if (processExecutionResult.Type == ProcessExecutionResultType.Success)
+                {
+                    var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
+                        processExecutionResult.ReceivedOutput,
+                        TestsRegex,
+                        originalTestsPassed,
+                        i == 0,
+                        this.ExtractTestsCountFromMatchCollection);
 
-                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, message);
+                    originalTestsPassed = testsPassed;
+                    endMessage = message;
+                }
+
+                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, endMessage);
                 result.Results.Add(testResult);
             }
 

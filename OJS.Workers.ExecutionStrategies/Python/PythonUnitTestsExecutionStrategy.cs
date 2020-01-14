@@ -14,7 +14,7 @@
         private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
         private const string ClassNameNotFoundErrorMessage =
-            "class_name is required in Solution Skeleton. Please contact an Administrator.";
+            "class_name not found in Solution Skeleton. Expecting \"# class_name \" followed by the test class's name.";
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -34,7 +34,10 @@
         {
             var originalTestsPassed = -1;
 
-            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
+            var tests = executionContext.Input.Tests
+                .OrderByDescending(x => x.IsTrialTest)
+                .ThenBy(x => x.OrderBy)
+                .ToList();
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -44,16 +47,22 @@
 
                 var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
 
-                var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
-                    processExecutionResult.ReceivedOutput,
-                    TestsRegex,
-                    originalTestsPassed,
-                    i == 0,
-                    this.ExtractTestsCountFromMatchCollection);
+                var endMessage = string.Empty;
 
-                originalTestsPassed = testsPassed;
+                if (processExecutionResult.Type == ProcessExecutionResultType.Success)
+                {
+                    var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
+                        processExecutionResult.ReceivedOutput,
+                        TestsRegex,
+                        originalTestsPassed,
+                        i == 0,
+                        this.ExtractTestsCountFromMatchCollection);
 
-                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, message);
+                    originalTestsPassed = testsPassed;
+                    endMessage = message;
+                }
+
+                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, endMessage);
                 result.Results.Add(testResult);
             }
 
@@ -90,7 +99,9 @@
 
         private string GetTestCodeClassName(TestsInputModel testsInput)
         {
-            var className = Regex.Match(testsInput.TaskSkeletonAsString, ClassNameInSkeletonRegexPattern)
+            var taskSkeleton = testsInput.TaskSkeletonAsString ?? string.Empty;
+
+            var className = Regex.Match(taskSkeleton, ClassNameInSkeletonRegexPattern)
                 .Groups[1]
                 .Value;
 

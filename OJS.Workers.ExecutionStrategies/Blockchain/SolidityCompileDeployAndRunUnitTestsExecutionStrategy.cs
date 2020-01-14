@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
@@ -227,7 +228,7 @@
             }
             else
             {
-                throw new ArgumentException("The process did not produce any output!");
+                throw new InvalidProcessExecutionOutputException();
             }
 
             return (totalTestsCount, failingTestsCount);

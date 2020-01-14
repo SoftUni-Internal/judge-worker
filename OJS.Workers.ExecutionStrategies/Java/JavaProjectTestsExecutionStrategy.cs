@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -16,6 +18,9 @@
 
     public class JavaProjectTestsExecutionStrategy : JavaUnitTestsExecutionStrategy
     {
+        private const string TestRanPrefix = "Test Ran. Successful:";
+        private readonly string testResultRegexPattern = $@"(?:{TestRanPrefix})\s*(true|false)";
+
         public JavaProjectTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
@@ -82,7 +87,11 @@ public class _$TestRunner {{
         System.setIn(originalIn);
         System.setOut(originalOut);
 
-        for (Result result : results){{
+        for (int i = 0; i < results.size(); i++){{
+            Result result = results.get(i);
+
+            System.out.println(testClasses[i].getSimpleName() + "" {TestRanPrefix} "" + result.wasSuccessful());
+
             for (Failure failure : result.getFailures()) {{
                 String failureClass = failure.getDescription().getTestClass().getSimpleName();
                 String failureException = failure.getException().toString().replaceAll(""\r"", ""\\\\r"").replaceAll(""\n"",""\\\\n"");
@@ -210,7 +219,13 @@ class Classes{{
 
             ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
-            var errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
+            Dictionary<string, string> errorsByFiles = null;
+
+            if (processExecutionResult.Type == ProcessExecutionResultType.Success)
+            {
+                errorsByFiles = this.GetTestErrors(processExecutionResult.ReceivedOutput);
+            }
+
             var testIndex = 0;
 
             var checker = executionContext.Input.GetChecker();
@@ -219,7 +234,7 @@ class Classes{{
             {
                 var message = TestPassedMessage;
                 var testFile = this.TestNames[testIndex++];
-                if (errorsByFiles.ContainsKey(testFile))
+                if (errorsByFiles?.ContainsKey(testFile) ?? false)
                 {
                     message = errorsByFiles[testFile];
                 }
@@ -291,16 +306,37 @@ class Classes{{
 
         private Dictionary<string, string> GetTestErrors(string receivedOutput)
         {
+            if (string.IsNullOrWhiteSpace(receivedOutput))
+            {
+                throw new InvalidProcessExecutionOutputException();
+            }
+
             var errorsByFiles = new Dictionary<string, string>();
             var output = new StringReader(receivedOutput);
-            var line = output.ReadLine();
-            while (line != null)
+            var testResultRegex = new Regex(this.testResultRegexPattern);
+
+            foreach (var testName in this.TestNames)
             {
+                var line = output.ReadLine();
+
                 var firstSpaceIndex = line.IndexOf(" ", StringComparison.Ordinal);
                 var fileName = line.Substring(0, firstSpaceIndex);
-                var errorMessage = line.Substring(firstSpaceIndex);
-                errorsByFiles.Add(fileName, errorMessage);
-                line = output.ReadLine();
+
+                // Validating that test name is the same as the one from the output
+                // ensuring the output is from the JUnit test runner
+                if (testName != fileName)
+                {
+                    throw new InvalidProcessExecutionOutputException();
+                }
+
+                var isTestSuccessful = bool.Parse(testResultRegex.Match(line).Groups[1].Value);
+
+                if (!isTestSuccessful)
+                {
+                    var errorLine = output.ReadLine();
+                    var errorMessage = errorLine.Substring(firstSpaceIndex);
+                    errorsByFiles.Add(fileName, errorMessage);
+                }
             }
 
             return errorsByFiles;

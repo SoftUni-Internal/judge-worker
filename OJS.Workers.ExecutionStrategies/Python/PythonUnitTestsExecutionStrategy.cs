@@ -13,9 +13,6 @@
     {
         private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
-        private const string SolutionSkeletonMissingErrorMessage =
-            "Solution Skeleton is required. Should be in the format: \"# class_name \" followed by the test class's name.";
-
         private const string ClassNameNotFoundErrorMessage =
             "class_name not found in Solution Skeleton. Expecting \"# class_name \" followed by the test class's name.";
 
@@ -37,7 +34,10 @@
         {
             var originalTestsPassed = -1;
 
-            var tests = executionContext.Input.Tests.OrderByDescending(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();
+            var tests = executionContext.Input.Tests
+                .OrderByDescending(x => x.IsTrialTest)
+                .ThenBy(x => x.OrderBy)
+                .ToList();
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -99,12 +99,9 @@
 
         private string GetTestCodeClassName(TestsInputModel testsInput)
         {
-            if (string.IsNullOrWhiteSpace(testsInput.TaskSkeletonAsString))
-            {
-                throw new ArgumentException(SolutionSkeletonMissingErrorMessage);
-            }
+            var taskSkeleton = testsInput.TaskSkeletonAsString ?? string.Empty;
 
-            var className = Regex.Match(testsInput.TaskSkeletonAsString, ClassNameInSkeletonRegexPattern)
+            var className = Regex.Match(taskSkeleton, ClassNameInSkeletonRegexPattern)
                 .Groups[1]
                 .Value;
 

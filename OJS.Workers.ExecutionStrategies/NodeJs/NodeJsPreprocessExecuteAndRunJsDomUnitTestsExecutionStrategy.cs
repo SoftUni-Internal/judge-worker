@@ -84,6 +84,11 @@ describe('TestDOMScope', function() {
         jsdom.env({
             html: '',
             done: function(errors, window) {
+                // define innerText manually to work as textContent, as it is not supported in jsdom but used in judge
+                Object.defineProperty(window.Element.prototype, 'innerText', {
+                    get() { return this.textContent },
+                    set(value) { this.textContent = value }
+                });
                 global.window = window;
                 global.document = window.document;
                 global.$ = jq(window);

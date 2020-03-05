@@ -11,6 +11,8 @@
 
         public CheckerDetails CheckerDetails { get; set; }
 
+        public bool IsTrialTest { get; set; }
+
         public string ExecutionComment { get; set; }
     }
 }

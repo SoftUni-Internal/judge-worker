@@ -7,6 +7,8 @@
     {
         public int Id { get; set; }
 
+        public string Input { get; set; }
+
         public TestRunResultType ResultType { get; set; }
 
         public CheckerDetails CheckerDetails { get; set; }

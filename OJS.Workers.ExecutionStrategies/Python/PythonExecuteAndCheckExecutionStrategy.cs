@@ -12,10 +12,10 @@
 
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        protected readonly string PythonExecutablePath;
-
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
+
+        private readonly string pythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -29,7 +29,7 @@
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }
 
-            this.PythonExecutablePath = pythonExecutablePath;
+            this.pythonExecutablePath = pythonExecutablePath;
         }
 
         protected virtual IEnumerable<string> ExecutionArguments
@@ -111,7 +111,7 @@
             string input,
             string directory = null)
             => executor.Execute(
-                this.PythonExecutablePath,
+                this.pythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,

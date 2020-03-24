@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
+    using System.IO;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
@@ -14,6 +15,8 @@
         protected const string RemoveMacFolderPattern = "__MACOSX/*";
 
         protected readonly IProcessExecutorFactory ProcessExecutorFactory;
+
+        private const string ZippedSubmissionName = "Submission.zip";
 
         protected BaseCodeExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -37,6 +40,15 @@
             => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
+
+        protected virtual void SaveZipSubmission(byte[] submissionContent, string directory)
+        {
+            var submissionFilePath = Path.Combine(directory, ZippedSubmissionName);
+            File.WriteAllBytes(submissionFilePath, submissionContent);
+            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+            FileHelpers.UnzipFile(submissionFilePath, directory);
+            File.Delete(submissionFilePath);
+        }
 
         protected TestResult CheckAndGetTestResult(
             TestContext test,

@@ -5,7 +5,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Linq;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -13,11 +12,10 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
     public class PythonProjectTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
-        private const string ZippedSubmissionName = "Submission.zip";
         private const string TestsFolderName = "tests";
         private const string InitFileName = "__init__";
         private const string IgnorePythonEnvVarsFlag = "-E"; // -E and -s are part of -I (isolated mode)
-        private const string DontAddUserSiteDirectoryFlag = "-s"; // -I (isolated mode) does not work with project tests
+        private const string DontAddUserSiteDirectoryFlag = "-s";
         private const string UnitTestFlag = "-m unittest";
 
         private string[] testPaths;
@@ -40,7 +38,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            this.SaveSubmission(executionContext.FileContent);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
             this.SaveTests(executionContext.Input.Tests.ToList());
 
             var executor = this.CreateExecutor();
@@ -75,14 +73,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
             }
 
             return result;
-        }
-
-        protected virtual void SaveSubmission(byte[] submissionContent)
-        {
-            var submissionFilePath = Path.Combine(this.WorkingDirectory, ZippedSubmissionName);
-            File.WriteAllBytes(submissionFilePath, submissionContent);
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-            File.Delete(submissionFilePath);
         }
 
         protected virtual void SaveTests(IList<TestContext> tests)

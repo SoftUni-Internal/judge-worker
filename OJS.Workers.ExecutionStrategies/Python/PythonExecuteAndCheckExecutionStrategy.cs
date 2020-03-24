@@ -1,6 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
 
@@ -11,10 +12,10 @@
 
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
+        protected readonly string PythonExecutablePath;
+
         private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
         private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
-
-        private readonly string pythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -28,8 +29,11 @@
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }
 
-            this.pythonExecutablePath = pythonExecutablePath;
+            this.PythonExecutablePath = pythonExecutablePath;
         }
+
+        protected virtual IEnumerable<string> ExecutionArguments
+            => new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -104,14 +108,15 @@
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,
-            string input)
+            string input,
+            string directory = null)
             => executor.Execute(
-                this.pythonExecutablePath,
+                this.PythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, codeSavePath },
-                null,
+                this.ExecutionArguments.Concat(new[] { codeSavePath }),
+                directory,
                 false,
                 true);
 

@@ -45,6 +45,28 @@
 
             var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
 
+            var testResult = this.GetTestResult(processExecutionResult, test, checker);
+
+            return testResult;
+        }
+
+        protected override ProcessExecutionResult Execute<TInput>(
+            IExecutionContext<TInput> executionContext,
+            IExecutor executor,
+            string codeSavePath,
+            string input,
+            string directory = null)
+        {
+            var processExecutionResult = base.Execute(executionContext, executor, codeSavePath, input, directory);
+            this.FixReceivedOutput(processExecutionResult);
+            return processExecutionResult;
+        }
+
+        protected TestResult GetTestResult(
+            ProcessExecutionResult processExecutionResult,
+            TestContext test,
+            IChecker checker)
+        {
             var message = "Failing tests are not captured correctly. Please contact an Administrator.";
 
             var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
@@ -71,17 +93,6 @@
                 message);
 
             return testResult;
-        }
-
-        protected override ProcessExecutionResult Execute<TInput>(
-            IExecutionContext<TInput> executionContext,
-            IExecutor executor,
-            string codeSavePath,
-            string input)
-        {
-            var processExecutionResult = base.Execute(executionContext, executor, codeSavePath, input);
-            this.FixReceivedOutput(processExecutionResult);
-            return processExecutionResult;
         }
 
         protected void WriteTestInCodeFile(string code, string codeSavePath, string testContent)

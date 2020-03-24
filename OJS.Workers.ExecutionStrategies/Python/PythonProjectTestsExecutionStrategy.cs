@@ -16,6 +16,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string ZippedSubmissionName = "Submission.zip";
         private const string TestsFolderName = "tests";
         private const string InitFileName = "__init__";
+        private const string UnitTestFlag = "-m unittest";
+
+        private string[] testPaths;
 
         public PythonProjectTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -25,6 +28,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
             : base(processExecutorFactory, pythonExecutablePath, baseTimeUsed, baseMemoryUsed)
         {
         }
+
+        protected override IEnumerable<string> ExecutionArguments => new[] { UnitTestFlag };
 
         private string TestsDirectoryName => Path.Combine(this.WorkingDirectory, TestsFolderName);
 
@@ -36,6 +41,35 @@ namespace OJS.Workers.ExecutionStrategies.Python
             this.SaveTests(executionContext.Input.Tests.ToList());
 
             var executor = this.CreateExecutor();
+            var checker = executionContext.Input.GetChecker();
+
+            return this.RunTests(executor, checker, executionContext, result);
+        }
+
+        protected virtual IExecutionResult<TestResult> RunTests(
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            var tests = executionContext.Input.Tests.ToList();
+
+            for (var i = 0; i < tests.Count; i++)
+            {
+                var test = tests[i];
+                var testPath = this.testPaths[i];
+
+                var processExecutionResult = this.Execute(
+                    executionContext,
+                    executor,
+                    testPath,
+                    string.Empty,
+                    this.WorkingDirectory);
+
+                var testResult = this.GetTestResult(processExecutionResult, test, checker);
+
+                result.Results.Add(testResult);
+            }
 
             return result;
         }
@@ -54,11 +88,15 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var initFilePath = Path.Combine(this.TestsDirectoryName, $"{InitFileName}{PythonFileExtension}");
             File.WriteAllText(initFilePath, string.Empty);
 
+            this.testPaths = new string[tests.Count];
+
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
                 var testName = $"Test_{i}{PythonFileExtension}";
                 var testSavePath = Path.Combine(this.TestsDirectoryName, testName);
+
+                this.testPaths[i] = testSavePath;
 
                 File.WriteAllText(testSavePath, test.Input);
             }

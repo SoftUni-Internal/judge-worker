@@ -27,6 +27,7 @@
         public const string ClassLibraryFileExtension = ".dll";
         public const string ExecutableFileExtension = ".exe";
         public const string JavaScriptFileExtension = ".js";
+        public const string PythonFileExtension = ".py";
         public const string ZipFileExtension = ".zip";
         public const string JsonFileExtension = ".json";
         public const string SolidityFileExtension = ".sol";

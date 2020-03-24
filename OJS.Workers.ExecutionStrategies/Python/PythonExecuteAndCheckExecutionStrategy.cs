@@ -115,7 +115,7 @@
                 false,
                 true);
 
-        private IExecutor CreateExecutor()
+        protected IExecutor CreateExecutor()
             => this.CreateExecutor(ProcessExecutorType.Restricted);
     }
 }

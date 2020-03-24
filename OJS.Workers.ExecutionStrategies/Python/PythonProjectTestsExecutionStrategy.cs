@@ -16,6 +16,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string ZippedSubmissionName = "Submission.zip";
         private const string TestsFolderName = "tests";
         private const string InitFileName = "__init__";
+        private const string IgnorePythonEnvVarsFlag = "-E"; // -E and -s are part of -I (isolated mode)
+        private const string DontAddUserSiteDirectoryFlag = "-s"; // -I (isolated mode) does not work with project tests
         private const string UnitTestFlag = "-m unittest";
 
         private string[] testPaths;
@@ -29,7 +31,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
         }
 
-        protected override IEnumerable<string> ExecutionArguments => new[] { UnitTestFlag };
+        protected override IEnumerable<string> ExecutionArguments
+            => new[] { IgnorePythonEnvVarsFlag, DontAddUserSiteDirectoryFlag, UnitTestFlag };
 
         private string TestsDirectoryName => Path.Combine(this.WorkingDirectory, TestsFolderName);
 

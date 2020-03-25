@@ -47,7 +47,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             return this.RunTests(executor, checker, executionContext, result);
         }
 
-        protected virtual IExecutionResult<TestResult> RunTests(
+        private IExecutionResult<TestResult> RunTests(
             IExecutor executor,
             IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
@@ -75,7 +75,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             return result;
         }
 
-        protected virtual void SaveTests(IList<TestContext> tests)
+        private void SaveTests(IList<TestContext> tests)
         {
             Directory.CreateDirectory(this.TestsDirectoryName);
             var initFilePath = Path.Combine(this.TestsDirectoryName, $"{InitFileName}{PythonFileExtension}");

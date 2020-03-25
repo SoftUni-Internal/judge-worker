@@ -31,6 +31,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private readonly string projectFilesCountNotSpecifiedInSolutionSkeletonErrorMessage =
             $"Expecting \"{ProjectFilesCountPlaceholder}\" in solution skeleton followed by the number of files that the project has";
 
+        private int? expectedProjectFilesCount;
+
         public PythonProjectUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
@@ -40,10 +42,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
         }
 
-        private string ProjectDirectoryPath => Path.Combine(this.WorkingDirectory, ProjectFolderName);
-
         protected override IEnumerable<string> ExecutionArguments
-            => new []
+            => new[]
             {
                 IgnorePythonEnvVarsFlag,
                 DontAddUserSiteDirectoryFlag,
@@ -51,6 +51,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 UnitTestModuleName,
                 DiscoverTestsCommandName,
             };
+
+        private string ProjectDirectoryPath => Path.Combine(this.WorkingDirectory, ProjectFolderName);
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -61,7 +63,40 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
 
-            return this.RunTests(executor, checker, executionContext, result);
+            Directory.CreateDirectory(this.ProjectDirectoryPath);
+            PythonStrategiesHelper.CreateInitFile(this.ProjectDirectoryPath);
+
+            return this.RunTests(string.Empty, executor, checker, executionContext, result);
+        }
+
+        protected override TestResult RunIndividualUnitTest(
+            ref int originalTestsPassed,
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test,
+            bool isFirstRun)
+        {
+            this.expectedProjectFilesCount = this.expectedProjectFilesCount
+                ?? (this.expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
+                    executionContext.Input.TaskSkeletonAsString));
+
+            this.SaveTestProjectFiles(this.expectedProjectFilesCount.Value, test);
+
+            var processExecutionResult = this.Execute(
+                executionContext,
+                executor,
+                codeSavePath,
+                string.Empty,
+                this.WorkingDirectory);
+
+            return this.GetUnitTestsResultFromExecutionResult(
+                ref originalTestsPassed,
+                checker,
+                processExecutionResult,
+                test,
+                isFirstRun);
         }
 
         /// <summary>
@@ -76,26 +111,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
                     .Split(className, UpperCaseSplitRegexPattern)
                     .Select(x => x.ToLower()))
                 + PythonFileExtension;
-
-        private IExecutionResult<TestResult> RunTests(
-            IExecutor executor,
-            IChecker checker,
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
-        {
-            Directory.CreateDirectory(this.ProjectDirectoryPath);
-            PythonStrategiesHelper.CreateInitFile(this.ProjectDirectoryPath);
-
-            var expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
-                executionContext.Input.TaskSkeletonAsString);
-
-            foreach (var test in executionContext.Input.Tests)
-            {
-                this.SaveTestProjectFiles(expectedProjectFilesCount, test);
-            }
-
-            return result;
-        }
 
         /// <summary>
         /// Generates and saves all python files that are being tested by the user.

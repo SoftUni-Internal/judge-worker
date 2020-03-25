@@ -12,18 +12,19 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using OJS.Workers.Executors;
 
     using static OJS.Workers.Common.Constants;
+    using static OJS.Workers.ExecutionStrategies.Python.PythonConstants;
 
     public class PythonProjectUnitTestsExecutionStrategy : PythonUnitTestsExecutionStrategy
     {
         private const string ProjectFolderName = "project";
-        private const string ProjectFilesCountPlaceholder = "# project_files_count:";
+        private const string ProjectFilesCountPlaceholder = "# project_files_count ";
         private const string ClassNameRegexPattern = @"^class\s+([a-zA-z0-9]+)";
         private const string UpperCaseSplitRegexPattern = @"(?<!^)(?=[A-Z])";
 
         private const string ProjectFilesNotCapturedCorrectlyErrorMessageTemplate =
             "There should be {0} classes in test #{1}, but found {2}. Ensure the test is correct";
 
-        private readonly string projectFilesCountRegexPattern = $@"^{ProjectFilesCountPlaceholder}\s+([0-9])\s*$";
+        private readonly string projectFilesCountRegexPattern = $@"^{ProjectFilesCountPlaceholder}\s*([0-9])\s*$";
         private readonly string projectFilesRegexPattern =
             $@"(?:^from\s+[\s\S]+?)?{ClassNameRegexPattern}[\s\S]+?(?=^from|^class)";
 
@@ -40,6 +41,16 @@ namespace OJS.Workers.ExecutionStrategies.Python
         }
 
         private string ProjectDirectoryPath => Path.Combine(this.WorkingDirectory, ProjectFolderName);
+
+        protected override IEnumerable<string> ExecutionArguments
+            => new []
+            {
+                IgnorePythonEnvVarsFlag,
+                DontAddUserSiteDirectoryFlag,
+                ModuleFlag,
+                UnitTestModuleName,
+                DiscoverTestsCommandName,
+            };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -75,7 +86,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
             Directory.CreateDirectory(this.ProjectDirectoryPath);
             PythonStrategiesHelper.CreateInitFile(this.ProjectDirectoryPath);
 
-            var expectedProjectFilesCount = this.GetProjectFilesCount(executionContext.Input.TaskSkeletonAsString);
+            var expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
+                executionContext.Input.TaskSkeletonAsString);
 
             foreach (var test in executionContext.Input.Tests)
             {
@@ -119,10 +131,12 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// <param name="solutionSkeleton">The skeleton in which this count is written upon task creation</param>
         /// <returns>Number of files that need to be extracted from every test input and saved in the working directory</returns>
         /// <exception cref="ArgumentException">Exception thrown if the count is not given as expected</exception>
-        private int GetProjectFilesCount(string solutionSkeleton)
+        private int GetExpectedProjectFilesCount(string solutionSkeleton)
         {
-            var regex = new Regex(this.projectFilesCountRegexPattern);
-            var projectFilesCountAsString = regex.Match(solutionSkeleton ?? string.Empty).Groups[1].Value;
+            solutionSkeleton = solutionSkeleton ?? string.Empty;
+
+            var projectFilesCountRegex = new Regex(this.projectFilesCountRegexPattern);
+            var projectFilesCountAsString = projectFilesCountRegex.Match(solutionSkeleton).Groups[1].Value;
 
             if (int.TryParse(projectFilesCountAsString, out var projectFilesCount))
             {
@@ -151,7 +165,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                     m => GetFileNameWithExtensionForClass(m.Groups[1].Value),
                     m => m.Value.Trim());
 
-            // removing all matches and leaving the last one, which the regex does not match
+            // removing all matches and leaving the last/only one, which the regex does not capture
             var lastFileContent = filesRegex.Replace(testInput, string.Empty).Trim();
             var lastClassName = classNameRegex.Match(lastFileContent).Groups[1].Value;
             var lastFileName = GetFileNameWithExtensionForClass(lastClassName);

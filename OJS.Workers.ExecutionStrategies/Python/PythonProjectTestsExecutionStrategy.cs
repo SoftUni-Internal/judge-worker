@@ -10,13 +10,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using OJS.Workers.Executors;
 
     using static OJS.Workers.Common.Constants;
+    using static OJS.Workers.ExecutionStrategies.Python.PythonConstants;
 
     public class PythonProjectTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
         private const string TestsFolderName = "tests";
-        private const string IgnorePythonEnvVarsFlag = "-E"; // -E and -s are part of -I (isolated mode)
-        private const string DontAddUserSiteDirectoryFlag = "-s";
-        private const string UnitTestFlag = "-m unittest";
 
         private string[] testPaths;
 
@@ -30,7 +28,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         }
 
         protected override IEnumerable<string> ExecutionArguments
-            => new[] { IgnorePythonEnvVarsFlag, DontAddUserSiteDirectoryFlag, UnitTestFlag };
+            => new[] { IgnorePythonEnvVarsFlag, DontAddUserSiteDirectoryFlag, ModuleFlag, UnitTestModuleName };
 
         private string TestsDirectoryName => Path.Combine(this.WorkingDirectory, TestsFolderName);
 

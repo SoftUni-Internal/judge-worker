@@ -11,10 +11,12 @@
 
     public class PythonUnitTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
-        private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
+        private const string ClassNamePlaceholder = "# class_name ";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
-        private const string ClassNameNotFoundErrorMessage =
-            "class_name not found in Solution Skeleton. Expecting \"# class_name \" followed by the test class's name.";
+
+        private readonly string classNameInSkeletonRegexPattern = $@"{ClassNamePlaceholder}\s*([^\s]+)\s*$";
+        private readonly string classNameNotFoundErrorMessage =
+            $"Class name not found in Solution Skeleton. Expecting \"{ClassNamePlaceholder}\" followed by the test class's name.";
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -101,13 +103,13 @@
         {
             var taskSkeleton = testsInput.TaskSkeletonAsString ?? string.Empty;
 
-            var className = Regex.Match(taskSkeleton, ClassNameInSkeletonRegexPattern)
+            var className = Regex.Match(taskSkeleton, this.classNameInSkeletonRegexPattern)
                 .Groups[1]
                 .Value;
 
             if (string.IsNullOrWhiteSpace(className))
             {
-                throw new ArgumentException(ClassNameNotFoundErrorMessage);
+                throw new ArgumentException(this.classNameNotFoundErrorMessage);
             }
 
             return className;

@@ -10,11 +10,10 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.Python.PythonConstants;
+
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
-        private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
-
         private readonly string pythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
@@ -33,7 +32,7 @@
         }
 
         protected virtual IEnumerable<string> ExecutionArguments
-            => new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument };
+            => new[] { IsolatedModeArgument, OptimizeAndDiscardDocstringsArgument };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,

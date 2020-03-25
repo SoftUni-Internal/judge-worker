@@ -28,7 +28,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         }
 
         protected override IEnumerable<string> ExecutionArguments
-            => new[] { IgnorePythonEnvVarsFlag, DontAddUserSiteDirectoryFlag, ModuleFlag, UnitTestModuleName };
+            => new[] { IgnorePythonEnvVarsArgument, DontAddUserSiteDirectoryArgument, ModuleNameArgument, UnitTestModuleName };
 
         private string TestsDirectoryName => Path.Combine(this.WorkingDirectory, TestsFolderName);
 

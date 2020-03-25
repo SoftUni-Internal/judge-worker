@@ -45,9 +45,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
         protected override IEnumerable<string> ExecutionArguments
             => new[]
             {
-                IgnorePythonEnvVarsFlag,
-                DontAddUserSiteDirectoryFlag,
-                ModuleFlag,
+                IgnorePythonEnvVarsArgument,
+                DontAddUserSiteDirectoryArgument,
+                ModuleNameArgument,
                 UnitTestModuleName,
                 DiscoverTestsCommandName,
             };

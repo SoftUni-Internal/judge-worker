@@ -7,6 +7,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -66,6 +67,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IExecutionResult<TestResult> result)
         {
             Directory.CreateDirectory(this.ProjectDirectoryPath);
+            PythonStrategiesHelper.CreateInitFile(this.ProjectDirectoryPath);
 
             var expectedProjectFilesCount = this.GetProjectFilesCount(executionContext.Input.TaskSkeletonAsString);
 

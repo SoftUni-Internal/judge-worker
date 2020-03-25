@@ -5,6 +5,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -13,7 +14,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
     public class PythonProjectTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
         private const string TestsFolderName = "tests";
-        private const string InitFileName = "__init__";
         private const string IgnorePythonEnvVarsFlag = "-E"; // -E and -s are part of -I (isolated mode)
         private const string DontAddUserSiteDirectoryFlag = "-s";
         private const string UnitTestFlag = "-m unittest";
@@ -78,8 +78,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private void SaveTests(IList<TestContext> tests)
         {
             Directory.CreateDirectory(this.TestsDirectoryName);
-            var initFilePath = Path.Combine(this.TestsDirectoryName, $"{InitFileName}{PythonFileExtension}");
-            File.WriteAllText(initFilePath, string.Empty);
+            PythonStrategiesHelper.CreateInitFile(this.TestsDirectoryName);
 
             this.testPaths = new string[tests.Count];
 

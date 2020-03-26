@@ -1,7 +1,6 @@
 namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
     using OJS.Workers.Common;
@@ -87,9 +86,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// <param name="tests">All tests from the execution context</param>
         private void SaveTests(IList<TestContext> tests)
         {
-            var testsDirectoryName = Path.Combine(this.WorkingDirectory, TestsFolderName);
+            var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);
 
-            Directory.CreateDirectory(testsDirectoryName);
+            DirectoryHelpers.CreateDirectory(testsDirectoryName);
             PythonStrategiesHelper.CreateInitFile(testsDirectoryName);
 
             this.testPaths = new string[tests.Count];

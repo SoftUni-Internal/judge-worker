@@ -12,14 +12,14 @@
     {
         public static string SaveStringToFileInDirectory(string directoryPath, string fileName, string stringToWrite)
         {
-            var filePath = Path.Combine(directoryPath, fileName);
+            var filePath = BuildPath(directoryPath, fileName);
             File.WriteAllText(filePath, stringToWrite);
             return filePath;
         }
 
         public static string SaveByteArrayToFileInDirectory(string directoryPath, string fileName, byte[] dataToWrite)
         {
-            var filePath = Path.Combine(directoryPath, fileName);
+            var filePath = BuildPath(directoryPath, fileName);
             File.WriteAllBytes(filePath, dataToWrite);
             return filePath;
         }
@@ -184,6 +184,8 @@
 
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
+
+        public static bool FileExists(string filePath) => File.Exists(filePath);
 
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {

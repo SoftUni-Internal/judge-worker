@@ -2,7 +2,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
 
@@ -63,11 +62,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
 
-            this.projectDirectoryPath = Path.Combine(this.WorkingDirectory, ProjectFolderName);
+            this.projectDirectoryPath = FileHelpers.BuildPath(this.WorkingDirectory, ProjectFolderName);
             this.expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
                 executionContext.Input.TaskSkeletonAsString);
 
-            Directory.CreateDirectory(this.projectDirectoryPath);
+            DirectoryHelpers.CreateDirectory(this.projectDirectoryPath);
             PythonStrategiesHelper.CreateInitFile(this.projectDirectoryPath);
 
             return this.RunTests(string.Empty, executor, checker, executionContext, result);

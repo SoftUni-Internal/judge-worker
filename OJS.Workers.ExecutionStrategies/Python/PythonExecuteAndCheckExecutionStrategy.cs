@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -23,7 +23,7 @@
             int baseMemoryUsed)
             : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
-            if (!File.Exists(pythonExecutablePath))
+            if (!FileHelpers.FileExists(pythonExecutablePath))
             {
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }

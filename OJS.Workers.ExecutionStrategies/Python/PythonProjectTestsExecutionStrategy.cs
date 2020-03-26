@@ -97,11 +97,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
             {
                 var test = tests[i];
                 var testFileName = $"test_{i}{PythonFileExtension}";
+                var testSavePath = FileHelpers.BuildPath(testsDirectoryName, testFileName);
 
-                var testSavePath = FileHelpers.SaveStringToFileInDirectory(
-                    testsDirectoryName,
-                    testFileName,
-                    test.Input);
+                FileHelpers.WriteAllText(testSavePath, test.Input);
 
                 this.testPaths[i] = testSavePath;
             }

@@ -42,11 +42,8 @@
 
         protected void SaveZipSubmission(byte[] submissionContent, string directory)
         {
-            var submissionFilePath = FileHelpers.SaveByteArrayToFileInDirectory(
-                directory,
-                ZippedSubmissionName,
-                submissionContent);
-
+            var submissionFilePath = FileHelpers.BuildPath(directory, ZippedSubmissionName);
+            FileHelpers.WriteAllBytes(submissionFilePath, submissionContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, directory);
             FileHelpers.DeleteFile(submissionFilePath);

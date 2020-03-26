@@ -133,9 +133,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             foreach (var projectFile in projectFilesToBeCreated)
             {
-                FileHelpers.SaveStringToFileInDirectory(
-                    this.projectDirectoryPath,
-                    projectFile.Key,
+                FileHelpers.WriteAllText(
+                    FileHelpers.BuildPath(this.projectDirectoryPath, projectFile.Key),
                     projectFile.Value);
             }
         }

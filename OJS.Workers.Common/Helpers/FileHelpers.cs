@@ -10,20 +10,6 @@
     // TODO: Unit test
     public static class FileHelpers
     {
-        public static string SaveStringToFileInDirectory(string directoryPath, string fileName, string stringToWrite)
-        {
-            var filePath = BuildPath(directoryPath, fileName);
-            File.WriteAllText(filePath, stringToWrite);
-            return filePath;
-        }
-
-        public static string SaveByteArrayToFileInDirectory(string directoryPath, string fileName, byte[] dataToWrite)
-        {
-            var filePath = BuildPath(directoryPath, fileName);
-            File.WriteAllBytes(filePath, dataToWrite);
-            return filePath;
-        }
-
         public static string SaveStringToTempFile(string stringToWrite)
         {
             var tempFilePath = Path.GetTempFileName();
@@ -184,6 +170,9 @@
 
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
+
+        public static void WriteAllBytes(string filePath, byte[] data)
+            => File.WriteAllBytes(filePath, data);
 
         public static bool FileExists(string filePath) => File.Exists(filePath);
 

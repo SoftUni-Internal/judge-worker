@@ -9,6 +9,8 @@ namespace OJS.Workers.ExecutionStrategies.Helpers
         private const string InitFileName = "__init__" + PythonFileExtension;
 
         public static void CreateInitFile(string directory)
-            => FileHelpers.SaveStringToFileInDirectory(directory, InitFileName, string.Empty);
+            => FileHelpers.WriteAllText(
+                FileHelpers.BuildPath(directory, InitFileName),
+                string.Empty);
     }
 }

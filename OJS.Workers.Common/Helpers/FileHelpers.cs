@@ -10,6 +10,20 @@
     // TODO: Unit test
     public static class FileHelpers
     {
+        public static string SaveStringToFileInDirectory(string directoryPath, string fileName, string stringToWrite)
+        {
+            var filePath = Path.Combine(directoryPath, fileName);
+            File.WriteAllText(filePath, stringToWrite);
+            return filePath;
+        }
+
+        public static string SaveByteArrayToFileInDirectory(string directoryPath, string fileName, byte[] dataToWrite)
+        {
+            var filePath = Path.Combine(directoryPath, fileName);
+            File.WriteAllBytes(filePath, dataToWrite);
+            return filePath;
+        }
+
         public static string SaveStringToTempFile(string stringToWrite)
         {
             var tempFilePath = Path.GetTempFileName();

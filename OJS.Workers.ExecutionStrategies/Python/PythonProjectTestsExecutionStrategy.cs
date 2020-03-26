@@ -5,6 +5,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Linq;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -28,30 +29,36 @@ namespace OJS.Workers.ExecutionStrategies.Python
         }
 
         protected override IEnumerable<string> ExecutionArguments
-            => new[] { IgnorePythonEnvVarsArgument, DontAddUserSiteDirectoryArgument, ModuleNameArgument, UnitTestModuleName };
-
-        private string TestsDirectoryName => Path.Combine(this.WorkingDirectory, TestsFolderName);
+            => new[]
+            {
+                IgnorePythonEnvVarsArgument,
+                DontAddUserSiteDirectoryArgument,
+                ModuleNameArgument,
+                UnitTestModuleName,
+            };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
             this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
-            this.SaveTests(executionContext.Input.Tests.ToList());
 
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
 
-            return this.RunTests(executor, checker, executionContext, result);
+            return this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
 
-        private IExecutionResult<TestResult> RunTests(
+        protected override IExecutionResult<TestResult> RunTests(
+            string codeSavePath,
             IExecutor executor,
             IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
             var tests = executionContext.Input.Tests.ToList();
+
+            this.SaveTests(tests);
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -73,22 +80,31 @@ namespace OJS.Workers.ExecutionStrategies.Python
             return result;
         }
 
+        /// <summary>
+        /// Saves all tests from the execution context as separate files in tests directory.
+        /// Full paths to the files are preserved in a private field.
+        /// </summary>
+        /// <param name="tests">All tests from the execution context</param>
         private void SaveTests(IList<TestContext> tests)
         {
-            Directory.CreateDirectory(this.TestsDirectoryName);
-            PythonStrategiesHelper.CreateInitFile(this.TestsDirectoryName);
+            var testsDirectoryName = Path.Combine(this.WorkingDirectory, TestsFolderName);
+
+            Directory.CreateDirectory(testsDirectoryName);
+            PythonStrategiesHelper.CreateInitFile(testsDirectoryName);
 
             this.testPaths = new string[tests.Count];
 
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testName = $"Test_{i}{PythonFileExtension}";
-                var testSavePath = Path.Combine(this.TestsDirectoryName, testName);
+                var testFileName = $"test_{i}{PythonFileExtension}";
+
+                var testSavePath = FileHelpers.SaveStringToFileInDirectory(
+                    testsDirectoryName,
+                    testFileName,
+                    test.Input);
 
                 this.testPaths[i] = testSavePath;
-
-                File.WriteAllText(testSavePath, test.Input);
             }
         }
     }

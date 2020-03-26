@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
-    using System.IO;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
@@ -41,13 +40,16 @@
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
-        protected virtual void SaveZipSubmission(byte[] submissionContent, string directory)
+        protected void SaveZipSubmission(byte[] submissionContent, string directory)
         {
-            var submissionFilePath = Path.Combine(directory, ZippedSubmissionName);
-            File.WriteAllBytes(submissionFilePath, submissionContent);
+            var submissionFilePath = FileHelpers.SaveByteArrayToFileInDirectory(
+                directory,
+                ZippedSubmissionName,
+                submissionContent);
+
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, directory);
-            File.Delete(submissionFilePath);
+            FileHelpers.DeleteFiles(submissionFilePath);
         }
 
         protected TestResult CheckAndGetTestResult(

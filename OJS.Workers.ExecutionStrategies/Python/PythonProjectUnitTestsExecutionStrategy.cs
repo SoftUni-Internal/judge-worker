@@ -7,6 +7,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -31,7 +32,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private readonly string projectFilesCountNotSpecifiedInSolutionSkeletonErrorMessage =
             $"Expecting \"{ProjectFilesCountPlaceholder}\" in solution skeleton followed by the number of files that the project has";
 
-        private int? expectedProjectFilesCount;
+        private string projectDirectoryPath;
+        private int expectedProjectFilesCount;
 
         public PythonProjectUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -52,8 +54,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 DiscoverTestsCommandName,
             };
 
-        private string ProjectDirectoryPath => Path.Combine(this.WorkingDirectory, ProjectFolderName);
-
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -63,8 +63,12 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
 
-            Directory.CreateDirectory(this.ProjectDirectoryPath);
-            PythonStrategiesHelper.CreateInitFile(this.ProjectDirectoryPath);
+            this.projectDirectoryPath = Path.Combine(this.WorkingDirectory, ProjectFolderName);
+            this.expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
+                executionContext.Input.TaskSkeletonAsString);
+
+            Directory.CreateDirectory(this.projectDirectoryPath);
+            PythonStrategiesHelper.CreateInitFile(this.projectDirectoryPath);
 
             return this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
@@ -78,11 +82,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             TestContext test,
             bool isFirstRun)
         {
-            this.expectedProjectFilesCount = this.expectedProjectFilesCount
-                ?? (this.expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
-                    executionContext.Input.TaskSkeletonAsString));
-
-            this.SaveTestProjectFiles(this.expectedProjectFilesCount.Value, test);
+            this.SaveTestProjectFiles(this.expectedProjectFilesCount, test);
 
             var processExecutionResult = this.Execute(
                 executionContext,
@@ -134,8 +134,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             foreach (var projectFile in projectFilesToBeCreated)
             {
-                File.WriteAllText(
-                    Path.Combine(this.ProjectDirectoryPath, projectFile.Key),
+                FileHelpers.SaveStringToFileInDirectory(
+                    this.projectDirectoryPath,
+                    projectFile.Key,
                     projectFile.Value);
             }
         }

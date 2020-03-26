@@ -148,10 +148,15 @@
         {
             foreach (var filePath in filePaths)
             {
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                DeleteFile(filePath);
+            }
+        }
+
+        public static void DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
             }
         }
 

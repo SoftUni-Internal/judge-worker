@@ -49,7 +49,7 @@
 
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, directory);
-            FileHelpers.DeleteFiles(submissionFilePath);
+            FileHelpers.DeleteFile(submissionFilePath);
         }
 
         protected TestResult CheckAndGetTestResult(

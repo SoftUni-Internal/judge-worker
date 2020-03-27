@@ -24,7 +24,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string ProjectFilesNotCapturedCorrectlyErrorMessageTemplate =
             "There should be {0} classes in test #{1}, but found {2}. Ensure the test is correct";
 
-        private readonly string projectFilesCountRegexPattern = $@"^{ProjectFilesCountPlaceholder}\s*([0-9])\s*$";
+        private readonly string projectFilesCountRegexPattern = $@"^{ProjectFilesCountPlaceholder}\s*(\d+)\s*$";
         private readonly string projectFilesRegexPattern =
             $@"(?:^from\s+[\s\S]+?)?{ClassNameRegexPattern}[\s\S]+?(?=^from|^class)";
 

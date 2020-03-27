@@ -18,7 +18,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     {
         private const string ProjectFolderName = "project";
         private const string ProjectFilesCountPlaceholder = "# project_files_count ";
-        private const string ClassNameRegexPattern = @"^class\s+([a-zA-z0-9]+)";
+        private const string ClassNameRegexPattern = @"^class\s+(\w+)";
         private const string UpperCaseSplitRegexPattern = @"(?<!^)(?=[A-Z])";
         private const string ProjectFilesNotCapturedCorrectlyErrorMessageTemplate =
             "There should be {0} classes in test #{1}, but found {2}. Ensure the test is correct";

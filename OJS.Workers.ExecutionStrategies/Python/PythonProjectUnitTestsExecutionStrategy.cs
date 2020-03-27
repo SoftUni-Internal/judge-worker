@@ -20,6 +20,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string ProjectFilesCountPlaceholder = "# project_files_count ";
         private const string ClassNameRegexPattern = @"^class\s+([a-zA-z0-9]+)";
         private const string UpperCaseSplitRegexPattern = @"(?<!^)(?=[A-Z])";
+        private const string ProjectSubfoldersRegexPattern = @"^from (project\.\w+\..+)(?: import)\s+(\w+)";
 
         private const string ProjectFilesNotCapturedCorrectlyErrorMessageTemplate =
             "There should be {0} classes in test #{1}, but found {2}. Ensure the test is correct";
@@ -65,9 +66,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
             this.projectDirectoryPath = FileHelpers.BuildPath(this.WorkingDirectory, ProjectFolderName);
             this.expectedProjectFilesCount = this.GetExpectedProjectFilesCount(
                 executionContext.Input.TaskSkeletonAsString);
-
-            DirectoryHelpers.CreateDirectory(this.projectDirectoryPath);
-            PythonStrategiesHelper.CreateInitFile(this.projectDirectoryPath);
 
             return this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
@@ -133,9 +131,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             foreach (var projectFile in projectFilesToBeCreated)
             {
-                FileHelpers.WriteAllText(
-                    FileHelpers.BuildPath(this.projectDirectoryPath, projectFile.Key),
-                    projectFile.Value);
+                PythonStrategiesHelper.CreateFileInPackage(projectFile.Key, projectFile.Value);
             }
         }
 
@@ -165,28 +161,78 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// The test input contains multiple classes, that have to be extracted and put in separate files
         /// </summary>
         /// <param name="test">The test on with the operation is performed</param>
-        /// <returns>A dictionary containing file name as a key and file content as a value</returns>
+        /// <returns>A dictionary containing full file path as a key and file content as a value</returns>
         private Dictionary<string, string> GetProjectFilesToBeCreated(TestContext test)
         {
             var testInput = test.Input;
 
             var filesRegex = new Regex(this.projectFilesRegexPattern, RegexOptions.Multiline);
             var classNameRegex = new Regex(ClassNameRegexPattern, RegexOptions.Multiline);
+            var filesWithSubfoldersRegex = new Regex(ProjectSubfoldersRegexPattern, RegexOptions.Multiline);
+
+            var filesInSubfolderPaths = filesWithSubfoldersRegex.Matches(testInput)
+                .Cast<Match>()
+                .GroupBy(m => m.Groups[2].Value)
+                .Select(gr => gr.First())
+                .ToDictionary(
+                    m => m.Groups[2].Value,
+                    m => this.GetSubfolderFilePath(m.Groups[1].Value, m.Groups[2].Value));
 
             var projectFilesToBeCreated = filesRegex.Matches(testInput)
                 .Cast<Match>()
                 .ToDictionary(
-                    m => GetFileNameWithExtensionForClass(m.Groups[1].Value),
+                    m => GetFilePathForClass(m.Groups[1].Value),
                     m => m.Value.Trim());
 
             // removing all matches and leaving the last/only one, which the regex does not capture
             var lastFileContent = filesRegex.Replace(testInput, string.Empty).Trim();
             var lastClassName = classNameRegex.Match(lastFileContent).Groups[1].Value;
-            var lastFileName = GetFileNameWithExtensionForClass(lastClassName);
+            var lastFilePath = GetFilePathForClass(lastClassName);
 
-            projectFilesToBeCreated.Add(lastFileName, lastFileContent);
+            projectFilesToBeCreated.Add(lastFilePath, lastFileContent);
 
             return projectFilesToBeCreated;
+
+            string GetFilePathForClass(string className)
+                => filesInSubfolderPaths.Keys.Contains(className)
+                    ? filesInSubfolderPaths[className]
+                    : this.GetRootFolderFilePath(className);
         }
+
+        /// <summary>
+        /// Constructs full path for the class file, by analyzing the import statement.
+        /// example: 'from project.animal.dog.brown_dog import BrownDog' the file path should be
+        /// {projectDirectory}/animal/dog/brown_dog.py
+        /// </summary>
+        /// <param name="importClause">The import statement of the class</param>
+        /// <param name="className">The name of the class</param>
+        /// <returns></returns>
+        private string GetSubfolderFilePath(string importClause, string className)
+        {
+            var folderNames = importClause.Split('.').ToList();
+
+            // remove first element which is project
+            folderNames.RemoveAt(0);
+
+            // remove last element which is the file name that will be generated from the class name
+            folderNames.RemoveAt(folderNames.Count - 1);
+
+            var pathArguments = new List<string> { this.projectDirectoryPath };
+
+            pathArguments.AddRange(folderNames);
+            pathArguments.Add(GetFileNameWithExtensionForClass(className));
+
+            return FileHelpers.BuildPath(pathArguments.ToArray());
+        }
+
+        /// <summary>
+        /// Constructs full path for the class file, that goes in the root directory of the project
+        /// </summary>
+        /// <param name="className">The name of the class</param>
+        /// <returns></returns>
+        private string GetRootFolderFilePath(string className)
+            => FileHelpers.BuildPath(
+                this.projectDirectoryPath,
+                GetFileNameWithExtensionForClass(className));
     }
 }

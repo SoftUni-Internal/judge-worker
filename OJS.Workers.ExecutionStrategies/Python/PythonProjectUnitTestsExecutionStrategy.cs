@@ -186,21 +186,21 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var projectFilesToBeCreated = filesRegex.Matches(testInput)
                 .Cast<Match>()
                 .ToDictionary(
-                    m => GetFilePathForClass(m.Groups[1].Value),
+                    m => GetFilePath(m.Groups[1].Value),
                     m => m.Value.Trim());
 
             // removing all matches and leaving the last/only one, which the regex does not capture
             var lastFileContent = filesRegex.Replace(testInput, string.Empty).Trim();
             var lastClassName = classNameRegex.Match(lastFileContent).Groups[1].Value;
-            var lastFilePath = GetFilePathForClass(lastClassName);
+            var lastFilePath = GetFilePath(lastClassName);
 
             projectFilesToBeCreated.Add(lastFilePath, lastFileContent);
 
             return projectFilesToBeCreated;
 
-            string GetFilePathForClass(string className)
-                => filesInSubfolderPaths.Keys.Contains(className)
-                    ? filesInSubfolderPaths[className]
+            string GetFilePath(string className)
+                => filesInSubfolderPaths.TryGetValue(className, out var filePath)
+                    ? filePath
                     : this.GetFilePathForClass(className);
         }
 

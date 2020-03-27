@@ -8,9 +8,23 @@ namespace OJS.Workers.ExecutionStrategies.Helpers
     {
         private const string InitFileName = "__init__" + PythonFileExtension;
 
-        public static void CreateInitFile(string directory)
-            => FileHelpers.WriteAllText(
-                FileHelpers.BuildPath(directory, InitFileName),
-                string.Empty);
+        public static void CreateFileInPackage(string filePath, string content)
+        {
+            var directoryPath = DirectoryHelpers.CreateDirectoryForFile(filePath);
+
+            CreateInitFile(directoryPath);
+
+            FileHelpers.WriteAllText(filePath, content);
+        }
+
+        private static void CreateInitFile(string directoryPath)
+        {
+            var filePath = FileHelpers.BuildPath(directoryPath, InitFileName);
+
+            if (!FileHelpers.FileExists(filePath))
+            {
+                FileHelpers.WriteAllText(filePath, string.Empty);
+            }
+        }
     }
 }

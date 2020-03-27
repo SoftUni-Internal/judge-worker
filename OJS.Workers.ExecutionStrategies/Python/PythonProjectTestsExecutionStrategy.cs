@@ -88,9 +88,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
             var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);
 
-            DirectoryHelpers.CreateDirectory(testsDirectoryName);
-            PythonStrategiesHelper.CreateInitFile(testsDirectoryName);
-
             this.testPaths = new string[tests.Count];
 
             for (var i = 0; i < tests.Count; i++)
@@ -99,7 +96,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 var testFileName = $"test_{i}{PythonFileExtension}";
                 var testSavePath = FileHelpers.BuildPath(testsDirectoryName, testFileName);
 
-                FileHelpers.WriteAllText(testSavePath, test.Input);
+                PythonStrategiesHelper.CreateFileInPackage(testSavePath, test.Input);
 
                 this.testPaths[i] = testSavePath;
             }

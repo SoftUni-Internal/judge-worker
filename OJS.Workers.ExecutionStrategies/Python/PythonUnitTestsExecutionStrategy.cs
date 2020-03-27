@@ -11,10 +11,12 @@
 
     public class PythonUnitTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
-        private const string ClassNameInSkeletonRegexPattern = @"#\s+class_name\s+([^\s]+)\s*$";
+        private const string ClassNamePlaceholder = "# class_name ";
         private const string ImportTargetClassRegexPattern = @"^(from\s+{0}\s+import\s.*)|^(import\s+{0}(?=\s|$).*)";
-        private const string ClassNameNotFoundErrorMessage =
-            "class_name not found in Solution Skeleton. Expecting \"# class_name \" followed by the test class's name.";
+
+        private readonly string classNameInSkeletonRegexPattern = $@"{ClassNamePlaceholder}\s*([^\s]+)\s*$";
+        private readonly string classNameNotFoundErrorMessage =
+            $"Class name not found in Solution Skeleton. Expecting \"{ClassNamePlaceholder}\" followed by the test class's name.";
 
         public PythonUnitTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -41,32 +43,65 @@
 
             for (var i = 0; i < tests.Count; i++)
             {
-                var test = tests[i];
+                var testResult = this.RunIndividualUnitTest(
+                    ref originalTestsPassed,
+                    codeSavePath,
+                    executor,
+                    checker,
+                    executionContext,
+                    tests[i],
+                    i == 0);
 
-                this.WriteTestInCodeFile(test.Input, codeSavePath, executionContext.Code);
-
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
-
-                var endMessage = string.Empty;
-
-                if (processExecutionResult.Type == ProcessExecutionResultType.Success)
-                {
-                    var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
-                        processExecutionResult.ReceivedOutput,
-                        TestsRegex,
-                        originalTestsPassed,
-                        i == 0,
-                        this.ExtractTestsCountFromMatchCollection);
-
-                    originalTestsPassed = testsPassed;
-                    endMessage = message;
-                }
-
-                var testResult = this.CheckAndGetTestResult(test, processExecutionResult, checker, endMessage);
                 result.Results.Add(testResult);
             }
 
             return result;
+        }
+
+        protected virtual TestResult RunIndividualUnitTest(
+            ref int originalTestsPassed,
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test,
+            bool isFirstRun)
+        {
+            this.WriteTestInCodeFile(test.Input, codeSavePath, executionContext.Code);
+
+            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, string.Empty);
+
+            return this.GetUnitTestsResultFromExecutionResult(
+                ref originalTestsPassed,
+                checker,
+                processExecutionResult,
+                test,
+                isFirstRun);
+        }
+
+        protected TestResult GetUnitTestsResultFromExecutionResult(
+            ref int originalTestsPassed,
+            IChecker checker,
+            ProcessExecutionResult processExecutionResult,
+            TestContext test,
+            bool isFirstRun)
+        {
+            var endMessage = string.Empty;
+
+            if (processExecutionResult.Type == ProcessExecutionResultType.Success)
+            {
+                var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
+                    processExecutionResult.ReceivedOutput,
+                    TestsRegex,
+                    originalTestsPassed,
+                    isFirstRun,
+                    this.ExtractTestsCountFromMatchCollection);
+
+                originalTestsPassed = testsPassed;
+                endMessage = message;
+            }
+
+            return this.CheckAndGetTestResult(test, processExecutionResult, checker, endMessage);
         }
 
         protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
@@ -83,7 +118,7 @@
             return base.SaveCodeToTempFile(executionContext);
         }
 
-        (int totalTests, int passedTests) ExtractTestsCountFromMatchCollection(MatchCollection matches)
+        private (int totalTests, int passedTests) ExtractTestsCountFromMatchCollection(MatchCollection matches)
         {
             var testRunsPattern = matches[0].Groups[1].Value.Trim();
 
@@ -101,13 +136,13 @@
         {
             var taskSkeleton = testsInput.TaskSkeletonAsString ?? string.Empty;
 
-            var className = Regex.Match(taskSkeleton, ClassNameInSkeletonRegexPattern)
+            var className = Regex.Match(taskSkeleton, this.classNameInSkeletonRegexPattern)
                 .Groups[1]
                 .Value;
 
             if (string.IsNullOrWhiteSpace(className))
             {
-                throw new ArgumentException(ClassNameNotFoundErrorMessage);
+                throw new ArgumentException(this.classNameNotFoundErrorMessage);
             }
 
             return className;

@@ -45,5 +45,7 @@
         DoNothing = 40,
         PythonUnitTests = 41,
         PythonCodeExecuteAgainstUnitTests = 42,
+        PythonProjectTests = 43,
+        PythonProjectUnitTests = 44,
     }
 }

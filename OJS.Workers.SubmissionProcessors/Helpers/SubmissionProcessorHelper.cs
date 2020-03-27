@@ -297,6 +297,20 @@
                         Settings.PythonBaseTimeUsedInMilliseconds,
                         Settings.PythonBaseMemoryUsedInBytes);
                     break;
+                case ExecutionStrategyType.PythonProjectTests:
+                    executionStrategy = new PythonProjectTestsExecutionStrategy(
+                        processExecutorFactory,
+                        Settings.PythonExecutablePath,
+                        Settings.PythonBaseTimeUsedInMilliseconds,
+                        Settings.PythonBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.PythonProjectUnitTests:
+                    executionStrategy = new PythonProjectUnitTestsExecutionStrategy(
+                        processExecutorFactory,
+                        Settings.PythonExecutablePath,
+                        Settings.PythonBaseTimeUsedInMilliseconds,
+                        Settings.PythonBaseMemoryUsedInBytes);
+                    break;
                 case ExecutionStrategyType.PhpProjectExecutionStrategy:
                     executionStrategy = new PhpProjectExecutionStrategy(
                         processExecutorFactory,

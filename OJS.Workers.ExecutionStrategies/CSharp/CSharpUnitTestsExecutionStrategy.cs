@@ -35,9 +35,7 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var userSubmissionContent = executionContext.FileContent;
-
-            this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
             var csProjFilePath = this.GetCsProjFilePath();
 

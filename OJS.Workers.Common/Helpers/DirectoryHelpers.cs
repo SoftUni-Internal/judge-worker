@@ -8,6 +8,9 @@
     {
         private const int ThreadSleepMilliseconds = 1000;
 
+        public static void CreateDirectory(string directoryPath)
+            => Directory.CreateDirectory(directoryPath);
+
         public static string CreateTempDirectory()
         {
             while (true)

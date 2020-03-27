@@ -80,9 +80,7 @@
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
-            var userSubmission = executionContext.FileContent;
-
-            this.ExtractFilesInWorkingDirectory(userSubmission, this.UserProjectDirectory);
+            this.SaveZipSubmission(executionContext.FileContent, this.UserProjectDirectory);
             this.ExtractTestNames(executionContext.Input.Tests);
 
             this.SaveTestFiles(executionContext.Input.Tests, this.NUnitLiteConsoleAppDirectory);

@@ -15,6 +15,8 @@
 
         protected readonly IProcessExecutorFactory ProcessExecutorFactory;
 
+        private const string ZippedSubmissionName = "Submission.zip";
+
         protected BaseCodeExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
@@ -37,6 +39,15 @@
             => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
+
+        protected void SaveZipSubmission(byte[] submissionContent, string directory)
+        {
+            var submissionFilePath = FileHelpers.BuildPath(directory, ZippedSubmissionName);
+            FileHelpers.WriteAllBytes(submissionFilePath, submissionContent);
+            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+            FileHelpers.UnzipFile(submissionFilePath, directory);
+            FileHelpers.DeleteFile(submissionFilePath);
+        }
 
         protected TestResult CheckAndGetTestResult(
             TestContext test,

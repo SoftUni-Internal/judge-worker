@@ -27,9 +27,7 @@
         {
             executionContext.SanitizeContent();
 
-            var userSubmissionContent = executionContext.FileContent;
-
-            this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
             var csProjFilePath = this.GetCsProjFilePath();
 

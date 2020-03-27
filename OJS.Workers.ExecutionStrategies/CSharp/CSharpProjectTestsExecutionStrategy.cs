@@ -39,7 +39,6 @@
 ";
 
         protected const string SetupFixtureFileName = "_$SetupFixture";
-        protected const string ZippedSubmissionName = "Submission.zip";
         protected const string CompeteTest = "Test";
         protected const string TrialTest = "Test.000";
         protected const string CsProjFileSearchPattern = "*.csproj";
@@ -110,9 +109,7 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var userSubmissionContent = executionContext.FileContent;
-
-            this.ExtractFilesInWorkingDirectory(userSubmissionContent, this.WorkingDirectory);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
             var csProjFilePath = this.GetCsProjFilePath();
 
@@ -282,15 +279,6 @@
                 var testName = CSharpPreprocessorHelper.GetClassName(test.Input);
                 this.TestNames.Add(testName);
             }
-        }
-
-        protected virtual void ExtractFilesInWorkingDirectory(byte[] userSubmissionContent, string workingDirectory)
-        {
-            var submissionFilePath = $"{workingDirectory}\\{ZippedSubmissionName}";
-            File.WriteAllBytes(submissionFilePath, userSubmissionContent);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, workingDirectory);
-            File.Delete(submissionFilePath);
         }
 
         protected (int totalTestsCount, int failedTestsCount) ExtractTotalFailedTestsCount(string testsOutput)

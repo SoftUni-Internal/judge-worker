@@ -134,10 +134,15 @@
         {
             foreach (var filePath in filePaths)
             {
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                DeleteFile(filePath);
+            }
+        }
+
+        public static void DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
             }
         }
 
@@ -165,6 +170,11 @@
 
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
+
+        public static void WriteAllBytes(string filePath, byte[] data)
+            => File.WriteAllBytes(filePath, data);
+
+        public static bool FileExists(string filePath) => File.Exists(filePath);
 
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {

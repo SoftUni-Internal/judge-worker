@@ -45,9 +45,7 @@
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
-            var userSubmission = executionContext.FileContent;
-
-            this.ExtractFilesInWorkingDirectory(userSubmission, this.UserProjectDirectory);
+            this.SaveZipSubmission(executionContext.FileContent, this.UserProjectDirectory);
 
             this.MoveUserCsFilesToNunitLiteConsoleAppFolder();
 

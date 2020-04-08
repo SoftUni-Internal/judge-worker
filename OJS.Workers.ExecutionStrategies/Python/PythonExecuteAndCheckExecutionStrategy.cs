@@ -1,19 +1,19 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
-    using System.IO;
+    using System.Collections.Generic;
     using System.Linq;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.Python.PythonConstants;
+
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        private const string PythonIsolatedModeArgument = "-I"; // https://docs.python.org/3/using/cmdline.html#cmdoption-I
-        private const string PythonOptimizeAndDiscardDocstringsArgument = "-OO"; // https://docs.python.org/3/using/cmdline.html#cmdoption-OO
-
         private readonly string pythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
@@ -23,13 +23,16 @@
             int baseMemoryUsed)
             : base(processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
-            if (!File.Exists(pythonExecutablePath))
+            if (!FileHelpers.FileExists(pythonExecutablePath))
             {
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }
 
             this.pythonExecutablePath = pythonExecutablePath;
         }
+
+        protected virtual IEnumerable<string> ExecutionArguments
+            => new[] { IsolatedModeArgument, OptimizeAndDiscardDocstringsArgument };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -104,18 +107,19 @@
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,
-            string input)
+            string input,
+            string directory = null)
             => executor.Execute(
                 this.pythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                new[] { PythonIsolatedModeArgument, PythonOptimizeAndDiscardDocstringsArgument, codeSavePath },
-                null,
+                this.ExecutionArguments.Concat(new[] { codeSavePath }),
+                directory,
                 false,
                 true);
 
-        private IExecutor CreateExecutor()
+        protected IExecutor CreateExecutor()
             => this.CreateExecutor(ProcessExecutorType.Restricted);
     }
 }

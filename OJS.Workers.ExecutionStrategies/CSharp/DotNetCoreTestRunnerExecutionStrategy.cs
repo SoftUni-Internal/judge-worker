@@ -152,12 +152,7 @@
         {
             executionContext.SanitizeContent();
 
-            var userSubmissionContent = executionContext.FileContent;
-            var submissionFilePath = $"{this.WorkingDirectory}\\{ZippedSubmissionName}";
-            File.WriteAllBytes(submissionFilePath, userSubmissionContent);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-            File.Delete(submissionFilePath);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
             var csProjFilePath = FileHelpers.FindFileMatchingPattern(
                 this.WorkingDirectory,

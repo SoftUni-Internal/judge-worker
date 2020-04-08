@@ -156,7 +156,7 @@ function afterBundling() {
             IExecutionResult<TestResult> result)
         {
             // Copy and unzip the file (save file to WorkingDirectory)
-            this.CreateSubmissionFile(executionContext);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, AppJsFileName);
 
             // Replace the placeholders in the JS Template with the real values
@@ -205,33 +205,6 @@ function afterBundling() {
             }
 
             return testsCode;
-        }
-
-        protected virtual string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
-        {
-            var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
-
-            var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
-                ? $".{trimmedAllowedFileExtensions}"
-                : trimmedAllowedFileExtensions;
-
-            if (allowedFileExtensions != Constants.ZipFileExtension)
-            {
-                throw new ArgumentException("Submission file is not a zip file!");
-            }
-
-            return this.PrepareSubmissionFile(executionContext.FileContent);
-        }
-
-        protected virtual string PrepareSubmissionFile(byte[] submissionFileContent)
-        {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
-            File.WriteAllBytes(submissionFilePath, submissionFileContent);
-            FileHelpers.ConvertContentToZip(submissionFilePath);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-            File.Delete(submissionFilePath);
-            return submissionFilePath;
         }
 
         protected virtual string PreprocessJsSubmission(

@@ -14,7 +14,6 @@
     public class NodeJsZipExecuteHtmlAndCssStrategy : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
     {
         protected const string EntryFileName = "*.html";
-        protected const string SubmissionFileName = "_$submission";
         protected const string UserBaseDirectoryPlaceholder = "#userBaseDirectoryPlaceholder#";
 
         public NodeJsZipExecuteHtmlAndCssStrategy(

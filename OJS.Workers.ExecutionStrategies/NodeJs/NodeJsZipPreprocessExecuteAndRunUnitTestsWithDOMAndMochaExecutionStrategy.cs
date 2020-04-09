@@ -15,7 +15,6 @@
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
     {
         protected const string AppJsFileName = "app.js";
-        protected const string SubmissionFileName = "_$submission";
 
         public NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

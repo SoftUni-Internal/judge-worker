@@ -94,6 +94,8 @@
                     "Invalid ProcessExecutionResultType value.");
             }
 
+            testResult.Input = test.Input;
+
             return testResult;
         }
 

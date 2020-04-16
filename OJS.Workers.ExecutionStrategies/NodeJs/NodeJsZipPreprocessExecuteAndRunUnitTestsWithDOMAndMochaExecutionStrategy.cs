@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
@@ -10,6 +11,8 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+
+    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
 
     public class NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy :
         NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy
@@ -79,6 +82,9 @@
         protected string EcmaScriptImportPluginPath { get; }
 
         protected string ProgramEntryPath { get; set; }
+
+        protected override IEnumerable<string> AdditionalExecutionArguments
+            => new [] { DelayFlag }.Concat(base.AdditionalExecutionArguments);
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @",
     browserify = require('" + this.BrowserifyModulePath + @"'),

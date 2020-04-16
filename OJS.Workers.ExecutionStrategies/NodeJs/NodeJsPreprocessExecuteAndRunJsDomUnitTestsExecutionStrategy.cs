@@ -154,7 +154,7 @@ it('Test{testsCount++}', function(done) {{
             var arguments = new List<string>();
             arguments.Add(this.MochaModulePath);
             arguments.Add(codeSavePath);
-            arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
+            arguments.AddRange(this.AdditionalExecutionArguments);
 
             var processExecutionResult = executor.Execute(
                 this.NodeJsExecutablePath,

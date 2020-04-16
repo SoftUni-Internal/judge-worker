@@ -9,6 +9,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
+
     public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
         : NodeJsPreprocessExecuteAndCheckExecutionStrategy
     {
@@ -67,6 +69,9 @@
         protected string SinonModulePath { get; }
 
         protected string SinonChaiModulePath { get; }
+
+        protected override IEnumerable<string> AdditionalExecutionArguments
+            => new [] { TestsReporterArgument, JsonReportName };
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @",
     chai = require('" + this.ChaiModulePath + @"'),
@@ -132,7 +137,7 @@ describe('TestScope', function() {
             var arguments = new List<string>();
             arguments.Add(this.MochaModulePath);
             arguments.Add(codeSavePath);
-            arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
+            arguments.AddRange(this.AdditionalExecutionArguments);
 
             foreach (var test in executionContext.Input.Tests)
             {

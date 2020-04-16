@@ -10,10 +10,10 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
+
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        protected const string LatestEcmaScriptFeaturesEnabledFlag = "--harmony";
-
         protected const string UserInputPlaceholder = "#userInput#";
         protected const string RequiredModules = "#requiredModule#";
         protected const string PreevaluationPlaceholder = "#preevaluationCode#";

@@ -84,7 +84,7 @@
         protected string ProgramEntryPath { get; set; }
 
         protected override IEnumerable<string> AdditionalExecutionArguments
-            => new [] { DelayFlag }.Concat(base.AdditionalExecutionArguments);
+            => new[] { DelayFlag }.Concat(base.AdditionalExecutionArguments);
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @",
     browserify = require('" + this.BrowserifyModulePath + @"'),

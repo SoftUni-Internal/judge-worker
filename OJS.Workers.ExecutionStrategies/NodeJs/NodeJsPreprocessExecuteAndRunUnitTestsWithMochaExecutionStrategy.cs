@@ -70,9 +70,6 @@
 
         protected string SinonChaiModulePath { get; }
 
-        protected override IEnumerable<string> AdditionalExecutionArguments
-            => new [] { TestsReporterArgument, JsonReportName };
-
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @",
     chai = require('" + this.ChaiModulePath + @"'),
     sinon = require('" + this.SinonModulePath + @"'),
@@ -125,6 +122,9 @@ describe('TestScope', function() {
 });";
 
         protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon'";
+
+        protected virtual IEnumerable<string> AdditionalExecutionArguments
+            => new[] { TestsReporterArgument, JsonReportName };
 
         protected override List<TestResult> ProcessTests(
             IExecutionContext<TestsInputModel> executionContext,

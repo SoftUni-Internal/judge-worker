@@ -10,10 +10,10 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
+
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        protected const string LatestEcmaScriptFeaturesEnabledFlag = "--harmony";
-
         protected const string UserInputPlaceholder = "#userInput#";
         protected const string RequiredModules = "#requiredModule#";
         protected const string PreevaluationPlaceholder = "#preevaluationCode#";
@@ -69,7 +69,7 @@ var EOL = require('os').EOL,
 _ = require('{this.UnderscoreModulePath}')";
 
         protected virtual string JsNodeDisableCode => @"
-DataView = undefined;
+// DataView = undefined;
 DTRACE_NET_SERVER_CONNECTION = undefined;
 // DTRACE_NET_STREAM_END = undefined;
 DTRACE_NET_SOCKET_READ = undefined;
@@ -111,7 +111,7 @@ module = undefined;
 require = undefined;
 msg = undefined;
 
-delete DataView;
+// delete DataView;
 delete DTRACE_NET_SERVER_CONNECTION;
 // delete DTRACE_NET_STREAM_END;
 delete DTRACE_NET_SOCKET_READ;

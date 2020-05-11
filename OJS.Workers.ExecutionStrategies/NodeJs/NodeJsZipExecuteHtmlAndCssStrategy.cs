@@ -14,7 +14,6 @@
     public class NodeJsZipExecuteHtmlAndCssStrategy : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
     {
         protected const string EntryFileName = "*.html";
-        protected const string SubmissionFileName = "_$submission";
         protected const string UserBaseDirectoryPlaceholder = "#userBaseDirectoryPlaceholder#";
 
         public NodeJsZipExecuteHtmlAndCssStrategy(
@@ -165,7 +164,7 @@ describe('TestDOMScope', function() {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            this.CreateSubmissionFile(executionContext);
+            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
             this.ProgramEntryPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, EntryFileName);
 
             var codeToExecute = this.PreprocessJsSubmission(
@@ -220,7 +219,7 @@ describe('TestDOMScope', function() {{
             var arguments = new List<string>();
             arguments.Add(this.MochaModulePath);
             arguments.Add(codeSavePath);
-            arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
+            arguments.AddRange(this.AdditionalExecutionArguments);
 
             var processExecutionResult = executor.Execute(
                 this.NodeJsExecutablePath,
@@ -253,33 +252,6 @@ describe('TestDOMScope', function() {{
             }
 
             return testResults;
-        }
-
-        protected virtual string CreateSubmissionFile(IExecutionContext<TestsInputModel> executionContext)
-        {
-            var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
-
-            var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
-                ? $".{trimmedAllowedFileExtensions}"
-                : trimmedAllowedFileExtensions;
-
-            if (allowedFileExtensions != Constants.ZipFileExtension)
-            {
-                throw new ArgumentException("Submission file is not a zip file!");
-            }
-
-            return this.PrepareSubmissionFile(executionContext.FileContent);
-        }
-
-        protected virtual string PrepareSubmissionFile(byte[] submissionFileContent)
-        {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
-            File.WriteAllBytes(submissionFilePath, submissionFileContent);
-            FileHelpers.ConvertContentToZip(submissionFilePath);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-            File.Delete(submissionFilePath);
-            return submissionFilePath;
         }
 
         protected virtual string PreprocessJsSubmission(

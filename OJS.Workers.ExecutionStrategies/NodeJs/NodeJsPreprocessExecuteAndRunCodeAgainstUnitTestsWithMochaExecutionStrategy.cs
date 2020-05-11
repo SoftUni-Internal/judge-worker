@@ -168,7 +168,7 @@ describe('Test {i} ', function(){{
             var arguments = new List<string>();
             arguments.Add(this.MochaModulePath);
             arguments.Add(codeSavePath);
-            arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
+            arguments.AddRange(this.AdditionalExecutionArguments);
 
             var testCount = 0;
             var processExecutionResult = executor.Execute(

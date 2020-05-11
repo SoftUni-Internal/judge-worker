@@ -9,6 +9,8 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
+    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
+
     public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy
         : NodeJsPreprocessExecuteAndCheckExecutionStrategy
     {
@@ -121,6 +123,9 @@ describe('TestScope', function() {
 
         protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon'";
 
+        protected virtual IEnumerable<string> AdditionalExecutionArguments
+            => new[] { TestsReporterArgument, JsonReportName };
+
         protected override List<TestResult> ProcessTests(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutor executor,
@@ -132,7 +137,7 @@ describe('TestScope', function() {
             var arguments = new List<string>();
             arguments.Add(this.MochaModulePath);
             arguments.Add(codeSavePath);
-            arguments.AddRange(executionContext.AdditionalCompilerArguments.Split(' '));
+            arguments.AddRange(this.AdditionalExecutionArguments);
 
             foreach (var test in executionContext.Input.Tests)
             {

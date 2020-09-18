@@ -27,6 +27,9 @@
             ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
         };
 
+        private readonly HttpService http;
+        private readonly string remoteWorkerEndpoint;
+
         public RemoteSubmissionProcessor(
             string name,
             IDependencyContainer dependencyContainer,
@@ -38,15 +41,25 @@
                 dependencyContainer,
                 submissionsForProcessing,
                 sharedLockObject)
-            => this.remoteWorker = new RemoteWorker(
+        {
+            this.remoteWorkerEndpoint = remoteWorkerEndpoint;
+            this.remoteWorker = new RemoteWorker(
                 remoteWorkerEndpoint,
                 new FormatterServiceFactory());
+
+            this.http = new HttpService();
+        }
 
         protected override IOjsSubmission GetSubmissionForProcessing()
         {
             var submission = base.GetSubmissionForProcessing();
 
             if (!(submission is OjsSubmission<TestsInputModel>))
+            {
+                return null;
+            }
+
+            if (!this.IsOnline())
             {
                 return null;
             }
@@ -60,6 +73,19 @@
         {
             var result = this.remoteWorker.RunSubmission<TResult>(submission as OjsSubmission<TestsInputModel>);
             this.ProcessExecutionResult(result, submission);
+        }
+
+        private bool IsOnline()
+        {
+            try
+            {
+                var result = this.http.Get($"{this.remoteWorkerEndpoint}/health?p433w0rd=h34lth-m0n1t0r1ng");
+                return result.ToString() == "Healthy";
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

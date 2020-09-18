@@ -32,5 +32,15 @@
 
             return JsonConvert.DeserializeObject<TResponseBody>(content);
         }
+
+        public string Get(string url)
+            => this.httpClient.GetAsync(url)
+                .Result
+                .Content
+                .ReadAsStringAsync()
+                .Result;
+
+        public TResponse Get<TResponse>(string url)
+            => JsonConvert.DeserializeObject<TResponse>(this.Get(url));
     }
 }

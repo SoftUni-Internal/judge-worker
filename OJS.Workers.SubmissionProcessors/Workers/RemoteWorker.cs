@@ -99,9 +99,9 @@
                 Id = test.Id,
                 CheckerDetails = new CheckerDetails
                 {
-                    Comment = testResult.ExecutionComment,
-                    UserOutputFragment = testResult.Output,
-                    ExpectedOutputFragment = test.Output,
+                    Comment = testResult.CheckerDetails.Comment,
+                    UserOutputFragment = testResult.CheckerDetails.UserOutputFragment,
+                    ExpectedOutputFragment = testResult.CheckerDetails.ExpectedOutputFragment,
                 },
             };
 

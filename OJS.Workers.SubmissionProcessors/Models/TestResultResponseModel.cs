@@ -9,5 +9,7 @@
         public string ExecutionComment { get; set; }
 
         public string Output { get; set; }
+
+        public CheckerDetailsResponseModel CheckerDetails { get; set; }
     }
 }

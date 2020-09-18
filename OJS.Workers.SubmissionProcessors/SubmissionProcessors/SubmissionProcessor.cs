@@ -89,7 +89,7 @@
         }
 
         protected abstract void ProcessSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
-            where TResult : ISingleCodeRunResult, new();
+            where TResult : class, ISingleCodeRunResult, new();
 
         protected void BeforeExecute(IOjsSubmission submission)
         {

@@ -88,7 +88,7 @@ namespace OJS.Workers
             var workerThreads = new List<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)>();
 
             workerThreads.AddRange(this.GetLocalWorkers(Settings.ThreadsCount, submissionsForProcessing, sharedLockObject));
-            workerThreads.AddRange(this.GetRemoteWorkers(Settings.RemoteWorkerEndpoints, submissionsForProcessing, sharedLockObject);
+            workerThreads.AddRange(this.GetRemoteWorkers(Settings.RemoteWorkerEndpoints, submissionsForProcessing, sharedLockObject));
 
             workerThreads
                 .ToList()

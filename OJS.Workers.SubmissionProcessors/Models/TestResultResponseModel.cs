@@ -2,6 +2,8 @@
 {
     public class TestResultResponseModel
     {
+        public int Id { get; set; }
+
         public string ResultType { get; set; }
 
         public string ExecutionComment { get; set; }

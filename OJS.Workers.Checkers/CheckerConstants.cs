@@ -10,6 +10,7 @@
             public const string Sort = nameof(SortChecker);
             public const string Trim = nameof(TrimChecker);
             public const string TrimEnd = nameof(TrimEndChecker);
+            public const string CSharpCode = nameof(CSharpCodeChecker);
         }
     }
 }

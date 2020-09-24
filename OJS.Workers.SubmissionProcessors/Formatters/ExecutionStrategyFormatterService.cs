@@ -14,6 +14,8 @@
             => this.map = new Dictionary<ExecutionStrategyType, string>()
             {
                 { ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck, "csharp-dot-net-core-code" },
+                { ExecutionStrategyType.CompileExecuteAndCheck, "csharp-code" },
+                { ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck, "java-code" },
             };
 
         public string Format(ExecutionStrategyType obj)

@@ -52,6 +52,8 @@
 
         public abstract void OnError(IOjsSubmission submission);
 
+        public abstract void SetSubmissionToProcessing();
+
         protected virtual void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult) =>
             throw new DerivedImplementationNotFoundException();
 

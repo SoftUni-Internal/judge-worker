@@ -10,6 +10,7 @@
 
   <!-- common NuGet package refs that affect all projects -->
   <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
   </ItemGroup>

@@ -13,6 +13,7 @@
             => this.map = new Dictionary<string, string>()
             {
                 { "trim-checker", "trim" },
+                { "c-sharp-code-checker", "csharp-code" },
             };
 
         public string Format(string obj)

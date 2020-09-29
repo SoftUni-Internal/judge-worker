@@ -16,6 +16,14 @@
                 { ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck, "csharp-dot-net-core-code" },
                 { ExecutionStrategyType.CompileExecuteAndCheck, "csharp-code" },
                 { ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck, "java-code" },
+                { ExecutionStrategyType.PythonExecuteAndCheck, "python-code" },
+                { ExecutionStrategyType.PhpCliExecuteAndCheck, "php-code" },
+                { ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy, "cpp-code" },
+                { ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck, "javascript-code" },
+                { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests, "javascript-dom-tests-code" },
+                { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha, "javascript-tests-code" },
+                { ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy, "javascript-dom-with-react-tests-code" },
+                { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy, "javascript-against-tests-code" },
             };
 
         public string Format(ExecutionStrategyType obj)

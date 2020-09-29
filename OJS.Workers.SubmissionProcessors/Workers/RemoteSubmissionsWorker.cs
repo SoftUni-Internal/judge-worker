@@ -68,7 +68,7 @@
                 submission.MemoryLimit,
                 ExecutionDetails = new
                 {
-                    MaxPoints = 100,
+                    MaxPoints = submission.MaxPoints,
                     CheckerType = this.formatterServicesFactory.Get<string>()
                         .Format(submission.Input.CheckerTypeName),
                     submission.Input.CheckerParameter,
@@ -86,8 +86,8 @@
                 Input = test.Input,
                 IsTrialTest = test.IsTrialTest,
                 ExecutionComment = testResult.ExecutionComment,
-                MemoryUsed = 0,
-                TimeUsed = 0,
+                MemoryUsed = testResult.MemoryUsed,
+                TimeUsed = testResult.TimeUsed,
                 ResultType = resultType,
                 Id = test.Id,
                 CheckerDetails = new CheckerDetails

@@ -26,7 +26,7 @@
             var type = assembly.GetType($"{assemblyName}.{typeName}");
             var checker = (IChecker)Activator.CreateInstance(type);
 
-            if (parameter != null)
+            if (!string.IsNullOrEmpty(parameter))
             {
                 checker.SetParameter(parameter);
             }

@@ -17,7 +17,6 @@
     public class RemoteSubmissionsFilteringService
         : ISubmissionsFilteringService
     {
-
         private readonly ISet<ExecutionStrategyType> remoteWorkerExecutionStrategyTypes = new HashSet<ExecutionStrategyType>
         {
             ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck,

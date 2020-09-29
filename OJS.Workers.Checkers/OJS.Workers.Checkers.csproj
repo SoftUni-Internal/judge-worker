@@ -30,9 +30,6 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net47'">
     <DefineConstants>NET47;NETFRAMEWORK</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup>
-    <UserSecretsId>f01829db-93cd-43a5-b2fa-a09a243f49a6</UserSecretsId>
-  </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
     <Reference Include="System" />

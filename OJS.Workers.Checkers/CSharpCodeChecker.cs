@@ -43,8 +43,6 @@
                 return;
             }
 
-            ;
-
             var type = this.CompileCheckerAssembly(parameter);
 
             if (Activator.CreateInstance(type) is IChecker instance)
@@ -128,7 +126,7 @@
                 MetadataReference.CreateFromFile(Path.Combine(systemDir, "netstandard.dll")),
             };
 
-            using (var re = new MemoryStream())
+            using (var assemblyStream = new MemoryStream())
             {
                 var result = CSharpCompilation.Create(
                        Guid.NewGuid().ToString(),
@@ -138,10 +136,10 @@
                            OutputKind.DynamicallyLinkedLibrary,
                            optimizationLevel: OptimizationLevel.Release,
                            assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
-                var compilationResult = result.Emit(re);
+                var compilationResult = result.Emit(assemblyStream);
                 this.CheckForErrors(compilationResult);
-                re.Seek(0, SeekOrigin.Begin);
-                var type = this.GetCustomCheckerType(re.ToArray());
+                assemblyStream.Seek(0, SeekOrigin.Begin);
+                var type = this.GetCustomCheckerType(assemblyStream.ToArray());
 
                 return type;
             }

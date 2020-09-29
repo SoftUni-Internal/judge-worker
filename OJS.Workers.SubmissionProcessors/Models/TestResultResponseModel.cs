@@ -11,5 +11,9 @@
         public string Output { get; set; }
 
         public CheckerDetailsResponseModel CheckerDetails { get; set; }
+
+        public int TimeUsed { get; set; }
+
+        public int MemoryUsed { get; set; }
     }
 }

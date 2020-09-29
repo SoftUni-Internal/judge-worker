@@ -20,7 +20,8 @@
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
         private bool stopping;
 
-        public SubmissionProcessor(string name,
+        public SubmissionProcessor(
+            string name,
             IDependencyContainer dependencyContainer,
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,

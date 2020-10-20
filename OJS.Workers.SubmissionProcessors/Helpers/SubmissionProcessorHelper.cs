@@ -15,6 +15,7 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
+    using OJS.Workers.ExecutionStrategies.Sql.Sqlite;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
@@ -388,6 +389,15 @@
                         Settings.MySqlSysDbConnectionString,
                         Settings.MySqlRestrictedUserId,
                         Settings.MySqlRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.SqlitePrepareDatabaseAndRunQueries:
+                    executionStrategy = new SqlitePrepareDatabaseAndRunQueriesExecutionStrategy();
+                    break;
+                case ExecutionStrategyType.SqliteRunQueriesAndCheckDatabase:
+                    executionStrategy = new SqliteRunQueriesAndCheckDatabaseExecutionStrategy();
+                    break;
+                case ExecutionStrategyType.SqliteRunSkeletonRunQueriesAndCheckDatabase:
+                    executionStrategy = new SqliteRunSkeletonRunQueriesAndCheckDatabase();
                     break;
                 case ExecutionStrategyType.DoNothing:
                     executionStrategy = new DoNothingExecutionStrategy();

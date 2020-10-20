@@ -10,6 +10,8 @@
 
   <!-- common NuGet package refs that affect all projects -->
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.9" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="DotNetZip" Version="1.13.0" />
     <PackageReference Include="log4net" Version="2.0.8" />

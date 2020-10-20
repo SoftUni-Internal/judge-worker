@@ -30,8 +30,6 @@
             return connection;
         }
 
-        private static string GetConnectionString(string databaseName) => string.Format(ConnectionStringFormat, databaseName);
-
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
             if (!dataRecord.IsDBNull(index))
@@ -59,7 +57,8 @@
             }
 
             return base.GetDataRecordFieldValue(dataRecord, index);
-
         }
+
+        private static string GetConnectionString(string databaseName) => string.Format(ConnectionStringFormat, databaseName);
     }
 }

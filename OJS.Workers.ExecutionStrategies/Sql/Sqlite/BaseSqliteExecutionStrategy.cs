@@ -9,9 +9,9 @@
     public class BaseSqliteExecutionStrategy : BaseSqlExecutionStrategy
     {
         private const string ConnectionStringFormat = "Data Source={0};Mode=Memory;Cache=Shared";
-        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
-        private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffffff zzz";
-        private const string TimeSpanFormat = "HH:mm:ss.fffffff";
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss";
+        private const string TimeSpanFormat = "HH:mm:ss";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
 

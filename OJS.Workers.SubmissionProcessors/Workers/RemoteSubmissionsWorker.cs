@@ -73,6 +73,8 @@
                         .Format(submission.Input.CheckerTypeName),
                     submission.Input.CheckerParameter,
                     submission.Input.Tests,
+                    submission.Input.TaskSkeleton,
+                    submission.Input.TaskSkeletonAsString,
                 },
             };
 

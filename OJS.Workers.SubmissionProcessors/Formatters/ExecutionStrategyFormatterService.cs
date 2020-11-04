@@ -24,6 +24,8 @@
                 { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha, "javascript-tests-code" },
                 { ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy, "javascript-dom-with-react-tests-code" },
                 { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy, "javascript-against-tests-code" },
+                { ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries, "sql-server-prepare-db-and-run-queries" },
+                { ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase, "sql-server-run-queries-and-check-database" },
             };
 
         public string Format(ExecutionStrategyType obj)

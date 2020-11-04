@@ -24,7 +24,9 @@
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
-            ExecutionStrategyType.RubyExecutionStrategy,
+            ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,
+            ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase,
         };
 
         private readonly HttpService http;

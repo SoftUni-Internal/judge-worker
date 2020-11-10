@@ -27,6 +27,9 @@
             ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,
             ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase,
             ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.PythonProjectTests,
+            ExecutionStrategyType.PythonProjectUnitTests,
+            ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
         };
 
         private readonly HttpService http;

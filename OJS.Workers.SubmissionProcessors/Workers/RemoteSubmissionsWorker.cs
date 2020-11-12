@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace OJS.Workers.SubmissionProcessors.Workers
+﻿namespace OJS.Workers.SubmissionProcessors.Workers
 {
     using System;
     using System.Linq;

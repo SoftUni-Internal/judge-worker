@@ -53,4 +53,8 @@
     <ProjectReference Include="..\OJS.Workers.Compilers\OJS.Workers.Compilers.csproj" />
     <ProjectReference Include="..\OJS.Workers.Executors\OJS.Workers.Executors.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
 </Project>

@@ -62,8 +62,10 @@
                     .Format(submission.ExecutionType),
                 ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
                     .Format(submission.ExecutionStrategyType),
-                FileContents = submission.FileContent,
-                submission.Code,
+                FileContent = string.IsNullOrEmpty(submission.Code)
+                    ? submission.FileContent
+                    : null,
+                Code = submission.Code ?? string.Empty,
                 submission.TimeLimit,
                 submission.MemoryLimit,
                 ExecutionDetails = new
@@ -73,6 +75,8 @@
                         .Format(submission.Input.CheckerTypeName),
                     submission.Input.CheckerParameter,
                     submission.Input.Tests,
+                    submission.Input.TaskSkeleton,
+                    submission.Input.TaskSkeletonAsString,
                 },
             };
 

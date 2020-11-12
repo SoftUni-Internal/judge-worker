@@ -20,6 +20,7 @@
         private readonly string restrictedUserPassword;
 
         private static string _databaseName = $"testing_{Guid.NewGuid()}";
+
         private TransactionScope transactionScope;
 
         protected BaseSqlServerSingleDatabaseExecutionStrategy(
@@ -102,6 +103,8 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
+        public override string GetDatabaseName() => _databaseName;
+
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
             if (!dataRecord.IsDBNull(index))
@@ -130,7 +133,5 @@
 
             return base.GetDataRecordFieldValue(dataRecord, index);
         }
-
-        public override string GetDatabaseName() => _databaseName;
     }
 }

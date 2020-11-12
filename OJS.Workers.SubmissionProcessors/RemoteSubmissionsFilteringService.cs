@@ -24,7 +24,20 @@
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
-            ExecutionStrategyType.RubyExecutionStrategy,
+            ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,
+            ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.PythonProjectTests,
+            ExecutionStrategyType.PythonProjectUnitTests,
+            ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
+
+            ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
+            ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
+
+            ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,
+            ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
+            ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
         };
 
         private readonly HttpService http;

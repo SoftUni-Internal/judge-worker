@@ -3,7 +3,7 @@
     using System;
     using System.Data;
     using System.Globalization;
-
+    using System.Text.RegularExpressions;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -114,7 +114,8 @@
             }
         }
 
-        protected SqlResult ExecuteReader(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
+        protected SqlResult ExecuteReader(IDbConnection connection, string commandText,
+            int timeLimit = DefaultTimeLimit)
         {
             using (var command = connection.CreateCommand())
             {
@@ -138,8 +139,7 @@
                                         sqlTestResult.Results.Add(fieldValue);
                                     }
                                 }
-                            }
-                            while (reader.NextResult());
+                            } while (reader.NextResult());
                         });
 
                     return sqlTestResult;
@@ -168,7 +168,8 @@
                 result.Results.Add(new TestResult
                 {
                     Id = test.Id,
-                    ResultType = checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
+                    ResultType =
+                        checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
                     CheckerDetails = checkerResult.CheckerDetails
                 });
             }
@@ -176,9 +177,7 @@
             {
                 result.Results.Add(new TestResult
                 {
-                    Id = test.Id,
-                    TimeUsed = executionContext.TimeLimit,
-                    ResultType = TestRunResultType.TimeLimit
+                    Id = test.Id, TimeUsed = executionContext.TimeLimit, ResultType = TestRunResultType.TimeLimit
                 });
             }
         }

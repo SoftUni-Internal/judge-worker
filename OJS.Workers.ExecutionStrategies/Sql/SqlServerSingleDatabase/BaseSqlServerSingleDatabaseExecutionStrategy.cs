@@ -4,9 +4,8 @@
     using System.Data;
     using System.Data.SqlClient;
     using System.Globalization;
+    using System.IO;
     using System.Transactions;
-    using Microsoft.Build.Execution;
-    using OJS.Workers.ExecutionStrategies.Python;
 
     public abstract class BaseSqlServerSingleDatabaseExecutionStrategy : BaseSqlExecutionStrategy
     {
@@ -17,10 +16,10 @@
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
 
         private readonly string masterDbConnectionString;
-        private readonly string restrictedUserId;
+        private string restrictedUserId;
         private readonly string restrictedUserPassword;
 
-        private static string _databaseName = Guid.NewGuid().ToString();
+        private static string _databaseName = $"testing_{Guid.NewGuid()}";
         private TransactionScope transactionScope;
 
         protected BaseSqlServerSingleDatabaseExecutionStrategy(
@@ -46,49 +45,55 @@
             this.masterDbConnectionString = masterDbConnectionString;
             this.restrictedUserId = restrictedUserId;
             this.restrictedUserPassword = restrictedUserPassword;
-            this.transactionScope = new TransactionScope();
         }
 
-        public override IDbConnection GetOpenConnection(string databaseName)
+        private void EnsureDatabaseIsSetup()
         {
-            var databaseFilePath = $"{this.WorkingDirectory}\\{databaseName}.mdf";
+            var databaseName = this.GetDatabaseName();
+            var databaseFilePath =
+                string.Join(Path.DirectorySeparatorChar.ToString(), $"{this.WorkingDirectory}", $"{databaseName}.mdf");
 
             using (var connection = new SqlConnection(this.masterDbConnectionString))
             {
                 connection.Open();
 
-                var createDatabaseQuery =
-                    $@"IF DB_ID('{databaseName}') IS NOT NULL
+                var setupDatabaseQuery =
+                    $@"IF DB_ID('{databaseName}') IS NULL
                     BEGIN
                     CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');
-                    END;";
-
-                var createLoginQuery = $@"
-                    IF NOT EXISTS (SELECT name FROM master.sys.server_principals WHERE name=N'{this.restrictedUserId}')
-                    BEGIN
-                    CREATE LOGIN [{this.restrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
+                    CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
                     DEFAULT_DATABASE=[master],
                     DEFAULT_LANGUAGE=[us_english],
                     CHECK_EXPIRATION=OFF,
                     CHECK_POLICY=ON;
-                    END;";
+                    END";
 
-                var createUserAsDbOwnerQuery = $@"
+                var setupUserAsOwnerQuery = $@"
                     USE [{databaseName}];
-                    CREATE USER [{this.restrictedUserId}] FOR LOGIN [{this.restrictedUserId}];
-                    ALTER ROLE [db_owner] ADD MEMBER [{this.restrictedUserId}];";
+                    IF IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') = 0 OR IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') is NULL
+                    BEGIN
+                    CREATE USER [{this.RestrictedUserId}] FOR LOGIN [{this.RestrictedUserId}];
+                    ALTER ROLE [db_owner] ADD MEMBER [{this.RestrictedUserId}];
+                    END";
 
-                this.ExecuteNonQuery(connection, createDatabaseQuery);
-
-                this.ExecuteNonQuery(connection, createLoginQuery);
-
-                this.ExecuteNonQuery(connection, createUserAsDbOwnerQuery);
+                this.ExecuteNonQuery(connection, setupDatabaseQuery);
+                this.ExecuteNonQuery(connection, setupUserAsOwnerQuery);
             }
 
-            var createdDbConnectionString =
-                $"Data Source=.,3001;User Id={this.restrictedUserId};Password={this.restrictedUserPassword};AttachDbFilename={databaseFilePath};Pooling=False;";
+            this.WorkerDbConnectionString =
+                $"Data Source=sql_server;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
+        }
+
+        public string WorkerDbConnectionString { get; set; }
+
+        public string RestrictedUserId => $"{this.GetDatabaseName()}_{this.restrictedUserId}";
+
+        public override IDbConnection GetOpenConnection(string databaseName)
+        {
+            this.EnsureDatabaseIsSetup();
+
             this.transactionScope = new TransactionScope();
-            var createdDbConnection = new SqlConnection(createdDbConnectionString);
+            var createdDbConnection = new SqlConnection(this.WorkerDbConnectionString);
             createdDbConnection.Open();
 
             return createdDbConnection;

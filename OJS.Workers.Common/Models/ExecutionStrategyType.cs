@@ -47,8 +47,8 @@
         PythonCodeExecuteAgainstUnitTests = 42,
         PythonProjectTests = 43,
         PythonProjectUnitTests = 44,
-        SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
-        SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 46,
-        SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47, 
+        SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 48,
+        SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 49,
+        SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 50, 
     }
 }

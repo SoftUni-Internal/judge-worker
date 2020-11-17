@@ -141,8 +141,8 @@ namespace OJS.Workers
                 dependencyContainer: this.DependencyContainer,
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
-                submissionsFilteringService,
-                worker);
+                submissionsFilteringService: submissionsFilteringService,
+                submissionWorker: worker);
 
             var thread = new Thread(submissionProcessor.Start)
             {
@@ -168,8 +168,8 @@ namespace OJS.Workers
                 dependencyContainer: this.DependencyContainer,
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
-                submissionsFilteringService,
-                worker);
+                submissionsFilteringService: submissionsFilteringService,
+                submissionWorker: worker);
 
             var thread = new Thread(submissionProcessor.Start)
             {

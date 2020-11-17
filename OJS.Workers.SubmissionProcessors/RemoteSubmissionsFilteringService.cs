@@ -24,6 +24,8 @@
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
+
+            // Leaving this here, because it is work in progress
             // ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,
             // ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase,
             // ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase,

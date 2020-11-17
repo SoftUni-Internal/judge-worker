@@ -47,5 +47,8 @@
         PythonCodeExecuteAgainstUnitTests = 42,
         PythonProjectTests = 43,
         PythonProjectUnitTests = 44,
+        SqlitePrepareDatabaseAndRunQueries = 45,
+        SqliteRunQueriesAndCheckDatabase = 46,
+        SqliteRunSkeletonRunQueriesAndCheckDatabase = 47,
     }
 }

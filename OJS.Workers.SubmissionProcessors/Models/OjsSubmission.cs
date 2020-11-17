@@ -38,5 +38,7 @@
         public string AllowedFileExtensions { get; set; }
 
         public TInput Input { get; set; }
+
+        public int MaxPoints { get; set; }
     }
 }

@@ -10,51 +10,57 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Models;
+    using OJS.Workers.SubmissionProcessors.Workers;
 
     public class SubmissionProcessor<TSubmission> : ISubmissionProcessor
     {
         private readonly object sharedLockObject;
-        private readonly ILog logger;
+        private readonly ISubmissionsFilteringService submissionsFilteringService;
         private readonly IDependencyContainer dependencyContainer;
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
-        private readonly int portNumber;
-
-        private ISubmissionProcessingStrategy<TSubmission> submissionProcessingStrategy;
         private bool stopping;
 
         public SubmissionProcessor(
             string name,
             IDependencyContainer dependencyContainer,
             ConcurrentQueue<TSubmission> submissionsForProcessing,
-            int portNumber,
-            object sharedLockObject)
+            object sharedLockObject,
+            ISubmissionsFilteringService submissionsFilteringService,
+            ISubmissionWorker submissionWorker)
         {
             this.Name = name;
 
-            this.logger = LogManager.GetLogger(typeof(SubmissionProcessor<TSubmission>));
-            this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initializing...");
+            this.Logger = LogManager.GetLogger(typeof(SubmissionProcessor<TSubmission>));
+            this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initializing...");
 
             this.stopping = false;
 
             this.dependencyContainer = dependencyContainer;
             this.submissionsForProcessing = submissionsForProcessing;
-            this.portNumber = portNumber;
             this.sharedLockObject = sharedLockObject;
+            this.submissionsFilteringService = submissionsFilteringService;
+            this.SubmissionWorker = submissionWorker;
 
-            this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
+            this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
         }
 
         public string Name { get; set; }
 
+        protected ILog Logger { get; set; }
+
+        protected ISubmissionProcessingStrategy<TSubmission> SubmissionProcessingStrategy { get; set; }
+
+        protected ISubmissionWorker SubmissionWorker { get; private set; }
+
         public void Start()
         {
-            this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} starting...");
+            this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} starting...");
 
             while (!this.stopping)
             {
                 using (this.dependencyContainer.BeginDefaultScope())
                 {
-                    this.submissionProcessingStrategy = this.GetSubmissionProcessingStrategyInstance();
+                    this.SubmissionProcessingStrategy = this.GetSubmissionProcessingStrategyInstance();
 
                     var submission = this.GetSubmissionForProcessing();
 
@@ -64,17 +70,88 @@
                     }
                     else
                     {
-                        Thread.Sleep(this.submissionProcessingStrategy.JobLoopWaitTimeInMilliseconds);
+                        Thread.Sleep(this.SubmissionProcessingStrategy.JobLoopWaitTimeInMilliseconds);
                     }
                 }
             }
 
-            this.logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} stopped.");
+            this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} stopped.");
         }
 
         public void Stop()
         {
             this.stopping = true;
+        }
+
+        protected IExecutionResult<TResult> HandleProcessSubmission<TInput, TResult>(
+            OjsSubmission<TInput> submission)
+            where TResult : class, ISingleCodeRunResult, new()
+            => this.SubmissionWorker.RunSubmission<TInput, TResult>(submission);
+
+        protected void BeforeExecute(IOjsSubmission submission)
+        {
+            try
+            {
+                this.SubmissionProcessingStrategy.BeforeExecute();
+            }
+            catch (Exception ex)
+            {
+                submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
+
+                throw new Exception($"Exception in {nameof(this.SubmissionProcessingStrategy.BeforeExecute)}", ex);
+            }
+        }
+
+        protected void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
+            where TOutput : ISingleCodeRunResult, new()
+        {
+            try
+            {
+                this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
+            }
+            catch (Exception ex)
+            {
+                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
+
+                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
+            }
+        }
+
+        private IOjsSubmission GetSubmissionForProcessing()
+        {
+            try
+            {
+                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission();
+                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                {
+                    return null;
+                }
+
+                this.SubmissionProcessingStrategy.SetSubmissionToProcessing();
+
+                return submission;
+            }
+            catch (Exception ex)
+            {
+                this.Logger.Fatal("Unable to get submission for processing.", ex);
+                throw;
+            }
+        }
+
+        private void ProcessSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
+            where TResult : class, ISingleCodeRunResult, new()
+        {
+            this.Logger.Info($"Work on submission #{submission.Id} started.");
+
+            this.BeforeExecute(submission);
+
+            var executionResult = this.HandleProcessSubmission<TInput, TResult>(submission);
+
+            this.Logger.Info($"Work on submission #{submission.Id} ended.");
+
+            this.ProcessExecutionResult(executionResult, submission);
+
+            this.Logger.Info($"Submission #{submission.Id} successfully processed.");
         }
 
         private ISubmissionProcessingStrategy<TSubmission> GetSubmissionProcessingStrategyInstance()
@@ -85,7 +162,7 @@
                     .GetInstance<ISubmissionProcessingStrategy<TSubmission>>();
 
                 processingStrategy.Initialize(
-                    this.logger,
+                    this.Logger,
                     this.submissionsForProcessing,
                     this.sharedLockObject);
 
@@ -93,20 +170,7 @@
             }
             catch (Exception ex)
             {
-                this.logger.Fatal("Unable to initialize submission processing strategy.", ex);
-                throw;
-            }
-        }
-
-        private IOjsSubmission GetSubmissionForProcessing()
-        {
-            try
-            {
-                return this.submissionProcessingStrategy.RetrieveSubmission();
-            }
-            catch (Exception ex)
-            {
-                this.logger.Fatal("Unable to get submission for processing.", ex);
+                this.Logger.Fatal("Unable to initialize submission processing strategy.", ex);
                 throw;
             }
         }
@@ -137,58 +201,11 @@
             }
             catch (Exception ex)
             {
-                this.logger.Error(
+                this.Logger.Error(
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
 
-                this.submissionProcessingStrategy.OnError(submission);
-            }
-        }
-
-        private void ProcessSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
-            where TResult : ISingleCodeRunResult, new()
-        {
-            this.logger.Info($"Work on submission #{submission.Id} started.");
-
-            this.BeforeExecute(submission);
-
-            var executor = new SubmissionExecutor(this.portNumber);
-
-            var executionResult = executor.Execute<TInput, TResult>(submission);
-
-            this.logger.Info($"Work on submission #{submission.Id} ended.");
-
-            this.ProcessExecutionResult(executionResult, submission);
-
-            this.logger.Info($"Submission #{submission.Id} successfully processed.");
-        }
-
-        private void BeforeExecute(IOjsSubmission submission)
-        {
-            try
-            {
-                this.submissionProcessingStrategy.BeforeExecute();
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
-
-                throw new Exception($"Exception in {nameof(this.submissionProcessingStrategy.BeforeExecute)}", ex);
-            }
-        }
-
-        private void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
-            where TOutput : ISingleCodeRunResult, new()
-        {
-            try
-            {
-                this.submissionProcessingStrategy.ProcessExecutionResult(executionResult);
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
-
-                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
+                this.SubmissionProcessingStrategy.OnError(submission);
             }
         }
     }

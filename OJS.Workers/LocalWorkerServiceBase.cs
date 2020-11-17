@@ -1,4 +1,8 @@
-﻿namespace OJS.Workers
+﻿using System.Linq;
+using OJS.Workers.SubmissionProcessors.Formatters;
+using OJS.Workers.SubmissionProcessors.Workers;
+
+namespace OJS.Workers
 {
     using System;
     using System.Collections.Concurrent;
@@ -82,23 +86,97 @@
             var submissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var sharedLockObject = new object();
 
-            for (var i = 1; i <= Settings.ThreadsCount; i++)
-            {
-                var submissionProcessor = new SubmissionProcessor<TSubmission>(
-                    name: $"SP #{i}",
-                    dependencyContainer: this.DependencyContainer,
-                    submissionsForProcessing: submissionsForProcessing,
-                    portNumber: Settings.GanacheCliDefaultPortNumber + i,
-                    sharedLockObject: sharedLockObject);
+            var workerThreads = new List<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)>();
 
-                var thread = new Thread(submissionProcessor.Start)
+            var formatterServiceFactory = new FormatterServiceFactory();
+            var remoteSubmissionsFilteringService = new RemoteSubmissionsFilteringService();
+            var localSubmissionsFilteringService = new LocalSubmissionsFilteringService();
+            workerThreads.AddRange(this.GetLocalWorkers(Settings.ThreadsCount, submissionsForProcessing, sharedLockObject, localSubmissionsFilteringService));
+            workerThreads.AddRange(this.GetRemoteWorkers(Settings.RemoteWorkerEndpoints, submissionsForProcessing, sharedLockObject, formatterServiceFactory, remoteSubmissionsFilteringService));
+
+            workerThreads
+                .ToList()
+                .ForEach(workerThread =>
                 {
-                    Name = $"{nameof(Thread)} #{i}"
-                };
+                    var (submissionProcessor, thread) = workerThread;
+                    this.submissionProcessors.Add(submissionProcessor);
+                    this.threads.Add(thread);
+                });
+        }
 
-                this.submissionProcessors.Add(submissionProcessor);
-                this.threads.Add(thread);
-            }
+        private IEnumerable<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)> GetRemoteWorkers(
+            IEnumerable<string> remoteWorkerEndpoints,
+            ConcurrentQueue<TSubmission> submissionsForProcessing,
+            object sharedLockObject,
+            IFormatterServiceFactory formatterServiceFactory,
+            ISubmissionsFilteringService submissionsFilteringService)
+        {
+            var remoteWorkerEndpointsList = remoteWorkerEndpoints.ToList();
+            return Enumerable.Range(0, remoteWorkerEndpointsList.Count)
+                .Select(index => this.CreateRemoteWorker(
+                    index + 1,
+                    remoteWorkerEndpointsList[index],
+                    submissionsForProcessing,
+                    sharedLockObject,
+                    formatterServiceFactory,
+                    submissionsFilteringService));
+        }
+
+        private IEnumerable<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)> GetLocalWorkers(
+            int count,
+            ConcurrentQueue<TSubmission> submissionsForProcessing,
+            object sharedLockObject,
+            ISubmissionsFilteringService submissionsFilteringService)
+            => Enumerable.Range(0, count)
+                .Select(index => this.CreateLocalWorker(index + 1, submissionsForProcessing, sharedLockObject, submissionsFilteringService));
+
+        private (SubmissionProcessor<TSubmission> submissionProcessor, Thread thread) CreateLocalWorker(int index,
+            ConcurrentQueue<TSubmission> submissionsForProcessing,
+            object sharedLockObject,
+            ISubmissionsFilteringService submissionsFilteringService)
+        {
+            var worker = new LocalSubmissionWorker(Settings.GanacheCliDefaultPortNumber + index);
+            var submissionProcessor = new SubmissionProcessor<TSubmission>(
+                name: $"LSP #{index}",
+                dependencyContainer: this.DependencyContainer,
+                submissionsForProcessing: submissionsForProcessing,
+                sharedLockObject: sharedLockObject,
+                submissionsFilteringService,
+                worker);
+
+            var thread = new Thread(submissionProcessor.Start)
+            {
+                Name = $"{nameof(Thread)} #{index}"
+            };
+
+            return (submissionProcessor, thread);
+        }
+
+        private (SubmissionProcessor<TSubmission> submissionProcessor, Thread thread) CreateRemoteWorker(int index,
+            string endpoint,
+            ConcurrentQueue<TSubmission> submissionsForProcessing,
+            object sharedLockObject,
+            IFormatterServiceFactory formatterServiceFactory,
+            ISubmissionsFilteringService submissionsFilteringService)
+        {
+            var worker = new RemoteSubmissionsWorker(
+                endpoint,
+                formatterServiceFactory);
+
+            var submissionProcessor = new SubmissionProcessor<TSubmission>(
+                name: $"RSP #{index}",
+                dependencyContainer: this.DependencyContainer,
+                submissionsForProcessing: submissionsForProcessing,
+                sharedLockObject: sharedLockObject,
+                submissionsFilteringService,
+                worker);
+
+            var thread = new Thread(submissionProcessor.Start)
+            {
+                Name = $"{nameof(Thread)} #{index}"
+            };
+
+            return (submissionProcessor, thread);
         }
 
         private void StartThreads()

@@ -23,5 +23,7 @@
             where TResult : ISingleCodeRunResult, new();
 
         void OnError(IOjsSubmission submission);
+
+        void SetSubmissionToProcessing();
     }
 }

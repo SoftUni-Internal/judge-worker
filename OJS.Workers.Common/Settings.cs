@@ -1,5 +1,8 @@
 ﻿namespace OJS.Workers.Common
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     using OJS.Workers.Common.Helpers;
 
     public static class Settings
@@ -211,5 +214,10 @@
             SettingsHelper.GetSettingOrDefault("SolidityCompilerProcessExitTimeOutMultiplier", 1);
 
         public static string DotNetCoreRuntimeVersion => SettingsHelper.GetSetting("DotNetCoreRuntimeVersion");
+
+        public static IEnumerable<string> RemoteWorkerEndpoints => SettingsHelper.GetSetting("RemoteWorkerEndpoints")
+            .Split(';')
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim());
     }
 }

@@ -106,13 +106,16 @@
         {
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = commandText;
+                command.CommandText = this.FixCommandText(commandText);
 
                 return CodeHelpers.ExecuteWithTimeLimit(
                     TimeSpan.FromMilliseconds(timeLimit),
                     () => command.ExecuteNonQuery());
             }
         }
+
+        protected virtual string FixCommandText(string commandText)
+            => commandText;
 
         protected SqlResult ExecuteReader(IDbConnection connection, string commandText,
             int timeLimit = DefaultTimeLimit)

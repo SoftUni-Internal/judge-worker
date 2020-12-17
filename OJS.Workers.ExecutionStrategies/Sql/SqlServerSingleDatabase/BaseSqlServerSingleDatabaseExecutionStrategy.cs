@@ -19,7 +19,7 @@
         private string restrictedUserId;
         private readonly string restrictedUserPassword;
 
-        private static string _databaseName = $"testing_{Guid.NewGuid()}";
+        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private TransactionScope transactionScope;
 
@@ -103,7 +103,7 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
-        public override string GetDatabaseName() => _databaseName;
+        public override string GetDatabaseName() => DatabaseName;
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

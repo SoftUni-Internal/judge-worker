@@ -11,7 +11,7 @@
         private readonly IDictionary<ExecutionStrategyType, string> map;
 
         public ExecutionStrategyFormatterService()
-            => this.map = new Dictionary<ExecutionStrategyType, string>()
+            => this.map = new Dictionary<ExecutionStrategyType, string>
             {
                 { ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck, "csharp-dot-net-core-code" },
                 { ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy, "dot-net-core-project-tests" },
@@ -29,7 +29,7 @@
                 { ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase, "sql-server-run-queries-and-check-database" },
                 { ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase, "sql-server-run-skeleton-run-queries-and-check-database" },
                 { ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries, "mysql-prepare-db-and-run-queries"},
-                { ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,  "mysql-run-queries-and-check-database"}, 
+                { ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,  "mysql-run-queries-and-check-database"},
                 { ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase, "mysql-run-skeleton-run-queries-and-check-database"},
     };
 

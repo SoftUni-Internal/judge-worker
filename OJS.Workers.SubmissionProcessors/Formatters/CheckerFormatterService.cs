@@ -14,6 +14,7 @@
             {
                 { "trim-checker", "trim" },
                 { "c-sharp-code-checker", "csharp-code" },
+                { "exact-checker", "exact-match" },
             };
 
         public string Format(string obj)

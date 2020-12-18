@@ -14,6 +14,7 @@
             => this.map = new Dictionary<ExecutionStrategyType, string>()
             {
                 { ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck, "csharp-dot-net-core-code" },
+                { ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy, "dot-net-core-project-tests" },
                 { ExecutionStrategyType.CompileExecuteAndCheck, "csharp-code" },
                 { ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck, "java-code" },
                 { ExecutionStrategyType.PythonExecuteAndCheck, "python-code" },

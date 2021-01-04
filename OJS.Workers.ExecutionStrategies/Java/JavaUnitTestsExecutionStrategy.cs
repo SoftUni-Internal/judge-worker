@@ -23,7 +23,7 @@
 
         protected const string FilenameRegex = @"^//((?:\w+/)*[a-zA-Z_][a-zA-Z_0-9]*\.java)";
 
-        protected const string JUnitRunnerClassName = "_$TestRunner";
+        protected const string JUnitRunnerClassName = "TestRunner";
 
         protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms16m -Xmx256m";
 
@@ -46,7 +46,7 @@
             => this.TestNames = new List<string>();
 
         protected string JUnitTestRunnerSourceFilePath =>
-            $"{this.WorkingDirectory}\\{JUnitRunnerClassName}{JavaSourceFileExtension}";
+            FileHelpers.BuildPath(this.WorkingDirectory, $"{JUnitRunnerClassName}{JavaSourceFileExtension}");
 
         protected List<string> TestNames { get; }
 
@@ -66,7 +66,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class _$TestRunner {{
+public class TestRunner {{
     public static void main(String[] args) {{
         Class[] testClasses = new Class[]{{{string.Join(", ", this.TestNames.Select(x => x.Replace(".java", ".class").Replace("/", ".")))}}};
 

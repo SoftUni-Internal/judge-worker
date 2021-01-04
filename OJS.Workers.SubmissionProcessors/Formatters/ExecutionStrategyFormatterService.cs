@@ -27,6 +27,7 @@
                 { ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy, "javascript-against-tests-code" },
                 { ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries, "sql-server-prepare-db-and-run-queries" },
                 { ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase, "sql-server-run-queries-and-check-database" },
+                { ExecutionStrategyType.JavaProjectTestsExecutionStrategy, "java-project-tests" },
             };
 
         public string Format(ExecutionStrategyType obj)

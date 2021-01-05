@@ -13,7 +13,7 @@
 
     public class JavaZipFileCompileExecuteAndCheckExecutionStrategy : JavaPreprocessCompileExecuteAndCheckExecutionStrategy
     {
-        protected const string SubmissionFileName = "_$submission";
+        protected const string SubmissionFileName = "__submission";
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,

@@ -40,7 +40,7 @@
         protected List<string> UserClassNames { get; }
 
         protected override string ClassPathArgument
-            => $@" -classpath ""{this.WorkingDirectory}{ClassPathArgumentSeparator}{this.JavaLibrariesPath}*""";
+            => $@" -classpath ""{this.WorkingDirectory}{ClassPathArgumentSeparator}{this.JavaLibrariesPath}/*""";
 
         protected override string JUnitTestRunnerCode
         {
@@ -260,7 +260,7 @@ class Classes{{
             File.WriteAllBytes(submissionFilePath, context.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             this.ExtractUserClassNames(submissionFilePath);
-                this.AddTestsToUserSubmission(context, submissionFilePath);
+            this.AddTestsToUserSubmission(context, submissionFilePath);
             this.AddTestRunnerTemplate(submissionFilePath);
 
             return submissionFilePath;

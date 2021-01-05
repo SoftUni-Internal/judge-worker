@@ -16,6 +16,7 @@
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
+    using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -367,6 +368,12 @@
                     break;
                 case ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase:
                     executionStrategy = new SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                        Settings.SqlServerLocalDbMasterDbConnectionString,
+                        Settings.SqlServerLocalDbRestrictedUserId,
+                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries:
+                    executionStrategy = new SqlServerSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
                         Settings.SqlServerLocalDbMasterDbConnectionString,
                         Settings.SqlServerLocalDbRestrictedUserId,
                         Settings.SqlServerLocalDbRestrictedUserPassword);

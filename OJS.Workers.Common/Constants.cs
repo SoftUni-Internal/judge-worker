@@ -51,7 +51,8 @@
         // Runtime constants
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
         public static readonly string CSharpFileExtension = $".{CompilerType.CSharp.GetFileExtension()}";
-        public static readonly string ClassDelimiter = $"~~!!!==#==!!!~~{Environment.NewLine}";
+        public static readonly string ClassDelimiterUnix = $"~~!!!==#==!!!~~\n";
+        public static readonly string ClassDelimiterWin = $"~~!!!==#==!!!~~\r\n";
 
         // Temp Directory folder paths
         public static string ExecutionStrategiesWorkingDirectoryPath

@@ -217,11 +217,12 @@ process.stdin.on('end', function() {
 
             foreach (var test in executionContext.Input.Tests)
             {
+                var testInput = this.PrepareTestInput(test.Input);
                 var processExecutionResult = this.ExecuteCode(
                     executionContext,
                     executor,
                     codeSavePath,
-                    test.Input);
+                    testInput);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,

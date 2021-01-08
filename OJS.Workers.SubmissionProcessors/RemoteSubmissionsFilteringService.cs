@@ -14,17 +14,35 @@
     {
         private readonly ISet<ExecutionStrategyType> remoteWorkerExecutionStrategyTypes = new HashSet<ExecutionStrategyType>
         {
+            // .Net Core
             ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck,
+
+            // Python
             ExecutionStrategyType.PythonExecuteAndCheck,
-            ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
+
+            // C++
             ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
-            ExecutionStrategyType.PhpCliExecuteAndCheck,
+            ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy,
+
+            // JavaScript
             ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
-            ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
+            ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy,
+
+            // Java
+            ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
+            ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
             ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
+            ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
+
+            // PlainText
+            ExecutionStrategyType.CheckOnly,
+
+            // ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
+            // ExecutionStrategyType.CompileExecuteAndCheck,
+            // ExecutionStrategyType.PhpCliExecuteAndCheck,
 
             // Leaving this here, because it is work in progress
             // ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,

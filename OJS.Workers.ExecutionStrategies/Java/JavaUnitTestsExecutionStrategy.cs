@@ -25,7 +25,7 @@
 
         protected const string JUnitRunnerClassName = "_$TestRunner";
 
-        protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms16m -Xmx256m";
+        protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms256m -Xmx1500m";
 
         protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
@@ -129,7 +129,7 @@ public class _$TestRunner {{
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
             File.Delete(submissionFilePath);
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             var checker = executionContext.Input.GetChecker();
 

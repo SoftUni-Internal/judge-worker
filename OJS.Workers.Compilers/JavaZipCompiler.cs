@@ -12,7 +12,7 @@
         private const string JavaCompiledFilesSearchPattern = "*.class";
         private const string JavaSourceFilesSearchPattern = "*.java";
         private const string MainClassFileName = "Main.class";
-        private const string MainClassFilePathSuffix = "\\" + MainClassFileName;
+        private readonly static string MainClassFilePathSuffix = FileHelpers.BuildPath(string.Empty, MainClassFileName);
 
         public JavaZipCompiler(int processExitTimeOutMultiplier)
             : base(processExitTimeOutMultiplier)

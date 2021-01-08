@@ -2,6 +2,9 @@
 {
     using OJS.Workers.Common;
     using OJS.Workers.Executors;
+    using System;
+
+    using static OJS.Workers.Common.Constants;
 
     public class BaseInterpretedCodeExecutionStrategy : BaseCodeExecutionStrategy
     {
@@ -21,5 +24,9 @@
 
             return base.InternalExecute(executionContext, result);
         }
+
+        protected string PrepareTestInput(string testInput)
+            => string.Join(Environment.NewLine,
+                testInput.Split(new[] {NewLineUnix, NewLineWin}, StringSplitOptions.None));
     }
 }

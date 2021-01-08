@@ -59,7 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestRunner {{
+public class _$TestRunner {{
     public static void main(String[] args) {{
         for (String arg: args) {{
             try {{
@@ -260,7 +260,7 @@ class Classes{{
             File.WriteAllBytes(submissionFilePath, context.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             this.ExtractUserClassNames(submissionFilePath);
-                this.AddTestsToUserSubmission(context, submissionFilePath);
+            this.AddTestsToUserSubmission(context, submissionFilePath);
             this.AddTestRunnerTemplate(submissionFilePath);
 
             return submissionFilePath;

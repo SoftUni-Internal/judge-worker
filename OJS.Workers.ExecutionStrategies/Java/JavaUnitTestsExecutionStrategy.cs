@@ -15,6 +15,7 @@
     using OJS.Workers.Executors;
 
     using static OJS.Workers.Common.Constants;
+    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
 
     public class JavaUnitTestsExecutionStrategy : JavaZipFileCompileExecuteAndCheckExecutionStrategy
     {
@@ -23,7 +24,7 @@
 
         protected const string FilenameRegex = @"^//((?:\w+/)*[a-zA-Z_][a-zA-Z_0-9]*\.java)";
 
-        protected const string JUnitRunnerClassName = "TestRunner";
+        protected const string JUnitRunnerClassName = "_$TestRunner";
 
         protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms256m -Xmx1500m";
 
@@ -66,7 +67,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestRunner {{
+public class _$TestRunner {{
     public static void main(String[] args) {{
         Class[] testClasses = new Class[]{{{string.Join(", ", this.TestNames.Select(x => x.Replace(".java", ".class").Replace("/", ".")))}}};
 
@@ -108,6 +109,45 @@ public class TestRunner {{
 }}";
         }
 
+        private IEnumerable<string> ExtractFileNames(string testInput)
+            => testInput.Split(new[] {ClassDelimiterUnix, ClassDelimiterWin}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(this.PrepareFileFromClassname);
+
+        private string PrepareFileFromClassname(string projectClass)
+        {
+            var name = Regex.Match(projectClass, FilenameRegex);
+            if (!name.Success)
+            {
+                return null;
+            }
+
+            var filename = FileHelpers.BuildPath(name.Groups[1].Value.Split('/', '\\'));
+            var filepath = FileHelpers.BuildPath(this.WorkingDirectory, filename);
+            var className = filename.Replace('/', '.')
+                .Replace(".java", "");
+
+            var directory = Path.GetDirectoryName(filepath);
+            if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(filepath, projectClass);
+            return filename;
+        }
+
+        private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
+        {
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
+
+            return this.Compile(
+                executionContext.CompilerType,
+                compilerPath,
+                combinedArguments,
+                this.WorkingDirectory);
+        }
+
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -140,39 +180,16 @@ public class TestRunner {{
 
             foreach (var test in tests)
             {
-                var fileNames = new List<string>();
-                var classes = test.Input.Split(new[] { ClassDelimiter }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var projectClass in classes)
+                var testFileNames = this.ExtractFileNames(test.Input)
+                    .ToList();
+                if (testFileNames.Any(string.IsNullOrEmpty))
                 {
-                    var name = Regex.Match(projectClass, FilenameRegex);
-                    if (!name.Success)
-                    {
-                        result.IsCompiledSuccessfully = false;
-                        result.CompilerComment = IncorrectTestFormat;
-                        return result;
-                    }
-
-                    var filename = name.Groups[1].Value.Replace("/", "\\");
-                    fileNames.Add($"{this.WorkingDirectory}\\{filename}");
-                    var directory = Path.GetDirectoryName(fileNames.Last());
-                    if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
-                    {
-                        Directory.CreateDirectory(directory);
-                    }
-
-                    File.WriteAllText(fileNames[fileNames.Count - 1], projectClass);
+                    result.IsCompiledSuccessfully = false;
+                    result.CompilerComment = IncorrectTestFormat;
+                    return result;
                 }
 
-                var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-                var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
-
-                var compilerResult = this.Compile(
-                    executionContext.CompilerType,
-                    compilerPath,
-                    combinedArguments,
-                    this.WorkingDirectory);
-
-                var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*;{compilerResult.OutputFile}""";
+                var compilerResult = this.CompileProject(executionContext);
                 result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
                 result.CompilerComment = compilerResult.CompilerComment;
                 if (!result.IsCompiledSuccessfully)
@@ -180,13 +197,15 @@ public class TestRunner {{
                     return result;
                 }
 
-                fileNames.ForEach(File.Delete);
+                // testFileNames.ForEach(File.Delete);
+
+                var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{compilerResult.OutputFile}""";
 
                 var arguments = new List<string>
                 {
                     classPathWithCompiledFile,
                     AdditionalExecutionArguments,
-                    JUnitRunnerClassName
+                    JUnitRunnerClassName,
                 };
 
                 // Process the submission and check each test
@@ -275,7 +294,7 @@ public class TestRunner {{
 
         protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
+            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, SubmissionFileName);
             File.WriteAllBytes(submissionFilePath, context.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             this.ExtractUserTestFiles(submissionFilePath);

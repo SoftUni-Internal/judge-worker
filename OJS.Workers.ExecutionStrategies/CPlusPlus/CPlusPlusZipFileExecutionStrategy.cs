@@ -93,7 +93,7 @@
         private IEnumerable<string> ExtractTaskSkeleton(string executionContextTaskSkeletonAsString)
         {
             var headersAndCppFiles = executionContextTaskSkeletonAsString.Split(
-                new string[] { Constants.ClassDelimiter },
+                new string[] { Constants.ClassDelimiterUnix, Constants.ClassDelimiterWin },
                 StringSplitOptions.RemoveEmptyEntries);
 
             var pathsToHeadersAndCppFiles = new List<string>();

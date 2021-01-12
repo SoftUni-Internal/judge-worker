@@ -1,8 +1,8 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
+    using System;
     using OJS.Workers.Common;
     using OJS.Workers.Executors;
-    using System;
 
     using static OJS.Workers.Common.Constants;
 
@@ -26,7 +26,8 @@
         }
 
         protected string PrepareTestInput(string testInput)
-            => string.Join(Environment.NewLine,
-                testInput.Split(new[] {NewLineUnix, NewLineWin}, StringSplitOptions.None));
+            => string.Join(
+                Environment.NewLine,
+                testInput.Split(new[] { NewLineUnix, NewLineWin }, StringSplitOptions.None));
     }
 }

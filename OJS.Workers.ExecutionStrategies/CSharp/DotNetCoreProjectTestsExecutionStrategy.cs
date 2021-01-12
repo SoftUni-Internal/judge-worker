@@ -125,7 +125,8 @@
         protected (string csProjTemplate, string csProjPath) CreateNUnitLiteConsoleApp(
             IEnumerable<string> projectsToTestCsProjPaths)
         {
-            var consoleAppEntryPointPath = FileHelpers.BuildPath(this.NUnitLiteConsoleAppDirectory,
+            var consoleAppEntryPointPath = FileHelpers.BuildPath(
+                this.NUnitLiteConsoleAppDirectory,
                 $"{NUnitLiteConsoleAppProgramName}{Constants.CSharpFileExtension}");
 
             File.WriteAllText(consoleAppEntryPointPath, NUnitLiteConsoleAppProgramTemplate);

@@ -277,6 +277,18 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
+                case ExecutionStrategyType.NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth:
+                    executionStrategy = new NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
+                        processExecutorFactory,
+                        Settings.NodeJsExecutablePath,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.HttpServerModulePath, // #
+                        Settings.UnderscoreModulePath,
+                        portNumber,
+                        Settings.NodeJsBaseTimeUsedInMilliseconds,
+                        Settings.NodeJsBaseMemoryUsedInBytes);
+                    break;
                 case ExecutionStrategyType.PythonExecuteAndCheck:
                     executionStrategy = new PythonExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,

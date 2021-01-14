@@ -5,8 +5,6 @@
     using System.Data.SqlClient;
     using System.Globalization;
     using System.Transactions;
-    using Microsoft.Build.Execution;
-    using OJS.Workers.ExecutionStrategies.Python;
 
     public abstract class BaseSqlServerSingleDatabaseExecutionStrategy : BaseSqlExecutionStrategy
     {
@@ -15,12 +13,11 @@
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
+        private static string databaseName = Guid.NewGuid().ToString();
 
         private readonly string masterDbConnectionString;
         private readonly string restrictedUserId;
         private readonly string restrictedUserPassword;
-
-        private static string _databaseName = Guid.NewGuid().ToString();
         private TransactionScope transactionScope;
 
         protected BaseSqlServerSingleDatabaseExecutionStrategy(
@@ -97,6 +94,8 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
+        public override string GetDatabaseName() => databaseName;
+
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
             if (!dataRecord.IsDBNull(index))
@@ -125,7 +124,5 @@
 
             return base.GetDataRecordFieldValue(dataRecord, index);
         }
-
-        public override string GetDatabaseName() => _databaseName;
     }
 }

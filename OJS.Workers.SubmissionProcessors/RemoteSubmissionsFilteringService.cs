@@ -9,31 +9,12 @@
     using OJS.Workers.SubmissionProcessors.Models;
     using OJS.Workers.SubmissionProcessors.Workers;
 
+    using static OJS.Workers.Common.ExecutionStrategiesConstants.NameMappings;
+
     public class RemoteSubmissionsFilteringService
         : ISubmissionsFilteringService
     {
-        private readonly ISet<ExecutionStrategyType> remoteWorkerExecutionStrategyTypes = new HashSet<ExecutionStrategyType>
-        {
-            ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck,
-            ExecutionStrategyType.PythonExecuteAndCheck,
-            ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
-            ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
-            ExecutionStrategyType.PhpCliExecuteAndCheck,
-            ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
-            ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
-            ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
-            ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
-            ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
-            ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
-
-            // Leaving this here, because it is work in progress
-            // ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries,
-            // ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase,
-            // ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase,
-            // ExecutionStrategyType.PythonProjectTests,
-            // ExecutionStrategyType.PythonProjectUnitTests,
-            // ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
-        };
+        private readonly ISet<ExecutionStrategyType> remoteWorkerExecutionStrategyTypes = RemoteWorkerSupportedStrategies;
 
         private readonly HttpService http;
 
@@ -42,8 +23,8 @@
 
         public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => submission is OjsSubmission<TestsInputModel>
-               && this.IsOnline(submissionWorker)
-               && this.remoteWorkerExecutionStrategyTypes.Contains(submission.ExecutionStrategyType);
+               && this.remoteWorkerExecutionStrategyTypes.Contains(submission.ExecutionStrategyType)
+               && this.IsOnline(submissionWorker);
 
         private bool IsOnline(ISubmissionWorker submissionWorker)
         {

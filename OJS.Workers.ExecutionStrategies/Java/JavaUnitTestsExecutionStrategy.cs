@@ -26,7 +26,7 @@
 
         protected const string JUnitRunnerClassName = "_$TestRunner";
 
-        protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms16m -Xmx256m";
+        protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms256m -Xmx1500m";
 
         protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
@@ -109,45 +109,6 @@ public class _$TestRunner {{
 }}";
         }
 
-        private IEnumerable<string> ExtractFileNames(string testInput)
-            => testInput.Split(new[] {ClassDelimiterUnix, ClassDelimiterWin}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(this.PrepareFileFromClassname);
-
-        private string PrepareFileFromClassname(string projectClass)
-        {
-            var name = Regex.Match(projectClass, FilenameRegex);
-            if (!name.Success)
-            {
-                return null;
-            }
-
-            var filename = FileHelpers.BuildPath(name.Groups[1].Value.Split('/', '\\'));
-            var filepath = FileHelpers.BuildPath(this.WorkingDirectory, filename);
-            var className = filename.Replace('/', '.')
-                .Replace(".java", "");
-
-            var directory = Path.GetDirectoryName(filepath);
-            if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.WriteAllText(filepath, projectClass);
-            return filename;
-        }
-
-        private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
-        {
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
-
-            return this.Compile(
-                executionContext.CompilerType,
-                compilerPath,
-                combinedArguments,
-                this.WorkingDirectory);
-        }
-
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -169,7 +130,7 @@ public class _$TestRunner {{
             FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
             File.Delete(submissionFilePath);
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             var checker = executionContext.Input.GetChecker();
 
@@ -196,8 +157,6 @@ public class _$TestRunner {{
                 {
                     return result;
                 }
-
-                // testFileNames.ForEach(File.Delete);
 
                 var classPathWithCompiledFile = $@" -classpath ""{this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{compilerResult.OutputFile}""";
 
@@ -329,6 +288,45 @@ public class _$TestRunner {{
 
             totalTests = int.Parse(res.Groups[1].Value);
             passedTests = int.Parse(res.Groups[2].Value);
+        }
+
+        private IEnumerable<string> ExtractFileNames(string testInput)
+            => testInput.Split(new[] { ClassDelimiterUnix, ClassDelimiterWin }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(this.PrepareFileFromClassname);
+
+        private string PrepareFileFromClassname(string projectClass)
+        {
+            var name = Regex.Match(projectClass, FilenameRegex);
+            if (!name.Success)
+            {
+                return null;
+            }
+
+            var filename = FileHelpers.BuildPath(name.Groups[1].Value.Split('/', '\\'));
+            var filepath = FileHelpers.BuildPath(this.WorkingDirectory, filename);
+            var className = filename.Replace('/', '.')
+                .Replace(".java", string.Empty);
+
+            var directory = Path.GetDirectoryName(filepath);
+            if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(filepath, projectClass);
+            return filename;
+        }
+
+        private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
+        {
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
+
+            return this.Compile(
+                executionContext.CompilerType,
+                compilerPath,
+                combinedArguments,
+                this.WorkingDirectory);
         }
     }
 }

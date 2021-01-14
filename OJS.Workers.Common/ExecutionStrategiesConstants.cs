@@ -1,8 +1,9 @@
 namespace OJS.Workers.Common
 {
-    using OJS.Workers.Common.Models;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
+
+    using OJS.Workers.Common.Models;
 
     public static class ExecutionStrategiesConstants
     {
@@ -55,18 +56,11 @@ namespace OJS.Workers.Common
                 {
                     // .Net Core
                     { ExecutionStrategyNames.CsharpDotNetCoreCode, ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck },
-                    { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
-
-                    // .Net
-                    { ExecutionStrategyNames.CsharpCode, ExecutionStrategyType.CompileExecuteAndCheck },
 
                     // Python
                     { ExecutionStrategyNames.PythonCode, ExecutionStrategyType.PythonExecuteAndCheck },
                     { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
-
-                    // Php
-                    { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
@@ -89,13 +83,20 @@ namespace OJS.Workers.Common
 
                     // Plain text
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
+
+                    // .Net Core
+                    // { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
+                    // .Net
+                    // { ExecutionStrategyNames.CsharpCode, ExecutionStrategyType.CompileExecuteAndCheck },
+                    // Php
+                    // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =
-                new Dictionary<ExecutionStrategyType, string>
-                {
+                NameToExecutionStrategyMappings.ToDictionary(x => x.Value, y => y.Key);
 
-                };
+            public static readonly ISet<ExecutionStrategyType> RemoteWorkerSupportedStrategies =
+                new HashSet<ExecutionStrategyType>(NameToExecutionStrategyMappings.Values);
         }
     }
 }

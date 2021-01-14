@@ -54,7 +54,7 @@ namespace OJS.Workers.Common
                 new Dictionary<string, ExecutionStrategyType>
                 {
                     // .Net Core
-                    {  ExecutionStrategyNames.CsharpDotNetCoreCode, ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck },
+                    { ExecutionStrategyNames.CsharpDotNetCoreCode, ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck },
                     { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
 
                     // .Net

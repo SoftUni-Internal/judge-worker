@@ -66,7 +66,7 @@
 
         private string PrepareSubmissionFile(byte[] submissionFileContent)
         {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
+            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, SubmissionFileName);
             File.WriteAllBytes(submissionFilePath, submissionFileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             this.AddSandboxExecutorSourceFileToSubmissionZip(submissionFilePath);

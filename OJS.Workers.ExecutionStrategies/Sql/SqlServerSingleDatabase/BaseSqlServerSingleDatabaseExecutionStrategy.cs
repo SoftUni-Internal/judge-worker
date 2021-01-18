@@ -103,7 +103,11 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
+<<<<<<< HEAD:OJS.Workers.ExecutionStrategies/Sql/SqlServerSingleDatabase/BaseSqlServerSingleDatabaseExecutionStrategy.cs
         public override string GetDatabaseName() => DatabaseName;
+=======
+        public override string GetDatabaseName() => databaseName;
+>>>>>>> scaling-take-2:OJS.Workers.ExecutionStrategies/Sql/SqlServerSingleDatabase/BaseSqlServerLocalDbExecutionStrategy.cs
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

@@ -56,7 +56,7 @@
                 return new CompileResult(false, $"Input directory not found! Searched in: {inputDirectory}");
             }
 
-            this.CompilationDirectory = $"{inputDirectory}\\{CompilationDirectoryName}";
+            this.CompilationDirectory = FileHelpers.BuildPath(inputDirectory, CompilationDirectoryName);
 
             if (Directory.Exists(this.CompilationDirectory))
             {

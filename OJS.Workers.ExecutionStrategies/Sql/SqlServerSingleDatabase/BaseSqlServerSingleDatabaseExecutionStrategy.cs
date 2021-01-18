@@ -14,12 +14,11 @@
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
+        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private readonly string masterDbConnectionString;
-        private string restrictedUserId;
+        private readonly string restrictedUserId;
         private readonly string restrictedUserPassword;
-
-        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private TransactionScope transactionScope;
 
@@ -103,11 +102,15 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
+<<<<<<< HEAD
 <<<<<<< HEAD:OJS.Workers.ExecutionStrategies/Sql/SqlServerSingleDatabase/BaseSqlServerSingleDatabaseExecutionStrategy.cs
         public override string GetDatabaseName() => DatabaseName;
 =======
         public override string GetDatabaseName() => databaseName;
 >>>>>>> scaling-take-2:OJS.Workers.ExecutionStrategies/Sql/SqlServerSingleDatabase/BaseSqlServerLocalDbExecutionStrategy.cs
+=======
+        public override string GetDatabaseName() => DatabaseName;
+>>>>>>> 5a4dd7e600d669d8461558003e3607de2efd722f
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

@@ -14,12 +14,11 @@
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
+        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private readonly string masterDbConnectionString;
-        private string restrictedUserId;
+        private readonly string restrictedUserId;
         private readonly string restrictedUserPassword;
-
-        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private TransactionScope transactionScope;
 

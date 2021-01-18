@@ -38,7 +38,8 @@
 
             foreach (var test in executionContext.Input.Tests)
             {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                var testInput = this.PrepareTestInput(test.Input);
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, testInput);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,

@@ -49,9 +49,12 @@
         public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
 
         // Runtime constants
+        public const string NewLineUnix = "\n";
+        public const string NewLineWin = "\r\n";
         public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
         public static readonly string CSharpFileExtension = $".{CompilerType.CSharp.GetFileExtension()}";
-        public static readonly string ClassDelimiter = $"~~!!!==#==!!!~~{Environment.NewLine}";
+        public static readonly string ClassDelimiterUnix = $"~~!!!==#==!!!~~{NewLineUnix}";
+        public static readonly string ClassDelimiterWin = $"~~!!!==#==!!!~~{NewLineWin}";
 
         // Temp Directory folder paths
         public static string ExecutionStrategiesWorkingDirectoryPath

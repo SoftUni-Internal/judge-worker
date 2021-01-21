@@ -85,10 +85,10 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
 
                     // Databases
-
                     { "sql-server-prepare-db-and-run-queries", ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
                     { "sql-server-run-queries-and-check-database",  ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase},
                     { "sql-server-run-skeleton-run-queries-and-check-database", ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase},
+
                     { "mysql-prepare-db-and-run-queries", ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries },
                     { "mysql-run-queries-and-check-database", ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase },
                     { "mysql-run-skeleton-run-queries-and-check-database", ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase },

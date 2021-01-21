@@ -81,7 +81,7 @@
             }
 
             this.WorkerDbConnectionString =
-                $"Data Source=sql_server;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
+                $"Data Source=localhost;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
         }
 
         public string WorkerDbConnectionString { get; set; }

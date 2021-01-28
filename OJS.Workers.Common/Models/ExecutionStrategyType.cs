@@ -50,16 +50,5 @@
         SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
         SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 46,
         SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47,
-        MariaDbSingleDatabasePrepareDatabaseAndRunQueries = 48,
-        MariaDbSingleDatabaseRunQueriesAndCheckDatabase = 49,
-        MariaDbSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 50,
-
-        MariaDbInMemoryPrepareDatabaseAndRunQueries = 51,
-        MariaDbInMemoryRunQueriesAndCheckDatabase = 52,
-        MariaDbInMemoryRunSkeletonRunQueriesAndCheckDatabase = 53,
-
-        MySqlInMemoryPrepareDatabaseAndRunQueries = 54,
-        MySqlInMemoryRunQueriesAndCheckDatabase = 55,
-        MySqlInMemoryRunSkeletonRunQueriesAndCheckDatabase = 56,
     }
 }

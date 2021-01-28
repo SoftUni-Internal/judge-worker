@@ -14,10 +14,7 @@
     using OJS.Workers.ExecutionStrategies.PHP;
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.ExecutionStrategies.Ruby;
-    using OJS.Workers.ExecutionStrategies.Sql.MariaDb;
-    using OJS.Workers.ExecutionStrategies.Sql.MariaDbInMemory;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
-    using OJS.Workers.ExecutionStrategies.Sql.MySqlInMemory;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
@@ -407,60 +404,6 @@
                     break;
                 case ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase:
                     executionStrategy = new MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbSingleDatabasePrepareDatabaseAndRunQueries:
-                    executionStrategy = new MariaDbSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbSingleDatabaseRunQueriesAndCheckDatabase:
-                    executionStrategy = new MariaDbSingleDatabaseRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new MariaDbSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbInMemoryPrepareDatabaseAndRunQueries:
-                    executionStrategy = new MariaDbInMemoryPrepareDatabaseAndRunQueriesExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbInMemoryRunQueriesAndCheckDatabase:
-                    executionStrategy = new MariaDbInMemoryRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MariaDbInMemoryRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new MySqlInMemoryRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MySqlInMemoryPrepareDatabaseAndRunQueries:
-                    executionStrategy = new MySqlInMemoryPrepareDatabaseAndRunQueriesExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MySqlInMemoryRunQueriesAndCheckDatabase:
-                    executionStrategy = new MySqlInMemoryRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.MySqlInMemoryRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new MariaDbInMemoryRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
                         Settings.MySqlSysDbConnectionString,
                         Settings.MySqlRestrictedUserId,
                         Settings.MySqlRestrictedUserPassword);

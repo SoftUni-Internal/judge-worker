@@ -50,7 +50,8 @@
 
                 var createUserQuery = $@"
                     CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'%';
-                    SET PASSWORD FOR '{this.restrictedUserId}'@'%'=PASSWORD('{this.restrictedUserPassword}')";
+                    ALTER USER '{this.restrictedUserId}' IDENTIFIED BY '{this.restrictedUserPassword}'";
+                    // SET PASSWORD FOR '{this.restrictedUserId}'@'%'=PASSWORD('{this.restrictedUserPassword}')";
 
                 var grandPrivilegesToUserQuery = $@"
                     GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'%';

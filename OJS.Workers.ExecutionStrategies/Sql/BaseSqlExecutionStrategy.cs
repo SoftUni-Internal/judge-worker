@@ -117,7 +117,9 @@
         protected virtual string FixCommandText(string commandText)
             => commandText;
 
-        protected SqlResult ExecuteReader(IDbConnection connection, string commandText,
+        protected SqlResult ExecuteReader(
+            IDbConnection connection,
+            string commandText,
             int timeLimit = DefaultTimeLimit)
         {
             using (var command = connection.CreateCommand())
@@ -142,7 +144,8 @@
                                         sqlTestResult.Results.Add(fieldValue);
                                     }
                                 }
-                            } while (reader.NextResult());
+                            }
+                            while (reader.NextResult());
                         });
 
                     return sqlTestResult;

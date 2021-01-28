@@ -47,43 +47,6 @@
             this.restrictedUserPassword = restrictedUserPassword;
         }
 
-        private void EnsureDatabaseIsSetup()
-        {
-            var databaseName = this.GetDatabaseName();
-            var databaseFilePath =
-                string.Join(Path.DirectorySeparatorChar.ToString(), $"{this.WorkingDirectory}", $"{databaseName}.mdf");
-
-            using (var connection = new SqlConnection(this.masterDbConnectionString))
-            {
-                connection.Open();
-
-                var setupDatabaseQuery =
-                    $@"IF DB_ID('{databaseName}') IS NULL
-                    BEGIN
-                    CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');
-                    CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
-                    DEFAULT_DATABASE=[master],
-                    DEFAULT_LANGUAGE=[us_english],
-                    CHECK_EXPIRATION=OFF,
-                    CHECK_POLICY=ON;
-                    END";
-
-                var setupUserAsOwnerQuery = $@"
-                    USE [{databaseName}];
-                    IF IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') = 0 OR IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') is NULL
-                    BEGIN
-                    CREATE USER [{this.RestrictedUserId}] FOR LOGIN [{this.RestrictedUserId}];
-                    ALTER ROLE [db_owner] ADD MEMBER [{this.RestrictedUserId}];
-                    END";
-
-                this.ExecuteNonQuery(connection, setupDatabaseQuery);
-                this.ExecuteNonQuery(connection, setupUserAsOwnerQuery);
-            }
-
-            this.WorkerDbConnectionString =
-                $"Data Source=localhost;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
-        }
-
         public string WorkerDbConnectionString { get; set; }
 
         public string RestrictedUserId => $"{this.GetDatabaseName()}_{this.restrictedUserId}";
@@ -131,6 +94,43 @@
             }
 
             return base.GetDataRecordFieldValue(dataRecord, index);
+        }
+
+        private void EnsureDatabaseIsSetup()
+        {
+            var databaseName = this.GetDatabaseName();
+            var databaseFilePath =
+                string.Join(Path.DirectorySeparatorChar.ToString(), $"{this.WorkingDirectory}", $"{databaseName}.mdf");
+
+            using (var connection = new SqlConnection(this.masterDbConnectionString))
+            {
+                connection.Open();
+
+                var setupDatabaseQuery =
+                    $@"IF DB_ID('{databaseName}') IS NULL
+                    BEGIN
+                    CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');
+                    CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
+                    DEFAULT_DATABASE=[master],
+                    DEFAULT_LANGUAGE=[us_english],
+                    CHECK_EXPIRATION=OFF,
+                    CHECK_POLICY=ON;
+                    END";
+
+                var setupUserAsOwnerQuery = $@"
+                    USE [{databaseName}];
+                    IF IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') = 0 OR IS_ROLEMEMBER('db_owner', '{this.RestrictedUserId}') is NULL
+                    BEGIN
+                    CREATE USER [{this.RestrictedUserId}] FOR LOGIN [{this.RestrictedUserId}];
+                    ALTER ROLE [db_owner] ADD MEMBER [{this.RestrictedUserId}];
+                    END";
+
+                this.ExecuteNonQuery(connection, setupDatabaseQuery);
+                this.ExecuteNonQuery(connection, setupUserAsOwnerQuery);
+            }
+
+            this.WorkerDbConnectionString =
+                $"Data Source=localhost;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
         }
     }
 }

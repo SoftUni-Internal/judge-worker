@@ -106,16 +106,6 @@ namespace OJS.Workers.Common
 
                     // Php
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
-
-                    // Databases: Old
-                    // { "sql-server-prepare-db-and-run-queries", ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries },
-                    // { "sql-server-run-queries-and-check-database", ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase },
-                    // { "sql-server-run-skeleton-run-queries-and-check-database", ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase },
-
-                    // .Net Core
-                    // { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
-                    // .Net
-                    // { ExecutionStrategyNames.CsharpCode, ExecutionStrategyType.CompileExecuteAndCheck },
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =

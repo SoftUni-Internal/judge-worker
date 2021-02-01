@@ -307,7 +307,8 @@ class _$SandboxSecurityManager extends SecurityManager {
                 .Substring(
                     this.WorkingDirectory.Length + 1,
                     filePath.Length - this.WorkingDirectory.Length - JavaCompiledFileExtension.Length - 1)
-                .Replace('\\', '.');
+                .Replace('\\', '.')
+                .Replace("/", ".");
 
             var timeMeasurementFilePath = Path.Combine(this.WorkingDirectory, TimeMeasurementFileName);
 

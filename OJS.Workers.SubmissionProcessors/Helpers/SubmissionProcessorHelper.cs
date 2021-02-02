@@ -280,11 +280,8 @@
                 case ExecutionStrategyType.NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth:
                     executionStrategy = new NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.HttpServerModulePath, // #
-                        Settings.UnderscoreModulePath,
+                        Settings.PythonExecutablePath,
+                        Settings.JSProjNodeModules,
                         portNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);

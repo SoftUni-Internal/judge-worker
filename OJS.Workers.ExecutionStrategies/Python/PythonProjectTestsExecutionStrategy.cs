@@ -83,7 +83,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// Saves all tests from the execution context as separate files in tests directory.
         /// Full paths to the files are preserved in a private field.
         /// </summary>
-        /// <param name="tests">All tests from the execution context</param>
+        /// <param name="tests">All tests from the execution context.</param>
         private void SaveTests(IList<TestContext> tests)
         {
             var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);

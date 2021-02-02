@@ -1,109 +1,226 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.NodeJs
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Text.RegularExpressions;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
 
     public class NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth
-        : NodeJsPreprocessExecuteAndCheckExecutionStrategy
+        : PythonExecuteAndCheckExecutionStrategy
     {
         protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
+        protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         protected const string TestsPathPlaceholder = "#testsPath#";
+        protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
 
         public NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
             IProcessExecutorFactory processExecutorFactory,
-            string nodeJsExecutablePath,
-            string mochaModulePath,
-            string chaiModulePath,
-            string httpServerModulePath,
-            string underscoreModulePath,
+            string pythonExecutablePath,
+            string jsProjNodeModulesPath,
             int portNumber,
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
                   processExecutorFactory,
-                  nodeJsExecutablePath,
-                  underscoreModulePath,
+                  pythonExecutablePath,
                   baseTimeUsed,
                   baseMemoryUsed)
         {
-            // TODO: Check if this can be automated
-            if (!File.Exists(mochaModulePath))
-            {
-                throw new ArgumentException(
-                    $"Mocha not found in: {mochaModulePath}",
-                    nameof(mochaModulePath));
-            }
-
-            if (!Directory.Exists(chaiModulePath))
-            {
-                throw new ArgumentException(
-                    $"Chai not found in: {chaiModulePath}",
-                    nameof(chaiModulePath));
-            }
-
-            if (!File.Exists(httpServerModulePath))
-            {
-                throw new ArgumentException(
-                    $"HttpServer not found in: {httpServerModulePath}",
-                    nameof(httpServerModulePath));
-            }
-
-            this.MochaModulePath = mochaModulePath;
-            this.ChaiModulePath = FileHelpers.ProcessModulePath(chaiModulePath);
-            this.HttpServerModulePath = FileHelpers.ProcessModulePath(httpServerModulePath);
+            this.JSProjNodeModulesPath = jsProjNodeModulesPath;
             this.PortNumber = portNumber;
         }
 
-        public string MochaModulePath { get; }
+        public string MochaModulePath => FileHelpers.BuildPath(this.JSProjNodeModulesPath, ".bin", "mocha.cmd");
 
-        public string ChaiModulePath { get; }
-
-        public string HttpServerModulePath { get; }
+        public string JSProjNodeModulesPath { get; }
 
         public int PortNumber { get; }
 
-        public string TestsPath => "C:\\repos\\judge-strategies\\js-exam-poc\\test";
+        protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, "test");
 
-        protected string UserApplicationPath => "C:\\repos\\judge-strategies\\js-exam-poc";
+        protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, "app");
 
-        protected override string JsCodeTemplate => $@"
-const {{ spawn }} = require('child_process');
+        protected string NgingConfFilePath => FileHelpers.BuildPath(this.WorkingDirectory, "nginx.conf");
 
-const httpServerPort = {this.PortNumber};
-const httpServerPath = '{this.HttpServerModulePath}';
-const userApplicationPath = '{UserApplicationPathPlaceholder}';
-const mochaPath = '{this.MochaModulePath}';
-const testsPath = '{TestsPathPlaceholder}';
+        protected string PythonCodeTemplate => $@"
+import docker
+import subprocess
 
-const httpServerProcess = spawn(
-    httpServerPath,
-    ['-P', `http://localhost:${{httpServerPort}}?`, '-s', '--cors', userApplicationPath]
-);
+mocha_path = '{this.MochaModulePath}'
+tests_path = '{this.TestsPath}'
+image_name = 'nginx'
+path_to_project = '{this.UserApplicationPath}'
+path_to_nginx_conf = '{this.NgingConfFilePath}'
+path_to_node_modules = '{this.JSProjNodeModulesPath}'
+port = '{this.PortNumber}'
 
-const testsProcess = spawn(
-    mochaPath,
-    [testsPath]
-);
 
-testsProcess.stdout.on('data', (data) => {{
-    console.log(`(PR2) stdout: ${{data}}`);
-}});
+class DockerExecutor:
+    def __init__(self):
+        self.client = docker.from_env()
+        self.container = self.client.containers.create(
+            image=image_name,
+            ports={{'80/tcp': port}},
+            volumes={{
+                path_to_nginx_conf: {{
+                    'bind': '/etc/nginx/nginx.conf',
+                    'mode': 'ro',
+                }},
+                path_to_project: {{
+                    'bind': '/usr/share/nginx/html',
+                    'mode': 'rw',
+                }},
+                path_to_node_modules: {{
+                    'bind': '/usr/share/nginx/html/node_modules',
+                    'mode': 'ro'
+                }}
+            }},
+        )
 
-testsProcess.stderr.on('data', (data) => {{
-    console.error(`(PR2) stderr: ${{data}}`);
-}});
+    def start(self):
+        self.container.start()
 
-testsProcess.on('close', (code) => {{
-    console.log(`child process exited with code ${{code}}`);
-    httpServerProcess.kill('SIGINT');
-}});
+    def stop(self):
+        self.container.stop()
+        self.container.wait()
+        self.container.remove()
+
+
+executor = DockerExecutor()
+
+executor.start()
+
+commands = [mocha_path, tests_path, '-R', 'min']
+
+process = subprocess.run(
+    commands,
+    capture_output=True
+)
+
+print(process.stdout)
+
+executor.stop()
+
 ";
 
-        protected override string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
-            => template.Replace(UserApplicationPathPlaceholder, this.UserApplicationPath)
-                .Replace(TestsPathPlaceholder, this.TestsPath);
+        protected string NginxFileContent => $@"
+worker_processes  1;
+
+events {{
+    worker_connections  1024;
+}}
+
+http {{
+    include mime.types;
+    types
+    {{
+        application/javascript mjs;
+    }}
+
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {{
+      root /usr/share/nginx/html;
+
+      listen 80;
+      server_name localhost;
+
+      location / {{
+        try_files $uri $uri/ /index.html;
+        autoindex on;
+      }}
+    }}
+}}";
+
+        protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            // Unzip submission file
+            // Create a temp file with the submission code
+            string submissionFilePath;
+            try
+            {
+                var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
+                var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
+                    ? $".{trimmedAllowedFileExtensions}"
+                    : trimmedAllowedFileExtensions;
+
+                if (allowedFileExtensions != ".zip")
+                {
+                    throw new ArgumentException("Submission file is not a zip file!");
+                }
+
+                submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
+                File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
+                FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+            }
+            catch (ArgumentException exception)
+            {
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = exception.Message;
+
+                return result;
+            }
+
+            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
+
+            System.IO.Directory.CreateDirectory(this.UserApplicationPath);
+            System.IO.Directory.CreateDirectory(this.TestsPath);
+            // Save test to file
+            this.SaveTestsToFiles(executionContext.Input.Tests);
+            this.SaveNginxFile();
+
+            var codeSavePath = this.SavePythonCodeTemplateToTempFile();
+
+            var executor = this.CreateExecutor();
+
+            var checker = executionContext.Input.GetChecker();
+
+            result = this.RunTests(codeSavePath, executor, checker, executionContext, result);
+            return result;
+        }
+
+        private string SavePythonCodeTemplateToTempFile()
+        {
+            string pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
+            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
+        }
+
+        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NgingConfFilePath);
+        
+
+        private void SaveTestsToFiles(IEnumerable<TestContext> tests)
+        {
+            foreach (var test in tests)
+            {
+                var testInputContent = test.Input.Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
+                FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
+            }
+        }
+
+        private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
+        {
+            var requirePattern = new Regex(NodeModulesRequirePattern);
+            var results = requirePattern.Matches(testInputContent);
+            foreach (Match match in results)
+            {
+                string fullRequireStatement = match.Groups[0].ToString();
+                string nodeModuleName = match.Groups[2].ToString();
+                string nodeModulePath = FileHelpers.BuildPath(this.JSProjNodeModulesPath, nodeModuleName);
+                string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
+                testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\","\\\\"));
+            }
+
+            return testInputContent;
+        }
     }
 }

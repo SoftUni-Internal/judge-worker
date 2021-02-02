@@ -39,6 +39,8 @@
 
         public static string NodeJsExecutablePath => SettingsHelper.GetSetting("NodeJsExecutablePath");
 
+        public static string JSProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
+
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");

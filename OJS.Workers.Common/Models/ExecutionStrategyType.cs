@@ -48,7 +48,6 @@
         PythonProjectTests = 43,
         PythonProjectUnitTests = 44,
         SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
-
         NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth = 48,
     }
 }

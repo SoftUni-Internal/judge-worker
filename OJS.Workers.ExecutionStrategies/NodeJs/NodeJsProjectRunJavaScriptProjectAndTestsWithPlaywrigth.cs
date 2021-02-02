@@ -222,5 +222,7 @@ http {{
 
             return testInputContent;
         }
+
+        protected override IExecutor CreateExecutor() => this.CreateExecutor(ProcessExecutorType.Standard);
     }
 }

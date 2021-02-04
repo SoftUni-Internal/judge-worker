@@ -156,10 +156,9 @@
 
         private ISubmissionProcessingStrategy<TSubmission> GetSubmissionProcessingStrategyInstance()
         {
-            try
+            try 
             {
-                var processingStrategy = this.dependencyContainer
-                    .GetInstance<ISubmissionProcessingStrategy<TSubmission>>();
+                var processingStrategy = this.dependencyContainer.GetInstance<ISubmissionProcessingStrategy<TSubmission>>();
 
                 processingStrategy.Initialize(
                     this.Logger,

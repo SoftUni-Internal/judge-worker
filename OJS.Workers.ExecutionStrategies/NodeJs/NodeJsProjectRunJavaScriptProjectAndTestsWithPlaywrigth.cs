@@ -14,8 +14,7 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
 
-    public class NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth
-        : PythonExecuteAndCheckExecutionStrategy
+    public class NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth : PythonExecuteAndCheckExecutionStrategy
     {
         protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
         protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";

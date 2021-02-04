@@ -189,7 +189,6 @@ http {{
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
         {
-            
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
                 ? $".{trimmedAllowedFileExtensions}"

@@ -56,5 +56,6 @@
 
   <ItemGroup>
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
   </ItemGroup>
 </Project>

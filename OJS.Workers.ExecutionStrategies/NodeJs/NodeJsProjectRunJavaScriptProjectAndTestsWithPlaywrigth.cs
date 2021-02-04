@@ -4,8 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
+    using System.Web;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
@@ -17,6 +21,7 @@
         protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         protected const string TestsPathPlaceholder = "#testsPath#";
         protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
+        protected const string MochaTestsPassingFailingResultPattern = "([\\d]*)\\s*(passing|failing)";
 
         public NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
             IProcessExecutorFactory processExecutorFactory,
@@ -95,7 +100,7 @@ executor = DockerExecutor()
 
 executor.start()
 
-commands = [mocha_path, tests_path, '-R', 'min']
+commands = [mocha_path, tests_path, '-R', 'json']
 
 process = subprocess.run(
     commands,
@@ -185,6 +190,53 @@ http {{
             var checker = executionContext.Input.GetChecker();
 
             result = this.RunTests(codeSavePath, executor, checker, executionContext, result);
+            return result;
+        }
+
+        protected override IExecutionResult<TestResult> RunTests(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result)
+        {
+            var requirePattern = new Regex(MochaTestsPassingFailingResultPattern);
+            foreach (var test in executionContext.Input.Tests)
+            {
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+
+                string receivedOutput = processExecutionResult.ReceivedOutput.Replace("\\\"", "\"");
+                receivedOutput = receivedOutput.Replace("\\n", "");
+                receivedOutput = receivedOutput.Replace("b'", "");
+
+                receivedOutput = Regex.Unescape(receivedOutput);
+                receivedOutput = receivedOutput.Replace("}'", "}");
+
+                dynamic deserializedOutput = JsonConvert.DeserializeObject(receivedOutput);
+                var testResults = deserializedOutput.tests;
+
+               
+                foreach (var testResult in testResults)
+                {
+                    int errorCount = ((JObject)testResult.err).Count;
+                    var testResultDTO = new TestResult
+                    {
+                        Id = test.Id,
+                        IsTrialTest = false,
+                        ResultType = TestRunResultType.CorrectAnswer
+                    };
+
+                    // test did not pass
+                    if (errorCount != 0)
+                    {
+                        testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = $"{testResult.fullTitle} {testResult.err}" };
+                        testResultDTO.ResultType = TestRunResultType.WrongAnswer;
+                    }
+
+                    result.Results.Add(testResultDTO);
+                }
+            }
+            
             return result;
         }
 

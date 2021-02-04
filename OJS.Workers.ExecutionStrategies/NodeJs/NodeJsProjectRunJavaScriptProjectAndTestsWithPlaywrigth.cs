@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Text.RegularExpressions;
-    using System.Web;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -39,11 +39,11 @@
             this.PortNumber = portNumber;
         }
 
+        public int PortNumber { get; }
+
         public string MochaModulePath => FileHelpers.BuildPath(this.JSProjNodeModulesPath, ".bin", "mocha.cmd");
 
-        public string JSProjNodeModulesPath { get; }
-
-        public int PortNumber { get; }
+        protected string JSProjNodeModulesPath { get; }
 
         protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, "test");
 
@@ -147,24 +147,9 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            // Unzip submission file
-            // Create a temp file with the submission code
-            string submissionFilePath;
             try
             {
-                var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
-                var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
-                    ? $".{trimmedAllowedFileExtensions}"
-                    : trimmedAllowedFileExtensions;
-
-                if (allowedFileExtensions != ".zip")
-                {
-                    throw new ArgumentException("Submission file is not a zip file!");
-                }
-
-                submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
-                File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
-                FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+                this.ExtractSubmissionFiles(executionContext);
             }
             catch (ArgumentException exception)
             {
@@ -174,22 +159,13 @@ http {{
                 return result;
             }
 
-            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
-
-            System.IO.Directory.CreateDirectory(this.UserApplicationPath);
-            System.IO.Directory.CreateDirectory(this.TestsPath);
-            // Save test to file
             this.SaveTestsToFiles(executionContext.Input.Tests);
             this.SaveNginxFile();
 
             var codeSavePath = this.SavePythonCodeTemplateToTempFile();
-
             var executor = this.CreateExecutor();
-
             var checker = executionContext.Input.GetChecker();
-
-            result = this.RunTests(codeSavePath, executor, checker, executionContext, result);
-            return result;
+            return this.RunTests(codeSavePath, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<TestResult> RunTests(
@@ -199,43 +175,70 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var requirePattern = new Regex(MochaTestsPassingFailingResultPattern);
             foreach (var test in executionContext.Input.Tests)
             {
                 var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
-
-                string receivedOutput = processExecutionResult.ReceivedOutput.Replace("\\\"", "\"");
-                receivedOutput = receivedOutput.Replace("\\n", "");
-                receivedOutput = receivedOutput.Replace("b'", "");
-
-                receivedOutput = Regex.Unescape(receivedOutput);
-                receivedOutput = receivedOutput.Replace("}'", "}");
-
-                dynamic deserializedOutput = JsonConvert.DeserializeObject(receivedOutput);
-                var testResults = deserializedOutput.tests;
-
-               
-                foreach (var testResult in testResults)
-                {
-                    int errorCount = ((JObject)testResult.err).Count;
-                    var testResultDTO = new TestResult
-                    {
-                        Id = test.Id,
-                        IsTrialTest = false,
-                        ResultType = TestRunResultType.CorrectAnswer
-                    };
-
-                    // test did not pass
-                    if (errorCount != 0)
-                    {
-                        testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = $"{testResult.fullTitle} {testResult.err}" };
-                        testResultDTO.ResultType = TestRunResultType.WrongAnswer;
-                    }
-
-                    result.Results.Add(testResultDTO);
-                }
+                var testResults = this.ExtractTestResultsFromReceivedOutput(processExecutionResult, test.Id);
+                result.Results.AddRange(testResults);
             }
+
+            return result;
+        }
+
+        protected override IExecutor CreateExecutor() => this.CreateExecutor(ProcessExecutorType.Standard);
+
+        private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
+        {
             
+            var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
+            var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
+                ? $".{trimmedAllowedFileExtensions}"
+                : trimmedAllowedFileExtensions;
+
+            if (allowedFileExtensions != Constants.ZipFileExtension)
+            {
+                throw new ArgumentException("Submission file is not a zip file!");
+            }
+
+            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
+            File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
+            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
+
+            System.IO.Directory.CreateDirectory(this.UserApplicationPath);
+            System.IO.Directory.CreateDirectory(this.TestsPath);
+        }
+
+        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(ProcessExecutionResult executionResult, int parentTestId)
+        {
+            // Unescape mocha output
+            var receivedOutput = Regex.Unescape(executionResult.ReceivedOutput);
+            receivedOutput = receivedOutput.Replace("b'", string.Empty);
+            receivedOutput = receivedOutput.Replace("}'", "}");
+
+            dynamic deserializedOutput = JsonConvert.DeserializeObject(receivedOutput);
+            var testResults = deserializedOutput.tests;
+            ICollection<TestResult> result = new List<TestResult>();
+            foreach (var testResult in testResults)
+            {
+                int errorCount = ((JObject)testResult.err).Count;
+                var testResultDTO = new TestResult
+                {
+                    Id = parentTestId,
+                    IsTrialTest = false,
+                    ResultType = TestRunResultType.CorrectAnswer
+                };
+
+                // test did not pass
+                if (errorCount != 0)
+                {
+                    testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = $"{testResult.fullTitle} {testResult.err}" };
+                    testResultDTO.ResultType = TestRunResultType.WrongAnswer;
+                }
+
+                result.Add(testResultDTO);
+            }
+
             return result;
         }
 
@@ -246,7 +249,6 @@ http {{
         }
 
         private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NgingConfFilePath);
-        
 
         private void SaveTestsToFiles(IEnumerable<TestContext> tests)
         {
@@ -268,12 +270,10 @@ http {{
                 string nodeModuleName = match.Groups[2].ToString();
                 string nodeModulePath = FileHelpers.BuildPath(this.JSProjNodeModulesPath, nodeModuleName);
                 string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
-                testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\","\\\\"));
+                testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\", "\\\\"));
             }
 
             return testInputContent;
         }
-
-        protected override IExecutor CreateExecutor() => this.CreateExecutor(ProcessExecutorType.Standard);
     }
 }

@@ -296,7 +296,7 @@ public class _$TestRunner {{
 
         private string PrepareFileFromClassname(string projectClass)
         {
-            var name = Regex.Match(projectClass, FilenameRegex);
+            var name = Regex.Match(projectClass, FilenameRegex, RegexOptions.Multiline);
             if (!name.Success)
             {
                 return null;

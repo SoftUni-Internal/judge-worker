@@ -4,6 +4,7 @@
     using System.Data;
     using System.Data.SqlClient;
     using System.Globalization;
+    using System.Text.RegularExpressions;
 
     public abstract class BaseSqlServerLocalDbExecutionStrategy : BaseSqlExecutionStrategy
     {
@@ -75,8 +76,19 @@
                 this.ExecuteNonQuery(connection, createUserAsDbOwnerQuery);
             }
 
-            var createdDbConnectionString =
-                $"Data Source=(LocalDB)\\MSSQLLocalDB;User Id={this.restrictedUserId};Password={this.restrictedUserPassword};AttachDbFilename={databaseFilePath};Pooling=False;";
+            var userIdRegex = new Regex("User Id=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var createdDbConnectionString = this.masterDbConnectionString;
+
+            createdDbConnectionString =
+                userIdRegex.Replace(this.masterDbConnectionString, $"User Id={this.restrictedUserId};");
+
+            createdDbConnectionString =
+                passwordRegex.Replace(createdDbConnectionString, this.restrictedUserPassword);
+
+            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
+
             var createdDbConnection = new SqlConnection(createdDbConnectionString);
             createdDbConnection.Open();
 

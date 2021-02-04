@@ -47,6 +47,16 @@ namespace OJS.Workers.Common
 
             // Plain text
             public const string PlainText = "plaintext";
+
+            // SqlServer
+            public const string SqlServerPrepareDatabaseAndRunQueries = "sql-server-prepare-db-and-run-queries";
+            public const string SqlServerRunQueriesAndCheckDatabase = "sql-server-run-queries-and-check-database";
+            public const string SqlServerRunSkeletonRunQueriesAndCheckDatabase = "sql-server-run-skeleton-run-queries-and-check-database";
+
+            // MySQL/MariaDb
+            public const string MySqlPrepareDbAndRunQueries = "mysql-prepare-db-and-run-queries";
+            public const string MySqlRunQueriesAndCheckDatabase = "mysql-run-queries-and-check-database";
+            public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
         }
 
         public static class NameMappings
@@ -84,12 +94,18 @@ namespace OJS.Workers.Common
                     // Plain text
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
 
-                    // .Net Core
-                    // { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
-                    // .Net
-                    // { ExecutionStrategyNames.CsharpCode, ExecutionStrategyType.CompileExecuteAndCheck },
+                    // Sql Server
+                    { ExecutionStrategyNames.SqlServerPrepareDatabaseAndRunQueries, ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.SqlServerRunQueriesAndCheckDatabase,  ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.SqlServerRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase },
+
+                    // MySQL/MariaDb
+                    { ExecutionStrategyNames.MySqlPrepareDbAndRunQueries, ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabase, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.MySqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase },
+
                     // Php
-                    // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
+                    { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =

@@ -3,7 +3,7 @@
     using System;
     using System.Data;
     using System.Globalization;
-
+    using System.Text.RegularExpressions;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -106,7 +106,7 @@
         {
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = commandText;
+                command.CommandText = this.FixCommandText(commandText);
 
                 return CodeHelpers.ExecuteWithTimeLimit(
                     TimeSpan.FromMilliseconds(timeLimit),
@@ -114,7 +114,13 @@
             }
         }
 
-        protected SqlResult ExecuteReader(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
+        protected virtual string FixCommandText(string commandText)
+            => commandText;
+
+        protected SqlResult ExecuteReader(
+            IDbConnection connection,
+            string commandText,
+            int timeLimit = DefaultTimeLimit)
         {
             using (var command = connection.CreateCommand())
             {
@@ -168,7 +174,8 @@
                 result.Results.Add(new TestResult
                 {
                     Id = test.Id,
-                    ResultType = checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
+                    ResultType =
+                        checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
                     CheckerDetails = checkerResult.CheckerDetails
                 });
             }
@@ -176,9 +183,7 @@
             {
                 result.Results.Add(new TestResult
                 {
-                    Id = test.Id,
-                    TimeUsed = executionContext.TimeLimit,
-                    ResultType = TestRunResultType.TimeLimit
+                    Id = test.Id, TimeUsed = executionContext.TimeLimit, ResultType = TestRunResultType.TimeLimit
                 });
             }
         }

@@ -387,6 +387,18 @@
                         Settings.SqlServerLocalDbRestrictedUserId,
                         Settings.SqlServerLocalDbRestrictedUserPassword);
                     break;
+                case ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase:
+                    executionStrategy = new SqlServerSingleDatabaseRunQueriesAndCheckDatabaseExecutionStrategy(
+                        Settings.SqlServerLocalDbMasterDbConnectionString,
+                        Settings.SqlServerLocalDbRestrictedUserId,
+                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase:
+                    executionStrategy = new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                        Settings.SqlServerLocalDbMasterDbConnectionString,
+                        Settings.SqlServerLocalDbRestrictedUserId,
+                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                    break;
                 case ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries:
                     executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(
                         Settings.MySqlSysDbConnectionString,

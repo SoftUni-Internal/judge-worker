@@ -112,7 +112,6 @@ namespace OJS.Workers.Common
 
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy }
-
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =
@@ -120,6 +119,11 @@ namespace OJS.Workers.Common
 
             public static readonly ISet<ExecutionStrategyType> RemoteWorkerSupportedStrategies =
                 new HashSet<ExecutionStrategyType>(NameToExecutionStrategyMappings.Values);
+
+            public static readonly ISet<ExecutionStrategyType> LocalWorkerUnsupportedStrategies = new HashSet<ExecutionStrategyType>
+            {
+                ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
+            };
         }
     }
 }

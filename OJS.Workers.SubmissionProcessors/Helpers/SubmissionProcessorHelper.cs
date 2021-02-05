@@ -277,7 +277,7 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth:
+                case ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy:
                     executionStrategy = new NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
                         processExecutorFactory,
                         Settings.PythonExecutablePath,

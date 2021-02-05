@@ -5,8 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
+
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -15,7 +14,8 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
 
-    public class NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth : PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategy
+        : PythonExecuteAndCheckExecutionStrategy
     {
         protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
         protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
@@ -23,7 +23,7 @@
         protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
         protected const string MochaTestsPassingFailingResultPattern = "([\\d]*)\\s*(passing|failing)";
 
-        public NodeJsProjectRunJavaScriptProjectAndTestsWithPlaywrigth(
+        public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             string jsProjNodeModulesPath,

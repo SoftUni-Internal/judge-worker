@@ -57,6 +57,9 @@ namespace OJS.Workers.Common
             public const string MySqlPrepareDbAndRunQueries = "mysql-prepare-db-and-run-queries";
             public const string MySqlRunQueriesAndCheckDatabase = "mysql-run-queries-and-check-database";
             public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
+
+            // Run SPA and Execute mocha tests
+            public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execution-mocha-tests";
         }
 
         public static class NameMappings
@@ -106,6 +109,10 @@ namespace OJS.Workers.Common
 
                     // Php
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
+
+                    // Run SPA and Execute mocha tests
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy }
+
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =

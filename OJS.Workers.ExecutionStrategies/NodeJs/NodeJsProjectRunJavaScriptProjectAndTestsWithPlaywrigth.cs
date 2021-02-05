@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -175,19 +176,44 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
-                var testResults = this.ExtractTestResultsFromReceivedOutput(processExecutionResult, test.Id);
-                result.Results.AddRange(testResults);
-            }
+            result.Results.AddRange(executionContext.Input.Tests
+                            .Select(test => this.RunIndividualTest(
+                                codeSavePath,
+                                executor,
+                                checker,
+                                executionContext,
+                                test))
+                            .SelectMany(resultList => resultList));
 
             return result;
+        }
+
+        protected ICollection<TestResult> RunIndividualTest(
+            string codeSavePath,
+            IExecutor executor,
+            IChecker checker,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test)
+        {
+            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+            return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
 
         protected override IExecutor CreateExecutor() => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            this.ValidateAllowedFileExtension(executionContext);
+
+            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
+            File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
+            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
+
+            Directory.CreateDirectory(this.TestsPath);
+        }
+
+        private void ValidateAllowedFileExtension<TInput>(IExecutionContext<TInput> executionContext)
         {
             var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
             var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
@@ -198,47 +224,40 @@ http {{
             {
                 throw new ArgumentException("Submission file is not a zip file!");
             }
-
-            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
-            File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
-
-            System.IO.Directory.CreateDirectory(this.UserApplicationPath);
-            System.IO.Directory.CreateDirectory(this.TestsPath);
         }
 
-        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(ProcessExecutionResult executionResult, int parentTestId)
+        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, int parentTestId)
         {
-            // Unescape mocha output
-            var receivedOutput = Regex.Unescape(executionResult.ReceivedOutput);
-            receivedOutput = receivedOutput.Replace("b'", string.Empty);
-            receivedOutput = receivedOutput.Replace("}'", "}");
+            JsonExecutionResult mochaResult = JsonExecutionResult.Parse(this.PreproccessReceivedExecutionOutput(receivedOutput));
+            return mochaResult.TestErrors.Select(test => this.ParseTestResult(test, parentTestId)).ToList();
+        }
 
-            dynamic deserializedOutput = JsonConvert.DeserializeObject(receivedOutput);
-            var testResults = deserializedOutput.tests;
-            ICollection<TestResult> result = new List<TestResult>();
-            foreach (var testResult in testResults)
+        private TestResult ParseTestResult(string testResult, int parentTestId)
+        {
+            var testResultDTO = new TestResult
             {
-                int errorCount = ((JObject)testResult.err).Count;
-                var testResultDTO = new TestResult
-                {
-                    Id = parentTestId,
-                    IsTrialTest = false,
-                    ResultType = TestRunResultType.CorrectAnswer
-                };
+                Id = parentTestId,
+                IsTrialTest = false,
+                ResultType = TestRunResultType.CorrectAnswer
+            };
 
-                // test did not pass
-                if (errorCount != 0)
-                {
-                    testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = $"{testResult.fullTitle} {testResult.err}" };
-                    testResultDTO.ResultType = TestRunResultType.WrongAnswer;
-                }
-
-                result.Add(testResultDTO);
+            // test did not pass
+            if (testResult != null)
+            {
+                testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = testResult };
+                testResultDTO.ResultType = TestRunResultType.WrongAnswer;
             }
 
-            return result;
+            return testResultDTO;
+        }
+
+        private string PreproccessReceivedExecutionOutput(string receivedOutput)
+        {
+            string processedOutput = Regex.Unescape(receivedOutput);
+            processedOutput = processedOutput.Replace("b'", string.Empty);
+            processedOutput = processedOutput.Replace("}'", "}");
+
+            return processedOutput;
         }
 
         private string SavePythonCodeTemplateToTempFile()

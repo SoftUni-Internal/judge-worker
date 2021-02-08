@@ -282,6 +282,9 @@
                         processExecutorFactory,
                         Settings.PythonExecutablePath,
                         Settings.JSProjNodeModules,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.PlaywrightModulePath,
                         portNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);

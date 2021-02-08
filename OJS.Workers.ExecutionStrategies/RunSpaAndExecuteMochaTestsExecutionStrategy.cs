@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Ionic.Zip;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -218,6 +219,12 @@ http {{
 
             var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
             File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
+            using (ZipFile zip = ZipFile.Read(submissionFilePath))
+            {
+                zip.RemoveSelectedEntries("node_modules/*");
+                zip.Save();
+            }
+            
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
 

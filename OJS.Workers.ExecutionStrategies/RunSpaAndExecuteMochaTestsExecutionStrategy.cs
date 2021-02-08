@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies.NodeJs
+﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
     using System.Collections.Generic;
@@ -14,8 +14,7 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategy
-        : PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
     {
         protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
         protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
@@ -98,18 +97,20 @@ class DockerExecutor:
 
 executor = DockerExecutor()
 
-executor.start()
+try:
+    executor.start()
+    commands = [mocha_path, tests_path, '-R', 'json']
+    
+    process = subprocess.run(
+        commands,
+        capture_output=True
+    )
 
-commands = [mocha_path, tests_path, '-R', 'json']
-
-process = subprocess.run(
-    commands,
-    capture_output=True
-)
-
-print(process.stdout)
-
-executor.stop()
+    print(process.stdout)
+except Exception as e:
+    print(e)
+finally:
+    executor.stop()
 
 ";
 
@@ -184,7 +185,6 @@ http {{
                                 executionContext,
                                 test))
                             .SelectMany(resultList => resultList));
-
             return result;
         }
 
@@ -229,6 +229,20 @@ http {{
         private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, int parentTestId)
         {
             JsonExecutionResult mochaResult = JsonExecutionResult.Parse(this.PreproccessReceivedExecutionOutput(receivedOutput));
+            if (mochaResult.TotalTests == 0)
+            {
+                return new List<TestResult>
+                {
+                    new TestResult()
+                    {
+                        Id = parentTestId,
+                        IsTrialTest = false,
+                        ResultType = TestRunResultType.WrongAnswer,
+                        CheckerDetails = new CheckerDetails { UserOutputFragment = receivedOutput } 
+                    } 
+                };
+            }
+
             return mochaResult.TestErrors.Select(test => this.ParseTestResult(test, parentTestId)).ToList();
         }
 

@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -26,6 +25,9 @@
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             string jsProjNodeModulesPath,
+            string mochaNodeModulePath,
+            string chaiNodeModulePath,
+            string playwrightModulePath,
             int portNumber,
             int baseTimeUsed,
             int baseMemoryUsed)
@@ -36,12 +38,21 @@
                   baseMemoryUsed)
         {
             this.JSProjNodeModulesPath = jsProjNodeModulesPath;
+            this.MochaModulePath = mochaNodeModulePath;
+            this.ChaiModulePath = chaiNodeModulePath;
+            this.PlaywrightModulePath = playwrightModulePath;
             this.PortNumber = portNumber;
         }
 
-        public int PortNumber { get; }
+        protected int PortNumber { get; }
 
-        public string MochaModulePath => FileHelpers.BuildPath(this.JSProjNodeModulesPath, ".bin", "mocha.cmd");
+        protected Dictionary<string, string> NodeModulesPaths { get; }
+       
+        protected string MochaModulePath { get; }
+
+        protected string ChaiModulePath { get; }
+
+        protected string PlaywrightModulePath { get; }
 
         protected string JSProjNodeModulesPath { get; }
 
@@ -300,11 +311,25 @@ http {{
             {
                 string fullRequireStatement = match.Groups[0].ToString();
                 string nodeModuleName = match.Groups[2].ToString();
-                string nodeModulePath = FileHelpers.BuildPath(this.JSProjNodeModulesPath, nodeModuleName);
+                string nodeModulePath = String.Empty;
+                switch (nodeModuleName)
+                {
+                    case "mocha":
+                        nodeModulePath = this.MochaModulePath;
+                        break;
+                    case "chai":
+                        nodeModulePath = this.ChaiModulePath;
+                        break;
+                    case "playwright":
+                        nodeModulePath = this.PlaywrightModulePath;
+                        break;
+                    default:
+                        continue;
+                }
                 string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
                 testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\", "\\\\"));
             }
-
+            
             return testInputContent;
         }
     }

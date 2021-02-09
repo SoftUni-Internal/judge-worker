@@ -3,7 +3,7 @@
     using System;
     using System.Data;
     using System.Globalization;
-
+    using System.Text.RegularExpressions;
     using global::MySql.Data.MySqlClient;
 
     public abstract class BaseMySqlExecutionStrategy : BaseSqlExecutionStrategy
@@ -49,11 +49,12 @@
                 var createDatabaseQuery = $"CREATE DATABASE `{databaseName}`;";
 
                 var createUserQuery = $@"
-                    CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'localhost';
-                    SET PASSWORD FOR '{this.restrictedUserId}'@'localhost'='{this.restrictedUserPassword}'";
+                    CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'%';
+                    ALTER USER '{this.restrictedUserId}' IDENTIFIED BY '{this.restrictedUserPassword}'";
+                    /* SET PASSWORD FOR '{this.restrictedUserId}'@'%'=PASSWORD('{this.restrictedUserPassword}')"; */
 
                 var grandPrivilegesToUserQuery = $@"
-                    GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'localhost';
+                    GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'%';
                     FLUSH PRIVILEGES;";
 
                 this.ExecuteNonQuery(connection, createDatabaseQuery);
@@ -63,8 +64,19 @@
                 this.ExecuteNonQuery(connection, grandPrivilegesToUserQuery);
             }
 
-            var createdDbConnectionString =
-                $"Server=localhost;Database={databaseName};UID={this.restrictedUserId};Password={this.restrictedUserPassword};Pooling=False;";
+            var userIdRegex = new Regex("UID=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var createdDbConnectionString = this.sysDbConnectionString;
+
+            createdDbConnectionString =
+                userIdRegex.Replace(createdDbConnectionString, $"UID={this.restrictedUserId};");
+
+            createdDbConnectionString =
+                passwordRegex.Replace(createdDbConnectionString, $"Password={this.restrictedUserPassword}");
+
+            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
+
             var createdDbConnection = new MySqlConnection(createdDbConnectionString);
             createdDbConnection.Open();
 

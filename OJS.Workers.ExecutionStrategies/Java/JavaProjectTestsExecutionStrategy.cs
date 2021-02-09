@@ -136,7 +136,7 @@ class Classes{{
                 var className = JavaCodePreprocessorHelper
                     .GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
 
-                var filePath = $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
+                var filePath = FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{JavaSourceFileExtension}");
 
                 File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
@@ -180,7 +180,10 @@ class Classes{{
                 foreach (var file in filesToAdd)
                 {
                     var path = Path.GetDirectoryName(file);
-                    FileHelpers.AddFilesToZipArchive(submissionFilePath, path, this.WorkingDirectory + "\\" + file);
+                    FileHelpers.AddFilesToZipArchive(
+                        submissionFilePath,
+                        path,
+                        FileHelpers.BuildPath(this.WorkingDirectory, file));
                 }
 
                 File.Delete(filePath);
@@ -253,7 +256,7 @@ class Classes{{
 
         protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
+            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, SubmissionFileName);
             File.WriteAllBytes(submissionFilePath, context.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             this.ExtractUserClassNames(submissionFilePath);
@@ -274,7 +277,7 @@ class Classes{{
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                    $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
+                    FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{JavaSourceFileExtension}");
 
                 File.WriteAllText(testFileName, test.Input);
                 filePaths[testNumber] = testFileName;

@@ -127,7 +127,7 @@ class Classes{{
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             if (!string.IsNullOrWhiteSpace(executionContext.Input.TaskSkeletonAsString))
             {

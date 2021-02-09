@@ -29,8 +29,8 @@
 
             try
             {
-                // Catch logic is handled by the caller
                 return this.Execute<TInput, TResult>(executionContext);
+                // Catch logic is handled by the caller
             }
             finally
             {

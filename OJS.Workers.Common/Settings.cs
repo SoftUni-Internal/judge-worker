@@ -94,8 +94,6 @@
 
         public static string BootstrapCssPath => SettingsHelper.GetSetting("BootstrapCssPath");
 
-        public static string HttpServerModulePath => SettingsHelper.GetSetting("HttpServerModulePath");
-
         public static string PythonExecutablePath => SettingsHelper.GetSetting("PythonExecutablePath");
 
         public static string PhpCgiExecutablePath => SettingsHelper.GetSetting("PhpCgiExecutablePath");

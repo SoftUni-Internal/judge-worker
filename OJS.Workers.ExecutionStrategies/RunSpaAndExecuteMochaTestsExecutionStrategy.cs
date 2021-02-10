@@ -211,7 +211,8 @@ http {{
             return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
 
-        protected override IExecutor CreateExecutor() => this.CreateExecutor(ProcessExecutorType.Standard);
+        protected override IExecutor CreateExecutor() 
+            => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
         {

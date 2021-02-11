@@ -1,15 +1,10 @@
 namespace OJS.Workers.Checkers.CSharpCodeCheckers
 {
     using System;
-    using System.IO;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Caching;
-    using System.Text.RegularExpressions;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.CSharp;
-    using Microsoft.CodeAnalysis.Emit;
-    using Microsoft.CodeAnalysis.Text;
     using OJS.Workers.Common;
 
     public abstract class CSharpCodeCheckerBase
@@ -77,23 +72,5 @@ namespace OJS.Workers.Checkers.CSharpCodeCheckers
 
             return type;
         }
-
-        private void CheckForErrors(EmitResult result)
-        {
-            if (result.Success)
-            {
-                return;
-            }
-
-            var errors = result.Diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error);
-            var errorsString = string.Join(",", errors.Select(x => x.GetMessage()));
-
-            // TODO: Introduce class CompilerException and throw exception of this type
-            throw new Exception(
-                string.Format(
-                    "Could not compile checker!{0}Errors:{0}{1}",
-                    Environment.NewLine,
-                    errorsString));
-        } 
     }
 }

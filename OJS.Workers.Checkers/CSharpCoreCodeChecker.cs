@@ -1,12 +1,9 @@
-﻿using OJS.Workers.Checkers.CSharpCodeCheckers;
-
-namespace OJS.Workers.Checkers
+﻿namespace OJS.Workers.Checkers
 {
     using System;
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Caching;
     using System.Text.RegularExpressions;
 
     using Microsoft.CodeAnalysis;
@@ -15,6 +12,7 @@ namespace OJS.Workers.Checkers
     using Microsoft.CodeAnalysis.Text;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Checkers.CSharpCodeCheckers;
 
     public class CSharpCoreCodeChecker
         : CSharpCodeCheckerBase

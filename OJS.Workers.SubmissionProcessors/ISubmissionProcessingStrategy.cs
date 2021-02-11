@@ -25,5 +25,7 @@
         void OnError(IOjsSubmission submission);
 
         void SetSubmissionToProcessing();
+
+        void ReleaseSubmission();
     }
 }

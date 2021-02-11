@@ -85,6 +85,10 @@
         {
             Enum.TryParse(testResult.ResultType, out TestRunResultType resultType);
 
+            // CorrectAnswer - null
+            // !IsTrialTest -> null
+            // IsTrialTest && !CorrectAnswer -> value
+            var showCheckerDetails = resultType != TestRunResultType.CorrectAnswer && test.IsTrialTest;
             var result = new TestResult
             {
                 Input = test.Input,
@@ -96,9 +100,15 @@
                 Id = test.Id,
                 CheckerDetails = new CheckerDetails
                 {
-                    Comment = testResult.CheckerDetails.Comment,
-                    UserOutputFragment = testResult.CheckerDetails.UserOutputFragment,
-                    ExpectedOutputFragment = testResult.CheckerDetails.ExpectedOutputFragment,
+                    Comment = showCheckerDetails
+                        ? testResult.CheckerDetails.Comment
+                        : null,
+                    UserOutputFragment = showCheckerDetails
+                        ? testResult.CheckerDetails.UserOutputFragment
+                        : null,
+                    ExpectedOutputFragment = showCheckerDetails
+                        ? testResult.CheckerDetails.ExpectedOutputFragment
+                        : null,
                 },
             };
 

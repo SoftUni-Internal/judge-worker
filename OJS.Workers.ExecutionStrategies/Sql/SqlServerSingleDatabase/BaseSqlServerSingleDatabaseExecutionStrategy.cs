@@ -5,6 +5,7 @@
     using System.Data.SqlClient;
     using System.Globalization;
     using System.IO;
+    using System.Text.RegularExpressions;
     using System.Transactions;
 
     public abstract class BaseSqlServerSingleDatabaseExecutionStrategy : BaseSqlExecutionStrategy
@@ -129,8 +130,25 @@
                 this.ExecuteNonQuery(connection, setupUserAsOwnerQuery);
             }
 
-            this.WorkerDbConnectionString =
-                $"Data Source=localhost;User Id={this.RestrictedUserId};Password={this.restrictedUserPassword};Database={databaseName};Pooling=False;";
+            this.WorkerDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
+        }
+
+        private string BuildWorkerDbConnectionString(string databaseName)
+        {
+            var userIdRegex = new Regex("User Id=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var workerDbConnectionString = this.masterDbConnectionString;
+
+            workerDbConnectionString =
+                userIdRegex.Replace(workerDbConnectionString, $"UID={this.restrictedUserId};");
+
+            workerDbConnectionString =
+                passwordRegex.Replace(workerDbConnectionString, $"Password={this.restrictedUserPassword}");
+
+            workerDbConnectionString += $";Database={databaseName};Pooling=False;";
+
+            return workerDbConnectionString;
         }
     }
 }

@@ -148,17 +148,17 @@
         private void ProcessSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
         {
-            this.Logger.Info($"Work on submission #{submission.Id} started.");
+            this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} started.");
 
             this.BeforeExecute(submission);
 
             var executionResult = this.HandleProcessSubmission<TInput, TResult>(submission);
 
-            this.Logger.Info($"Work on submission #{submission.Id} ended.");
+            this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} ended.");
 
             this.ProcessExecutionResult(executionResult, submission);
 
-            this.Logger.Info($"Submission #{submission.Id} successfully processed.");
+            this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Submission #{submission.Id} successfully processed.");
         }
 
         private ISubmissionProcessingStrategy<TSubmission> GetSubmissionProcessingStrategyInstance()

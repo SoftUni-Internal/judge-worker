@@ -141,7 +141,7 @@
             var workerDbConnectionString = this.masterDbConnectionString;
 
             workerDbConnectionString =
-                userIdRegex.Replace(workerDbConnectionString, $"UID={this.restrictedUserId};");
+                userIdRegex.Replace(workerDbConnectionString, $"User Id={this.RestrictedUserId};");
 
             workerDbConnectionString =
                 passwordRegex.Replace(workerDbConnectionString, $"Password={this.restrictedUserPassword}");

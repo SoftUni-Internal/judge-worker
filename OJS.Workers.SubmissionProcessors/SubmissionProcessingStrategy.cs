@@ -54,6 +54,8 @@
 
         public abstract void SetSubmissionToProcessing();
 
+        public abstract void ReleaseSubmission();
+
         protected virtual void ProcessTestsExecutionResult(IExecutionResult<TestResult> testsExecutionResult) =>
             throw new DerivedImplementationNotFoundException();
 

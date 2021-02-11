@@ -122,12 +122,19 @@
             try
             {
                 var submission = this.SubmissionProcessingStrategy.RetrieveSubmission();
-                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+
+                if (submission == null)
                 {
                     return null;
                 }
 
                 this.SubmissionProcessingStrategy.SetSubmissionToProcessing();
+
+                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                {
+                    this.SubmissionProcessingStrategy.ReleaseSubmission();
+                    return null;
+                }
 
                 return submission;
             }

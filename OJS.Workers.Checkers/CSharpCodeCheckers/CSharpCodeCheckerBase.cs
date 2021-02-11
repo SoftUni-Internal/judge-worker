@@ -10,9 +10,12 @@ namespace OJS.Workers.Checkers.CSharpCodeCheckers
     public abstract class CSharpCodeCheckerBase
         : Checker
     {
-        private IChecker customChecker;
-        private readonly ObjectCache cache;
         private const int CacheSlidingExpirationDays = 7;
+        private readonly ObjectCache cache;
+        private IChecker customChecker;
+
+        public CSharpCodeCheckerBase()
+                => this.cache = MemoryCache.Default;
 
         public override CheckerResult Check(string inputData, string receivedOutput, string expectedOutput, bool isTrialTest)
         {

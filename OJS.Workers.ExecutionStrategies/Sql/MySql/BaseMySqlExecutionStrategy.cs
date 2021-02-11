@@ -64,23 +64,10 @@
                 this.ExecuteNonQuery(connection, grandPrivilegesToUserQuery);
             }
 
-            var userIdRegex = new Regex("UID=.*?;");
-            var passwordRegex = new Regex("Password=.*?;");
+            var workerConnection = new MySqlConnection(this.BuildWorkerDbConnectionString(databaseName));
+            workerConnection.Open();
 
-            var createdDbConnectionString = this.sysDbConnectionString;
-
-            createdDbConnectionString =
-                userIdRegex.Replace(createdDbConnectionString, $"UID={this.restrictedUserId};");
-
-            createdDbConnectionString =
-                passwordRegex.Replace(createdDbConnectionString, $"Password={this.restrictedUserPassword}");
-
-            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
-
-            var createdDbConnection = new MySqlConnection(createdDbConnectionString);
-            createdDbConnection.Open();
-
-            return createdDbConnection;
+            return workerConnection;
         }
 
         public override void DropDatabase(string databaseName)
@@ -113,6 +100,24 @@
             }
 
             return base.GetDataRecordFieldValue(dataRecord, index);
+        }
+
+        private string BuildWorkerDbConnectionString(string databaseName)
+        {
+            var userIdRegex = new Regex("UID=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var workerDbConnectionString = this.sysDbConnectionString;
+
+            workerDbConnectionString =
+                userIdRegex.Replace(workerDbConnectionString, $"UID={this.restrictedUserId};");
+
+            workerDbConnectionString =
+                passwordRegex.Replace(workerDbConnectionString, $"Password={this.restrictedUserPassword}");
+
+            workerDbConnectionString += $";Database={databaseName};Pooling=False;";
+
+            return workerDbConnectionString;
         }
     }
 }

@@ -175,7 +175,9 @@
                 {
                     Id = test.Id,
                     ResultType =
-                        checkerResult.IsCorrect ? TestRunResultType.CorrectAnswer : TestRunResultType.WrongAnswer,
+                        checkerResult.IsCorrect
+                            ? TestRunResultType.CorrectAnswer
+                            : TestRunResultType.WrongAnswer,
                     CheckerDetails = checkerResult.CheckerDetails
                 });
             }
@@ -183,7 +185,9 @@
             {
                 result.Results.Add(new TestResult
                 {
-                    Id = test.Id, TimeUsed = executionContext.TimeLimit, ResultType = TestRunResultType.TimeLimit
+                    Id = test.Id,
+                    TimeUsed = executionContext.TimeLimit,
+                    ResultType = TestRunResultType.TimeLimit,
                 });
             }
         }

@@ -19,8 +19,13 @@
         protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
         protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         protected const string TestsPathPlaceholder = "#testsPath#";
+
         protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
         protected const string MochaTestsPassingFailingResultPattern = "([\\d]*)\\s*(passing|failing)";
+
+        protected const string TestsDirectoryName = "test";
+        protected const string UserApplicationDirectoryName = "app";
+        protected const string NginxConfFileName= "nginx.conf";
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -57,11 +62,11 @@
 
         protected string JSProjNodeModulesPath { get; }
 
-        protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, "test");
+        protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
-        protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, "app");
+        protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
-        protected string NgingConfFilePath => FileHelpers.BuildPath(this.WorkingDirectory, "nginx.conf");
+        protected string NginxConfFilePath => FileHelpers.BuildPath(this.WorkingDirectory, NginxConfFileName);
 
         protected string PythonCodeTemplate => $@"
 import docker
@@ -71,7 +76,7 @@ mocha_path = '{this.MochaModulePath}'
 tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
-path_to_nginx_conf = '{this.NgingConfFilePath}'
+path_to_nginx_conf = '{this.NginxConfFilePath}'
 path_to_node_modules = '{this.JSProjNodeModulesPath}'
 port = '{this.PortNumber}'
 
@@ -299,7 +304,7 @@ http {{
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
         }
 
-        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NgingConfFilePath);
+        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFilePath);
 
         private void SaveTestsToFiles(IEnumerable<TestContext> tests)
         {

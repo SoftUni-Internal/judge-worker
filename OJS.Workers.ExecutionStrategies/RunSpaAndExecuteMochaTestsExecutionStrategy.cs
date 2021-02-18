@@ -66,7 +66,9 @@
 
         protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
-        protected string NginxConfFilePath => FileHelpers.BuildPath(this.WorkingDirectory, NginxConfFileName);
+        protected string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
+
+        protected string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
 
         protected string PythonCodeTemplate => $@"
 import docker
@@ -76,7 +78,7 @@ mocha_path = '{this.MochaModulePath}'
 tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
-path_to_nginx_conf = '{this.NginxConfFilePath}'
+path_to_nginx_conf = '{this.NginxConfFileDirectory}'
 path_to_node_modules = '{this.JSProjNodeModulesPath}'
 port = '{this.PortNumber}'
 
@@ -89,7 +91,7 @@ class DockerExecutor:
             ports={{'80/tcp': port}},
             volumes={{
                 path_to_nginx_conf: {{
-                    'bind': '/etc/nginx/nginx.conf',
+                    'bind': '/etc/nginx',
                     'mode': 'ro',
                 }},
                 path_to_project: {{
@@ -304,7 +306,7 @@ http {{
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
         }
 
-        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFilePath);
+        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
 
         private void SaveTestsToFiles(IEnumerable<TestContext> tests)
         {

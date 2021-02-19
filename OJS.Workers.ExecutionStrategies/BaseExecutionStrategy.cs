@@ -56,7 +56,7 @@
         }
 
         protected virtual IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
             => throw new DerivedImplementationNotFoundException();
 
@@ -70,7 +70,7 @@
             IExecutionResult<TResult> result)
             where TResult : ISingleCodeRunResult, new()
         {
-            if (executionContext is IExecutionContext<string> stringInputExecutionContext &&
+            if (executionContext is IExecutionContext<SimpleInputModel> stringInputExecutionContext &&
                 result is IExecutionResult<OutputResult> outputResult)
             {
                 return (IExecutionResult<TResult>)this.ExecuteAgainstSimpleInput(

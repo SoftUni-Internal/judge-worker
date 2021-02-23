@@ -253,7 +253,7 @@ class _$SandboxSecurityManager extends SecurityManager {
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
             var compileResult = this.SetupAndCompile(executionContext, result);
@@ -269,7 +269,7 @@ class _$SandboxSecurityManager extends SecurityManager {
                 executor,
                 executionContext,
                 compileResult.OutputFile,
-                executionContext.Input);
+                executionContext.Input.Input);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
 

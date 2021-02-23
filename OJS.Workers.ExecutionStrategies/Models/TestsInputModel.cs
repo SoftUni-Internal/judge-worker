@@ -9,16 +9,13 @@
     using static OJS.Workers.Common.Constants;
 
     public class TestsInputModel
+        : BaseInputModel
     {
         public string CheckerAssemblyName { get; set; } = DefaultCheckerAssemblyName;
 
         public string CheckerTypeName { get; set; }
 
         public string CheckerParameter { get; set; }
-
-        public byte[] TaskSkeleton { get; set; }
-
-        public string TaskSkeletonAsString => this.TaskSkeleton.Decompress();
 
         public IEnumerable<TestContext> Tests { get; set; }
 

@@ -54,7 +54,7 @@
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
@@ -65,7 +65,7 @@
                 executionContext,
                 executor,
                 codeSavePath,
-                executionContext.Input);
+                executionContext.Input.Input);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
 

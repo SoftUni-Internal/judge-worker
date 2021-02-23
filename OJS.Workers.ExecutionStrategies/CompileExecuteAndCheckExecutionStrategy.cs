@@ -29,7 +29,7 @@
                 this.CreateExecutor(ProcessExecutorType.Restricted));
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
             var compileResult = this.ExecuteCompiling(
@@ -46,7 +46,7 @@
 
             var processExecutionResult = executor.Execute(
                 compileResult.OutputFile,
-                executionContext.Input ?? string.Empty,
+                executionContext.Input?.Input ?? string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
                 null,

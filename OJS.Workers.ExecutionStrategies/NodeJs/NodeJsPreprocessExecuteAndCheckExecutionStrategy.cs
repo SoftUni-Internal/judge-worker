@@ -189,7 +189,7 @@ process.stdin.on('end', function() {
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
@@ -200,7 +200,7 @@ process.stdin.on('end', function() {
                 executionContext,
                 executor,
                 codeSavePath,
-                executionContext.Input);
+                executionContext.Input.Input);
 
             result.Results.Add(this.GetOutputResult(processExecutionResult));
 
@@ -238,9 +238,11 @@ process.stdin.on('end', function() {
 
         protected virtual string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
         {
-            var problemSkeleton = string.IsNullOrEmpty((context.Input as TestsInputModel)?.TaskSkeletonAsString)
-                ? DefaultAdapterFunctionCode
-                : (context.Input as TestsInputModel)?.TaskSkeletonAsString;
+            var problemSkeleton = !string.IsNullOrEmpty((context.Input as SimpleInputModel)?.TaskSkeletonAsString)
+                ? (context.Input as SimpleInputModel)?.TaskSkeletonAsString
+                : !string.IsNullOrEmpty((context.Input as TestsInputModel)?.TaskSkeletonAsString)
+                    ? (context.Input as TestsInputModel)?.TaskSkeletonAsString
+                    : DefaultAdapterFunctionCode;
 
             var code = context.Code.Trim(';');
 

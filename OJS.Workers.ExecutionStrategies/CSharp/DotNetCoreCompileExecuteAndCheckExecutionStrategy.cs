@@ -84,7 +84,7 @@
         }
 
         protected override IExecutionResult<OutputResult> ExecuteAgainstSimpleInput(
-            IExecutionContext<string> executionContext,
+            IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
             var compileResult = this.ExecuteCompiling(
@@ -105,7 +105,7 @@
 
             var processExecutionResult = executor.Execute(
                 compilerPath,
-                executionContext.Input ?? string.Empty,
+                executionContext.Input?.Input ?? string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
                 arguments,

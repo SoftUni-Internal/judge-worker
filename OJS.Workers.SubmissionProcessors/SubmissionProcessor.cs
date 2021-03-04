@@ -128,8 +128,6 @@
                     return null;
                 }
 
-                this.SubmissionProcessingStrategy.SetSubmissionToProcessing();
-
                 if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
                 {
                     this.SubmissionProcessingStrategy.ReleaseSubmission();

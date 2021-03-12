@@ -53,7 +53,7 @@
         protected int PortNumber { get; }
 
         protected Dictionary<string, string> NodeModulesPaths { get; }
-       
+
         protected string MochaModulePath { get; }
 
         protected string ChaiModulePath { get; }
@@ -78,7 +78,7 @@ mocha_path = '{this.MochaModulePath}'
 tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
-path_to_nginx_conf = '{this.NginxConfFileDirectory}'
+path_to_nginx_conf = '{this.NginxConfFileDirectory}/nginx.conf'
 path_to_node_modules = '{this.JSProjNodeModulesPath}'
 port = '{this.PortNumber}'
 
@@ -91,7 +91,7 @@ class DockerExecutor:
             ports={{'80/tcp': port}},
             volumes={{
                 path_to_nginx_conf: {{
-                    'bind': '/etc/nginx',
+                    'bind': '/etc/nginx/nginx.conf',
                     'mode': 'ro',
                 }},
                 path_to_project: {{
@@ -119,7 +119,7 @@ executor = DockerExecutor()
 try:
     executor.start()
     commands = [mocha_path, tests_path, '-R', 'json']
-    
+
     process = subprocess.run(
         commands,
         capture_output=True
@@ -218,7 +218,7 @@ http {{
             return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
 
-        protected override IExecutor CreateExecutor() 
+        protected override IExecutor CreateExecutor()
             => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
@@ -232,11 +232,12 @@ http {{
                 zip.RemoveSelectedEntries("node_modules/*");
                 zip.Save();
             }
-            
+
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
 
             Directory.CreateDirectory(this.TestsPath);
+            Directory.CreateDirectory(this.NginxConfFileDirectory);
         }
 
         private void ValidateAllowedFileExtension<TInput>(IExecutionContext<TInput> executionContext)
@@ -264,8 +265,8 @@ http {{
                         Id = parentTestId,
                         IsTrialTest = false,
                         ResultType = TestRunResultType.WrongAnswer,
-                        CheckerDetails = new CheckerDetails { UserOutputFragment = receivedOutput } 
-                    } 
+                        CheckerDetails = new CheckerDetails { UserOutputFragment = receivedOutput }
+                    }
                 };
             }
 
@@ -344,7 +345,7 @@ http {{
                 string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
                 testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\", "\\\\"));
             }
-            
+
             return testInputContent;
         }
     }

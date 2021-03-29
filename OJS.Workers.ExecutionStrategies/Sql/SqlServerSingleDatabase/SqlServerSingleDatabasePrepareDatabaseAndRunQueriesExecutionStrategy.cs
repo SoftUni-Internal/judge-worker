@@ -8,8 +8,9 @@
         public SqlServerSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
-            string restrictedUserPassword)
-            : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword)
+            string restrictedUserPassword,
+            string submissionProcessorIdentifier)
+            : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword, submissionProcessorIdentifier)
         {
         }
 

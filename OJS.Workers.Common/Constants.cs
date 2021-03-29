@@ -42,6 +42,7 @@
         public const int ProcessDefaultBufferSizeInBytes = 4096;
 
         public const string AppSettingsConfigSectionName = "appSettings";
+        public const string ConnectionStringsConfigSectionName = "connectionStrings";
 
         public const string TestPassedMessage = "Test Passed!";
 

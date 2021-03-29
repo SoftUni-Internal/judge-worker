@@ -15,18 +15,20 @@
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
-        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
+        private static readonly string DatabaseNameGuid = Guid.NewGuid().ToString();
 
         private readonly string masterDbConnectionString;
         private readonly string restrictedUserId;
         private readonly string restrictedUserPassword;
+        private readonly string databaseNameForSubmissionProcessor;
 
         private TransactionScope transactionScope;
 
         protected BaseSqlServerSingleDatabaseExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
-            string restrictedUserPassword)
+            string restrictedUserPassword,
+            string submissionProcessorIdentifier)
         {
             if (string.IsNullOrWhiteSpace(masterDbConnectionString))
             {
@@ -46,6 +48,7 @@
             this.masterDbConnectionString = masterDbConnectionString;
             this.restrictedUserId = restrictedUserId;
             this.restrictedUserPassword = restrictedUserPassword;
+            this.databaseNameForSubmissionProcessor = $"testing_{submissionProcessorIdentifier}_{DatabaseNameGuid}";
         }
 
         public string WorkerDbConnectionString { get; set; }
@@ -66,7 +69,7 @@
         public override void DropDatabase(string databaseName)
             => this.transactionScope.Dispose();
 
-        public override string GetDatabaseName() => DatabaseName;
+        public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {

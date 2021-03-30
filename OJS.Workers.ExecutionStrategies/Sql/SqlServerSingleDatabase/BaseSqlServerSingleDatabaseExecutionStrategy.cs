@@ -67,7 +67,7 @@
         }
 
         public override void DropDatabase(string databaseName)
-            => this.transactionScope.Dispose();
+            => this.transactionScope?.Dispose();
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
 

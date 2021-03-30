@@ -46,7 +46,7 @@
             this.masterDbConnectionString = masterDbConnectionString;
             this.restrictedUserId = restrictedUserId;
             this.restrictedUserPassword = restrictedUserPassword;
-            this.databaseNameForSubmissionProcessor = $"testing_{submissionProcessorIdentifier}";
+            this.databaseNameForSubmissionProcessor = $"worker_{submissionProcessorIdentifier}_DO_NOT_DELETE";
         }
 
         public string WorkerDbConnectionString { get; set; }

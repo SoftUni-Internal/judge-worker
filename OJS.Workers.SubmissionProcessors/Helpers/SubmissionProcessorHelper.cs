@@ -27,6 +27,7 @@
             IExecutionStrategy executionStrategy;
             var tasksService = new TasksService();
             var processExecutorFactory = new ProcessExecutorFactory(tasksService);
+            var submissionProcessorIdentifier = portNumber.ToString();
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
@@ -376,19 +377,22 @@
                     executionStrategy = new SqlServerSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
                         Settings.SqlServerLocalDbMasterDbConnectionString,
                         Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                        Settings.SqlServerLocalDbRestrictedUserPassword,
+                        submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase:
                     executionStrategy = new SqlServerSingleDatabaseRunQueriesAndCheckDatabaseExecutionStrategy(
                         Settings.SqlServerLocalDbMasterDbConnectionString,
                         Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                        Settings.SqlServerLocalDbRestrictedUserPassword,
+                        submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase:
                     executionStrategy = new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
                         Settings.SqlServerLocalDbMasterDbConnectionString,
                         Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
+                        Settings.SqlServerLocalDbRestrictedUserPassword,
+                        submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries:
                     executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(

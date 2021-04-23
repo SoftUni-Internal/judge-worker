@@ -41,8 +41,9 @@
 
         public static string JSProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
-        public static string MochaModulePath {
-            get 
+        public static string MochaModulePath
+        {
+            get
             {
                 string mochaPath = SettingsHelper.GetSetting("MochaModulePath");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

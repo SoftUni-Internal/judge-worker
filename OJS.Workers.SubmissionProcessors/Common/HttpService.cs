@@ -3,7 +3,7 @@
     using System;
     using System.Net.Http;
     using System.Text;
-
+    using System.Threading.Tasks;
     using Newtonsoft.Json;
 
     public class HttpService
@@ -31,6 +31,25 @@
                 .Result;
 
             return JsonConvert.DeserializeObject<TResponseBody>(content);
+        }
+
+        public Task<string> PostJsonAsync<TRequestBody>(string url, TRequestBody body)
+        {
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(url),
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(body),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = this.httpClient.SendAsync(request)
+                .Result;
+            var content = response.Content.ReadAsStringAsync();
+
+            return content;
         }
 
         public string Get(string url)

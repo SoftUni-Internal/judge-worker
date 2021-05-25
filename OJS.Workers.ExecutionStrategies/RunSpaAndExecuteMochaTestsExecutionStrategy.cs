@@ -122,7 +122,6 @@ try:
 
     process = subprocess.run(
         commands,
-        capture_output=True
     )
 
     print(process.stdout)
@@ -294,10 +293,13 @@ http {{
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
         {
-            string processedOutput = Regex.Unescape(receivedOutput);
+            string processedOutput = Regex.Unescape(receivedOutput.Trim());
             processedOutput = processedOutput.Replace("b'", string.Empty);
             processedOutput = processedOutput.Replace("}'", "}");
-
+            if (processedOutput.EndsWith("}None"))
+            {
+                processedOutput = processedOutput.Substring(0, processedOutput.Length - "}None".Length +1);
+            }
             return processedOutput;
         }
 

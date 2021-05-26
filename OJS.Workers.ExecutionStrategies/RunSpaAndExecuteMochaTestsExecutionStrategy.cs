@@ -16,16 +16,11 @@
 
     public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
     {
-        protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
-        protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
-        protected const string TestsPathPlaceholder = "#testsPath#";
-
-        protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
-        protected const string MochaTestsPassingFailingResultPattern = "([\\d]*)\\s*(passing|failing)";
-
-        protected const string TestsDirectoryName = "test";
-        protected const string UserApplicationDirectoryName = "app";
-        protected const string NginxConfFileName= "nginx.conf";
+        private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
+        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
+        private const string TestsDirectoryName = "test";
+        private const string UserApplicationDirectoryName = "app";
+        private const string NginxConfFileName= "nginx.conf";
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -43,34 +38,32 @@
                   baseTimeUsed,
                   baseMemoryUsed)
         {
-            this.JSProjNodeModulesPath = jsProjNodeModulesPath;
+            this.JsProjNodeModulesPath = jsProjNodeModulesPath;
             this.MochaModulePath = mochaNodeModulePath;
             this.ChaiModulePath = chaiNodeModulePath;
             this.PlaywrightModulePath = playwrightModulePath;
             this.PortNumber = portNumber;
         }
 
-        protected int PortNumber { get; }
+        private int PortNumber { get; }
 
-        protected Dictionary<string, string> NodeModulesPaths { get; }
+        private string MochaModulePath { get; }
 
-        protected string MochaModulePath { get; }
+        private string ChaiModulePath { get; }
 
-        protected string ChaiModulePath { get; }
+        private string PlaywrightModulePath { get; }
 
-        protected string PlaywrightModulePath { get; }
+        private string JsProjNodeModulesPath { get; }
 
-        protected string JSProjNodeModulesPath { get; }
+        private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
-        protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
+        private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
-        protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
+        private string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
 
-        protected string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
+        private string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
 
-        protected string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
-
-        protected string PythonCodeTemplate => $@"
+        private string PythonCodeTemplate => $@"
 import docker
 import subprocess
 
@@ -79,7 +72,7 @@ tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
 path_to_nginx_conf = '{this.NginxConfFileDirectory}/nginx.conf'
-path_to_node_modules = '{this.JSProjNodeModulesPath}'
+path_to_node_modules = '{this.JsProjNodeModulesPath}'
 port = '{this.PortNumber}'
 
 
@@ -132,7 +125,7 @@ finally:
 
 ";
 
-        protected string NginxFileContent => $@"
+        private string NginxFileContent => $@"
 worker_processes  1;
 
 events {{
@@ -199,17 +192,15 @@ http {{
                             .Select(test => this.RunIndividualTest(
                                 codeSavePath,
                                 executor,
-                                checker,
                                 executionContext,
                                 test))
                             .SelectMany(resultList => resultList));
             return result;
         }
 
-        protected ICollection<TestResult> RunIndividualTest(
+        private ICollection<TestResult> RunIndividualTest(
             string codeSavePath,
             IExecutor executor,
-            IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
             TestContext test)
         {
@@ -259,57 +250,52 @@ http {{
             {
                 return new List<TestResult>
                 {
-                    new TestResult()
+                    new TestResult
                     {
                         Id = parentTestId,
                         IsTrialTest = false,
                         ResultType = TestRunResultType.WrongAnswer,
-                        CheckerDetails = new CheckerDetails { UserOutputFragment = receivedOutput }
+                        CheckerDetails = new CheckerDetails
+                        {
+                            UserOutputFragment = receivedOutput
+                        }
                     }
                 };
             }
 
-            return mochaResult.TestErrors.Select(test => this.ParseTestResult(test, parentTestId)).ToList();
+            return mochaResult.TestErrors
+                .Select(test => this.ParseTestResult(test, parentTestId))
+                .ToList();
         }
 
         private TestResult ParseTestResult(string testResult, int parentTestId)
-        {
-            var testResultDTO = new TestResult
+            => new TestResult
             {
                 Id = parentTestId,
                 IsTrialTest = false,
-                ResultType = TestRunResultType.CorrectAnswer
+                ResultType = testResult == null
+                    ? TestRunResultType.CorrectAnswer
+                    : TestRunResultType.WrongAnswer,
+                CheckerDetails = testResult == null
+                    ? default
+                    : new CheckerDetails {UserOutputFragment = testResult},
             };
 
-            // test did not pass
-            if (testResult != null)
-            {
-                testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = testResult };
-                testResultDTO.ResultType = TestRunResultType.WrongAnswer;
-            }
-
-            return testResultDTO;
-        }
-
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
-        {
-            string processedOutput = Regex.Unescape(receivedOutput.Trim());
-            processedOutput = processedOutput.Replace("b'", string.Empty);
-            processedOutput = processedOutput.Replace("}'", "}");
-            if (processedOutput.EndsWith("}None"))
-            {
-                processedOutput = processedOutput.Substring(0, processedOutput.Length - "}None".Length +1);
-            }
-            return processedOutput;
-        }
+            => Regex.Unescape(receivedOutput)
+                .Trim()
+                .Replace("b'", string.Empty)
+                .Replace("}'", "}")
+                .Replace("}None", "}");
 
         private string SavePythonCodeTemplateToTempFile()
         {
-            string pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
+            var pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
         }
 
-        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
+        private void SaveNginxFile()
+            => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
 
         private void SaveTestsToFiles(IEnumerable<TestContext> tests)
         {
@@ -323,32 +309,56 @@ http {{
 
         private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
         {
-            var requirePattern = new Regex(NodeModulesRequirePattern);
-            var results = requirePattern.Matches(testInputContent);
-            foreach (Match match in results)
-            {
-                string fullRequireStatement = match.Groups[0].ToString();
-                string nodeModuleName = match.Groups[2].ToString();
-                string nodeModulePath = String.Empty;
-                switch (nodeModuleName)
+            this.GetNodeModules(testInputContent)
+                .ToList()
+                .ForEach(nodeModule =>
                 {
-                    case "mocha":
-                        nodeModulePath = this.MochaModulePath;
-                        break;
-                    case "chai":
-                        nodeModulePath = this.ChaiModulePath;
-                        break;
-                    case "playwright":
-                        nodeModulePath = this.PlaywrightModulePath;
-                        break;
-                    default:
-                        continue;
-                }
-                string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
-                testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\", "\\\\"));
-            }
+                    var (name, requireStatement) = nodeModule;
+                    testInputContent = this.FixPathsForNodeModule(testInputContent, name, requireStatement);
+                });
 
             return testInputContent;
+        }
+
+        private string FixPathsForNodeModule(string testInputContent, string name, string requireStatement)
+        {
+            var path = GetNodeModulePathByName(name);
+
+            var fixedRequireStatement = requireStatement.Replace(name, path)
+                .Replace("\\", "\\\\");
+
+            return testInputContent.Replace(requireStatement, fixedRequireStatement);
+        }
+
+        private string GetNodeModulePathByName(string name)
+        {
+            switch (name)
+            {
+                case "mocha":
+                    return this.MochaModulePath;
+                case "chai":
+                    return this.ChaiModulePath;
+                case "playwright":
+                    return this.PlaywrightModulePath;
+                default:
+                    return null;
+            }
+        }
+
+        private IEnumerable<(string, string)> GetNodeModules(string testInputContent)
+        {
+            var requirePattern = new Regex(NodeModulesRequirePattern);
+            var results = requirePattern.Matches(testInputContent);
+            var nodeModules = new List<(string, string)>();
+
+            foreach (Match match in results)
+            {
+                var fullRequireStatement = match.Groups[0].ToString();
+                var nodeModuleName = match.Groups[2].ToString();
+                nodeModules.Add((nodeModuleName, fullRequireStatement));
+            }
+
+            return nodeModules;
         }
     }
 }

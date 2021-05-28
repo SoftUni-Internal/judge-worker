@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using Ionic.Zip;
+    using Newtonsoft.Json;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -67,6 +68,12 @@
 import docker
 import subprocess
 
+import shutil
+import tarfile
+
+from os import chdir, remove
+from os.path import basename, join, dirname
+
 mocha_path = '{this.MochaModulePath}'
 tests_path = '{this.TestsPath}'
 image_name = 'nginx'
@@ -91,20 +98,37 @@ class DockerExecutor:
                     'bind': '/usr/share/nginx/html',
                     'mode': 'rw',
                 }},
-                path_to_node_modules: {{
-                    'bind': '/usr/share/nginx/html/node_modules',
-                    'mode': 'ro'
-                }}
             }},
         )
 
     def start(self):
         self.container.start()
+        self.copy_to_container(path_to_node_modules, '/usr/share/nginx/html/node_modules');
 
     def stop(self):
         self.container.stop()
         self.container.wait()
         self.container.remove()
+
+    def copy_to_container(self, source, destination):
+        chdir(dirname(source))
+        local_dest_name = join(dirname(source), basename(destination))
+        if local_dest_name != source:
+            shutil.copy2(source, local_dest_name)
+        dst_name = basename(destination)
+        tar_path = local_dest_name + '.tar'
+
+        tar = tarfile.open(tar_path, mode='w')
+        try:
+            tar.add(dst_name)
+        finally:
+            tar.close()
+
+        data = open(tar_path, 'rb').read()
+        self.container.put_archive(dirname(destination), data)
+
+        remove(tar_path)
+        # remove(local_dest_name)
 
 
 executor = DockerExecutor()
@@ -122,7 +146,6 @@ except Exception as e:
     print(e)
 finally:
     executor.stop()
-
 ";
 
         private string NginxFileContent => $@"
@@ -301,7 +324,9 @@ http {{
         {
             foreach (var test in tests)
             {
-                var testInputContent = test.Input.Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                var testInputContent = test.Input
+                    .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString())
+                    .Replace("localhost", "host.docker.internal");
                 testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
                 FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
             }

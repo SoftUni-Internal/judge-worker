@@ -39,20 +39,17 @@
 
         public static string NodeJsExecutablePath => SettingsHelper.GetSetting("NodeJsExecutablePath");
 
-        public static string JSProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
+        public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
-        public static string MochaModulePath {
-            get 
+        public static string MochaModulePath
+        {
+            get
             {
-                string mochaPath = SettingsHelper.GetSetting("MochaModulePath");
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    return FileHelpers.BuildPath(mochaPath, "mocha.cmd");
-                }
-                else
-                {
-                    return FileHelpers.BuildPath(mochaPath, "mocha");
-                }
+                var mochaPath = SettingsHelper.GetSetting("MochaModulePath");
+                var mochaExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? "mocha.cmd"
+                    : "_mocha";
+                return FileHelpers.BuildPath(mochaPath, mochaExecutable);
             }
         }
 

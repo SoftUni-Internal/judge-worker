@@ -281,7 +281,7 @@
                     executionStrategy = new RunSpaAndExecuteMochaTestsExecutionStrategy(
                         processExecutorFactory,
                         Settings.PythonExecutablePath,
-                        Settings.JSProjNodeModules,
+                        Settings.JsProjNodeModules,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
                         Settings.PlaywrightModulePath,

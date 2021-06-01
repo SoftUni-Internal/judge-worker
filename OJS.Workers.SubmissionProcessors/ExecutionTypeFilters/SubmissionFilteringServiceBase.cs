@@ -19,6 +19,9 @@
                 && this.IsEnabledStrategy(submission)
                 && this.CanProcessSubmissionInternal(submission, submissionWorker);
 
+        protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
+            => true;
+
         private bool IsDisabledStrategy(IOjsSubmission submission)
             => this.DisabledExecutionStrategyTypes.Count > 0
                  && this.DisabledExecutionStrategyTypes.Contains(submission.ExecutionStrategyType);
@@ -26,8 +29,5 @@
         private bool IsEnabledStrategy(IOjsSubmission submission)
         => this.EnabledExecutionStrategyTypes.Count == 0
                 || this.EnabledExecutionStrategyTypes.Contains(submission.ExecutionStrategyType);
-
-        protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
-            => true;
     }
 }

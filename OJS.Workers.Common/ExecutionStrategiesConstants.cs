@@ -111,8 +111,16 @@ namespace OJS.Workers.Common
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =
                 NameToExecutionStrategyMappings.ToDictionary(x => x.Value, y => y.Key);
 
-            public static readonly ISet<ExecutionStrategyType> RemoteWorkerSupportedStrategies =
+            public static readonly ISet<ExecutionStrategyType> EnabledRemoteWorkerStrategies =
                 new HashSet<ExecutionStrategyType>(NameToExecutionStrategyMappings.Values);
+
+            public static readonly ISet<ExecutionStrategyType> DisabledLocalWorkerStrategies =
+                new HashSet<ExecutionStrategyType>
+                {
+                    ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,
+                    ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
+                    ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
+                };
         }
     }
 }

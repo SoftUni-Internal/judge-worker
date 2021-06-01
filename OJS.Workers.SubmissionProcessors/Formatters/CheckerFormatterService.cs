@@ -13,6 +13,10 @@
             => this.map = new Dictionary<string, string>()
             {
                 { "trim-checker", "trim" },
+                { "trim-end-checker", "trim-end" },
+                { "case-insensitive-checker", "case-insensitive" },
+                { "precision-checker", "precision" },
+                { "sort-checker", "sort" },
                 { "c-sharp-code-checker", "csharp-code" },
                 { "exact-checker", "exact-match" },
             };

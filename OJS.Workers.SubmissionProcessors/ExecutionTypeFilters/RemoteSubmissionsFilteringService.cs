@@ -1,30 +1,30 @@
-namespace OJS.Workers.SubmissionProcessors
+namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
     using System.Collections.Generic;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.SubmissionProcessors.Common;
-    using OJS.Workers.SubmissionProcessors.Models;
     using OJS.Workers.SubmissionProcessors.Workers;
 
     using static OJS.Workers.Common.ExecutionStrategiesConstants.NameMappings;
 
     public class RemoteSubmissionsFilteringService
-        : ISubmissionsFilteringService
+        : SubmissionFilteringServiceBase
     {
-        private readonly ISet<ExecutionStrategyType> remoteWorkerExecutionStrategyTypes = RemoteWorkerSupportedStrategies;
-
         private readonly HttpService http;
 
         public RemoteSubmissionsFilteringService()
             => this.http = new HttpService();
 
-        public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
-            => submission is OjsSubmission<TestsInputModel>
-               && this.remoteWorkerExecutionStrategyTypes.Contains(submission.ExecutionStrategyType)
-               && this.IsOnline(submissionWorker);
+        protected override ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes
+            => EnabledRemoteWorkerStrategies;
+
+        protected override ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes
+            => new HashSet<ExecutionStrategyType>();
+
+        protected override bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
+            => this.IsOnline(submissionWorker);
 
         private bool IsOnline(ISubmissionWorker submissionWorker)
         {

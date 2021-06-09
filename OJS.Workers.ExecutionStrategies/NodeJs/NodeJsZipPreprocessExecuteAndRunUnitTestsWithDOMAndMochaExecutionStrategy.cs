@@ -99,6 +99,7 @@
 
         protected override string JsCodePreevaulationCode => @"
 chai.use(sinonChai);
+const {{ JSDOM }} = jsdom;
 let userBundleCode = '';
 stream.on('data', function (x) {
     userBundleCode += x;
@@ -117,29 +118,40 @@ function afterBundling() {
     let bgCoderConsole = {};
         before(function(done) {" +
             NodeDisablePlaceholder + @"
-            jsdom.env({
-                html: '',
-                done: function(errors, window) {
-                    global.window = window;
-                    global.document = window.document;
-                    global.$ = jq(window);
-                    global.handlebars = handlebars;
-                    Object.getOwnPropertyNames(window)
-                        .filter(function (prop) {
-                            return prop.toLowerCase().indexOf('html') >= 0;
-                        }).forEach(function (prop) {
-                            global[prop] = window[prop];
-                        });
+            const window  = (new JSDOM('...')).window;
 
-                    Object.keys(console)
-                        .forEach(function (prop) {
-                            bgCoderConsole[prop] = console[prop];
-                            console[prop] = new Function('');
-                        });
+            // define innerText manually to work as textContent, as it is not supported in jsdom but used in judge
+            Object.defineProperty(window.Element.prototype, 'innerText', {{
+                get() {{ return this.textContent; }},
+                set(value) {{ this.textContent = value; }}
+            }});
 
-                    done();
-                }
-            });
+            // Add jsdom's window, document and other libs to the global object
+            global.window = window;
+            global.document = window.document;
+            global.$ = jq(window);
+            global.handlebars = handlebars;
+
+            // Set specific HTML Element constructors that are globally available in the browser
+            global.Option = window.Option;
+            global.Audio = window.Audio;
+            global.Image = window.Image;
+        
+            // Attach other HTML properties to the global scope so they are directly available
+            Object.getOwnPropertyNames(window)
+                .filter(function (prop) {{
+                    return prop.toLowerCase().indexOf('html') >= 0;
+                }}).forEach(function (prop) {{
+                    global[prop] = window[prop];
+                }});
+
+            // Store and redefine console functions so the process output cannot be poluted 
+            Object.keys(console)
+                .forEach(function (prop) {{
+                    bgCoderConsole[prop] = console[prop];
+                    console[prop] = new Function('');
+                }});
+
         });
 
         after(function() {

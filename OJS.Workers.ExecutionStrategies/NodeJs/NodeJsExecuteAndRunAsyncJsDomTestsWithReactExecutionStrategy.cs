@@ -134,37 +134,42 @@ fs = undefined;";
 
         protected override string JsCodePreevaulationCode => $@"
 chai.use(sinonChai);
+const {{ JSDOM }} = jsdom;
 
 describe('TestDOMScope', function() {{
     let bgCoderConsole = {{}};
 
-    before(function(done) {{
-        jsdom.env({{
-            html: '',
-            src:[sinonJsDom],
-            done: function(errors, window) {{
-                global.window = window;
-                global.document = window.document;
-                global.$ = jq(window);
-                global.handlebars = handlebars;
-                global.fetch = fetch;
-                Object.getOwnPropertyNames(window)
-                    .filter(function (prop) {{
-                        return prop.toLowerCase().indexOf('html') >= 0;
-                    }}).forEach(function (prop) {{
-                        global[prop] = window[prop];
-                    }});
+    before(function() {{
+        const window  = (new JSDOM(`<script>${{sinonJsDom}}</script>`, {{ runScripts: 'dangerously' }})).window;
 
-                Object.keys(console)
-                    .forEach(function (prop) {{
-                        bgCoderConsole[prop] = console[prop];
-                        console[prop] = new Function('');
-                    }});
+        // Add jsdom's window, document and other libs to the global object
+        global.window = window;
+        global.document = window.document;
+        global.$ = jq(window);
+        global.handlebars = handlebars;
+        global.fetch = fetch;
 
-                done();
-            }}
-        }});
+        // Set specific HTML Element constructors that are globally available in the browser
+        global.Option = window.Option;
+        global.Audio = window.Audio;
+        global.Image = window.Image;
+        
+        // Attach other HTML properties to the global scope so they are directly available
+        Object.getOwnPropertyNames(window)
+            .filter(function (prop) {{
+                return prop.toLowerCase().indexOf('html') >= 0;
+            }}).forEach(function (prop) {{
+                global[prop] = window[prop];
+            }});
+
+        // Store and redefine console functions so the process output cannot be poluted 
+        Object.keys(console)
+            .forEach(function (prop) {{
+                bgCoderConsole[prop] = console[prop];
+                console[prop] = new Function('');
+            }});
     }});
+
 
     beforeEach(function(){{
         window.XMLHttpRequest = window.sinon.useFakeXMLHttpRequest();

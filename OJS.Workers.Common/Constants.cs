@@ -64,7 +64,7 @@
             {
                 var rootPath = string.Empty;
 
-                if (OSPlatformHelpers.IsUnixOs())
+                if (OSPlatformHelpers.IsUnix())
                 {
                     rootPath = Path.GetTempPath();
                 }

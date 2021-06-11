@@ -15,7 +15,7 @@ namespace OJS.Workers.Executors.Implementations
             int baseMemoryUsed,
             ProcessExecutorType type)
         {
-            if (OSPlatformHelpers.IsUnixOs())
+            if (OSPlatformHelpers.IsUnix())
             {
                 return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
             }

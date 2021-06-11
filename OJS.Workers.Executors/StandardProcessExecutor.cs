@@ -56,7 +56,7 @@
 
                 var processStartTime = process.StartTime;
 
-                if (!OSPlatformHelpers.IsUnixOs())
+                if (!OSPlatformHelpers.IsUnix())
                 {
                     process.PriorityClass = ProcessPriorityClass.High;
                 }

@@ -56,7 +56,7 @@
 
                 var processStartTime = process.StartTime;
 
-                if (!OSPlatformHelpers.IsDockerContainer())
+                if (!OSPlatformHelpers.IsUnixOs())
                 {
                     process.PriorityClass = ProcessPriorityClass.High;
                 }

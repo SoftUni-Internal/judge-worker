@@ -15,7 +15,7 @@ namespace OJS.Workers.Executors.Implementations
             int baseMemoryUsed,
             ProcessExecutorType type)
         {
-            if (OSPlatformHelpers.IsDockerContainer())
+            if (OSPlatformHelpers.IsUnixOs())
             {
                 return new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService);
             }

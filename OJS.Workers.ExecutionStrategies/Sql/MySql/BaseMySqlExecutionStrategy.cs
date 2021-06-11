@@ -57,11 +57,12 @@
                     GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'%';
                     FLUSH PRIVILEGES;";
 
+                var enableLogBinTrustFunctionCreatorsQuery = "SET GLOBAL log_bin_trust_function_creators = 1;";
+
                 this.ExecuteNonQuery(connection, createDatabaseQuery);
-
                 this.ExecuteNonQuery(connection, createUserQuery);
-
                 this.ExecuteNonQuery(connection, grandPrivilegesToUserQuery);
+                this.ExecuteNonQuery(connection, enableLogBinTrustFunctionCreatorsQuery);
             }
 
             var workerConnection = new MySqlConnection(this.BuildWorkerDbConnectionString(databaseName));

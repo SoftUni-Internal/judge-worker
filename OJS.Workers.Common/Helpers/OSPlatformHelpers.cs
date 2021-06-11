@@ -10,7 +10,10 @@
         public static bool IsLinux() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
+        private static bool IsMacOsX() =>
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
         // TODO: Determine if it is running in Docker by environment variable
-        public static bool IsDockerContainer() => IsLinux();
+        public static bool IsUnix() => IsLinux() || IsMacOsX();
     }
 }

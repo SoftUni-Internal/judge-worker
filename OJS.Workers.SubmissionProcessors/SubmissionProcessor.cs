@@ -9,6 +9,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.SubmissionProcessors.ExecutionTypeFilters;
     using OJS.Workers.SubmissionProcessors.Models;
     using OJS.Workers.SubmissionProcessors.Workers;
 
@@ -127,8 +128,6 @@
                 {
                     return null;
                 }
-
-                this.SubmissionProcessingStrategy.SetSubmissionToProcessing();
 
                 if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
                 {

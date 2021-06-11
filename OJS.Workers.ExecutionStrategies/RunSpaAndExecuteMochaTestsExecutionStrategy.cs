@@ -325,8 +325,8 @@ http {{
             foreach (var test in tests)
             {
                 var testInputContent = test.Input
-                    .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString())
-                    .Replace("localhost", "host.docker.internal");
+                    .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                    // .Replace("localhost", "host.docker.internal");
                 testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
                 FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
             }

@@ -16,6 +16,7 @@ namespace OJS.Workers
 
     using OJS.Workers.Common;
     using OJS.Workers.SubmissionProcessors;
+    using OJS.Workers.SubmissionProcessors.ExecutionTypeFilters;
 
     public class LocalWorkerServiceBase<TSubmission> : ServiceBase
     {

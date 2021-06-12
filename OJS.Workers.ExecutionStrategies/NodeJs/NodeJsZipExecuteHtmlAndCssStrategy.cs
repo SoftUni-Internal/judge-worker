@@ -108,7 +108,10 @@ const {{ JSDOM }} = jsdom;
 describe('TestDOMScope', function() {{
     let bgCoderConsole = {{}};
     before(function() {{
-        const window  = (new JSDOM(`<script>${{bootstrap}}</script>`, {{ runScripts: 'dangerously' }})).window;
+        const window  = (new JSDOM(userCode, {{ runScripts: 'dangerously' }})).window;
+        let bootstrapLib = window.document.createElement('script');
+        bootstrapLib.textContent = bootstrap;
+        window.document.head.prepend(bootstrapLib);
 
         // define innerText manually to work as textContent, as it is not supported in jsdom but used in judge
         Object.defineProperty(window.Element.prototype, 'innerText', {{
@@ -144,7 +147,7 @@ describe('TestDOMScope', function() {{
         let links = head.find('link');
         links.each((index, el)=>{{
             let style = document.createElement('style');
-            style.type = 'test/css';
+            style.type = 'text/css';
             let path = '{UserBaseDirectoryPlaceholder}/' + el.href;
             let css = fs.readFileSync(path, 'utf-8');
             style.innerHTML = css;

@@ -140,7 +140,10 @@ describe('TestDOMScope', function() {{
     let bgCoderConsole = {{}};
 
     before(function() {{
-        const window  = (new JSDOM(`<script>${{sinonJsDom}}</script>`, {{ runScripts: 'dangerously' }})).window;
+        const window  = (new JSDOM('...', {{ runScripts: 'dangerously' }})).window;
+        let sinonJsLib = window.document.createElement('script');
+        sinonJsLib.textContent = sinonJsDom;
+        window.document.head.appendChild(sinonJsLib);
 
         // Add jsdom's window, document and other libs to the global object
         global.window = window;

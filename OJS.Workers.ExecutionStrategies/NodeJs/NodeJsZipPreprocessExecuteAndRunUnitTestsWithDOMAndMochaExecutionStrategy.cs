@@ -116,7 +116,7 @@ browserify('" + UserInputPlaceholder + @"')
 function afterBundling() {
     describe('TestDOMScope', function() {
     let bgCoderConsole = {};
-        before(function(done) {" +
+        before(function() {" +
             NodeDisablePlaceholder + @"
             const window  = (new JSDOM('...')).window;
 

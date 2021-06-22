@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OJS.Workers.Tools</RootNamespace>
     <AssemblyName>OJS.Workers.Tools</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -78,21 +78,21 @@
     <Compile Include="Similarity\SimilarityFinder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj">
-      <Project>{7F714D0B-CE81-4DD7-B6B2-62080FE22CD8}</Project>
-      <Name>OJS.Workers.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OJS.Workers.Compilers\OJS.Workers.Compilers.csproj">
-      <Project>{8570183B-9D7A-408D-9EA6-F86F59B05A10}</Project>
-      <Name>OJS.Workers.Compilers</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\OJS.Common2\OJS.Common2.csproj">
+      <Project>{24dd4066-baf5-499b-897c-337d83cbe168}</Project>
+      <Name>OJS.Common2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OJS.Worker.Compilers\OJS.Worker.Compilers.csproj">
+      <Project>{8b904be4-5647-44df-a9a3-3a7cf6a6f3af}</Project>
+      <Name>OJS.Worker.Compilers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.Common.Helpers
 {
+    using System;
     using System.Runtime.InteropServices;
 
     public static class OSPlatformHelpers
@@ -15,5 +16,16 @@
 
         // TODO: Determine if it is running in Docker by environment variable
         public static bool IsUnix() => IsLinux() || IsMacOsX();
+
+        public static bool IsDocker()
+        {
+            if (!IsUnix())
+            {
+                return false;
+            }
+
+            var isParsed = bool.TryParse(Environment.GetEnvironmentVariable("RUNS_IN_DOCKER"), out var runsInDocker);
+            return isParsed && runsInDocker;
+        }
     }
 }

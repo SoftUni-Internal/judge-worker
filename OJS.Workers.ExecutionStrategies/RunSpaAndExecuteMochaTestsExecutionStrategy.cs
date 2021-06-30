@@ -15,13 +15,13 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
-        private const string NginxConfFileName= "nginx.conf";
+        private const string NginxConfFileName = "nginx.conf";
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -34,10 +34,10 @@
             int baseTimeUsed,
             int baseMemoryUsed)
             : base(
-                  processExecutorFactory,
-                  pythonExecutablePath,
-                  baseTimeUsed,
-                  baseMemoryUsed)
+                processExecutorFactory,
+                pythonExecutablePath,
+                baseTimeUsed,
+                baseMemoryUsed)
         {
             this.JsProjNodeModulesPath = jsProjNodeModulesPath;
             this.MochaModulePath = mochaNodeModulePath;
@@ -58,7 +58,8 @@
 
         private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
-        private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
+        private string UserApplicationPath =>
+            FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
         private string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
 
@@ -212,12 +213,12 @@ http {{
             IExecutionResult<TestResult> result)
         {
             result.Results.AddRange(executionContext.Input.Tests
-                            .Select(test => this.RunIndividualTest(
-                                codeSavePath,
-                                executor,
-                                executionContext,
-                                test))
-                            .SelectMany(resultList => resultList));
+                .Select(test => this.RunIndividualTest(
+                    codeSavePath,
+                    executor,
+                    executionContext,
+                    test))
+                .SelectMany(resultList => resultList));
             return result;
         }
 
@@ -268,7 +269,8 @@ http {{
 
         private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, int parentTestId)
         {
-            JsonExecutionResult mochaResult = JsonExecutionResult.Parse(this.PreproccessReceivedExecutionOutput(receivedOutput));
+            JsonExecutionResult mochaResult =
+                JsonExecutionResult.Parse(this.PreproccessReceivedExecutionOutput(receivedOutput));
             if (mochaResult.TotalTests == 0)
             {
                 return new List<TestResult>
@@ -278,10 +280,7 @@ http {{
                         Id = parentTestId,
                         IsTrialTest = false,
                         ResultType = TestRunResultType.WrongAnswer,
-                        CheckerDetails = new CheckerDetails
-                        {
-                            UserOutputFragment = receivedOutput
-                        }
+                        CheckerDetails = new CheckerDetails {UserOutputFragment = receivedOutput}
                     }
                 };
             }
@@ -305,7 +304,7 @@ http {{
             };
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
-            => Regex.Unescape(receivedOutput)
+            => receivedOutput
                 .Trim()
                 .Replace("b'", string.Empty)
                 .Replace("}'", "}")
@@ -326,7 +325,11 @@ http {{
             {
                 var testInputContent = test.Input
                     .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
-                    // .Replace("localhost", "host.docker.internal");
+                if (OSPlatformHelpers.IsDocker())
+                {
+                    testInputContent = testInputContent.Replace("localhost", "host.docker.internal");
+                }
+
                 testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
                 FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
             }

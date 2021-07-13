@@ -17,6 +17,12 @@
             return tempFilePath;
         }
 
+        public static string SaveStringToFile(string stringToWrite, string filePath)
+        {
+            File.WriteAllText(filePath, stringToWrite);
+            return filePath;
+        }
+
         public static string SaveStringToTempFile(string directory, string stringToWrite)
         {
             var tempFilePath = Path.GetTempFileName();

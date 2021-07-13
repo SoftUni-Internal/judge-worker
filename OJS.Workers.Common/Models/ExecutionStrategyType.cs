@@ -50,5 +50,6 @@
         SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
         SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 46,
         SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47,
+        RunSpaAndExecuteMochaTestsExecutionStrategy = 48
     }
 }

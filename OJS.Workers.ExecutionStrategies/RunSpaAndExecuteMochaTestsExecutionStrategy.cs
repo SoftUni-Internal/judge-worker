@@ -303,7 +303,7 @@ http {{
                     ? TestRunResultType.CorrectAnswer
                     : TestRunResultType.WrongAnswer,
                 CheckerDetails = testResult == null
-                    ? default
+                    ? default(CheckerDetails)
                     : new CheckerDetails {UserOutputFragment = testResult},
             };
 

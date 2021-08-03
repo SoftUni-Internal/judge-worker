@@ -59,7 +59,7 @@ namespace OJS.Workers.Common
             public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
 
             // Run SPA and Execute mocha tests
-            public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execution-mocha-tests";
+            public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
         }
 
         public static class NameMappings

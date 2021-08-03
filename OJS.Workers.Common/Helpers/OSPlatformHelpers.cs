@@ -7,13 +7,13 @@
         public static bool IsWindows() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-        public static bool IsLinux() =>
+        // TODO: Determine if it is running in Docker by environment variable
+        public static bool IsUnix() => IsLinux() || IsMacOsX();
+
+        private static bool IsLinux() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         private static bool IsMacOsX() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-
-        // TODO: Determine if it is running in Docker by environment variable
-        public static bool IsUnix() => IsLinux() || IsMacOsX();
     }
 }

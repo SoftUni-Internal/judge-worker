@@ -15,13 +15,13 @@
     using OJS.Workers.Executors;
     using static OJS.Workers.Common.Constants;
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
-        private const string NginxConfFileName= "nginx.conf";
+        private const string NginxConfFileName = "nginx.conf";
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -223,6 +223,9 @@ http {{
             return result;
         }
 
+        protected override IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Standard);
+
         private ICollection<TestResult> RunIndividualTest(
             string codeSavePath,
             IExecutor executor,
@@ -232,9 +235,6 @@ http {{
             var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
             return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
-
-        protected override IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
         {
@@ -304,7 +304,7 @@ http {{
                     : TestRunResultType.WrongAnswer,
                 CheckerDetails = testResult == null
                     ? default(CheckerDetails)
-                    : new CheckerDetails {UserOutputFragment = testResult},
+                    : new CheckerDetails { UserOutputFragment = testResult },
             };
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
@@ -352,7 +352,7 @@ http {{
 
         private string FixPathsForNodeModule(string testInputContent, string name, string requireStatement)
         {
-            var path = GetNodeModulePathByName(name);
+            var path = this.GetNodeModulePathByName(name);
 
             var fixedRequireStatement = requireStatement.Replace(name, path)
                 .Replace("\\", "\\\\");

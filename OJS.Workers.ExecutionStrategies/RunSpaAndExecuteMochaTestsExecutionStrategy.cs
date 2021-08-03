@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using Ionic.Zip;
-    using Newtonsoft.Json;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
@@ -14,6 +13,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
+    using static OJS.Workers.Common.Constants;
 
     public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
     {
@@ -211,13 +211,15 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.Results.AddRange(executionContext.Input.Tests
-                            .Select(test => this.RunIndividualTest(
-                                codeSavePath,
-                                executor,
-                                executionContext,
-                                test))
-                            .SelectMany(resultList => resultList));
+            result.Results.AddRange(
+                executionContext.Input.Tests
+                    .Select(
+                        test => this.RunIndividualTest(
+                            codeSavePath,
+                            executor,
+                            executionContext,
+                            test))
+                    .SelectMany(resultList => resultList));
             return result;
         }
 
@@ -260,9 +262,10 @@ http {{
                 ? $".{trimmedAllowedFileExtensions}"
                 : trimmedAllowedFileExtensions;
 
-            if (allowedFileExtensions != Constants.ZipFileExtension)
+            if (allowedFileExtensions != ZipFileExtension)
             {
-                throw new ArgumentException("Submission file is not a zip file!");
+                throw new ArgumentException(
+                    "This file extension is not allowed for the execution strategy. Please contact an administrator.");
             }
         }
 
@@ -280,9 +283,9 @@ http {{
                         ResultType = TestRunResultType.WrongAnswer,
                         CheckerDetails = new CheckerDetails
                         {
-                            UserOutputFragment = receivedOutput
-                        }
-                    }
+                            UserOutputFragment = receivedOutput,
+                        },
+                    },
                 };
             }
 
@@ -326,9 +329,11 @@ http {{
             {
                 var testInputContent = test.Input
                     .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
-                    // .Replace("localhost", "host.docker.internal");
+
                 testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
-                FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
+                FileHelpers.SaveStringToFile(
+                    testInputContent,
+                    FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}"));
             }
         }
 

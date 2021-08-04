@@ -41,17 +41,7 @@
 
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
-        public static string MochaModulePath
-        {
-            get
-            {
-                var mochaPath = SettingsHelper.GetSetting("MochaModulePath");
-                var mochaExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "mocha.cmd"
-                    : "_mocha";
-                return FileHelpers.BuildPath(mochaPath, mochaExecutable);
-            }
-        }
+        public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
 

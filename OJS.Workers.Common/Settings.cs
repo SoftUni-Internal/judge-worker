@@ -1,7 +1,7 @@
 ﻿namespace OJS.Workers.Common
 {
     using System.Collections.Generic;
-    using System.Linq;sssss
+    using System.Linq;
     using OJS.Workers.Common.Helpers;
 
     public static class Settings

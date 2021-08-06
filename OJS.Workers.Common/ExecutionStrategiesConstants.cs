@@ -57,6 +57,9 @@ namespace OJS.Workers.Common
             public const string MySqlPrepareDbAndRunQueries = "mysql-prepare-db-and-run-queries";
             public const string MySqlRunQueriesAndCheckDatabase = "mysql-run-queries-and-check-database";
             public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
+
+            // Run SPA and Execute mocha tests
+            public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
         }
 
         public static class NameMappings
@@ -80,19 +83,19 @@ namespace OJS.Workers.Common
 
                     // JavaScript
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
-                    // { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
-                    // { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
+                    { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
+                    { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
                     // { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
-                    // { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },
-                    // { ExecutionStrategyNames.JavaProjectTests, ExecutionStrategyType.JavaProjectTestsExecutionStrategy },
-                    // { ExecutionStrategyNames.JavaZipFileCode, ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck },
-                    // { ExecutionStrategyNames.JavaUnitTests, ExecutionStrategyType.JavaUnitTestsExecutionStrategy },
+                    { ExecutionStrategyNames.JavaProjectTests, ExecutionStrategyType.JavaProjectTestsExecutionStrategy },
+                    { ExecutionStrategyNames.JavaZipFileCode, ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck },
+                    { ExecutionStrategyNames.JavaUnitTests, ExecutionStrategyType.JavaUnitTestsExecutionStrategy },
 
                     // Plain text
-                    // { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
+                    { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
 
                     // Sql Server
                     // { ExecutionStrategyNames.SqlServerPrepareDatabaseAndRunQueries, ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
@@ -106,6 +109,9 @@ namespace OJS.Workers.Common
 
                     // Php
                     // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
+
+                    // Run SPA and Execute mocha tests
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy }
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =
@@ -114,13 +120,16 @@ namespace OJS.Workers.Common
             public static readonly ISet<ExecutionStrategyType> EnabledRemoteWorkerStrategies =
                 new HashSet<ExecutionStrategyType>(NameToExecutionStrategyMappings.Values);
 
-            public static readonly ISet<ExecutionStrategyType> DisabledLocalWorkerStrategies =
-                new HashSet<ExecutionStrategyType>
-                {
-                    ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,
-                    ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
-                    ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
-                };
+            public static readonly ISet<ExecutionStrategyType> DisabledLocalWorkerStrategies = new HashSet<ExecutionStrategyType>
+            {
+                // JS Project strategy
+                ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
+
+                // MySQL strategies
+                ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,
+                ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
+            };
         }
     }
 }

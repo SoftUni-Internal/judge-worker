@@ -7,6 +7,8 @@
 
     using OJS.Workers.Common.Helpers;
 
+    using static OJS.Workers.Compilers.CompilerConstants.Java;
+
     public class JavaZipCompiler : Compiler
     {
         private const string JavaCompiledFilesSearchPattern = "*.class";
@@ -26,6 +28,7 @@
         public override string BuildCompilerArguments(string inputFile, string outputDirectory, string additionalArguments)
         {
             var arguments = new StringBuilder();
+            arguments.Append($"{UseUtf8EncodingArgument} ");
 
             // Output path argument
             arguments.Append($"-d \"{outputDirectory}\" ");

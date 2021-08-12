@@ -7,6 +7,8 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
 
+    using static OJS.Workers.Compilers.CompilerConstants.Java;
+
     public class JavaInPlaceFolderCompiler : Compiler
     {
         private const string JavaSourceFilesSearchPattern = "*.java";
@@ -19,6 +21,7 @@
         public override string BuildCompilerArguments(string inputFolder, string outputDirectory, string additionalArguments)
         {
             var arguments = new StringBuilder();
+            arguments.Append($"{UseUtf8EncodingArgument} ");
             arguments.Append($"-d \"{outputDirectory}\" ");
             arguments.Append(additionalArguments);
             arguments.Append(' ');

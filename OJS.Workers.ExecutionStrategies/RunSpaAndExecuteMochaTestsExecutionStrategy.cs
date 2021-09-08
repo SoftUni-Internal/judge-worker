@@ -86,6 +86,7 @@ port = '{this.PortNumber}'
 class DockerExecutor:
     def __init__(self):
         self.client = docker.from_env()
+        self.__ensure_image_is_present()
         self.container = self.client.containers.create(
             image=image_name,
             ports={{'80/tcp': port}},
@@ -129,6 +130,15 @@ class DockerExecutor:
 
         remove(tar_path)
         # remove(local_dest_name)
+
+    def __ensure_image_is_present(self):
+        def is_latest_image_present(name):
+            image_tag = name + ':latest'
+            all_tags = [tag for img in self.client.images.list() for tag in img.tags]
+            return any(tag for tag in all_tags if tag == image_tag)
+
+        if not is_latest_image_present(image_name):
+            self.client.images.pull(image_name)
 
 
 executor = DockerExecutor()
@@ -327,10 +337,8 @@ http {{
         {
             foreach (var test in tests)
             {
-                var testInputContent = test.Input
-                    .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                var testInputContent = this.PreprocessTestInput(test.Input);
 
-                testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
                 FileHelpers.SaveStringToFile(
                     testInputContent,
                     FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}"));
@@ -389,6 +397,16 @@ http {{
             }
 
             return nodeModules;
+        }
+
+        private string PreprocessTestInput(string testInput)
+        {
+            testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
+                .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+
+            return OSPlatformHelpers.IsDocker()
+                ? testInput.Replace("localhost", "host.docker.internal")
+                : testInput;
         }
     }
 }

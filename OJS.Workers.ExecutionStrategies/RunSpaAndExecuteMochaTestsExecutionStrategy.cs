@@ -338,10 +338,8 @@ http {{
         {
             foreach (var test in tests)
             {
-                var testInputContent = test.Input
-                    .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                var testInputContent = this.PreprocessTestInput(test.Input);
 
-                testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
                 FileHelpers.SaveStringToFile(
                     testInputContent,
                     FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}"));
@@ -400,6 +398,16 @@ http {{
             }
 
             return nodeModules;
+        }
+
+        private string PreprocessTestInput(string testInput)
+        {
+            testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
+                .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+
+            return OSPlatformHelpers.IsDocker()
+                ? testInput.Replace("localhost", "host.docker.internal")
+                : testInput;
         }
     }
 }

@@ -86,6 +86,7 @@ port = '{this.PortNumber}'
 class DockerExecutor:
     def __init__(self):
         self.client = docker.from_env()
+        self.__ensure_image_is_present()
         self.container = self.client.containers.create(
             image=image_name,
             ports={{'80/tcp': port}},
@@ -129,6 +130,16 @@ class DockerExecutor:
 
         remove(tar_path)
         # remove(local_dest_name)
+
+    def __ensure_image_is_present(self):
+        def is_latest_image_present(name):
+            all_images = self.client.images.list()
+            image_tag = name + ':latest'
+            images_with_tag = filter(lambda img: any(t == image_tag for t in img.tags), all_images)
+            return any(images_with_tag)
+
+        if not is_latest_image_present(image_name):
+            self.client.images.pull(image_name)
 
 
 executor = DockerExecutor()

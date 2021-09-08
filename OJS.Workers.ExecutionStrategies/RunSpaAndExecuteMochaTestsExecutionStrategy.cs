@@ -133,10 +133,9 @@ class DockerExecutor:
 
     def __ensure_image_is_present(self):
         def is_latest_image_present(name):
-            all_images = self.client.images.list()
             image_tag = name + ':latest'
-            images_with_tag = filter(lambda img: any(t == image_tag for t in img.tags), all_images)
-            return any(images_with_tag)
+            all_tags = [tag for img in self.client.images.list() for tag in img.tags]
+            return any(tag for tag in all_tags if tag == image_tag)
 
         if not is_latest_image_present(image_name):
             self.client.images.pull(image_name)

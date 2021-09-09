@@ -318,7 +318,7 @@ http {{
             };
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
-            => Regex.Unescape(receivedOutput)
+            => receivedOutput
                 .Trim()
                 .Replace("b'", string.Empty)
                 .Replace("}'", "}")

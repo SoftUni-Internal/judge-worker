@@ -13,19 +13,15 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.Executors;
+    using static OJS.Workers.Common.Constants;
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategy: PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
-        protected const string UserApplicationPathPlaceholder = "#userApplicationPath#";
-        protected const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
-        protected const string TestsPathPlaceholder = "#testsPath#";
-
-        protected const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
-        protected const string MochaTestsPassingFailingResultPattern = "([\\d]*)\\s*(passing|failing)";
-
-        protected const string TestsDirectoryName = "test";
-        protected const string UserApplicationDirectoryName = "app";
-        protected const string NginxConfFileName= "nginx.conf";
+        private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
+        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
+        private const string TestsDirectoryName = "test";
+        private const string UserApplicationDirectoryName = "app";
+        private const string NginxConfFileName = "nginx.conf";
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -43,49 +39,54 @@
                   baseTimeUsed,
                   baseMemoryUsed)
         {
-            this.JSProjNodeModulesPath = jsProjNodeModulesPath;
+            this.JsProjNodeModulesPath = jsProjNodeModulesPath;
             this.MochaModulePath = mochaNodeModulePath;
             this.ChaiModulePath = chaiNodeModulePath;
             this.PlaywrightModulePath = playwrightModulePath;
             this.PortNumber = portNumber;
         }
 
-        protected int PortNumber { get; }
+        private int PortNumber { get; }
 
-        protected Dictionary<string, string> NodeModulesPaths { get; }
+        private string MochaModulePath { get; }
 
-        protected string MochaModulePath { get; }
+        private string ChaiModulePath { get; }
 
-        protected string ChaiModulePath { get; }
+        private string PlaywrightModulePath { get; }
 
-        protected string PlaywrightModulePath { get; }
+        private string JsProjNodeModulesPath { get; }
 
-        protected string JSProjNodeModulesPath { get; }
+        private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
-        protected string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
+        private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
-        protected string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
+        private string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
 
-        protected string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
+        private string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
 
-        protected string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
-
-        protected string PythonCodeTemplate => $@"
+        private string PythonCodeTemplate => $@"
 import docker
 import subprocess
+
+import shutil
+import tarfile
+
+from os import chdir, remove
+from os.path import basename, join, dirname
 
 mocha_path = '{this.MochaModulePath}'
 tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
 path_to_nginx_conf = '{this.NginxConfFileDirectory}/nginx.conf'
-path_to_node_modules = '{this.JSProjNodeModulesPath}'
+path_to_node_modules = '{this.JsProjNodeModulesPath}'
 port = '{this.PortNumber}'
 
 
 class DockerExecutor:
     def __init__(self):
         self.client = docker.from_env()
+        self.__ensure_image_is_present()
         self.container = self.client.containers.create(
             image=image_name,
             ports={{'80/tcp': port}},
@@ -98,20 +99,46 @@ class DockerExecutor:
                     'bind': '/usr/share/nginx/html',
                     'mode': 'rw',
                 }},
-                path_to_node_modules: {{
-                    'bind': '/usr/share/nginx/html/node_modules',
-                    'mode': 'ro'
-                }}
             }},
         )
 
     def start(self):
         self.container.start()
+        self.copy_to_container(path_to_node_modules, '/usr/share/nginx/html/node_modules');
 
     def stop(self):
         self.container.stop()
         self.container.wait()
         self.container.remove()
+
+    def copy_to_container(self, source, destination):
+        chdir(dirname(source))
+        local_dest_name = join(dirname(source), basename(destination))
+        if local_dest_name != source:
+            shutil.copy2(source, local_dest_name)
+        dst_name = basename(destination)
+        tar_path = local_dest_name + '.tar'
+
+        tar = tarfile.open(tar_path, mode='w')
+        try:
+            tar.add(dst_name)
+        finally:
+            tar.close()
+
+        data = open(tar_path, 'rb').read()
+        self.container.put_archive(dirname(destination), data)
+
+        remove(tar_path)
+        # remove(local_dest_name)
+
+    def __ensure_image_is_present(self):
+        def is_latest_image_present(name):
+            image_tag = name + ':latest'
+            all_tags = [tag for img in self.client.images.list() for tag in img.tags]
+            return any(tag for tag in all_tags if tag == image_tag)
+
+        if not is_latest_image_present(image_name):
+            self.client.images.pull(image_name)
 
 
 executor = DockerExecutor()
@@ -122,7 +149,6 @@ try:
 
     process = subprocess.run(
         commands,
-        capture_output=True
     )
 
     print(process.stdout)
@@ -130,10 +156,9 @@ except Exception as e:
     print(e)
 finally:
     executor.stop()
-
 ";
 
-        protected string NginxFileContent => $@"
+        private string NginxFileContent => $@"
 worker_processes  1;
 
 events {{
@@ -196,30 +221,30 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.Results.AddRange(executionContext.Input.Tests
-                            .Select(test => this.RunIndividualTest(
-                                codeSavePath,
-                                executor,
-                                checker,
-                                executionContext,
-                                test))
-                            .SelectMany(resultList => resultList));
+            result.Results.AddRange(
+                executionContext.Input.Tests
+                    .Select(
+                        test => this.RunIndividualTest(
+                            codeSavePath,
+                            executor,
+                            executionContext,
+                            test))
+                    .SelectMany(resultList => resultList));
             return result;
         }
 
-        protected ICollection<TestResult> RunIndividualTest(
+        protected override IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Standard);
+
+        private ICollection<TestResult> RunIndividualTest(
             string codeSavePath,
             IExecutor executor,
-            IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
             TestContext test)
         {
             var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
             return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
-
-        protected override IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
         {
@@ -247,9 +272,10 @@ http {{
                 ? $".{trimmedAllowedFileExtensions}"
                 : trimmedAllowedFileExtensions;
 
-            if (allowedFileExtensions != Constants.ZipFileExtension)
+            if (allowedFileExtensions != ZipFileExtension)
             {
-                throw new ArgumentException("Submission file is not a zip file!");
+                throw new ArgumentException(
+                    "This file extension is not allowed for the execution strategy. Please contact an administrator.");
             }
         }
 
@@ -260,93 +286,127 @@ http {{
             {
                 return new List<TestResult>
                 {
-                    new TestResult()
+                    new TestResult
                     {
                         Id = parentTestId,
                         IsTrialTest = false,
                         ResultType = TestRunResultType.WrongAnswer,
-                        CheckerDetails = new CheckerDetails { UserOutputFragment = receivedOutput }
-                    }
+                        CheckerDetails = new CheckerDetails
+                        {
+                            UserOutputFragment = receivedOutput,
+                        },
+                    },
                 };
             }
 
-            return mochaResult.TestErrors.Select(test => this.ParseTestResult(test, parentTestId)).ToList();
+            return mochaResult.TestErrors
+                .Select(test => this.ParseTestResult(test, parentTestId))
+                .ToList();
         }
 
         private TestResult ParseTestResult(string testResult, int parentTestId)
-        {
-            var testResultDTO = new TestResult
+            => new TestResult
             {
                 Id = parentTestId,
                 IsTrialTest = false,
-                ResultType = TestRunResultType.CorrectAnswer
+                ResultType = testResult == null
+                    ? TestRunResultType.CorrectAnswer
+                    : TestRunResultType.WrongAnswer,
+                CheckerDetails = testResult == null
+                    ? default(CheckerDetails)
+                    : new CheckerDetails { UserOutputFragment = testResult },
             };
 
-            // test did not pass
-            if (testResult != null)
-            {
-                testResultDTO.CheckerDetails = new CheckerDetails { UserOutputFragment = testResult };
-                testResultDTO.ResultType = TestRunResultType.WrongAnswer;
-            }
-
-            return testResultDTO;
-        }
-
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
-        {
-            string processedOutput = Regex.Unescape(receivedOutput);
-            processedOutput = processedOutput.Replace("b'", string.Empty);
-            processedOutput = processedOutput.Replace("}'", "}");
-
-            return processedOutput;
-        }
+            => receivedOutput
+                .Trim()
+                .Replace("b'", string.Empty)
+                .Replace("}'", "}")
+                .Replace("}None", "}");
 
         private string SavePythonCodeTemplateToTempFile()
         {
-            string pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
+            var pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
         }
 
-        private void SaveNginxFile() => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
+        private void SaveNginxFile()
+            => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
 
         private void SaveTestsToFiles(IEnumerable<TestContext> tests)
         {
             foreach (var test in tests)
             {
-                var testInputContent = test.Input.Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
-                testInputContent = this.ReplaceNodeModulesRequireStatementsInTests(testInputContent);
-                FileHelpers.SaveStringToFile(testInputContent, FileHelpers.BuildPath(this.TestsPath, $"{test.Id}.js"));
+                var testInputContent = this.PreprocessTestInput(test.Input);
+
+                FileHelpers.SaveStringToFile(
+                    testInputContent,
+                    FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}"));
             }
         }
 
         private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
         {
-            var requirePattern = new Regex(NodeModulesRequirePattern);
-            var results = requirePattern.Matches(testInputContent);
-            foreach (Match match in results)
-            {
-                string fullRequireStatement = match.Groups[0].ToString();
-                string nodeModuleName = match.Groups[2].ToString();
-                string nodeModulePath = String.Empty;
-                switch (nodeModuleName)
+            this.GetNodeModules(testInputContent)
+                .ToList()
+                .ForEach(nodeModule =>
                 {
-                    case "mocha":
-                        nodeModulePath = this.MochaModulePath;
-                        break;
-                    case "chai":
-                        nodeModulePath = this.ChaiModulePath;
-                        break;
-                    case "playwright":
-                        nodeModulePath = this.PlaywrightModulePath;
-                        break;
-                    default:
-                        continue;
-                }
-                string statementToReplaceWith = $"{fullRequireStatement.Replace(nodeModuleName, nodeModulePath)}";
-                testInputContent = testInputContent.Replace(fullRequireStatement, statementToReplaceWith.Replace("\\", "\\\\"));
-            }
+                    var (name, requireStatement) = nodeModule;
+                    testInputContent = this.FixPathsForNodeModule(testInputContent, name, requireStatement);
+                });
 
             return testInputContent;
+        }
+
+        private string FixPathsForNodeModule(string testInputContent, string name, string requireStatement)
+        {
+            var path = this.GetNodeModulePathByName(name);
+
+            var fixedRequireStatement = requireStatement.Replace(name, path)
+                .Replace("\\", "\\\\");
+
+            return testInputContent.Replace(requireStatement, fixedRequireStatement);
+        }
+
+        private string GetNodeModulePathByName(string name)
+        {
+            switch (name)
+            {
+                case "mocha":
+                    return this.MochaModulePath;
+                case "chai":
+                    return this.ChaiModulePath;
+                case "playwright":
+                    return this.PlaywrightModulePath;
+                default:
+                    return null;
+            }
+        }
+
+        private IEnumerable<(string, string)> GetNodeModules(string testInputContent)
+        {
+            var requirePattern = new Regex(NodeModulesRequirePattern);
+            var results = requirePattern.Matches(testInputContent);
+            var nodeModules = new List<(string, string)>();
+
+            foreach (Match match in results)
+            {
+                var fullRequireStatement = match.Groups[0].ToString();
+                var nodeModuleName = match.Groups[2].ToString();
+                nodeModules.Add((nodeModuleName, fullRequireStatement));
+            }
+
+            return nodeModules;
+        }
+
+        private string PreprocessTestInput(string testInput)
+        {
+            testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
+                .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+
+            return OSPlatformHelpers.IsDocker()
+                ? testInput.Replace("localhost", "host.docker.internal")
+                : testInput;
         }
     }
 }

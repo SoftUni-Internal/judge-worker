@@ -4,7 +4,6 @@
     using System.Data;
     using System.Data.SqlClient;
     using System.Globalization;
-    using System.IO;
     using System.Text.RegularExpressions;
     using System.Transactions;
 
@@ -15,18 +14,19 @@
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
-        private static readonly string DatabaseName = $"testing_{Guid.NewGuid()}";
 
         private readonly string masterDbConnectionString;
         private readonly string restrictedUserId;
         private readonly string restrictedUserPassword;
+        private readonly string databaseNameForSubmissionProcessor;
 
         private TransactionScope transactionScope;
 
         protected BaseSqlServerSingleDatabaseExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
-            string restrictedUserPassword)
+            string restrictedUserPassword,
+            string submissionProcessorIdentifier)
         {
             if (string.IsNullOrWhiteSpace(masterDbConnectionString))
             {
@@ -46,6 +46,7 @@
             this.masterDbConnectionString = masterDbConnectionString;
             this.restrictedUserId = restrictedUserId;
             this.restrictedUserPassword = restrictedUserPassword;
+            this.databaseNameForSubmissionProcessor = $"worker_{submissionProcessorIdentifier}_DO_NOT_DELETE";
         }
 
         public string WorkerDbConnectionString { get; set; }
@@ -64,9 +65,9 @@
         }
 
         public override void DropDatabase(string databaseName)
-            => this.transactionScope.Dispose();
+            => this.transactionScope?.Dispose();
 
-        public override string GetDatabaseName() => DatabaseName;
+        public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
@@ -100,8 +101,6 @@
         private void EnsureDatabaseIsSetup()
         {
             var databaseName = this.GetDatabaseName();
-            var databaseFilePath =
-                string.Join(Path.DirectorySeparatorChar.ToString(), $"{this.WorkingDirectory}", $"{databaseName}.mdf");
 
             using (var connection = new SqlConnection(this.masterDbConnectionString))
             {
@@ -110,7 +109,7 @@
                 var setupDatabaseQuery =
                     $@"IF DB_ID('{databaseName}') IS NULL
                     BEGIN
-                    CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');
+                    CREATE DATABASE [{databaseName}];
                     CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
                     DEFAULT_DATABASE=[master],
                     DEFAULT_LANGUAGE=[us_english],

@@ -21,7 +21,7 @@
         {
             this.formatterServicesFactory = formatterServicesFactory;
             this.Location = endpointRoot;
-            this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true";
+            this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true&escapeTests=false";
             this.http = new HttpService();
         }
 
@@ -85,10 +85,6 @@
         {
             Enum.TryParse(testResult.ResultType, out TestRunResultType resultType);
 
-            // CorrectAnswer - null
-            // !IsTrialTest -> null
-            // IsTrialTest && !CorrectAnswer -> value
-            var showCheckerDetails = resultType != TestRunResultType.CorrectAnswer && test.IsTrialTest;
             var result = new TestResult
             {
                 Input = test.Input,
@@ -100,15 +96,9 @@
                 Id = test.Id,
                 CheckerDetails = new CheckerDetails
                 {
-                    Comment = showCheckerDetails
-                        ? testResult.CheckerDetails.Comment
-                        : null,
-                    UserOutputFragment = showCheckerDetails
-                        ? testResult.CheckerDetails.UserOutputFragment
-                        : null,
-                    ExpectedOutputFragment = showCheckerDetails
-                        ? testResult.CheckerDetails.ExpectedOutputFragment
-                        : null,
+                    Comment = testResult.CheckerDetails.Comment,
+                    UserOutputFragment = testResult.CheckerDetails.UserOutputFragment,
+                    ExpectedOutputFragment = testResult.CheckerDetails.ExpectedOutputFragment,
                 },
             };
 

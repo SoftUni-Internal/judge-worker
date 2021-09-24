@@ -15,25 +15,12 @@
 
         public TResponseBody PostJson<TRequestBody, TResponseBody>(string url, TRequestBody body)
         {
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(url),
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(body),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-
-            var response = this.httpClient.SendAsync(request)
-                .Result;
-            var content = response.Content.ReadAsStringAsync()
-                .Result;
+            var content = this.PostJsonAsync(url, body).GetAwaiter().GetResult();
 
             return JsonConvert.DeserializeObject<TResponseBody>(content);
         }
 
-        public Task<string> PostJsonAsync<TRequestBody>(string url, TRequestBody body)
+        public async Task<string> PostJsonAsync<TRequestBody>(string url, TRequestBody body)
         {
             var request = new HttpRequestMessage
             {
@@ -45,9 +32,8 @@
                     "application/json")
             };
 
-            var response = this.httpClient.SendAsync(request)
-                .Result;
-            var content = response.Content.ReadAsStringAsync();
+            var response = await this.httpClient.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
 
             return content;
         }

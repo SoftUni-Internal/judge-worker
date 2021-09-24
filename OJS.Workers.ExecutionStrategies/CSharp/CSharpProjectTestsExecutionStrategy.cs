@@ -166,7 +166,7 @@
             foreach (var test in tests)
             {
                 var testName = this.TestNames[index++];
-                var testedCodePath = $"{compileDirectory}\\{testName}{CSharpFileExtension}";
+                var testedCodePath = Path.Combine(compileDirectory, $"{testName}{CSharpFileExtension}");
                 this.TestPaths.Add(testedCodePath);
                 File.WriteAllText(testedCodePath, test.Input);
             }

@@ -30,8 +30,6 @@ namespace OJS.Workers.Common
             public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mocha";
             public const string JavaScriptAsyncJsDomTestsWithReact = "javascript-async-js-dom-tests-with-react";
 
-            public const string JavaScriptCodeAgainstUnitTestsWithMocha =
-                "javascript-code-against-unit-tests-with-mocha";
 
             // Python
             public const string PythonCode = "python-code";

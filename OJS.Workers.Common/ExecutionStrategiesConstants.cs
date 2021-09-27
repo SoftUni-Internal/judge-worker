@@ -33,9 +33,6 @@ namespace OJS.Workers.Common
             public const string JavaScriptCodeAgainstUnitTestsWithMocha =
                 "javascript-code-against-unit-tests-with-mocha";
 
-            public const string JavaScriptCodeAgainstUnitTestsWithDomAndMocha =
-                "javascript-code-against-unit-tests-with-dom-and-mocha";
-
             // Python
             public const string PythonCode = "python-code";
             public const string PythonProjectTests = "python-project-tests";
@@ -49,7 +46,6 @@ namespace OJS.Workers.Common
 
             // C++
             public const string CppCode = "cpp-code";
-            public const string CppZipFile = "cpp-zip-file";
 
             // Plain text
             public const string PlainText = "plaintext";
@@ -81,14 +77,14 @@ namespace OJS.Workers.Common
 
                     // Python
                     { ExecutionStrategyNames.PythonCode, ExecutionStrategyType.PythonExecuteAndCheck },
-                    { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
-                    { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+                    // { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
+                    // { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
 
                     // HTML
                     // { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
 
                     // C++
-                    { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
+                    // { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
 
                     // { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },
 
@@ -96,10 +92,8 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
-                    { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
+                    // { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
-
-                    // { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },

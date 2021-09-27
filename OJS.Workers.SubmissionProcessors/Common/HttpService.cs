@@ -26,7 +26,9 @@
                 Encoding.UTF8,
                 "application/json");
 
-            var response = this.httpClient.PostAsync(url, httpContent).Result;
+            // ConfigureAwait(false) necessary to prevent deadlocks and return response to current thread
+            var response = await this.httpClient.PostAsync(url, httpContent).ConfigureAwait(false);
+
             var content = await response.Content.ReadAsStringAsync();
 
             return content;

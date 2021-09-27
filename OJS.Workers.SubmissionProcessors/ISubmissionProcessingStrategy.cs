@@ -24,6 +24,8 @@
 
         void OnError(IOjsSubmission submission);
 
+        void SetSubmissionWorker(string worker);
+
         void SetSubmissionToProcessing();
 
         void ReleaseSubmission();

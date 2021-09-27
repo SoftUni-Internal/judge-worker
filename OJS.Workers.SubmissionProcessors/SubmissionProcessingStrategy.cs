@@ -52,6 +52,8 @@
 
         public abstract void OnError(IOjsSubmission submission);
 
+        public abstract void SetSubmissionWorker(string worker);
+
         public abstract void SetSubmissionToProcessing();
 
         public abstract void ReleaseSubmission();

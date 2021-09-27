@@ -109,6 +109,7 @@
             try
             {
                 this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
+                this.SubmissionProcessingStrategy.SetSubmissionWorker(executionResult.Worker.ToString());
             }
             catch (Exception ex)
             {

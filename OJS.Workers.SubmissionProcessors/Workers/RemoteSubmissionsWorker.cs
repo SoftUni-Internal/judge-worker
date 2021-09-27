@@ -17,15 +17,18 @@
         private readonly HttpService http;
         private readonly string endpoint;
 
-        public RemoteSubmissionsWorker(string endpointRoot, IFormatterServiceFactory formatterServicesFactory)
+        public RemoteSubmissionsWorker(int index, string endpointRoot, IFormatterServiceFactory formatterServicesFactory)
         {
             this.formatterServicesFactory = formatterServicesFactory;
             this.Location = endpointRoot;
+            this.Index = index;
             this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true&escapeTests=false";
             this.http = new HttpService();
         }
 
         public string Location { get; }
+
+        public int Index { get; }
 
         public IExecutionResult<TResult> RunSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
@@ -43,6 +46,7 @@
             {
                 CompilerComment = result.ExecutionResult.CompilerComment,
                 IsCompiledSuccessfully = result.ExecutionResult.IsCompiledSuccessfully,
+                Worker = this.Index,
                 Results = result.ExecutionResult.TaskResult.TestResults
                     .Select(testResult =>
                     {

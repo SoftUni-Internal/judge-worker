@@ -12,5 +12,7 @@
         public string CompilerComment { get; set; }
 
         public ICollection<TResult> Results { get; set; } = new List<TResult>();
+
+        public int Worker { get; set; }
     }
 }

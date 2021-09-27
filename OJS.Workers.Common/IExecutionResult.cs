@@ -10,5 +10,7 @@
         string CompilerComment { get; set; }
 
         ICollection<TResult> Results { get; }
+
+        int Worker { get; set; }
     }
 }

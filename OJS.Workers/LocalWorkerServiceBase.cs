@@ -161,6 +161,7 @@ namespace OJS.Workers
             ISubmissionsFilteringService submissionsFilteringService)
         {
             var worker = new RemoteSubmissionsWorker(
+                index,
                 endpoint,
                 formatterServiceFactory);
 

@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Common
 {
-    using System;
     using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
@@ -15,24 +14,19 @@
 
         public TResponseBody PostJson<TRequestBody, TResponseBody>(string url, TRequestBody body)
         {
-            var content = this.PostJsonAsync(url, body).GetAwaiter().GetResult();
+            var content = this.PostJsonAsync(url, body).Result;
 
             return JsonConvert.DeserializeObject<TResponseBody>(content);
         }
 
         public async Task<string> PostJsonAsync<TRequestBody>(string url, TRequestBody body)
         {
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(url),
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(body),
-                    Encoding.UTF8,
-                    "application/json")
-            };
+            var httpContent = new StringContent(
+                JsonConvert.SerializeObject(body),
+                Encoding.UTF8,
+                "application/json");
 
-            var response = await this.httpClient.SendAsync(request);
+            var response = this.httpClient.PostAsync(url, httpContent).Result;
             var content = await response.Content.ReadAsStringAsync();
 
             return content;

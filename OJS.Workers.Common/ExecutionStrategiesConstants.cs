@@ -30,6 +30,8 @@ namespace OJS.Workers.Common
             public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mocha";
             public const string JavaScriptAsyncJsDomTestsWithReact = "javascript-async-js-dom-tests-with-react";
 
+            public const string JavaScriptCodeAgainstUnitTestsWithMocha =
+                "javascript-code-against-unit-tests-with-mocha";
 
             // Python
             public const string PythonCode = "python-code";
@@ -84,8 +86,6 @@ namespace OJS.Workers.Common
                     // C++
                     // { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
 
-                    // { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },
-
                     // JavaScript
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
@@ -116,7 +116,7 @@ namespace OJS.Workers.Common
                     // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
 
                     // Run SPA and Execute mocha tests
-                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy }
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =

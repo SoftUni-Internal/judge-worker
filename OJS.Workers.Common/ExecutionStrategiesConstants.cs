@@ -129,7 +129,6 @@ namespace OJS.Workers.Common
             {
                 // JS Project strategy
                 ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
-                ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
 
                 // MySQL strategies
                 ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,

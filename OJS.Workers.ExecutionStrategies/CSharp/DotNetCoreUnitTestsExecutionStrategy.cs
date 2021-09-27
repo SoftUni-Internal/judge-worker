@@ -80,7 +80,7 @@
                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-            var testedCodePath = Path.Combine(this.NUnitLiteConsoleAppDirectory,
+            var testedCodePath = FileHelpers.BuildPath(this.NUnitLiteConsoleAppDirectory,
                 UnitTestStrategiesHelper.TestedCodeFileNameWithExtension);
             var originalTestsPassed = -1;
 

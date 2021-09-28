@@ -38,6 +38,7 @@ namespace OJS.Workers.Common
 
             // Python
             public const string PythonCode = "python-code";
+            public const string PythonCodeUnitTests = "python-code-unit-tests";
             public const string PythonProjectTests = "python-project-tests";
             public const string PythonProjectUnitTests = "python-project-unit-tests";
 
@@ -81,11 +82,12 @@ namespace OJS.Workers.Common
 
                     // Python
                     { ExecutionStrategyNames.PythonCode, ExecutionStrategyType.PythonExecuteAndCheck },
+                    { ExecutionStrategyNames.PythonCodeUnitTests, ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests },
                     { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
 
                     // HTML
-                    // { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
+                    { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
 
                     // C++
                     { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },

@@ -44,6 +44,7 @@ namespace OJS.Workers.Common
 
             // Php
             public const string PhpCode = "php-code";
+            public const string PhpCodeCgi = "php-code-cgi";
 
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
@@ -85,6 +86,10 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonCodeUnitTests, ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests },
                     { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+
+                    // PHP
+                    { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
+                    { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },

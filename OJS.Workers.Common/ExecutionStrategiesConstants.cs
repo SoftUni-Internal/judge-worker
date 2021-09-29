@@ -45,8 +45,6 @@ namespace OJS.Workers.Common
             // Php
             public const string PhpCode = "php-code";
             public const string PhpCodeCgi = "php-code-cgi";
-            public const string PhpProject = "php-project";
-            public const string PhpProjectWithDb = "php-project-with-db";
 
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
@@ -92,8 +90,6 @@ namespace OJS.Workers.Common
                     // PHP
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                     { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },
-                    { ExecutionStrategyNames.PhpProject, ExecutionStrategyType.PhpProjectExecutionStrategy },
-                    { ExecutionStrategyNames.PhpProjectWithDb, ExecutionStrategyType.PhpProjectWithDbExecutionStrategy },
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },

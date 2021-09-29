@@ -92,6 +92,8 @@ namespace OJS.Workers.Common
                     // PHP
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                     { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },
+                    { ExecutionStrategyNames.PhpProject, ExecutionStrategyType.PhpProjectExecutionStrategy },
+                    { ExecutionStrategyNames.PhpProjectWithDb, ExecutionStrategyType.PhpProjectWithDbExecutionStrategy },
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },

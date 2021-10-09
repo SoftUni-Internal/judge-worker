@@ -15,6 +15,8 @@ namespace OJS.Workers.Common
             // .NET Core
             public const string CsharpDotNetCoreCode = "csharp-dot-net-core-code";
             public const string CSharpDotNetCoreProjectTests = "dot-net-core-project-tests";
+            public const string CSharpDotNetCoreProject = "dot-net-core-project";
+            public const string CSharpDotNetCoreUnitTests = "dot-net-core-unit-tests";
 
             // Java
             public const string JavaCode = "java-code";
@@ -31,19 +33,25 @@ namespace OJS.Workers.Common
             public const string JavaScriptCodeAgainstUnitTestsWithMocha =
                 "javascript-code-against-unit-tests-with-mocha";
 
+            public const string JavaScriptCodeAgainstUnitTestsWithDomAndMocha =
+                "javascript-code-against-unit-tests-with-dom-and-mocha";
+
             // Python
             public const string PythonCode = "python-code";
+            public const string PythonCodeUnitTests = "python-code-unit-tests";
             public const string PythonProjectTests = "python-project-tests";
             public const string PythonProjectUnitTests = "python-project-unit-tests";
 
             // Php
             public const string PhpCode = "php-code";
+            public const string PhpCodeCgi = "php-code-cgi";
 
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
 
             // C++
             public const string CppCode = "cpp-code";
+            public const string CppZipFile = "cpp-zip-file";
 
             // Plain text
             public const string PlainText = "plaintext";
@@ -69,24 +77,34 @@ namespace OJS.Workers.Common
                 {
                     // .Net Core
                     { ExecutionStrategyNames.CsharpDotNetCoreCode, ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck },
+                    { ExecutionStrategyNames.CSharpDotNetCoreProject, ExecutionStrategyType.DotNetCoreProjectExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCoreUnitTests, ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy },
 
                     // Python
                     { ExecutionStrategyNames.PythonCode, ExecutionStrategyType.PythonExecuteAndCheck },
-                    // { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
-                    // { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+                    { ExecutionStrategyNames.PythonCodeUnitTests, ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests },
+                    { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
+                    { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+
+                    // PHP
+                    { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
+                    { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },
 
                     // HTML
-                    // { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
+                    { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
 
                     // C++
-                    // { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
+                    { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
+                    { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },
 
                     // JavaScript
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
-                    // { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },
@@ -98,9 +116,9 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
 
                     // Sql Server
-                    // { ExecutionStrategyNames.SqlServerPrepareDatabaseAndRunQueries, ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
-                    // { ExecutionStrategyNames.SqlServerRunQueriesAndCheckDatabase,  ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase },
-                    // { ExecutionStrategyNames.SqlServerRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.SqlServerPrepareDatabaseAndRunQueries, ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.SqlServerRunQueriesAndCheckDatabase,  ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.SqlServerRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase },
 
                     // MySQL/MariaDb
                     { ExecutionStrategyNames.MySqlPrepareDbAndRunQueries, ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries },
@@ -111,7 +129,7 @@ namespace OJS.Workers.Common
                     // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
 
                     // Run SPA and Execute mocha tests
-                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy }
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
                 };
 
             public static readonly IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =
@@ -124,6 +142,7 @@ namespace OJS.Workers.Common
             {
                 // JS Project strategy
                 ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
+                ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
 
                 // MySQL strategies
                 ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,

@@ -80,8 +80,8 @@
                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
-            var testedCodePath =
-                $"{this.NUnitLiteConsoleAppDirectory}\\{UnitTestStrategiesHelper.TestedCodeFileNameWithExtension}";
+            var testedCodePath = FileHelpers.BuildPath(this.NUnitLiteConsoleAppDirectory,
+                UnitTestStrategiesHelper.TestedCodeFileNameWithExtension);
             var originalTestsPassed = -1;
 
             var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();

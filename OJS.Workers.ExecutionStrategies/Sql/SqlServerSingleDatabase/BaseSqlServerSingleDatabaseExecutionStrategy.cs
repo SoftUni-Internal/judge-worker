@@ -1,23 +1,13 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase
 {
-    using System;
     using System.Data;
     using System.Data.SqlClient;
-    using System.Globalization;
-    using System.Text.RegularExpressions;
     using System.Transactions;
 
-    public abstract class BaseSqlServerSingleDatabaseExecutionStrategy : BaseSqlExecutionStrategy
+    using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
+
+    public abstract class BaseSqlServerSingleDatabaseExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
-        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
-        private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffffff zzz";
-        private const string TimeSpanFormat = "HH:mm:ss.fffffff";
-
-        private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
-
-        private readonly string masterDbConnectionString;
-        private readonly string restrictedUserId;
-        private readonly string restrictedUserPassword;
         private readonly string databaseNameForSubmissionProcessor;
 
         private TransactionScope transactionScope;
@@ -27,31 +17,12 @@
             string restrictedUserId,
             string restrictedUserPassword,
             string submissionProcessorIdentifier)
-        {
-            if (string.IsNullOrWhiteSpace(masterDbConnectionString))
-            {
-                throw new ArgumentException("Invalid master DB connection string!", nameof(masterDbConnectionString));
-            }
+            : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword)
+            => this.databaseNameForSubmissionProcessor = $"worker_{submissionProcessorIdentifier}_DO_NOT_DELETE";
 
-            if (string.IsNullOrWhiteSpace(restrictedUserId))
-            {
-                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
-            }
+        private string WorkerDbConnectionString { get; set; }
 
-            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
-            {
-                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
-            }
-
-            this.masterDbConnectionString = masterDbConnectionString;
-            this.restrictedUserId = restrictedUserId;
-            this.restrictedUserPassword = restrictedUserPassword;
-            this.databaseNameForSubmissionProcessor = $"worker_{submissionProcessorIdentifier}_DO_NOT_DELETE";
-        }
-
-        public string WorkerDbConnectionString { get; set; }
-
-        public string RestrictedUserId => $"{this.GetDatabaseName()}_{this.restrictedUserId}";
+        private new string RestrictedUserId => $"{this.GetDatabaseName()}_{base.RestrictedUserId}";
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
@@ -65,44 +36,24 @@
         }
 
         public override void DropDatabase(string databaseName)
-            => this.transactionScope?.Dispose();
+        {
+            if (this.transactionScope != null)
+            {
+                this.transactionScope.Dispose();
+            }
+            else
+            {
+                base.DropDatabase(databaseName);
+            }
+        }
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
-
-        protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
-        {
-            if (!dataRecord.IsDBNull(index))
-            {
-                var fieldType = dataRecord.GetFieldType(index);
-
-                if (fieldType == DateTimeType)
-                {
-                    return dataRecord.GetDateTime(index).ToString(DateTimeFormat, CultureInfo.InvariantCulture);
-                }
-
-                if (fieldType == DateTimeOffsetType)
-                {
-                    return ((SqlDataReader)dataRecord)
-                        .GetDateTimeOffset(index)
-                        .ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture);
-                }
-
-                if (fieldType == TimeSpanType)
-                {
-                    return ((SqlDataReader)dataRecord)
-                        .GetTimeSpan(index)
-                        .ToString(TimeSpanFormat, CultureInfo.InvariantCulture);
-                }
-            }
-
-            return base.GetDataRecordFieldValue(dataRecord, index);
-        }
 
         private void EnsureDatabaseIsSetup()
         {
             var databaseName = this.GetDatabaseName();
 
-            using (var connection = new SqlConnection(this.masterDbConnectionString))
+            using (var connection = new SqlConnection(this.MasterDbConnectionString))
             {
                 connection.Open();
 
@@ -110,11 +61,17 @@
                     $@"IF DB_ID('{databaseName}') IS NULL
                     BEGIN
                     CREATE DATABASE [{databaseName}];
-                    CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
-                    DEFAULT_DATABASE=[master],
-                    DEFAULT_LANGUAGE=[us_english],
-                    CHECK_EXPIRATION=OFF,
-                    CHECK_POLICY=ON;
+                    IF NOT EXISTS 
+                        (SELECT name  
+                         FROM master.sys.server_principals
+                         WHERE name = '{this.RestrictedUserId}')
+                        BEGIN
+                            CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.RestrictedUserPassword}',
+                            DEFAULT_DATABASE=[master],
+                            DEFAULT_LANGUAGE=[us_english],
+                            CHECK_EXPIRATION=OFF,
+                            CHECK_POLICY=ON;
+                        END
                     END";
 
                 var setupUserAsOwnerQuery = $@"
@@ -130,24 +87,6 @@
             }
 
             this.WorkerDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
-        }
-
-        private string BuildWorkerDbConnectionString(string databaseName)
-        {
-            var userIdRegex = new Regex("User Id=.*?;");
-            var passwordRegex = new Regex("Password=.*?;");
-
-            var workerDbConnectionString = this.masterDbConnectionString;
-
-            workerDbConnectionString =
-                userIdRegex.Replace(workerDbConnectionString, $"User Id={this.RestrictedUserId};");
-
-            workerDbConnectionString =
-                passwordRegex.Replace(workerDbConnectionString, $"Password={this.restrictedUserPassword}");
-
-            workerDbConnectionString += $";Database={databaseName};Pooling=False;";
-
-            return workerDbConnectionString;
         }
     }
 }

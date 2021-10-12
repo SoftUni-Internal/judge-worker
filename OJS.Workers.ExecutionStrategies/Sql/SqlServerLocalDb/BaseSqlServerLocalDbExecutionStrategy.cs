@@ -14,10 +14,6 @@
 
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
 
-        private readonly string masterDbConnectionString;
-        private readonly string restrictedUserId;
-        private readonly string restrictedUserPassword;
-
         protected BaseSqlServerLocalDbExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
@@ -38,16 +34,22 @@
                 throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
             }
 
-            this.masterDbConnectionString = masterDbConnectionString;
-            this.restrictedUserId = restrictedUserId;
-            this.restrictedUserPassword = restrictedUserPassword;
+            this.MasterDbConnectionString = masterDbConnectionString;
+            this.RestrictedUserId = restrictedUserId;
+            this.RestrictedUserPassword = restrictedUserPassword;
         }
+
+        protected string MasterDbConnectionString { get; }
+
+        protected string RestrictedUserId { get; }
+
+        protected string RestrictedUserPassword { get; }
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
             var databaseFilePath = $"{this.WorkingDirectory}\\{databaseName}.mdf";
 
-            using (var connection = new SqlConnection(this.masterDbConnectionString))
+            using (var connection = new SqlConnection(this.MasterDbConnectionString))
             {
                 connection.Open();
 
@@ -55,9 +57,9 @@
                     $"CREATE DATABASE [{databaseName}] ON PRIMARY (NAME=N'{databaseName}', FILENAME=N'{databaseFilePath}');";
 
                 var createLoginQuery = $@"
-                    IF NOT EXISTS (SELECT name FROM master.sys.server_principals WHERE name=N'{this.restrictedUserId}')
+                    IF NOT EXISTS (SELECT name FROM master.sys.server_principals WHERE name=N'{this.RestrictedUserId}')
                     BEGIN
-                    CREATE LOGIN [{this.restrictedUserId}] WITH PASSWORD=N'{this.restrictedUserPassword}',
+                    CREATE LOGIN [{this.RestrictedUserId}] WITH PASSWORD=N'{this.RestrictedUserPassword}',
                     DEFAULT_DATABASE=[master],
                     DEFAULT_LANGUAGE=[us_english],
                     CHECK_EXPIRATION=OFF,
@@ -66,8 +68,8 @@
 
                 var createUserAsDbOwnerQuery = $@"
                     USE [{databaseName}];
-                    CREATE USER [{this.restrictedUserId}] FOR LOGIN [{this.restrictedUserId}];
-                    ALTER ROLE [db_owner] ADD MEMBER [{this.restrictedUserId}];";
+                    CREATE USER [{this.RestrictedUserId}] FOR LOGIN [{this.RestrictedUserId}];
+                    ALTER ROLE [db_owner] ADD MEMBER [{this.RestrictedUserId}];";
 
                 this.ExecuteNonQuery(connection, createDatabaseQuery);
 
@@ -76,18 +78,7 @@
                 this.ExecuteNonQuery(connection, createUserAsDbOwnerQuery);
             }
 
-            var userIdRegex = new Regex("User Id=.*?;");
-            var passwordRegex = new Regex("Password=.*?;");
-
-            var createdDbConnectionString = this.masterDbConnectionString;
-
-            createdDbConnectionString =
-                userIdRegex.Replace(this.masterDbConnectionString, $"User Id={this.restrictedUserId};");
-
-            createdDbConnectionString =
-                passwordRegex.Replace(createdDbConnectionString, this.restrictedUserPassword);
-
-            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
+            var createdDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
 
             var createdDbConnection = new SqlConnection(createdDbConnectionString);
             createdDbConnection.Open();
@@ -97,7 +88,7 @@
 
         public override void DropDatabase(string databaseName)
         {
-            using (var connection = new SqlConnection(this.masterDbConnectionString))
+            using (var connection = new SqlConnection(this.MasterDbConnectionString))
             {
                 connection.Open();
 
@@ -139,6 +130,24 @@
             }
 
             return base.GetDataRecordFieldValue(dataRecord, index);
+        }
+
+        protected string BuildWorkerDbConnectionString(string databaseName)
+        {
+            var userIdRegex = new Regex("User Id=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var createdDbConnectionString = this.MasterDbConnectionString;
+
+            createdDbConnectionString =
+                userIdRegex.Replace(createdDbConnectionString, $"User Id={this.RestrictedUserId};");
+
+            createdDbConnectionString =
+                passwordRegex.Replace(createdDbConnectionString, $"Password={this.RestrictedUserPassword}");
+
+            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
+
+            return createdDbConnectionString;
         }
     }
 }

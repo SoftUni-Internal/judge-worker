@@ -3,7 +3,6 @@
     using System;
     using System.Data;
     using System.Globalization;
-    using System.Text.RegularExpressions;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;

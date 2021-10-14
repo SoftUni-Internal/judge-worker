@@ -41,7 +41,7 @@
 
         protected string MasterDbConnectionString { get; }
 
-        protected string RestrictedUserId { get; }
+        protected virtual string RestrictedUserId { get; }
 
         protected string RestrictedUserPassword { get; }
 

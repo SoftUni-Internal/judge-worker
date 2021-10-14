@@ -218,8 +218,6 @@
 
         public static string DotNetCoreRuntimeVersion => SettingsHelper.GetSetting("DotNetCoreRuntimeVersion");
 
-        public static string DistributorServiceLocation => SettingsHelper.GetSetting("DistributorServiceLocation");
-
         public static IEnumerable<string> RemoteWorkerEndpoints => SettingsHelper.GetSetting("RemoteWorkerEndpoints")
             .Split(';')
             .Where(x => !string.IsNullOrWhiteSpace(x))

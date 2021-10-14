@@ -22,7 +22,7 @@
 
         private string WorkerDbConnectionString { get; set; }
 
-        private new string RestrictedUserId => $"{this.GetDatabaseName()}_{base.RestrictedUserId}";
+        protected override string RestrictedUserId => $"{this.GetDatabaseName()}_{base.RestrictedUserId}";
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
@@ -61,8 +61,8 @@
                     $@"IF DB_ID('{databaseName}') IS NULL
                     BEGIN
                     CREATE DATABASE [{databaseName}];
-                    IF NOT EXISTS 
-                        (SELECT name  
+                    IF NOT EXISTS
+                        (SELECT name
                          FROM master.sys.server_principals
                          WHERE name = '{this.RestrictedUserId}')
                         BEGIN

@@ -20,9 +20,9 @@
             : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword)
             => this.databaseNameForSubmissionProcessor = $"worker_{submissionProcessorIdentifier}_DO_NOT_DELETE";
 
-        private string WorkerDbConnectionString { get; set; }
-
         protected override string RestrictedUserId => $"{this.GetDatabaseName()}_{base.RestrictedUserId}";
+
+        private string WorkerDbConnectionString { get; set; }
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {

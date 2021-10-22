@@ -12,5 +12,10 @@
             : base(CustomMessage)
         {
         }
+
+        public InvalidProcessExecutionOutputException(string message)
+            : base(CustomMessage + Environment.NewLine + message)
+        {
+        }
     }
 }

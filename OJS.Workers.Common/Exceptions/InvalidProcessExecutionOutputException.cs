@@ -4,9 +4,11 @@
 
     public class InvalidProcessExecutionOutputException : Exception
     {
+        private const string CustomMessageTitle = "The process did not produce any valid output!";
+
         private const string CustomMessage =
-            "The process did not produce any valid output! " +
-            "Please try again later or contact an administrator if the problem persists.";
+            CustomMessageTitle +
+            " Please try again later or contact an administrator if the problem persists.";
 
         public InvalidProcessExecutionOutputException()
             : base(CustomMessage)
@@ -14,7 +16,7 @@
         }
 
         public InvalidProcessExecutionOutputException(string message)
-            : base(CustomMessage + Environment.NewLine + message)
+            : base(CustomMessageTitle + Environment.NewLine + message)
         {
         }
     }

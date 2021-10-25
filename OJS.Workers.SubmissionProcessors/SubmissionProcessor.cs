@@ -79,10 +79,7 @@
             this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} stopped.");
         }
 
-        public void Stop()
-        {
-            this.stopping = true;
-        }
+        public void Stop() => this.stopping = true;
 
         protected IExecutionResult<TResult> HandleProcessSubmission<TInput, TResult>(
             OjsSubmission<TInput> submission)
@@ -210,6 +207,8 @@
                 this.Logger.Error(
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
+
+                submission.ProcessingComment = ex.Message;
 
                 this.SubmissionProcessingStrategy.OnError(submission);
             }

@@ -43,8 +43,7 @@
             => $@" -classpath ""{this.WorkingDirectory}{ClassPathArgumentSeparator}{this.JavaLibrariesPath}*""";
 
         protected override string JUnitTestRunnerCode
-        {
-            get => $@"
+            => $@"
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -104,7 +103,6 @@ public class _$TestRunner {{
 class Classes{{
     public static Map<String, Class> allClasses = new HashMap<>();
 }}";
-        }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -220,6 +218,11 @@ class Classes{{
                 this.WorkingDirectory,
                 true);
 
+            if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
+            {
+                throw new InvalidProcessExecutionOutputException(processExecutionResult.ErrorOutput);
+            }
+
             ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
             Dictionary<string, string> errorsByFiles = null;
@@ -299,13 +302,11 @@ class Classes{{
         }
 
         protected virtual void ExtractUserClassNames(string submissionFilePath)
-        {
-            this.UserClassNames.AddRange(
+            => this.UserClassNames.AddRange(
                 FileHelpers.GetFilePathsFromZip(submissionFilePath)
                     .Where(x => !x.EndsWith("/") && x.EndsWith(JavaSourceFileExtension))
                     .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
                     .Select(x => x.Replace("/", ".")));
-        }
 
         private Dictionary<string, string> GetTestErrors(string receivedOutput)
         {

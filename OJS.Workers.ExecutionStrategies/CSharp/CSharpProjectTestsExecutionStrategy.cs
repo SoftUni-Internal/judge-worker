@@ -194,6 +194,11 @@
                 false,
                 true);
 
+            if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
+            {
+                throw new InvalidProcessExecutionOutputException(processExecutionResult.ErrorOutput);
+            }
+
             var (totalTestsCount, failedTestsCount) =
                 this.ExtractTotalFailedTestsCount(processExecutionResult.ReceivedOutput);
 

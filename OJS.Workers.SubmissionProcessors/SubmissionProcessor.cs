@@ -208,8 +208,6 @@
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
 
-                submission.ProcessingComment = ex.Message;
-
                 this.SubmissionProcessingStrategy.OnError(submission);
             }
         }

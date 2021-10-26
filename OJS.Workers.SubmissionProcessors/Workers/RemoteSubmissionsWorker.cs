@@ -33,11 +33,7 @@
             var testInputSubmission = submission as OjsSubmission<TestsInputModel>;
             var submissionRequestBody = this.BuildRequestBody(testInputSubmission);
 
-            var result = this.http.PostJson<object, RemoteSubmissionResult>(this.endpoint, submissionRequestBody);
-            if (result.Exception != null)
-            {
-                throw new Exception(result.Exception.Message);
-            }
+            var result = this.ExecuteSubmissionRemotely(testInputSubmission, submissionRequestBody);
 
             var executionResult = new ExecutionResult<TResult>
             {
@@ -56,29 +52,40 @@
         }
 
         private object BuildRequestBody(OjsSubmission<TestsInputModel> submission)
-            => new
+        {
+            try
             {
-                ExecutionType = this.formatterServicesFactory.Get<ExecutionType>()
-                    .Format(submission.ExecutionType),
-                ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
-                    .Format(submission.ExecutionStrategyType),
-                FileContent = string.IsNullOrEmpty(submission.Code)
-                    ? submission.FileContent
-                    : null,
-                Code = submission.Code ?? string.Empty,
-                submission.TimeLimit,
-                submission.MemoryLimit,
-                ExecutionDetails = new
+                return new
                 {
-                    MaxPoints = submission.MaxPoints,
-                    CheckerType = this.formatterServicesFactory.Get<string>()
-                        .Format(submission.Input.CheckerTypeName),
-                    submission.Input.CheckerParameter,
-                    submission.Input.Tests,
-                    submission.Input.TaskSkeleton,
-                    submission.Input.TaskSkeletonAsString,
-                },
-            };
+                    ExecutionType = this.formatterServicesFactory.Get<ExecutionType>()
+                        .Format(submission.ExecutionType),
+                    ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
+                        .Format(submission.ExecutionStrategyType),
+                    FileContent = string.IsNullOrEmpty(submission.Code)
+                        ? submission.FileContent
+                        : null,
+                    Code = submission.Code ?? string.Empty,
+                    submission.TimeLimit,
+                    submission.MemoryLimit,
+                    ExecutionDetails = new
+                    {
+                        submission.MaxPoints,
+                        CheckerType = this.formatterServicesFactory.Get<string>()
+                            .Format(submission.Input.CheckerTypeName),
+                        submission.Input.CheckerParameter,
+                        submission.Input.Tests,
+                        submission.Input.TaskSkeleton,
+                        submission.Input.TaskSkeletonAsString,
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                submission.ProcessingComment = $"Exception in building request body: {ex.Message}";
+
+                throw new Exception($"Exception in {nameof(this.BuildRequestBody)}", ex);
+            }
+        }
 
         private TResult BuildTestResult<TResult>(TestContext test, TestResultResponseModel testResult)
             where TResult : class
@@ -103,6 +110,33 @@
             };
 
             return result as TResult;
+        }
+
+        private RemoteSubmissionResult ExecuteSubmissionRemotely(
+            IOjsSubmission submission,
+            object submissionRequestBody)
+        {
+            RemoteSubmissionResult result;
+
+            try
+            {
+                result = this.http.PostJson<object, RemoteSubmissionResult>(this.endpoint, submissionRequestBody);
+            }
+            catch (Exception ex)
+            {
+                submission.ProcessingComment = $"Exception in getting remote submission result: {ex.Message}";
+
+                throw new Exception($"Exception in {nameof(this.ExecuteSubmissionRemotely)}", ex);
+            }
+
+            if (result.Exception == null)
+            {
+                return result;
+            }
+
+            submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
+
+            throw new Exception(result.Exception.Message);
         }
     }
 }

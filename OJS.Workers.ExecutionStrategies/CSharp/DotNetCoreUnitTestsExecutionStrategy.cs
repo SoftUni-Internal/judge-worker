@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
@@ -125,6 +126,11 @@
                     workingDirectory: null,
                     useProcessTime: false,
                     useSystemEncoding: true);
+
+                if (!string.IsNullOrWhiteSpace(processExecutionResult.ErrorOutput))
+                {
+                    throw new InvalidProcessExecutionOutputException(processExecutionResult.ErrorOutput);
+                }
 
                 var testResultsRegex = new Regex(TestResultsRegex);
 

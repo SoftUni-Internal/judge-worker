@@ -21,7 +21,7 @@
         {
             this.formatterServicesFactory = formatterServicesFactory;
             this.Location = endpointRoot;
-            this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true&escapeTests=false&escapeLineEndings=true";
+            this.endpoint = $"{endpointRoot}/executeSubmission";
             this.http = new HttpService();
         }
 
@@ -77,6 +77,12 @@
                     submission.Input.Tests,
                     submission.Input.TaskSkeleton,
                     submission.Input.TaskSkeletonAsString,
+                },
+                ExecutionOptions = new
+                {
+                    KeepDetails = true,
+                    EscapeTests = false,
+                    EscapeLineEndings = true,
                 },
             };
 

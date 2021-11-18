@@ -21,7 +21,7 @@
         {
             this.formatterServicesFactory = formatterServicesFactory;
             this.Location = endpointRoot;
-            this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true&escapeTests=true";
+            this.endpoint = $"{endpointRoot}/executeSubmission?keepDetails=true&escapeTests=false&escapeLineEndings=true";
             this.http = new HttpService();
         }
 

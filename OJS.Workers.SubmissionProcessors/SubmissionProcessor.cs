@@ -79,10 +79,7 @@
             this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} stopped.");
         }
 
-        public void Stop()
-        {
-            this.stopping = true;
-        }
+        public void Stop() => this.stopping = true;
 
         protected IExecutionResult<TResult> HandleProcessSubmission<TInput, TResult>(
             OjsSubmission<TInput> submission)

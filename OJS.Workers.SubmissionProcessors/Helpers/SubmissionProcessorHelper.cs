@@ -9,6 +9,7 @@
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v5;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v6;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -116,6 +117,13 @@
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
+                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
+                    executionStrategy = new DotNetCore5ProjectTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,

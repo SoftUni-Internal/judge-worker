@@ -1,15 +1,15 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
 
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -37,22 +37,6 @@
                 }
             }";
 
-        private string NUnitLiteConsoleAppCsProjTemplate => $@"
-            <Project Sdk=""Microsoft.NET.Sdk"">
-                <PropertyGroup>
-                    <OutputType>Exe</OutputType>
-                    <TargetFramework>{TargetFrameworkName}</TargetFramework>
-                </PropertyGroup>
-                <ItemGroup>
-                    <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{MicrosoftEntityFrameworkCoreProxiesVersion}"" />
-                </ItemGroup>
-                <ItemGroup>
-                    {ProjectReferencesPlaceholder}
-                </ItemGroup>
-            </Project>";
-
         private readonly string projectReferenceTemplate =
             $@"<ProjectReference Include=""{ProjectPathPlaceholder}"" />";
 
@@ -68,6 +52,7 @@
         protected virtual string TargetFrameworkName => "netcoreapp3.1";
 
         protected virtual string MicrosoftEntityFrameworkCoreInMemoryVersion => "3.1.4";
+
         protected virtual string MicrosoftEntityFrameworkCoreProxiesVersion => "3.1.4";
 
         protected string NUnitLiteConsoleAppDirectory =>
@@ -75,6 +60,22 @@
 
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
+
+        private string NUnitLiteConsoleAppCsProjTemplate => $@"
+            <Project Sdk=""Microsoft.NET.Sdk"">
+                <PropertyGroup>
+                    <OutputType>Exe</OutputType>
+                    <TargetFramework>{TargetFrameworkName}</TargetFramework>
+                </PropertyGroup>
+                <ItemGroup>
+                    <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{MicrosoftEntityFrameworkCoreProxiesVersion}"" />
+                </ItemGroup>
+                <ItemGroup>
+                    {ProjectReferencesPlaceholder}
+                </ItemGroup>
+            </Project>";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,

@@ -1,12 +1,11 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
 {
-    using System;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+    using System;
 
     public class DotNetCoreProjectExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {

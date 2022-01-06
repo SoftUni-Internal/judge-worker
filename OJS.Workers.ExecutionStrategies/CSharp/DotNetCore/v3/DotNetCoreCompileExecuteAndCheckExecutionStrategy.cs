@@ -1,14 +1,12 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
-
+    using System;
+    using System.IO;
+    using System.Linq;
     using static OJS.Workers.Common.Constants;
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy

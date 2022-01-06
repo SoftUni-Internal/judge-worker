@@ -8,6 +8,8 @@
     using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v6;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.NodeJs;
@@ -114,6 +116,13 @@
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
+                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
+                    executionStrategy = new DotNetCore6ProjectTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,

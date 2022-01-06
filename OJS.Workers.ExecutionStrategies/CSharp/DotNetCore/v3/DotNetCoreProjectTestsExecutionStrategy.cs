@@ -1,16 +1,15 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
 
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -22,6 +21,7 @@
         private const string NUnitLiteConsoleAppFolderName = "NUnitLiteConsoleApp";
         private const string UserSubmissionFolderName = "UserProject";
         private const string NUnitLiteConsoleAppProgramName = "Program";
+
         private const string NUnitLiteConsoleAppProgramTemplate = @"
             using System;
             using System.Reflection;
@@ -37,16 +37,16 @@
                 }
             }";
 
-        private readonly string nUnitLiteConsoleAppCsProjTemplate = $@"
+        private string NUnitLiteConsoleAppCsProjTemplate => $@"
             <Project Sdk=""Microsoft.NET.Sdk"">
                 <PropertyGroup>
                     <OutputType>Exe</OutputType>
-                    <TargetFramework>netcoreapp3.1</TargetFramework>
+                    <TargetFramework>{TargetFrameworkName}</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""3.1.4"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""3.1.4"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{MicrosoftEntityFrameworkCoreProxiesVersion}"" />
                 </ItemGroup>
                 <ItemGroup>
                     {ProjectReferencesPlaceholder}
@@ -64,6 +64,11 @@
             : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
         }
+
+        protected virtual string TargetFrameworkName => "netcoreapp3.1";
+
+        protected virtual string MicrosoftEntityFrameworkCoreInMemoryVersion => "3.1.4";
+        protected virtual string MicrosoftEntityFrameworkCoreProxiesVersion => "3.1.4";
 
         protected string NUnitLiteConsoleAppDirectory =>
             Path.Combine(this.WorkingDirectory, NUnitLiteConsoleAppFolderName);
@@ -134,7 +139,7 @@
             var references = projectsToTestCsProjPaths
                 .Select(path => this.projectReferenceTemplate.Replace(ProjectPathPlaceholder, path));
 
-            var csProjTemplate = this.nUnitLiteConsoleAppCsProjTemplate
+            var csProjTemplate = this.NUnitLiteConsoleAppCsProjTemplate
                 .Replace(ProjectReferencesPlaceholder, string.Join(Environment.NewLine, references));
 
             var csProjPath = this.CreateNUnitLiteConsoleAppCsProjFile(csProjTemplate);

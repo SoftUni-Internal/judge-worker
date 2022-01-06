@@ -52,5 +52,6 @@
         SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47,
         RunSpaAndExecuteMochaTestsExecutionStrategy = 48,
         DotNetCore6ProjectTestsExecutionStrategy = 49,
+        DotNetCore5ProjectTestsExecutionStrategy = 50,
     }
 }

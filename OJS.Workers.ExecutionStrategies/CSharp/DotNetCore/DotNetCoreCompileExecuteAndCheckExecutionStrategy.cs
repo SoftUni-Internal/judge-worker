@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
     using System;
     using System.IO;

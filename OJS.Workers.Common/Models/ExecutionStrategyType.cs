@@ -53,5 +53,9 @@
         RunSpaAndExecuteMochaTestsExecutionStrategy = 48,
         DotNetCore6ProjectTestsExecutionStrategy = 49,
         DotNetCore5ProjectTestsExecutionStrategy = 50,
+        DotNetCore5CompileExecuteAndCheck = 51,
+        DotNetCore6CompileExecuteAndCheck = 52,
+        DotNetCore5UnitTestsExecutionStrategy = 53,
+        DotNetCore6UnitTestsExecutionStrategy = 54,
     }
 }

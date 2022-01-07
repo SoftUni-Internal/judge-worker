@@ -1,16 +1,15 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Helpers
 {
     using System;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
-    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3;
-    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v5;
-    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v6;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.NodeJs;
@@ -55,10 +54,12 @@
                         Settings.GPlusPlusBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck:
+                case ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck:
+                case ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck:
                     executionStrategy = new DotNetCoreCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
-                        Settings.DotNetCoreRuntimeVersion,
+                        Settings.DotNetCoreRuntimeVersion(type),
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
                     break;
@@ -70,11 +71,16 @@
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreUnitTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                        Settings.DotNetCliBaseMemoryUsedInBytes,
+                        Settings.DotNetCoreTargetFrameworkName(type),
+                        Settings.MicrosoftEntityFrameworkCoreInMemoryVersion(type),
+                        Settings.MicrosoftEntityFrameworkCoreProxiesVersion(type));
                     break;
                 case ExecutionStrategyType.CSharpUnitTestsExecutionStrategy:
                     executionStrategy = new CSharpUnitTestsExecutionStrategy(
@@ -82,7 +88,8 @@
                         processExecutorFactory,
                         Settings.NUnitConsoleRunnerPath,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
-                        Settings.MsBuildBaseMemoryUsedInBytes);
+                        Settings.MsBuildBaseMemoryUsedInBytes,
+                        type);
                     break;
                 case ExecutionStrategyType.CSharpProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpProjectTestsExecutionStrategy(
@@ -115,26 +122,18 @@
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
+
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
-                    executionStrategy = new DotNetCore5ProjectTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
-                    executionStrategy = new DotNetCore6ProjectTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                        Settings.DotNetCliBaseMemoryUsedInBytes,
+                        Settings.DotNetCoreTargetFrameworkName(type),
+                        Settings.MicrosoftEntityFrameworkCoreInMemoryVersion(type),
+                        Settings.MicrosoftEntityFrameworkCoreProxiesVersion(type));
                     break;
                 case ExecutionStrategyType.RubyExecutionStrategy:
                     executionStrategy = new RubyExecutionStrategy(
@@ -417,11 +416,12 @@
                         submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.SqlServerLocalDbMasterDbConnectionString,
-                        Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword,
-                        submissionProcessorIdentifier);
+                    executionStrategy =
+                        new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                            Settings.SqlServerLocalDbMasterDbConnectionString,
+                            Settings.SqlServerLocalDbRestrictedUserId,
+                            Settings.SqlServerLocalDbRestrictedUserPassword,
+                            submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries:
                     executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(

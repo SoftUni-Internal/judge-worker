@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3
 {
     using System;
     using System.Collections.Generic;
@@ -31,8 +31,14 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
-            int baseMemoryUsed)
-            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
+            int baseMemoryUsed,
+            string targetFrameworkName,
+            string microsoftEntityFrameworkCoreInMemoryVersion,
+            string microsoftEntityFrameworkCoreProxiesVersion)
+            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed,
+                targetFrameworkName,
+                microsoftEntityFrameworkCoreInMemoryVersion,
+                microsoftEntityFrameworkCoreProxiesVersion)
         {
         }
 

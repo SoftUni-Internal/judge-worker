@@ -1,13 +1,11 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-
     using Microsoft.Build.Evaluation;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -19,6 +17,7 @@
 
     public class CSharpUnitTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
+        private readonly ExecutionStrategyType type;
         private const string NUnitFrameworkPackageName = "nunit.framework";
 
         public CSharpUnitTestsExecutionStrategy(
@@ -26,10 +25,10 @@
             IProcessExecutorFactory processExecutorFactory,
             string nUnitConsoleRunnerPath,
             int baseTimeUsed,
-            int baseMemoryUsed)
+            int baseMemoryUsed,
+            ExecutionStrategyType type)
             : base(getCompilerPathFunc, processExecutorFactory, nUnitConsoleRunnerPath, baseTimeUsed, baseMemoryUsed)
-        {
-        }
+            => this.type = type;
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -149,7 +148,7 @@
                 throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
             }
 
-            var compiler = Compiler.CreateCompiler(compilerType);
+            var compiler = Compiler.CreateCompiler(compilerType, this.type);
             var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
             return compilerResult;
         }

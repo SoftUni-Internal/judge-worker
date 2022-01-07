@@ -1,15 +1,15 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
 
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -44,16 +44,22 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
-            int baseMemoryUsed)
+            int baseMemoryUsed,
+            string targetFrameworkName,
+            string microsoftEntityFrameworkCoreInMemoryVersion,
+            string microsoftEntityFrameworkCoreProxiesVersion)
             : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
+            this.TargetFrameworkName = targetFrameworkName;
+            this.MicrosoftEntityFrameworkCoreInMemoryVersion = microsoftEntityFrameworkCoreInMemoryVersion;
+            this.MicrosoftEntityFrameworkCoreProxiesVersion = microsoftEntityFrameworkCoreProxiesVersion;
         }
 
-        protected virtual string TargetFrameworkName => "netcoreapp3.1";
+        private string TargetFrameworkName { get; }
 
-        protected virtual string MicrosoftEntityFrameworkCoreInMemoryVersion => "3.1.4";
+        private string MicrosoftEntityFrameworkCoreInMemoryVersion { get; }
 
-        protected virtual string MicrosoftEntityFrameworkCoreProxiesVersion => "3.1.4";
+        private string MicrosoftEntityFrameworkCoreProxiesVersion  { get; }
 
         protected string NUnitLiteConsoleAppDirectory =>
             Path.Combine(this.WorkingDirectory, NUnitLiteConsoleAppFolderName);
@@ -65,12 +71,12 @@
             <Project Sdk=""Microsoft.NET.Sdk"">
                 <PropertyGroup>
                     <OutputType>Exe</OutputType>
-                    <TargetFramework>{TargetFrameworkName}</TargetFramework>
+                    <TargetFramework>{this.TargetFrameworkName}</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
                     <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{MicrosoftEntityFrameworkCoreProxiesVersion}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{this.MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{this.MicrosoftEntityFrameworkCoreProxiesVersion}"" />
                 </ItemGroup>
                 <ItemGroup>
                     {ProjectReferencesPlaceholder}

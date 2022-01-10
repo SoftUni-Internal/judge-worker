@@ -7,7 +7,8 @@
     using OJS.Workers.ExecutionStrategies.CodeSanitizers;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
-    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.v3;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3;
 
     /// <summary>
     /// Extensions that operate on the execution context.

@@ -74,7 +74,7 @@
                     <TargetFramework>{this.TargetFrameworkName}</TargetFramework>
                 </PropertyGroup>
                 <ItemGroup>
-                    <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
+                    <PackageReference Include=""NUnitLite"" Version=""3.13.2"" />
                     <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{this.MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
                     <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{this.MicrosoftEntityFrameworkCoreProxiesVersion}"" />
                 </ItemGroup>
@@ -122,7 +122,7 @@
             // Delete tests before execution so the user can't access them
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             return this.RunUnitTests(
                 compilerPath,

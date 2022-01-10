@@ -155,7 +155,9 @@
 
         public abstract string BuildCompilerArguments(string inputFile, string outputFile, string additionalArguments);
 
-        public virtual ProcessStartInfo SetCompilerProcessStartInfo(string compilerPath, DirectoryInfo directoryInfo,
+        public virtual ProcessStartInfo SetCompilerProcessStartInfo(
+            string compilerPath,
+            DirectoryInfo directoryInfo,
             string arguments)
             => new ProcessStartInfo(compilerPath)
             {

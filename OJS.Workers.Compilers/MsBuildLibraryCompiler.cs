@@ -42,7 +42,11 @@
             return arguments.ToString().Trim();
         }
 
-        public override CompileResult Compile(string compilerPath, string inputFile, string additionalArguments)
+        public override CompileResult Compile(
+            string compilerPath,
+            string inputFile,
+            string additionalArguments,
+            bool useInputFileDirectoryAsWorking = false)
         {
             if (compilerPath == null)
             {

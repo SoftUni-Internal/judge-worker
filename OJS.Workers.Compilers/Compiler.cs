@@ -56,6 +56,8 @@
                     return new CPlusPlusZipCompiler(Settings.CPlusPlusZipCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.DotNetCompiler:
                     return new DotNetCompiler(Settings.DotNetCompilerProcessExitTimeOutMultiplier);
+                case CompilerType.GolangCompiler:
+                    return new GolangCompiler(Settings.GolangCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.SolidityCompiler:
                     return new SolidityCompiler(Settings.SolidityCompilerProcessExitTimeOutMultiplier);
                 default:

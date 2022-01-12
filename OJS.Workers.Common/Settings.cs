@@ -28,6 +28,8 @@
 
         public static string NuGetExecutablePath => SettingsHelper.GetSetting("NuGetExecutablePath");
 
+        public static string GolangCompilerPath => SettingsHelper.GetSetting("GolangCompilerPath");
+
         public static string JavaCompilerPath => SettingsHelper.GetSetting("JavaCompilerPath");
 
         public static string JavaExecutablePath => SettingsHelper.GetSetting("JavaExecutablePath");
@@ -137,6 +139,12 @@
         public static int DotNetCliBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("DotNetCliBaseMemoryUsedInBytes", 0);
 
+        public static int GolangBaseTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseTimeUsedInMilliseconds", 0);
+
+        public static int GolangBaseMemoryUsedInBytes =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseMemoryUsedInBytes", 0);
+
         public static int JavaBaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("JavaBaseTimeUsedInMilliseconds", 0);
 
@@ -197,6 +205,9 @@
 
         public static int DotNetCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("DotNetCompilerProcessExitTimeOutMultiplier", 1);
+
+        public static int GolangCompilerProcessExitTimeOutMultiplier =>
+            SettingsHelper.GetSettingOrDefault("GolangCompilerProcessExitTimeOutMultiplier", 1);
 
         public static int JavaCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("JavaCompilerProcessExitTimeOutMultiplier", 1);

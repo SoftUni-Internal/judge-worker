@@ -301,7 +301,7 @@
                         Settings.JsProjNodeModules,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
-                        Settings.PlaywrightModulePath,
+                        Settings.PlaywrightChromiumModulePath,
                         portNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);

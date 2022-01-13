@@ -41,6 +41,8 @@
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
+        
+        public static string PlaywrightChromiumModulePath => SettingsHelper.GetSetting("PlaywrightChromiumModulePath");
 
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 

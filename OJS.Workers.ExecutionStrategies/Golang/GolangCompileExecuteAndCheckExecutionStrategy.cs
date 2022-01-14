@@ -9,6 +9,8 @@
 
     public class GolangCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
+        private const string CodeSaveFileName = "main.go";
+
         public GolangCompileExecuteAndCheckExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
@@ -31,9 +33,9 @@
                 dependOnExitCodeForRunTimeError: false,
                 useWorkingDirectoryForProcess: true);
 
-        protected override string SaveCodeToTempFile<TINput>(IExecutionContext<TINput> executionContext)
+        protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
             => FileHelpers.SaveStringToFile(
                 executionContext.Code,
-                FileHelpers.BuildPath(this.WorkingDirectory, "main.go"));
+                FileHelpers.BuildPath(this.WorkingDirectory, CodeSaveFileName));
     }
 }

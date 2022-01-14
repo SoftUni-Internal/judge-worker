@@ -16,7 +16,7 @@
 
         public IExecutionResult<TResult> RunSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
-            => new SubmissionExecutor(this.portNumber)
+            => new SubmissionExecutor(this.portNumber.ToString())
                 .Execute<TInput, TResult>(submission);
     }
 }

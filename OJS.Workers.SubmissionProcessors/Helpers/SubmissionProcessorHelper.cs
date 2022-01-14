@@ -24,12 +24,11 @@
 
     public static class SubmissionProcessorHelper
     {
-        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, int portNumber)
+        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, string submissionProcessorIdentifier)
         {
             IExecutionStrategy executionStrategy;
             var tasksService = new TasksService();
             var processExecutorFactory = new ProcessExecutorFactory(tasksService);
-            var submissionProcessorIdentifier = portNumber.ToString();
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
@@ -302,7 +301,7 @@
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
                         Settings.PlaywrightChromiumModulePath,
-                        portNumber,
+                        Settings.JsProjDefaultApplicationPortNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
@@ -379,7 +378,7 @@
                         Settings.NodeJsExecutablePath,
                         Settings.GanacheCliNodeExecutablePath,
                         Settings.TruffleCliNodeExecutablePath,
-                        portNumber,
+                        int.Parse(submissionProcessorIdentifier),
                         Settings.SolidityBaseTimeUsedInMilliseconds,
                         Settings.SolidityBaseMemoryUsedInBytes);
                     break;

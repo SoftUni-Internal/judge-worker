@@ -17,8 +17,8 @@
 
     public class CSharpUnitTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
-        private readonly ExecutionStrategyType type;
         private const string NUnitFrameworkPackageName = "nunit.framework";
+        private readonly ExecutionStrategyType type;
 
         public CSharpUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,

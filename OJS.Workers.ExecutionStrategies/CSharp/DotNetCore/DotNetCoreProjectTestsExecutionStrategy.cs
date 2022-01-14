@@ -1,15 +1,15 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
 
     public class DotNetCoreProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
@@ -55,17 +55,17 @@
             this.MicrosoftEntityFrameworkCoreProxiesVersion = microsoftEntityFrameworkCoreProxiesVersion;
         }
 
-        private string TargetFrameworkName { get; }
-
-        private string MicrosoftEntityFrameworkCoreInMemoryVersion { get; }
-
-        private string MicrosoftEntityFrameworkCoreProxiesVersion  { get; }
-
         protected string NUnitLiteConsoleAppDirectory =>
             Path.Combine(this.WorkingDirectory, NUnitLiteConsoleAppFolderName);
 
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
+
+        private string TargetFrameworkName { get; }
+
+        private string MicrosoftEntityFrameworkCoreInMemoryVersion { get; }
+
+        private string MicrosoftEntityFrameworkCoreProxiesVersion { get; }
 
         private string NUnitLiteConsoleAppCsProjTemplate => $@"
             <Project Sdk=""Microsoft.NET.Sdk"">

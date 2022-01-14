@@ -18,7 +18,7 @@
     public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
-        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
+        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w\\-]*)(\\'\\))";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
         private const string NginxConfFileName = "nginx.conf";

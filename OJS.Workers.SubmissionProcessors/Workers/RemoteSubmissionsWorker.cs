@@ -42,7 +42,7 @@
             var testInputSubmission = submission as OjsSubmission<TestsInputModel>;
             var submissionRequestBody = this.BuildRequestBody(testInputSubmission);
 
-            this.logger.Info($"Request body for submission {submission.Id} is ready: {submissionRequestBody}");
+            this.logger.Info($"Request body for submission {submission.Id} is ready.");
 
             var result = this.ExecuteSubmissionRemotely(testInputSubmission, submissionRequestBody);
 

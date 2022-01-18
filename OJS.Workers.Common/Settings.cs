@@ -50,6 +50,8 @@
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
 
+        public static string PlaywrightChromiumModulePath => SettingsHelper.GetSetting("PlaywrightChromiumModulePath");
+
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 
         public static string JQueryModulePath => SettingsHelper.GetSetting("JQueryModulePath");

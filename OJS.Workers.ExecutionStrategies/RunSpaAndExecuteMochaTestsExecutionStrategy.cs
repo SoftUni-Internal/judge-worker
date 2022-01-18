@@ -18,7 +18,7 @@
     public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
-        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w]*)(\\'\\))";
+        private const string NodeModulesRequirePattern = "(require\\(\\')([\\w\\-]*)(\\'\\))";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
         private const string NginxConfFileName = "nginx.conf";
@@ -29,7 +29,7 @@
             string jsProjNodeModulesPath,
             string mochaNodeModulePath,
             string chaiNodeModulePath,
-            string playwrightModulePath,
+            string playwrightChromiumModulePath,
             int portNumber,
             int baseTimeUsed,
             int baseMemoryUsed)
@@ -42,7 +42,7 @@
             this.JsProjNodeModulesPath = jsProjNodeModulesPath;
             this.MochaModulePath = mochaNodeModulePath;
             this.ChaiModulePath = chaiNodeModulePath;
-            this.PlaywrightModulePath = playwrightModulePath;
+            this.PlaywrightChromiumModulePath = playwrightChromiumModulePath;
             this.PortNumber = portNumber;
         }
 
@@ -52,7 +52,7 @@
 
         private string ChaiModulePath { get; }
 
-        private string PlaywrightModulePath { get; }
+        private string PlaywrightChromiumModulePath { get; }
 
         private string JsProjNodeModulesPath { get; }
 
@@ -321,8 +321,7 @@ http {{
             => receivedOutput
                 .Trim()
                 .Replace("b'", string.Empty)
-                .Replace("}'", "}")
-                .Replace("}None", "}");
+                .Replace("}'", "}");
 
         private string SavePythonCodeTemplateToTempFile()
         {
@@ -376,8 +375,8 @@ http {{
                     return this.MochaModulePath;
                 case "chai":
                     return this.ChaiModulePath;
-                case "playwright":
-                    return this.PlaywrightModulePath;
+                case "playwright-chromium":
+                    return this.PlaywrightChromiumModulePath;
                 default:
                     return null;
             }

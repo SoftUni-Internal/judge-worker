@@ -321,7 +321,8 @@ http {{
             => receivedOutput
                 .Trim()
                 .Replace("b'", string.Empty)
-                .Replace("}'", "}");
+                .Replace("}'", "}")
+                .Replace("}None", "}");
 
         private string SavePythonCodeTemplateToTempFile()
         {

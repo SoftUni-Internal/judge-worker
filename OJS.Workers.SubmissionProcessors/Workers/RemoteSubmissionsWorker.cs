@@ -37,7 +37,7 @@
         public IExecutionResult<TResult> RunSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
         {
-            this.logger.Info($"Preparing submission #{submission.Id} for remote worker {this.endpoint}");
+            this.logger.Info($"Preparing submission #{submission.Id} for remote worker {this.Location}");
 
             var testInputSubmission = submission as OjsSubmission<TestsInputModel>;
             var submissionRequestBody = this.BuildRequestBody(testInputSubmission);
@@ -50,14 +50,14 @@
 
             if (result == null)
             {
-                this.logger.Error($"RSP {this.endpoint} returned null result.");
+                this.logger.Error($"RSP {this.Location} returned null result.");
                 return executionResult;
             }
 
             if (result.Exception != null)
             {
                 this.logger.Error(
-                    $"RSP {this.endpoint} returned {nameof(result.Exception)} with message: " +
+                    $"RSP {this.Location} returned {nameof(result.Exception)} with message: " +
                     $"{result.Exception.Message} and stack trace: {result.Exception.StackTrace}");
                 executionResult.CompilerComment = result.Exception.Message;
                 return executionResult;
@@ -65,11 +65,11 @@
 
             if (result.ExecutionResult == null)
             {
-                this.logger.Error($"RSP {this.endpoint} returned null {nameof(result.ExecutionResult)}.");
+                this.logger.Error($"RSP {this.Location} returned null {nameof(result.ExecutionResult)}.");
                 return executionResult;
             }
 
-            this.logger.Info($"RSP {this.endpoint} successfully returned {nameof(result.ExecutionResult)}.");
+            this.logger.Info($"RSP {this.Location} successfully returned {nameof(result.ExecutionResult)}.");
 
             executionResult = new ExecutionResult<TResult>
             {

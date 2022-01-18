@@ -3,6 +3,8 @@
     using System;
     using System.Linq;
 
+    using log4net;
+
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -14,12 +16,17 @@
     : ISubmissionWorker
     {
         private readonly IFormatterServiceFactory formatterServicesFactory;
+        private readonly ILog logger;
         private readonly HttpService http;
         private readonly string endpoint;
 
-        public RemoteSubmissionsWorker(string endpointRoot, IFormatterServiceFactory formatterServicesFactory)
+        public RemoteSubmissionsWorker(
+            string endpointRoot,
+            IFormatterServiceFactory formatterServicesFactory,
+            ILog logger)
         {
             this.formatterServicesFactory = formatterServicesFactory;
+            this.logger = logger;
             this.Location = endpointRoot;
             this.endpoint = $"{endpointRoot}/executeSubmission";
             this.http = new HttpService();
@@ -30,12 +37,41 @@
         public IExecutionResult<TResult> RunSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
         {
+            this.logger.Info($"Preparing submission #{submission.Id} for remote worker {this.endpoint}");
+
             var testInputSubmission = submission as OjsSubmission<TestsInputModel>;
             var submissionRequestBody = this.BuildRequestBody(testInputSubmission);
 
+            this.logger.Info($"Request body for submission {submission.Id} is ready: {submissionRequestBody}");
+
             var result = this.ExecuteSubmissionRemotely(testInputSubmission, submissionRequestBody);
 
-            var executionResult = new ExecutionResult<TResult>
+            var executionResult = new ExecutionResult<TResult>();
+
+            if (result == null)
+            {
+                this.logger.Error($"RSP {this.endpoint} returned null result.");
+                return executionResult;
+            }
+
+            if (result.Exception != null)
+            {
+                this.logger.Error(
+                    $"RSP {this.endpoint} returned {nameof(result.Exception)} with message: " +
+                    $"{result.Exception.Message} and stack trace: {result.Exception.StackTrace}");
+                executionResult.CompilerComment = result.Exception.Message;
+                return executionResult;
+            }
+
+            if (result.ExecutionResult == null)
+            {
+                this.logger.Error($"RSP {this.endpoint} returned null {nameof(result.ExecutionResult)}.");
+                return executionResult;
+            }
+
+            this.logger.Info($"RSP {this.endpoint} successfully returned {nameof(result.ExecutionResult)}.");
+
+            executionResult = new ExecutionResult<TResult>
             {
                 CompilerComment = result.ExecutionResult.CompilerComment,
                 IsCompiledSuccessfully = result.ExecutionResult.IsCompiledSuccessfully,

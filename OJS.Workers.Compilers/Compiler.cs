@@ -57,6 +57,8 @@
                     return new CPlusPlusZipCompiler(Settings.CPlusPlusZipCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.DotNetCompiler:
                     return new DotNetCompiler(Settings.DotNetCompilerProcessExitTimeOutMultiplier);
+                case CompilerType.GolangCompiler:
+                    return new GolangCompiler(Settings.GolangCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.SolidityCompiler:
                     return new SolidityCompiler(Settings.SolidityCompilerProcessExitTimeOutMultiplier);
                 default:
@@ -67,7 +69,8 @@
         public virtual CompileResult Compile(
             string compilerPath,
             string inputFile,
-            string additionalArguments)
+            string additionalArguments,
+            bool useInputFileDirectoryAsWorking = false)
         {
             if (compilerPath == null)
             {
@@ -89,7 +92,14 @@
                 return new CompileResult(false, $"Input file not found! Searched in: {inputFile}");
             }
 
-            this.CompilationDirectory = Path.Combine(Path.GetDirectoryName(inputFile), CompilationDirectoryName);
+            var inputFileDirectory = Path.GetDirectoryName(inputFile);
+
+            if (inputFileDirectory == null)
+            {
+                return new CompileResult(false, $"Input file directory is null. Input file path value: {inputFile}");
+            }
+
+            this.CompilationDirectory = Path.Combine(inputFileDirectory, CompilationDirectoryName);
             Directory.CreateDirectory(this.CompilationDirectory);
 
             // Move source file if needed
@@ -111,8 +121,12 @@
                 return new CompileResult(false, $"Compiler directory is null. Compiler path value: {compilerPath}");
             }
 
+            var workingDirectoryInfo = useInputFileDirectoryAsWorking
+                ? new DirectoryInfo(inputFileDirectory)
+                : directoryInfo;
+
             // Prepare process start information
-            var processStartInfo = this.SetCompilerProcessStartInfo(compilerPath, directoryInfo, arguments);
+            var processStartInfo = this.SetCompilerProcessStartInfo(compilerPath, workingDirectoryInfo, arguments);
 
             // Execute compiler
             var compilerOutput = ExecuteCompiler(processStartInfo, this.MaxProcessExitTimeOutInMilliseconds);

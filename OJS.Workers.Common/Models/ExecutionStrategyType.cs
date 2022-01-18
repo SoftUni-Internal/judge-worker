@@ -57,5 +57,6 @@
         DotNetCore6CompileExecuteAndCheck = 52,
         DotNetCore5UnitTestsExecutionStrategy = 53,
         DotNetCore6UnitTestsExecutionStrategy = 54,
+        GolangCompileExecuteAndCheck = 49,
     }
 }

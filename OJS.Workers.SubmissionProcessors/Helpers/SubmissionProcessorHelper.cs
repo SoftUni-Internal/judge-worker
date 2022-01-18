@@ -8,6 +8,7 @@
     using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
+    using OJS.Workers.ExecutionStrategies.Golang;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.NodeJs;
@@ -57,6 +58,13 @@
                         Settings.DotNetCoreRuntimeVersion,
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.GolangCompileExecuteAndCheck:
+                    executionStrategy = new GolangCompileExecuteAndCheckExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.GolangBaseTimeUsedInMilliseconds,
+                        Settings.GolangBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreTestRunner:
                     executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
@@ -481,6 +489,8 @@
                 case CompilerType.DotNetCompiler:
                 case CompilerType.CSharpDotNetCore:
                     return Settings.DotNetCompilerPath;
+                case CompilerType.GolangCompiler:
+                    return Settings.GolangCompilerPath;
                 case CompilerType.SolidityCompiler:
                     return Settings.SolidityCompilerPath;
                 default:

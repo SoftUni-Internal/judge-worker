@@ -50,6 +50,7 @@
         SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
         SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 46,
         SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47,
-        RunSpaAndExecuteMochaTestsExecutionStrategy = 48
+        RunSpaAndExecuteMochaTestsExecutionStrategy = 48,
+        GolangCompileExecuteAndCheck = 49,
     }
 }

@@ -153,7 +153,8 @@ namespace OJS.Workers
             return (submissionProcessor, thread);
         }
 
-        private (SubmissionProcessor<TSubmission> submissionProcessor, Thread thread) CreateRemoteWorker(int index,
+        private (SubmissionProcessor<TSubmission> submissionProcessor, Thread thread) CreateRemoteWorker(
+            int index,
             string endpoint,
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
@@ -162,7 +163,8 @@ namespace OJS.Workers
         {
             var worker = new RemoteSubmissionsWorker(
                 endpoint,
-                formatterServiceFactory);
+                formatterServiceFactory,
+                this.Logger);
 
             var submissionProcessor = new SubmissionProcessor<TSubmission>(
                 name: $"RSP #{index}",

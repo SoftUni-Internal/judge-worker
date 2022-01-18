@@ -4,7 +4,6 @@
     using System.IO;
 
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -26,13 +25,15 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IExecutor executor,
             bool useSystemEncoding = true,
-            bool dependOnExitCodeForRunTimeError = false)
+            bool dependOnExitCodeForRunTimeError = false,
+            bool useWorkingDirectoryForProcess = false)
         {
             // Compile the file
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 getCompilerPathFunc,
-                result);
+                result,
+                useWorkingDirectoryForProcess);
 
             if (!compileResult.IsCompiledSuccessfully)
             {
@@ -72,7 +73,8 @@
         protected CompileResult ExecuteCompiling<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
             Func<CompilerType, string> getCompilerPathFunc,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> result,
+            bool useWorkingDirectoryForProcess = false)
             where TResult : ISingleCodeRunResult, new()
         {
             var submissionFilePath = this.SaveCodeToTempFile(executionContext);
@@ -83,7 +85,8 @@
                 executionContext.CompilerType,
                 compilerPath,
                 executionContext.AdditionalCompilerArguments,
-                submissionFilePath);
+                submissionFilePath,
+                useWorkingDirectoryForProcess);
 
             result.IsCompiledSuccessfully = compileResult.IsCompiledSuccessfully;
             result.CompilerComment = compileResult.CompilerComment;
@@ -95,7 +98,8 @@
             CompilerType compilerType,
             string compilerPath,
             string compilerArguments,
-            string submissionFilePath)
+            string submissionFilePath,
+            bool useWorkingDirectoryForProcess = false)
         {
             if (compilerType == CompilerType.None)
             {
@@ -108,7 +112,7 @@
             }
 
             var compiler = Compiler.CreateCompiler(compilerType);
-            var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
+            var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments, useWorkingDirectoryForProcess);
 
             return compilerResult;
         }

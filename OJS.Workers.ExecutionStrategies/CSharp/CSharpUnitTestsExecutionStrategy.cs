@@ -137,7 +137,8 @@
             CompilerType compilerType,
             string compilerPath,
             string compilerArguments,
-            string submissionFilePath)
+            string submissionFilePath,
+            bool useWorkingDirectoryForProcess = false)
         {
             if (compilerType == CompilerType.None)
             {

@@ -42,11 +42,15 @@
 
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
+        public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636);
+
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
+
+        public static string PlaywrightChromiumModulePath => SettingsHelper.GetSetting("PlaywrightChromiumModulePath");
 
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 

@@ -8,9 +8,9 @@
 
     public class SubmissionExecutor : ISubmissionExecutor
     {
-        private readonly int portNumber;
+        private readonly string submissionProcessorIdentifier;
 
-        public SubmissionExecutor(int portNumber) => this.portNumber = portNumber;
+        public SubmissionExecutor(string submissionProcessorIdentifier) => this.submissionProcessorIdentifier = submissionProcessorIdentifier;
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(
             IOjsSubmission submission)
@@ -29,7 +29,7 @@
             {
                 return SubmissionProcessorHelper.CreateExecutionStrategy(
                     submission.ExecutionStrategyType,
-                    this.portNumber);
+                    this.submissionProcessorIdentifier);
             }
             catch (Exception ex)
             {

@@ -10,6 +10,7 @@
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework;
+    using OJS.Workers.ExecutionStrategies.Golang;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.NodeJs;
@@ -24,12 +25,11 @@
 
     public static class SubmissionProcessorHelper
     {
-        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, int portNumber)
+        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, string submissionProcessorIdentifier)
         {
             IExecutionStrategy executionStrategy;
             var tasksService = new TasksService();
             var processExecutorFactory = new ProcessExecutorFactory(tasksService);
-            var submissionProcessorIdentifier = portNumber.ToString();
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
@@ -62,6 +62,13 @@
                         Settings.DotNetCoreRuntimeVersion(type),
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.GolangCompileExecuteAndCheck:
+                    executionStrategy = new GolangCompileExecuteAndCheckExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.GolangBaseTimeUsedInMilliseconds,
+                        Settings.GolangBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreTestRunner:
                     executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
@@ -301,8 +308,8 @@
                         Settings.JsProjNodeModules,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
-                        Settings.PlaywrightModulePath,
-                        portNumber,
+                        Settings.PlaywrightChromiumModulePath,
+                        Settings.JsProjDefaultApplicationPortNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
@@ -379,7 +386,7 @@
                         Settings.NodeJsExecutablePath,
                         Settings.GanacheCliNodeExecutablePath,
                         Settings.TruffleCliNodeExecutablePath,
-                        portNumber,
+                        int.Parse(submissionProcessorIdentifier),
                         Settings.SolidityBaseTimeUsedInMilliseconds,
                         Settings.SolidityBaseMemoryUsedInBytes);
                     break;
@@ -499,6 +506,8 @@
                 case CompilerType.DotNetCompiler:
                 case CompilerType.CSharpDotNetCore:
                     return Settings.DotNetCompilerPath;
+                case CompilerType.GolangCompiler:
+                    return Settings.GolangCompilerPath;
                 case CompilerType.SolidityCompiler:
                     return Settings.SolidityCompilerPath;
                 default:

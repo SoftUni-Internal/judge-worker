@@ -53,6 +53,8 @@ namespace OJS.Workers.Common
             public const string PhpCode = "php-code";
             public const string PhpCodeCgi = "php-code-cgi";
 
+            // Go
+            public const string GoCode = "go-code";
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
 
@@ -104,6 +106,9 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                     { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },
 
+                    // Go
+                    { ExecutionStrategyNames.GoCode, ExecutionStrategyType.GolangCompileExecuteAndCheck },
+
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
 
@@ -130,7 +135,7 @@ namespace OJS.Workers.Common
 
                     // Sql Server
                     { ExecutionStrategyNames.SqlServerPrepareDatabaseAndRunQueries, ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries },
-                    { ExecutionStrategyNames.SqlServerRunQueriesAndCheckDatabase,  ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.SqlServerRunQueriesAndCheckDatabase, ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase },
                     { ExecutionStrategyNames.SqlServerRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase },
 
                     // MySQL/MariaDb

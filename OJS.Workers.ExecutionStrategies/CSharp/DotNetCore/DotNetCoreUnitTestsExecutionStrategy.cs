@@ -35,7 +35,11 @@
             string targetFrameworkName,
             string microsoftEntityFrameworkCoreInMemoryVersion,
             string microsoftEntityFrameworkCoreProxiesVersion)
-            : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed,
+            : base(
+                getCompilerPathFunc,
+                processExecutorFactory,
+                baseTimeUsed,
+                baseMemoryUsed,
                 targetFrameworkName,
                 microsoftEntityFrameworkCoreInMemoryVersion,
                 microsoftEntityFrameworkCoreProxiesVersion)

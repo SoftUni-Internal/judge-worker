@@ -24,6 +24,8 @@
 
         public static string NuGetExecutablePath => SettingsHelper.GetSetting("NuGetExecutablePath");
 
+        public static string GolangCompilerPath => SettingsHelper.GetSetting("GolangCompilerPath");
+
         public static string JavaCompilerPath => SettingsHelper.GetSetting("JavaCompilerPath");
 
         public static string JavaExecutablePath => SettingsHelper.GetSetting("JavaExecutablePath");
@@ -36,11 +38,15 @@
 
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
+        public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636);
+
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
+
+        public static string PlaywrightChromiumModulePath => SettingsHelper.GetSetting("PlaywrightChromiumModulePath");
 
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 
@@ -133,6 +139,12 @@
         public static int DotNetCliBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("DotNetCliBaseMemoryUsedInBytes", 0);
 
+        public static int GolangBaseTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseTimeUsedInMilliseconds", 0);
+
+        public static int GolangBaseMemoryUsedInBytes =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseMemoryUsedInBytes", 0);
+
         public static int JavaBaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("JavaBaseTimeUsedInMilliseconds", 0);
 
@@ -193,6 +205,9 @@
 
         public static int DotNetCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("DotNetCompilerProcessExitTimeOutMultiplier", 1);
+
+        public static int GolangCompilerProcessExitTimeOutMultiplier =>
+            SettingsHelper.GetSettingOrDefault("GolangCompilerProcessExitTimeOutMultiplier", 1);
 
         public static int JavaCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("JavaCompilerProcessExitTimeOutMultiplier", 1);

@@ -1,13 +1,11 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3
 {
     using System;
     using System.CodeDom.Compiler;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-
     using Microsoft.CSharp;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;

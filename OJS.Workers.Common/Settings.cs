@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.Common.Models;
 
     public static class Settings
     {
@@ -14,11 +15,6 @@
         public static string MavenPath => SettingsHelper.GetSetting("MavenPath");
 
         public static string CSharpCompilerPath => SettingsHelper.GetSetting("CSharpCompilerPath");
-
-        public static string CSharpDotNetCoreCompilerPath => SettingsHelper.GetSetting("CSharpDotNetCoreCompilerPath");
-
-        public static string DotNetCoreSharedAssembliesPath =>
-            SettingsHelper.GetSetting("DotNetCoreSharedAssembliesPath");
 
         public static string CPlusPlusGccCompilerPath => SettingsHelper.GetSetting("CPlusPlusGccCompilerPath");
 
@@ -231,11 +227,51 @@
         public static int SolidityCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("SolidityCompilerProcessExitTimeOutMultiplier", 1);
 
-        public static string DotNetCoreRuntimeVersion => SettingsHelper.GetSetting("DotNetCoreRuntimeVersion");
-
         public static IEnumerable<string> RemoteWorkerEndpoints => SettingsHelper.GetSetting("RemoteWorkerEndpoints")
             .Split(';')
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
+
+        public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("DotNetCore3RuntimeVersion")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("DotNetCore5RuntimeVersion")
+                    : SettingsHelper.GetSetting("DotNetCore6RuntimeVersion");
+
+        public static string DotNetCoreSharedAssembliesPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("DotNetCore3SharedAssembliesPath")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("DotNetCore5SharedAssembliesPath")
+                    : SettingsHelper.GetSetting("DotNetCore6SharedAssembliesPath");
+
+        public static string CSharpDotNetCoreCompilerPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("CSharpDotNet3CoreCompilerPath")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("CSharpDotNetCore5CompilerPath")
+                    : SettingsHelper.GetSetting("CSharpDotNetCore6CompilerPath");
+
+        public static string DotNetCoreTargetFrameworkName(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "netcoreapp3.1"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "net5.0"
+                    : "net6.0";
+
+        public static string MicrosoftEntityFrameworkCoreInMemoryVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "3.1.4"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "5.0.13"
+                    : "6.0.1";
+
+        public static string MicrosoftEntityFrameworkCoreProxiesVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "3.1.4"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "5.0.13"
+                    : "6.0.1";
     }
 }

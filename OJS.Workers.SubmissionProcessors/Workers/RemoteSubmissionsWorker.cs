@@ -50,14 +50,14 @@
 
             if (result == null)
             {
-                this.logger.Error($"RSP {this.Location} returned null result.");
+                this.logger.Error($"RSP {this.Location} returned null result for submission {submission.Id}.");
                 return executionResult;
             }
 
             if (result.Exception != null)
             {
                 this.logger.Error(
-                    $"RSP {this.Location} returned {nameof(result.Exception)} with message: " +
+                    $"RSP {this.Location} returned {nameof(result.Exception)} for #{submission.Id} with message: " +
                     $"{result.Exception.Message} and stack trace: {result.Exception.StackTrace}");
                 executionResult.CompilerComment = result.Exception.Message;
                 return executionResult;
@@ -65,11 +65,13 @@
 
             if (result.ExecutionResult == null)
             {
-                this.logger.Error($"RSP {this.Location} returned null {nameof(result.ExecutionResult)}.");
+                this.logger.Error(
+                    $"RSP {this.Location} returned null {nameof(result.ExecutionResult)} for #{submission.Id}.");
                 return executionResult;
             }
 
-            this.logger.Info($"RSP {this.Location} successfully returned {nameof(result.ExecutionResult)}.");
+            this.logger.Info(
+                $"RSP {this.Location} successfully returned {nameof(result.ExecutionResult)} for #{submission.Id}.");
 
             executionResult = new ExecutionResult<TResult>
             {

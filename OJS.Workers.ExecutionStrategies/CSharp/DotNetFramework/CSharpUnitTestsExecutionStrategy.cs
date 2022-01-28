@@ -9,7 +9,6 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -18,17 +17,16 @@
     public class CSharpUnitTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         private const string NUnitFrameworkPackageName = "nunit.framework";
-        private readonly ExecutionStrategyType type;
 
         public CSharpUnitTestsExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string nUnitConsoleRunnerPath,
             int baseTimeUsed,
-            int baseMemoryUsed,
-            ExecutionStrategyType type)
+            int baseMemoryUsed)
             : base(getCompilerPathFunc, processExecutorFactory, nUnitConsoleRunnerPath, baseTimeUsed, baseMemoryUsed)
-            => this.type = type;
+        {
+        }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -130,28 +128,6 @@
             }
 
             return result;
-        }
-
-        protected override CompileResult Compile(
-            CompilerType compilerType,
-            string compilerPath,
-            string compilerArguments,
-            string submissionFilePath,
-            bool useWorkingDirectoryForProcess = false)
-        {
-            if (compilerType == CompilerType.None)
-            {
-                return new CompileResult(true, null) { OutputFile = submissionFilePath };
-            }
-
-            if (!File.Exists(compilerPath))
-            {
-                throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
-            }
-
-            var compiler = Compiler.CreateCompiler(compilerType, this.type);
-            var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
-            return compilerResult;
         }
 
         protected override void CorrectProjectReferences(Project project)

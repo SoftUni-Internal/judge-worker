@@ -95,8 +95,7 @@
                         processExecutorFactory,
                         Settings.NUnitConsoleRunnerPath,
                         Settings.MsBuildBaseTimeUsedInMilliseconds,
-                        Settings.MsBuildBaseMemoryUsedInBytes,
-                        type);
+                        Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.CSharpProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpProjectTestsExecutionStrategy(
@@ -460,6 +459,8 @@
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            executionStrategy.Type = type;
 
             return executionStrategy;
         }

@@ -111,7 +111,7 @@
                 throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
             }
 
-            var compiler = Compiler.CreateCompiler(compilerType);
+            var compiler = Compiler.CreateCompiler(compilerType, this.Type);
             var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments, useWorkingDirectoryForProcess);
 
             return compilerResult;

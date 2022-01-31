@@ -5,9 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-
     using Microsoft.Build.Evaluation;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Extensions;
@@ -16,7 +14,6 @@
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
-
     using static OJS.Workers.Common.Constants;
 
     public class CSharpProjectTestsExecutionStrategy : BaseCompiledCodeExecutionStrategy
@@ -42,11 +39,12 @@
         protected const string CompeteTest = "Test";
         protected const string TrialTest = "Test.000";
         protected const string CsProjFileSearchPattern = "*.csproj";
+
         protected const string NUnitReference =
             "nunit.framework, Version=3.8.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL";
 
         protected const string EntityFrameworkCoreInMemoryReference =
-                "Microsoft.EntityFrameworkCore.InMemory, Version=1.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL";
+            "Microsoft.EntityFrameworkCore.InMemory, Version=1.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL";
 
         protected const string SystemDataCommonReference =
             "System.Data.Common, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL";

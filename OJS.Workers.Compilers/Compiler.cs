@@ -5,7 +5,6 @@
     using System.IO;
     using System.Text;
     using System.Threading;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
 
@@ -27,7 +26,9 @@
 
         protected string CompilationDirectory { get; set; }
 
-        public static ICompiler CreateCompiler(CompilerType compilerType)
+        public static ICompiler CreateCompiler(
+            CompilerType compilerType,
+            ExecutionStrategyType type = ExecutionStrategyType.DoNothing)
         {
             switch (compilerType)
             {
@@ -38,8 +39,8 @@
                 case CompilerType.CSharpDotNetCore:
                     return new CSharpDotNetCoreCompiler(
                         Settings.CSharpDotNetCoreCompilerProcessExitTimeOutMultiplier,
-                        Settings.CSharpDotNetCoreCompilerPath,
-                        Settings.DotNetCoreSharedAssembliesPath);
+                        Settings.CSharpDotNetCoreCompilerPath(type),
+                        Settings.DotNetCoreSharedAssembliesPath(type));
                 case CompilerType.CPlusPlusGcc:
                     return new CPlusPlusCompiler(Settings.CPlusPlusCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.MsBuild:
@@ -56,6 +57,8 @@
                     return new CPlusPlusZipCompiler(Settings.CPlusPlusZipCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.DotNetCompiler:
                     return new DotNetCompiler(Settings.DotNetCompilerProcessExitTimeOutMultiplier);
+                case CompilerType.GolangCompiler:
+                    return new GolangCompiler(Settings.GolangCompilerProcessExitTimeOutMultiplier);
                 case CompilerType.SolidityCompiler:
                     return new SolidityCompiler(Settings.SolidityCompilerProcessExitTimeOutMultiplier);
                 default:
@@ -66,7 +69,8 @@
         public virtual CompileResult Compile(
             string compilerPath,
             string inputFile,
-            string additionalArguments)
+            string additionalArguments,
+            bool useInputFileDirectoryAsWorking = false)
         {
             if (compilerPath == null)
             {
@@ -88,7 +92,14 @@
                 return new CompileResult(false, $"Input file not found! Searched in: {inputFile}");
             }
 
-            this.CompilationDirectory = Path.Combine(Path.GetDirectoryName(inputFile), CompilationDirectoryName);
+            var inputFileDirectory = Path.GetDirectoryName(inputFile);
+
+            if (inputFileDirectory == null)
+            {
+                return new CompileResult(false, $"Input file directory is null. Input file path value: {inputFile}");
+            }
+
+            this.CompilationDirectory = Path.Combine(inputFileDirectory, CompilationDirectoryName);
             Directory.CreateDirectory(this.CompilationDirectory);
 
             // Move source file if needed
@@ -110,8 +121,12 @@
                 return new CompileResult(false, $"Compiler directory is null. Compiler path value: {compilerPath}");
             }
 
+            var workingDirectoryInfo = useInputFileDirectoryAsWorking
+                ? new DirectoryInfo(inputFileDirectory)
+                : directoryInfo;
+
             // Prepare process start information
-            var processStartInfo = this.SetCompilerProcessStartInfo(compilerPath, directoryInfo, arguments);
+            var processStartInfo = this.SetCompilerProcessStartInfo(compilerPath, workingDirectoryInfo, arguments);
 
             // Execute compiler
             var compilerOutput = ExecuteCompiler(processStartInfo, this.MaxProcessExitTimeOutInMilliseconds);
@@ -144,25 +159,21 @@
         }
 
         public virtual string RenameInputFile(string inputFile)
-        {
-            return inputFile;
-        }
+            => inputFile;
 
         public virtual string GetOutputFileName(string inputFileName)
-        {
-            return inputFileName + ".exe";
-        }
+            => inputFileName + ".exe";
 
         public virtual string ChangeOutputFileAfterCompilation(string outputFile)
-        {
-            return outputFile;
-        }
+            => outputFile;
 
         public abstract string BuildCompilerArguments(string inputFile, string outputFile, string additionalArguments);
 
-        public virtual ProcessStartInfo SetCompilerProcessStartInfo(string compilerPath, DirectoryInfo directoryInfo, string arguments)
-        {
-            return new ProcessStartInfo(compilerPath)
+        public virtual ProcessStartInfo SetCompilerProcessStartInfo(
+            string compilerPath,
+            DirectoryInfo directoryInfo,
+            string arguments)
+            => new ProcessStartInfo(compilerPath)
             {
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
@@ -173,7 +184,6 @@
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8
             };
-        }
 
         protected static CompilerOutput ExecuteCompiler(
             ProcessStartInfo compilerProcessStartInfo,

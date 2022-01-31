@@ -34,7 +34,11 @@
             return arguments.ToString();
         }
 
-        public override CompileResult Compile(string compilerPath, string inputDirectory, string additionalArguments)
+        public override CompileResult Compile(
+            string compilerPath,
+            string inputDirectory,
+            string additionalArguments,
+            bool useInputFileDirectoryAsWorking = false)
         {
             if (compilerPath == null)
             {

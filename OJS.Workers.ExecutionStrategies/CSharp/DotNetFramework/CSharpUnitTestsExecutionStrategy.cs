@@ -1,17 +1,14 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-
     using Microsoft.Build.Evaluation;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -131,27 +128,6 @@
             }
 
             return result;
-        }
-
-        protected override CompileResult Compile(
-            CompilerType compilerType,
-            string compilerPath,
-            string compilerArguments,
-            string submissionFilePath)
-        {
-            if (compilerType == CompilerType.None)
-            {
-                return new CompileResult(true, null) { OutputFile = submissionFilePath };
-            }
-
-            if (!File.Exists(compilerPath))
-            {
-                throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
-            }
-
-            var compiler = Compiler.CreateCompiler(compilerType);
-            var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
-            return compilerResult;
         }
 
         protected override void CorrectProjectReferences(Project project)

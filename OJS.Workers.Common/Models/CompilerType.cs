@@ -13,6 +13,7 @@
         JavaInPlaceCompiler = 8,
         DotNetCompiler = 9,
         CSharpDotNetCore = 10,
-        SolidityCompiler = 11
+        SolidityCompiler = 11,
+        GolangCompiler = 12,
     }
 }

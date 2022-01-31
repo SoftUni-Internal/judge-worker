@@ -5,10 +5,13 @@
 
     using Ionic.Zip;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
 
     public class RemoteExecutionStrategy : IExecutionStrategy
     {
+        public ExecutionStrategyType Type { get; set; }
+
         public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
             => throw new NotImplementedException();

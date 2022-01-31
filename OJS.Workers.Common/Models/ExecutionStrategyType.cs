@@ -50,6 +50,16 @@
         SqlServerSingleDatabasePrepareDatabaseAndRunQueries = 45,
         SqlServerSingleDatabaseRunQueriesAndCheckDatabase = 46,
         SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase = 47,
-        RunSpaAndExecuteMochaTestsExecutionStrategy = 48
+        RunSpaAndExecuteMochaTestsExecutionStrategy = 48,
+        GolangCompileExecuteAndCheck = 49,
+        DotNetCore6ProjectTestsExecutionStrategy = 50,
+        DotNetCore5ProjectTestsExecutionStrategy = 51,
+        DotNetCore5CompileExecuteAndCheck = 52,
+        DotNetCore6CompileExecuteAndCheck = 53,
+        DotNetCore5UnitTestsExecutionStrategy = 54,
+        DotNetCore6UnitTestsExecutionStrategy = 55,
+        DotNetCore5ProjectExecutionStrategy = 56,
+        DotNetCore6ProjectExecutionStrategy = 57,
+
     }
 }

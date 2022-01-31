@@ -122,6 +122,8 @@
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,

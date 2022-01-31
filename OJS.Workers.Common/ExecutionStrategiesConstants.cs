@@ -21,6 +21,8 @@ namespace OJS.Workers.Common
             public const string CSharpDotNetCore5ProjectTests = "dot-net-core-5-project-tests";
             public const string CSharpDotNetCore6ProjectTests = "dot-net-core-6-project-tests";
             public const string CSharpDotNetCoreProject = "dot-net-core-project";
+            public const string CSharpDotNetCore5Project = "dot-net-core-5-project";
+            public const string CSharpDotNetCore6Project = "dot-net-core-6-project";
             public const string CSharpDotNetCoreUnitTests = "dot-net-core-unit-tests";
             public const string CSharpDotNetCore5UnitTests = "dot-net-core-5-unit-tests";
             public const string CSharpDotNetCore6UnitTests = "dot-net-core-6-unit-tests";
@@ -89,6 +91,8 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.CsharpDotNetCore5Code, ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck },
                     { ExecutionStrategyNames.CsharpDotNetCore6Code, ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck },
                     { ExecutionStrategyNames.CSharpDotNetCoreProject, ExecutionStrategyType.DotNetCoreProjectExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCore5Project, ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCore6Project, ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore5ProjectTests, ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore6ProjectTests, ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy },

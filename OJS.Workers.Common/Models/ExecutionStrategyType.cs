@@ -58,5 +58,8 @@
         DotNetCore6CompileExecuteAndCheck = 53,
         DotNetCore5UnitTestsExecutionStrategy = 54,
         DotNetCore6UnitTestsExecutionStrategy = 55,
+        DotNetCore5ProjectExecutionStrategy = 56,
+        DotNetCore6ProjectExecutionStrategy = 57,
+
     }
 }

@@ -39,3 +39,4 @@ This library is licensed under [GNU General Public License v3](https://tldrlegal
  - If you create software that uses GPL, you must release your source code (see [GPL FAQ](http://www.gnu.org/licenses/gpl-faq.html#IfLibraryIsGPL))
  - If you start with a GPL license, you cannot convert to another license
  - **You cannot include any part of judge-worker in a closed source distribution under this license**
+

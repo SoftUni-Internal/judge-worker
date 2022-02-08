@@ -10,6 +10,11 @@
 
         public static string TryOptimizeQuery(string query)
         {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return query;
+            }
+
             var newQuery = new StringBuilder();
 
             var lines = query.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);

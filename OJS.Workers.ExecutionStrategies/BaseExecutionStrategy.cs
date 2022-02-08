@@ -8,6 +8,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class BaseExecutionStrategy : IExecutionStrategy
@@ -15,6 +16,8 @@
         private readonly ILog logger;
 
         protected BaseExecutionStrategy() => this.logger = LogManager.GetLogger(typeof(BaseExecutionStrategy));
+
+        public ExecutionStrategyType Type { get; set; }
 
         protected string WorkingDirectory { get; set; }
 

@@ -1,13 +1,16 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Helpers
 {
     using System;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
     using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3;
+    using OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework;
+    using OJS.Workers.ExecutionStrategies.Golang;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.NodeJs;
@@ -22,12 +25,11 @@
 
     public static class SubmissionProcessorHelper
     {
-        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, int portNumber)
+        public static IExecutionStrategy CreateExecutionStrategy(ExecutionStrategyType type, string submissionProcessorIdentifier)
         {
             IExecutionStrategy executionStrategy;
             var tasksService = new TasksService();
             var processExecutorFactory = new ProcessExecutorFactory(tasksService);
-            var submissionProcessorIdentifier = portNumber.ToString();
             switch (type)
             {
                 case ExecutionStrategyType.CompileExecuteAndCheck:
@@ -52,12 +54,21 @@
                         Settings.GPlusPlusBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck:
+                case ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck:
+                case ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck:
                     executionStrategy = new DotNetCoreCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
-                        Settings.DotNetCoreRuntimeVersion,
+                        Settings.DotNetCoreRuntimeVersion(type),
                         Settings.DotNetCscBaseTimeUsedInMilliseconds,
                         Settings.DotNetCscBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.GolangCompileExecuteAndCheck:
+                    executionStrategy = new GolangCompileExecuteAndCheckExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.GolangBaseTimeUsedInMilliseconds,
+                        Settings.GolangBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreTestRunner:
                     executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
@@ -67,11 +78,16 @@
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreUnitTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                        Settings.DotNetCliBaseMemoryUsedInBytes,
+                        Settings.DotNetCoreTargetFrameworkName(type),
+                        Settings.MicrosoftEntityFrameworkCoreInMemoryVersion(type),
+                        Settings.MicrosoftEntityFrameworkCoreProxiesVersion(type));
                     break;
                 case ExecutionStrategyType.CSharpUnitTestsExecutionStrategy:
                     executionStrategy = new CSharpUnitTestsExecutionStrategy(
@@ -106,18 +122,26 @@
                         Settings.MsBuildBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.DotNetCoreProjectExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
+
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
+                        Settings.DotNetCliBaseMemoryUsedInBytes,
+                        Settings.DotNetCoreTargetFrameworkName(type),
+                        Settings.MicrosoftEntityFrameworkCoreInMemoryVersion(type),
+                        Settings.MicrosoftEntityFrameworkCoreProxiesVersion(type));
                     break;
                 case ExecutionStrategyType.RubyExecutionStrategy:
                     executionStrategy = new RubyExecutionStrategy(
@@ -285,8 +309,8 @@
                         Settings.JsProjNodeModules,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
-                        Settings.PlaywrightModulePath,
-                        portNumber,
+                        Settings.PlaywrightChromiumModulePath,
+                        Settings.JsProjDefaultApplicationPortNumber,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
@@ -363,7 +387,7 @@
                         Settings.NodeJsExecutablePath,
                         Settings.GanacheCliNodeExecutablePath,
                         Settings.TruffleCliNodeExecutablePath,
-                        portNumber,
+                        int.Parse(submissionProcessorIdentifier),
                         Settings.SolidityBaseTimeUsedInMilliseconds,
                         Settings.SolidityBaseMemoryUsedInBytes);
                     break;
@@ -400,11 +424,12 @@
                         submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.SqlServerLocalDbMasterDbConnectionString,
-                        Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword,
-                        submissionProcessorIdentifier);
+                    executionStrategy =
+                        new SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                            Settings.SqlServerLocalDbMasterDbConnectionString,
+                            Settings.SqlServerLocalDbRestrictedUserId,
+                            Settings.SqlServerLocalDbRestrictedUserPassword,
+                            submissionProcessorIdentifier);
                     break;
                 case ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries:
                     executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(
@@ -436,6 +461,8 @@
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            executionStrategy.Type = type;
 
             return executionStrategy;
         }
@@ -482,6 +509,8 @@
                 case CompilerType.DotNetCompiler:
                 case CompilerType.CSharpDotNetCore:
                     return Settings.DotNetCompilerPath;
+                case CompilerType.GolangCompiler:
+                    return Settings.GolangCompilerPath;
                 case CompilerType.SolidityCompiler:
                     return Settings.SolidityCompilerPath;
                 default:

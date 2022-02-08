@@ -1,10 +1,9 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -22,6 +21,7 @@
         private const string NUnitLiteConsoleAppFolderName = "NUnitLiteConsoleApp";
         private const string UserSubmissionFolderName = "UserProject";
         private const string NUnitLiteConsoleAppProgramName = "Program";
+
         private const string NUnitLiteConsoleAppProgramTemplate = @"
             using System;
             using System.Reflection;
@@ -37,22 +37,6 @@
                 }
             }";
 
-        private readonly string nUnitLiteConsoleAppCsProjTemplate = $@"
-            <Project Sdk=""Microsoft.NET.Sdk"">
-                <PropertyGroup>
-                    <OutputType>Exe</OutputType>
-                    <TargetFramework>netcoreapp3.1</TargetFramework>
-                </PropertyGroup>
-                <ItemGroup>
-                    <PackageReference Include=""NUnitLite"" Version=""3.12.0"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""3.1.4"" />
-                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""3.1.4"" />
-                </ItemGroup>
-                <ItemGroup>
-                    {ProjectReferencesPlaceholder}
-                </ItemGroup>
-            </Project>";
-
         private readonly string projectReferenceTemplate =
             $@"<ProjectReference Include=""{ProjectPathPlaceholder}"" />";
 
@@ -60,9 +44,15 @@
             Func<CompilerType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             int baseTimeUsed,
-            int baseMemoryUsed)
+            int baseMemoryUsed,
+            string targetFrameworkName,
+            string microsoftEntityFrameworkCoreInMemoryVersion,
+            string microsoftEntityFrameworkCoreProxiesVersion)
             : base(getCompilerPathFunc, processExecutorFactory, baseTimeUsed, baseMemoryUsed)
         {
+            this.TargetFrameworkName = targetFrameworkName;
+            this.MicrosoftEntityFrameworkCoreInMemoryVersion = microsoftEntityFrameworkCoreInMemoryVersion;
+            this.MicrosoftEntityFrameworkCoreProxiesVersion = microsoftEntityFrameworkCoreProxiesVersion;
         }
 
         protected string NUnitLiteConsoleAppDirectory =>
@@ -70,6 +60,28 @@
 
         protected string UserProjectDirectory =>
             Path.Combine(this.WorkingDirectory, UserSubmissionFolderName);
+
+        private string TargetFrameworkName { get; }
+
+        private string MicrosoftEntityFrameworkCoreInMemoryVersion { get; }
+
+        private string MicrosoftEntityFrameworkCoreProxiesVersion { get; }
+
+        private string NUnitLiteConsoleAppCsProjTemplate => $@"
+            <Project Sdk=""Microsoft.NET.Sdk"">
+                <PropertyGroup>
+                    <OutputType>Exe</OutputType>
+                    <TargetFramework>{this.TargetFrameworkName}</TargetFramework>
+                </PropertyGroup>
+                <ItemGroup>
+                    <PackageReference Include=""NUnitLite"" Version=""3.13.2"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""{this.MicrosoftEntityFrameworkCoreInMemoryVersion}"" />
+                    <PackageReference Include=""Microsoft.EntityFrameworkCore.Proxies"" Version=""{this.MicrosoftEntityFrameworkCoreProxiesVersion}"" />
+                </ItemGroup>
+                <ItemGroup>
+                    {ProjectReferencesPlaceholder}
+                </ItemGroup>
+            </Project>";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -110,7 +122,7 @@
             // Delete tests before execution so the user can't access them
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
+            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
 
             return this.RunUnitTests(
                 compilerPath,
@@ -134,7 +146,7 @@
             var references = projectsToTestCsProjPaths
                 .Select(path => this.projectReferenceTemplate.Replace(ProjectPathPlaceholder, path));
 
-            var csProjTemplate = this.nUnitLiteConsoleAppCsProjTemplate
+            var csProjTemplate = this.NUnitLiteConsoleAppCsProjTemplate
                 .Replace(ProjectReferencesPlaceholder, string.Join(Environment.NewLine, references));
 
             var csProjPath = this.CreateNUnitLiteConsoleAppCsProjFile(csProjTemplate);

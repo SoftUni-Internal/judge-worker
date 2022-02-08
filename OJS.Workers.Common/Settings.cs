@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using OJS.Workers.Common.Helpers;
+    using OJS.Workers.Common.Models;
 
     public static class Settings
     {
@@ -15,11 +16,6 @@
 
         public static string CSharpCompilerPath => SettingsHelper.GetSetting("CSharpCompilerPath");
 
-        public static string CSharpDotNetCoreCompilerPath => SettingsHelper.GetSetting("CSharpDotNetCoreCompilerPath");
-
-        public static string DotNetCoreSharedAssembliesPath =>
-            SettingsHelper.GetSetting("DotNetCoreSharedAssembliesPath");
-
         public static string CPlusPlusGccCompilerPath => SettingsHelper.GetSetting("CPlusPlusGccCompilerPath");
 
         public static string NUnitConsoleRunnerPath => SettingsHelper.GetSetting("NUnitConsoleRunnerPath");
@@ -27,6 +23,8 @@
         public static string MsBuildExecutablePath => SettingsHelper.GetSetting("MsBuildExecutablePath");
 
         public static string NuGetExecutablePath => SettingsHelper.GetSetting("NuGetExecutablePath");
+
+        public static string GolangCompilerPath => SettingsHelper.GetSetting("GolangCompilerPath");
 
         public static string JavaCompilerPath => SettingsHelper.GetSetting("JavaCompilerPath");
 
@@ -40,11 +38,15 @@
 
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
+        public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636);
+
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
+
+        public static string PlaywrightChromiumModulePath => SettingsHelper.GetSetting("PlaywrightChromiumModulePath");
 
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 
@@ -137,6 +139,12 @@
         public static int DotNetCliBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("DotNetCliBaseMemoryUsedInBytes", 0);
 
+        public static int GolangBaseTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseTimeUsedInMilliseconds", 0);
+
+        public static int GolangBaseMemoryUsedInBytes =>
+            SettingsHelper.GetSettingOrDefault("GolangBaseMemoryUsedInBytes", 0);
+
         public static int JavaBaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("JavaBaseTimeUsedInMilliseconds", 0);
 
@@ -198,6 +206,9 @@
         public static int DotNetCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("DotNetCompilerProcessExitTimeOutMultiplier", 1);
 
+        public static int GolangCompilerProcessExitTimeOutMultiplier =>
+            SettingsHelper.GetSettingOrDefault("GolangCompilerProcessExitTimeOutMultiplier", 1);
+
         public static int JavaCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("JavaCompilerProcessExitTimeOutMultiplier", 1);
 
@@ -216,11 +227,51 @@
         public static int SolidityCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("SolidityCompilerProcessExitTimeOutMultiplier", 1);
 
-        public static string DotNetCoreRuntimeVersion => SettingsHelper.GetSetting("DotNetCoreRuntimeVersion");
-
         public static IEnumerable<string> RemoteWorkerEndpoints => SettingsHelper.GetSetting("RemoteWorkerEndpoints")
             .Split(';')
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
+
+        public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("DotNetCore3RuntimeVersion")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("DotNetCore5RuntimeVersion")
+                    : SettingsHelper.GetSetting("DotNetCore6RuntimeVersion");
+
+        public static string DotNetCoreSharedAssembliesPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("DotNetCore3SharedAssembliesPath")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("DotNetCore5SharedAssembliesPath")
+                    : SettingsHelper.GetSetting("DotNetCore6SharedAssembliesPath");
+
+        public static string CSharpDotNetCoreCompilerPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("CSharpDotNet3CoreCompilerPath")
+                : type == ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck
+                    ? SettingsHelper.GetSetting("CSharpDotNetCore5CompilerPath")
+                    : SettingsHelper.GetSetting("CSharpDotNetCore6CompilerPath");
+
+        public static string DotNetCoreTargetFrameworkName(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "netcoreapp3.1"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "net5.0"
+                    : "net6.0";
+
+        public static string MicrosoftEntityFrameworkCoreInMemoryVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "3.1.4"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "5.0.13"
+                    : "6.0.1";
+
+        public static string MicrosoftEntityFrameworkCoreProxiesVersion(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy
+                ? "3.1.4"
+                : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
+                    ? "5.0.13"
+                    : "6.0.1";
     }
 }

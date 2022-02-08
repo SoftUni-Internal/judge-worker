@@ -30,8 +30,8 @@
                     return new CSharpDotNetCoreCompileDisasaemblePlagiarismDetector(
                         new CSharpDotNetCoreCompiler(
                             Settings.CSharpDotNetCoreCompilerProcessExitTimeOutMultiplier,
-                            Settings.CSharpDotNetCoreCompilerPath,
-                            Settings.DotNetCoreSharedAssembliesPath),
+                            Settings.CSharpDotNetCoreCompilerPath(ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck),
+                            Settings.DotNetCoreSharedAssembliesPath(ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck)),
                         context.CompilerPath,
                         new DotNetDisassembler(context.DisassemblerPath),
                         context.SimilarityFinder);

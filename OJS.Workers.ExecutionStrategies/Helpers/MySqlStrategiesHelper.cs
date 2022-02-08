@@ -1,18 +1,18 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Helpers
 {
+    using System;
     using System.Text;
     using System.Text.RegularExpressions;
 
     public static class MySqlStrategiesHelper
     {
         private const string InsertIntoTableRegexPattern = @"insert\s+into\s+([^(]+)\s+\([^(]+\)\s+values\s*";
-        private const string NewLineSplitRegexPattern = @"\r|\n|\r\n";
 
         public static string TryOptimizeQuery(string query)
         {
             var newQuery = new StringBuilder();
 
-            var lines = Regex.Split(query, NewLineSplitRegexPattern);
+            var lines = query.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             var insertStatementRegex = new Regex(InsertIntoTableRegexPattern);
 
             for (var i = 0; i < lines.Length; i++)

@@ -162,6 +162,23 @@ namespace OJS.Workers.Common
 
             public static ISet<ExecutionStrategyType> DisabledLocalWorkerStrategies => new HashSet<ExecutionStrategyType>
             {
+                // .NET
+                ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck,
+                ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck,
+                ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck,
+                ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy,
+                ExecutionStrategyType.DotNetCoreProjectExecutionStrategy,
+                ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy,
+                ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy,
+
+                // GO
+                ExecutionStrategyType.GolangCompileExecuteAndCheck,
+
                 // JS Project strategy
                 ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
                 ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,

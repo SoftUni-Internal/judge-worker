@@ -17,11 +17,14 @@
             => GetSection(settingName)?.Value
                 ?? throw new Exception($"{settingName} setting not found in Config file!");
 
-        public static T GetSettingOrDefault<T>(string settingName, T defaultValue, bool? fromEnvironmentVariable = false)
+        public static T GetSettingOrDefault<T>(
+            string settingName,
+            T defaultValue,
+            bool? searchInEnvironmentVariablesFirst = false)
         {
             string value = null;
 
-            if (fromEnvironmentVariable.HasValue && fromEnvironmentVariable.Value)
+            if (searchInEnvironmentVariablesFirst.HasValue && searchInEnvironmentVariablesFirst.Value)
             {
                 value = Environment.GetEnvironmentVariable(settingName);
             }

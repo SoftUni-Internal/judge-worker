@@ -17,13 +17,23 @@
             => GetSection(settingName)?.Value
                 ?? throw new Exception($"{settingName} setting not found in Config file!");
 
-        public static T GetSettingOrDefault<T>(string settingName, T defaultValue)
+        public static T GetSettingOrDefault<T>(string settingName, T defaultValue, bool? fromEnvironmentVariable = false)
         {
-            var section = GetSection(settingName);
+            string value = null;
 
-            return section?.Value == null
-                ? defaultValue
-                : (T)Convert.ChangeType(section.Value, typeof(T));
+            if (fromEnvironmentVariable.HasValue && fromEnvironmentVariable.Value)
+            {
+                value = Environment.GetEnvironmentVariable(settingName);
+            }
+
+            if (string.IsNullOrEmpty(value))
+            {
+                var section = GetSection(settingName);
+
+                value = section?.Value;
+            }
+
+            return GetValueOrDefault(value, defaultValue);
         }
 
         private static IConfigurationSection GetSection(string settingName)
@@ -49,5 +59,10 @@
                 .Add(new LegacyConfigurationProvider())
                 .Build();
         }
+
+        private static T GetValueOrDefault<T>(string value, T defaultValue)
+            => string.IsNullOrEmpty(value)
+                ? defaultValue
+                : (T)Convert.ChangeType(value, typeof(T));
     }
 }

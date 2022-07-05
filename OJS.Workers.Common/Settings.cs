@@ -38,7 +38,7 @@
 
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
-        public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636);
+        public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636, true);
 
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 

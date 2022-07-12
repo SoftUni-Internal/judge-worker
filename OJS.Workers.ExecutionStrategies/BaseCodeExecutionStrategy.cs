@@ -13,9 +13,9 @@
     {
         protected const string RemoveMacFolderPattern = "__MACOSX/*";
 
-        protected readonly IProcessExecutorFactory ProcessExecutorFactory;
-
         protected const string ZippedSubmissionName = "Submission.zip";
+
+        protected readonly IProcessExecutorFactory ProcessExecutorFactory;
 
         protected BaseCodeExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,

@@ -15,7 +15,7 @@
 
         protected readonly IProcessExecutorFactory ProcessExecutorFactory;
 
-        private const string ZippedSubmissionName = "Submission.zip";
+        protected const string ZippedSubmissionName = "Submission.zip";
 
         protected BaseCodeExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -40,13 +40,17 @@
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
-        protected void SaveZipSubmission(byte[] submissionContent, string directory)
+        protected void SaveZipSubmission(byte[] submissionContent, string directory, bool deleteZip = true)
         {
             var submissionFilePath = FileHelpers.BuildPath(directory, ZippedSubmissionName);
             FileHelpers.WriteAllBytes(submissionFilePath, submissionContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, directory);
-            FileHelpers.DeleteFile(submissionFilePath);
+
+            if (deleteZip)
+            {
+                FileHelpers.DeleteFile(submissionFilePath);
+            }
         }
 
         protected TestResult CheckAndGetTestResult(

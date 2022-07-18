@@ -58,7 +58,7 @@
                 return result;
             }
 
-            var executor = this.CreateExecutor(ProcessExecutorType.Standard);
+            var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
 

@@ -34,7 +34,7 @@
             executionContext.SanitizeContent();
 
             var submissionDestination = Path.Combine(this.WorkingDirectory, ZippedSubmissionName);
-            this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory, false);
+            File.WriteAllBytes(submissionDestination, executionContext.FileContent);
 
             if (!string.IsNullOrEmpty(executionContext.Input.TaskSkeletonAsString))
             {

@@ -40,17 +40,13 @@
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);
 
-        protected void SaveZipSubmission(byte[] submissionContent, string directory, bool deleteZip = true)
+        protected void SaveZipSubmission(byte[] submissionContent, string directory)
         {
             var submissionFilePath = FileHelpers.BuildPath(directory, ZippedSubmissionName);
             FileHelpers.WriteAllBytes(submissionFilePath, submissionContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, directory);
-
-            if (deleteZip)
-            {
-                FileHelpers.DeleteFile(submissionFilePath);
-            }
+            FileHelpers.DeleteFile(submissionFilePath);
         }
 
         protected TestResult CheckAndGetTestResult(

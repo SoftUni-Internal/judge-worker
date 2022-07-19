@@ -15,7 +15,6 @@
 
     public class CPlusPlusZipFileExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
-        private const string SubmissionName = "UserSubmission.zip";
         private const string FileNameAndExtensionPattern = @"//((\w+)\.(cpp|h))//";
 
         private readonly Func<CompilerType, string> getCompilerPathFunc;
@@ -34,8 +33,7 @@
         {
             executionContext.SanitizeContent();
 
-            var submissionDestination = $@"{this.WorkingDirectory}\{SubmissionName}";
-
+            var submissionDestination = Path.Combine(this.WorkingDirectory, ZippedSubmissionName);
             File.WriteAllBytes(submissionDestination, executionContext.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionDestination, RemoveMacFolderPattern);
 
@@ -73,7 +71,6 @@
                     executionContext.TimeLimit,
                     executionContext.MemoryLimit,
                     executionArguments: null,
-                    workingDirectory: null,
                     useProcessTime: false,
                     useSystemEncoding: false,
                     dependOnExitCodeForRunTimeError: true);

@@ -101,8 +101,8 @@
                 var match = fileNameAndExtensionMatcher.Match(headersOrCppFile);
                 if (match.Success)
                 {
-                    File.WriteAllText($@"{this.WorkingDirectory}\{match.Groups[1]}", headersOrCppFile);
-                    pathsToHeadersAndCppFiles.Add($@"{this.WorkingDirectory}\{match.Groups[1]}");
+                    File.WriteAllText(Path.Combine(this.WorkingDirectory, match.Groups[1].ToString()), headersOrCppFile);
+                    pathsToHeadersAndCppFiles.Add(Path.Combine(this.WorkingDirectory, match.Groups[1].ToString()));
                 }
             }
 

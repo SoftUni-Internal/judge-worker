@@ -23,7 +23,10 @@
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
-            => this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+        {
+            executionContext.Code = this.PreprocessCode(executionContext);
+            return this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+        }
 
         public IExecutionResult<TResult> SafeExecute<TInput, TResult>(IExecutionContext<TInput> executionContext)
             where TResult : ISingleCodeRunResult, new()
@@ -91,5 +94,9 @@
 
             throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);
         }
+
+        protected virtual string PreprocessCode<TInput>(
+            IExecutionContext<TInput> executionContext)
+            => executionContext.Code;
     }
 }

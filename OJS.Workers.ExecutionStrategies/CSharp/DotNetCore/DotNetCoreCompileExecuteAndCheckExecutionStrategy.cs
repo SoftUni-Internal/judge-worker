@@ -13,6 +13,7 @@
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
+        private const string DotNetCoreCodeStringTemplate = "{0}{1}{2}";
         private readonly string dotNetCoreRuntimeVersion;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
@@ -39,7 +40,7 @@
                 }}
             }}";
 
-        private List<string> DotNetSixDefaultUsingNamespaces
+        private IEnumerable<string> DotNetSixDefaultUsingNamespaces
             => new List<string>
             {
                 "using System;",
@@ -55,8 +56,6 @@
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            this.AddUsingNamespacesForDotNetSix(executionContext);
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
@@ -101,8 +100,6 @@
             IExecutionContext<SimpleInputModel> executionContext,
             IExecutionResult<OutputResult> result)
         {
-            this.AddUsingNamespacesForDotNetSix(executionContext);
-
             var compileResult = this.ExecuteCompiling(
                 executionContext,
                 this.GetCompilerPathFunc,
@@ -168,31 +165,27 @@
             File.WriteAllText(jsonFilePath, text);
         }
 
-        private void AddUsingNamespacesForDotNetSix<T>(IExecutionContext<T> executionContext)
+        protected override string PreprocessCode<TInput>(IExecutionContext<TInput> executionContext)
         {
-            if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck)
+            if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck ||
+                string.IsNullOrWhiteSpace(executionContext.Code))
             {
-                return;
+                return base.PreprocessCode(executionContext);
             }
 
-            var stringBuilder = new StringBuilder();
-
-            this.DotNetSixDefaultUsingNamespaces
-                .ForEach(usingNamespace => this.AddUsingNamespaceIfNotExist(usingNamespace, stringBuilder, executionContext.Code));
-
-            stringBuilder.AppendLine(executionContext.Code);
-
-            executionContext.Code = stringBuilder.ToString();
+            return string.Format(
+                DotNetCoreCodeStringTemplate,
+                string.Join(
+                    Environment.NewLine,
+                    this.DotNetSixDefaultUsingNamespaces.Select(
+                        ns => this.GetNamespaceIfNotExist(ns, executionContext.Code))),
+                Environment.NewLine,
+                executionContext.Code);
         }
 
-        private void AddUsingNamespaceIfNotExist(string usingNamespace, StringBuilder sb, string code)
-        {
-            if (code.Contains(usingNamespace))
-            {
-                return;
-            }
-
-            sb.AppendLine(usingNamespace);
-        }
+        private string GetNamespaceIfNotExist(string usingNamespace, string code)
+            => code.Contains(usingNamespace)
+                ? string.Empty
+                : usingNamespace;
     }
 }

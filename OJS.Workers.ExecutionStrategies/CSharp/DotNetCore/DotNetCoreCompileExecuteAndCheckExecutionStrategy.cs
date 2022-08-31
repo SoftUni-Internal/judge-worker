@@ -131,6 +131,24 @@
             return result;
         }
 
+        protected override string PreprocessCode<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck ||
+                string.IsNullOrWhiteSpace(executionContext.Code))
+            {
+                return base.PreprocessCode(executionContext);
+            }
+
+            return string.Format(
+                DotNetCoreCodeStringTemplate,
+                string.Join(
+                    Environment.NewLine,
+                    this.DotNetSixDefaultUsingNamespaces.Select(
+                        ns => this.GetNamespaceIfNotExist(ns, executionContext.Code))),
+                Environment.NewLine,
+                executionContext.Code);
+        }
+
         private IExecutor PrepareExecutor<TInput>(
             CompileResult compileResult,
             IExecutionContext<TInput> executionContext,
@@ -163,24 +181,6 @@
             var jsonFilePath = Path.Combine(directory, jsonFileName);
 
             File.WriteAllText(jsonFilePath, text);
-        }
-
-        protected override string PreprocessCode<TInput>(IExecutionContext<TInput> executionContext)
-        {
-            if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck ||
-                string.IsNullOrWhiteSpace(executionContext.Code))
-            {
-                return base.PreprocessCode(executionContext);
-            }
-
-            return string.Format(
-                DotNetCoreCodeStringTemplate,
-                string.Join(
-                    Environment.NewLine,
-                    this.DotNetSixDefaultUsingNamespaces.Select(
-                        ns => this.GetNamespaceIfNotExist(ns, executionContext.Code))),
-                Environment.NewLine,
-                executionContext.Code);
         }
 
         private string GetNamespaceIfNotExist(string usingNamespace, string code)

@@ -135,7 +135,19 @@ namespace OJS.Workers.ExecutionStrategies.Sql.MySql
 
                 var enableLogBinTrustFunctionCreatorsQuery = "SET GLOBAL log_bin_trust_function_creators = 1;";
 
-                this.ExecuteNonQuery(connection, createDatabaseQuery);
+                try
+                {
+                    this.ExecuteNonQuery(connection, createDatabaseQuery);
+                }
+                catch (MySqlException)
+                {
+                    var currentWorkerConnection = new MySqlConnection(this.BuildWorkerDbConnectionString(databaseName));
+                    currentWorkerConnection.Open();
+                    _connection = currentWorkerConnection;
+
+                    return currentWorkerConnection;
+                }
+
                 this.ExecuteNonQuery(connection, createUserQuery);
                 this.ExecuteNonQuery(connection, grandPrivilegesToUserQuery);
                 this.ExecuteNonQuery(connection, enableLogBinTrustFunctionCreatorsQuery);

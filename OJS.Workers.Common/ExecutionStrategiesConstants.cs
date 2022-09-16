@@ -76,6 +76,8 @@ namespace OJS.Workers.Common
             public const string MySqlPrepareDbAndRunQueries = "mysql-prepare-db-and-run-queries";
             public const string MySqlRunQueriesAndCheckDatabase = "mysql-run-queries-and-check-database";
             public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
+            public const string MySqlRunQueriesAndCheckDatabaseCleanUpDatabase = "mysql-run-queries-and-check-database-clean-up-database";
+            public const string MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker = "mysql-run-queries-and-check-database-single-db";
 
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
@@ -145,6 +147,8 @@ namespace OJS.Workers.Common
                     // MySQL/MariaDb
                     { ExecutionStrategyNames.MySqlPrepareDbAndRunQueries, ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries },
                     { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabase, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabaseCleanUpDatabase, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseCleanUpDatabase },
+                    { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker },
                     { ExecutionStrategyNames.MySqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase },
 
                     // Php

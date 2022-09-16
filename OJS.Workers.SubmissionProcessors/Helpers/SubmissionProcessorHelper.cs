@@ -458,6 +458,18 @@
                 case ExecutionStrategyType.CheckOnly:
                     executionStrategy = new CheckOnlyExecutionStrategy(processExecutorFactory, 0, 0);
                     break;
+                case ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseCleanUpDatabase:
+                    executionStrategy = new MySqlRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker:
+                    executionStrategy = new MySqlRunQueriesAndCheckDatabaseExecutionStrategySingleDbPerWorker(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

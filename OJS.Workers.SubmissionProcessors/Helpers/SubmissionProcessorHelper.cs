@@ -438,7 +438,7 @@
                         Settings.MySqlRestrictedUserPassword);
                     break;
                 case ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase:
-                    executionStrategy = new MySqlRunQueriesAndCheckDatabaseExecutionStrategy(
+                    executionStrategy = new MySqlRunQueriesAndCheckDatabaseExecutionStrategyOriginal(
                         Settings.MySqlSysDbConnectionString,
                         Settings.MySqlRestrictedUserId,
                         Settings.MySqlRestrictedUserPassword);

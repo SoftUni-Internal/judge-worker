@@ -2,6 +2,7 @@
 {
     using System;
     using System.Data;
+    using System.Diagnostics;
     using System.Globalization;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
@@ -33,6 +34,8 @@
         {
             result.IsCompiledSuccessfully = true;
 
+            var st = Stopwatch.StartNew();
+
             string databaseName = null;
             try
             {
@@ -58,6 +61,9 @@
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = ex.Message;
             }
+
+            st.Stop();
+            result.StopWatchResult = st.Elapsed.ToString();
 
             return result;
         }

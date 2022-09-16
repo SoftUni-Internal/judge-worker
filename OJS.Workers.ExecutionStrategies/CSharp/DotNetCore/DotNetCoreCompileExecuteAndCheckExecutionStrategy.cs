@@ -1,8 +1,10 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -11,6 +13,7 @@
 
     public class DotNetCoreCompileExecuteAndCheckExecutionStrategy : BaseCompiledCodeExecutionStrategy
     {
+        private const string DotNetCoreCodeStringTemplate = "{0}{1}{2}";
         private readonly string dotNetCoreRuntimeVersion;
 
         public DotNetCoreCompileExecuteAndCheckExecutionStrategy(
@@ -36,6 +39,18 @@
                     }}
                 }}
             }}";
+
+        private IEnumerable<string> DotNetSixDefaultUsingNamespaces
+            => new List<string>
+            {
+                "using System;",
+                "using System.IO;",
+                "using System.Collections.Generic;",
+                "using System.Linq;",
+                "using System.Net.Http;",
+                "using System.Threading;",
+                "using System.Threading.Tasks;",
+            };
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -116,6 +131,24 @@
             return result;
         }
 
+        protected override string PreprocessCode<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck ||
+                string.IsNullOrWhiteSpace(executionContext.Code))
+            {
+                return base.PreprocessCode(executionContext);
+            }
+
+            return string.Format(
+                DotNetCoreCodeStringTemplate,
+                string.Join(
+                    Environment.NewLine,
+                    this.DotNetSixDefaultUsingNamespaces.Select(
+                        ns => this.GetNamespaceIfNotExist(ns, executionContext.Code))),
+                Environment.NewLine,
+                executionContext.Code);
+        }
+
         private IExecutor PrepareExecutor<TInput>(
             CompileResult compileResult,
             IExecutionContext<TInput> executionContext,
@@ -149,5 +182,10 @@
 
             File.WriteAllText(jsonFilePath, text);
         }
+
+        private string GetNamespaceIfNotExist(string usingNamespace, string code)
+            => code.Contains(usingNamespace)
+                ? string.Empty
+                : usingNamespace;
     }
 }

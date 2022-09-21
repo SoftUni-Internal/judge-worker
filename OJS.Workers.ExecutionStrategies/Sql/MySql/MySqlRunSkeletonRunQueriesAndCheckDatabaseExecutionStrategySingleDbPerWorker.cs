@@ -3,9 +3,9 @@
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public class MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase : MySqlRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase
+    public class MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategySingleDbPerWorker : MySqlRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase
     {
-        public MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase(
+        public MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategySingleDbPerWorker(
             string sysDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword)

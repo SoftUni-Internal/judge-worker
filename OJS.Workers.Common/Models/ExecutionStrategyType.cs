@@ -62,5 +62,9 @@
         DotNetCore6ProjectExecutionStrategy = 57,
         MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker = 59,
         MySqlRunQueriesAndCheckDatabaseCleanUpDatabase = 60,
+        MySqlPrepareDbAndRunQueriesCleanUpDatabase = 61,
+        MySqlPrepareDbAndRunQueriesSingleDbPerWorker = 62,
+        MySqlRunSkeletonRunQueriesAndCheckDatabaseCleanUpDatabase = 63,
+        MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker = 64,
     }
 }

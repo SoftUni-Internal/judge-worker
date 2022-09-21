@@ -3,9 +3,9 @@
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public class MySqlPrepareDatabaseAndRunQueriesExecutionStrategy : BaseMySqlExecutionStrategy
+    public class MySqlPrepareDatabaseAndRunQueriesExecutionStrategyCleanUpDatabase : MySqlRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase
     {
-        public MySqlPrepareDatabaseAndRunQueriesExecutionStrategy(
+        public MySqlPrepareDatabaseAndRunQueriesExecutionStrategyCleanUpDatabase(
             string sysDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword)

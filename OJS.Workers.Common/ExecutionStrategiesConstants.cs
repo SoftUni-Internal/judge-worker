@@ -78,6 +78,10 @@ namespace OJS.Workers.Common
             public const string MySqlRunSkeletonRunQueriesAndCheckDatabase = "mysql-run-skeleton-run-queries-and-check-database";
             public const string MySqlRunQueriesAndCheckDatabaseCleanUpDatabase = "mysql-run-queries-and-check-database-clean-up-database";
             public const string MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker = "mysql-run-queries-and-check-database-single-db";
+            public const string MySqlPrepareDbAndRunQueriesCleanUpDatabase = "mysql-prepare-db-and-run-queries-clean-up-db";
+            public const string MySqlPrepareDbAndRunQueriesSingleDbPerWorker = "mysql-prepare-db-and-run-queries-single-db";
+            public const string MySqlRunSkeletonRunQueriesAndCheckDatabaseCleanUpDatabase = "mysql-run-skeleton-run-queries-and-check-database-clean-up-db";
+            public const string MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker = "mysql-run-skeleton-run-queries-and-check-database-single-db";
 
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
@@ -150,6 +154,10 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabaseCleanUpDatabase, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseCleanUpDatabase },
                     { ExecutionStrategyNames.MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker, ExecutionStrategyType.MySqlRunQueriesAndCheckDatabaseSingleDbPerWorker },
                     { ExecutionStrategyNames.MySqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.MySqlPrepareDbAndRunQueriesCleanUpDatabase, ExecutionStrategyType.MySqlPrepareDbAndRunQueriesCleanUpDatabase },
+                    { ExecutionStrategyNames.MySqlPrepareDbAndRunQueriesSingleDbPerWorker, ExecutionStrategyType.MySqlPrepareDbAndRunQueriesSingleDbPerWorker },
+                    { ExecutionStrategyNames.MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker, ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker },
+                    { ExecutionStrategyNames.MySqlRunSkeletonRunQueriesAndCheckDatabaseCleanUpDatabase, ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabaseCleanUpDatabase },
 
                     // Php
                     // { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },

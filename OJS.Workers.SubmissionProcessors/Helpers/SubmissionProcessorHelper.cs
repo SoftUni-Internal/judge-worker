@@ -470,6 +470,30 @@
                         Settings.MySqlRestrictedUserId,
                         Settings.MySqlRestrictedUserPassword);
                     break;
+                case ExecutionStrategyType.MySqlPrepareDbAndRunQueriesCleanUpDatabase:
+                    executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategyCleanUpDatabase(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.MySqlPrepareDbAndRunQueriesSingleDbPerWorker:
+                    executionStrategy = new MySqlPrepareDatabaseAndRunQueriesExecutionStrategySingleDbPerWorker(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabaseCleanUpDatabase:
+                    executionStrategy = new MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategyCleanUpDatabase(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
+                case ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker:
+                    executionStrategy = new MySqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategySingleDbPerWorker(
+                        Settings.MySqlSysDbConnectionString,
+                        Settings.MySqlRestrictedUserId,
+                        Settings.MySqlRestrictedUserPassword);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

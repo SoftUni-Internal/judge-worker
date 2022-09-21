@@ -1,6 +1,10 @@
 ﻿#pragma warning disable SA1200
 using MySql.Data.MySqlClient;
 #pragma warning disable SA1208
+using System.Collections.Generic;
+#pragma warning restore SA1208
+using System.Threading.Tasks;
+#pragma warning disable SA1208
 using System.Diagnostics.CodeAnalysis;
 #pragma warning restore SA1208
 

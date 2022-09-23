@@ -1,5 +1,5 @@
 # mysql-run-skeleton-run-queries-and-check-database-clean-up-db
-for i in {01..1}; do
+for i in {01..256}; do
 curl --location --request POST 'http://localhost:8003/ExecuteSubmission' \
 --header 'Content-Type: application/json' \
 --data-raw '{

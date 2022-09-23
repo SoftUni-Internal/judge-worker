@@ -1,5 +1,5 @@
 # mysql-prepare-db-and-run-queries-clean-up-db
-for i in {01..256}; do
+for i in {01..1024}; do
 curl --location --request POST 'http://localhost:8003/ExecuteSubmission' \
 --header 'Content-Type: application/json' \
 --data-raw '{

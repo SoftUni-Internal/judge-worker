@@ -12,7 +12,7 @@ namespace ConsoleApp2
         {
             var lines =
                 File.ReadAllLines(
-                    @"D:\Repos\judge\interactive\Services\Judge\OJS.Workers\mysql-tests-scripts\results-SINGLE_DB_PER_WORKER_STRATEGY_2.txt");
+                    @"D:\Repos\judge\interactive\Services\Judge\OJS.Workers\mysql-tests-scripts-skeleton\results-CLEAN_UP_DB_STRATEGY_1.txt");
 
             // Display the file contents by using a foreach loop.
             var list = new List<TimeSpan>();

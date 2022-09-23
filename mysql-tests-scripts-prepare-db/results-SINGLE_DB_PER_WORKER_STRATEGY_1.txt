@@ -4,7 +4,7 @@ sys     0m1.942s
 
 iteration count - 256
 
-AVG 
+AVG 00:00:00.3559475
 
 2022-09-23 12:14:47.379 +03:00 [INF] Tests count: 2 Strategy: MySqlPrepareDbAndRunQueriesSingleDbPerWorker Time elapsed: 00:00:00.5115649
 2022-09-23 12:14:47.445 +03:00 [INF] HTTP POST /ExecuteSubmission responded 200 in 1007.1954 ms

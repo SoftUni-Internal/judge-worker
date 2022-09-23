@@ -4,7 +4,7 @@ sys     0m1.884s
 
 iterations count 256
 
-AVG 
+AVG 00:00:00.7019096
 
 2022-09-23 12:36:51.436 +03:00 [INF] Tests count: 2 Strategy: MySqlRunSkeletonRunQueriesAndCheckDatabaseSingleDbPerWorker Time elapsed: 00:00:00.7918518
 2022-09-23 12:36:51.495 +03:00 [INF] HTTP POST /ExecuteSubmission responded 200 in 1279.7431 ms

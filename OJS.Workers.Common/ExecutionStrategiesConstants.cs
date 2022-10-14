@@ -188,6 +188,11 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
             };
+
+            public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>
+            {
+                CompilerType.CSharp
+            };
         }
     }
 }

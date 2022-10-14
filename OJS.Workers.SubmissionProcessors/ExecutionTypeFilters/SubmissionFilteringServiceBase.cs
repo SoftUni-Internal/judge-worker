@@ -13,11 +13,14 @@
 
         protected abstract ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes { get; }
 
+        protected abstract ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes { get; }
+
         public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => submission != null
                 && !this.IsDisabledStrategy(submission)
                 && this.IsEnabledStrategy(submission)
-                && this.CanProcessSubmissionInternal(submission, submissionWorker);
+                && this.CanProcessSubmissionInternal(submission, submissionWorker)
+                && !this.IsDisabledCompilerType(submission);
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => true;
@@ -29,5 +32,10 @@
         private bool IsEnabledStrategy(IOjsSubmission submission)
         => this.EnabledExecutionStrategyTypes.Count == 0
                 || this.EnabledExecutionStrategyTypes.Contains(submission.ExecutionStrategyType);
+
+        private bool IsDisabledCompilerType(IOjsSubmission submission)
+            => submission.ExecutionStrategyType is ExecutionStrategyType.CompileExecuteAndCheck &&
+               this.DisabledExecuteAndCompileCompilerTypes.Count > 0 &&
+               this.DisabledExecuteAndCompileCompilerTypes.Contains(submission.CompilerType);
     }
 }

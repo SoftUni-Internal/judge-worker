@@ -23,6 +23,9 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
         protected override ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes
             => new HashSet<ExecutionStrategyType>();
 
+        protected override ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes
+            => new HashSet<CompilerType>();
+
         protected override bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => this.IsOnline(submissionWorker);
 

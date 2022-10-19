@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using OJS.Workers.Common.Models;
-
     using static OJS.Workers.Common.ExecutionStrategiesConstants.NameMappings;
 
     public class LocalSubmissionsFilteringService
@@ -13,5 +12,8 @@
 
         protected override ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes
             => DisabledLocalWorkerStrategies;
+
+        protected override ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes
+            => DisabledLocalWorkerExecuteAndCompileTypes;
     }
 }

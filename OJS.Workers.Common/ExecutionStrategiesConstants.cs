@@ -194,7 +194,7 @@ namespace OJS.Workers.Common
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>
             {
-                CompilerType.CSharp
+                CompilerType.CSharpDotNetCore
             };
         }
     }

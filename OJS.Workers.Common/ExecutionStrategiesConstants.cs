@@ -187,6 +187,9 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.MySqlPrepareDatabaseAndRunQueries,
                 ExecutionStrategyType.MySqlRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
+
+                // Python
+                ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

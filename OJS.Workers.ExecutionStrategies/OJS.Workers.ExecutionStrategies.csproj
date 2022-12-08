@@ -10,7 +10,7 @@
 
   <!-- common NuGet package refs that affect all projects -->
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="DotNetZip" Version="1.13.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
   </ItemGroup>

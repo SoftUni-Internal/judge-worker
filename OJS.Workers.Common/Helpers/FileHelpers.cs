@@ -7,6 +7,8 @@
 
     using Ionic.Zip;
 
+    using Zip = System.IO.Compression.ZipFile;
+
     // TODO: Unit test
     public static class FileHelpers
     {
@@ -56,16 +58,8 @@
             }
         }
 
-        public static void UnzipFile(string fileToUnzip, string outputDirectory)
-        {
-            using (var zipFile = ZipFile.Read(fileToUnzip))
-            {
-                foreach (var entry in zipFile)
-                {
-                    entry.Extract(outputDirectory, ExtractExistingFileAction.OverwriteSilently);
-                }
-            }
-        }
+        public static void UnzipFile(string fileToUnzip, string outputDirectory) =>
+            Zip.ExtractToDirectory(fileToUnzip, outputDirectory);
 
         public static string FindFileMatchingPattern(string workingDirectory, string pattern)
         {

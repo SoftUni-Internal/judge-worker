@@ -189,7 +189,42 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
 
                 // Python
+                ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+                ExecutionStrategyType.PythonProjectTests,
+                ExecutionStrategyType.PythonProjectUnitTests,
+
+                // PHP
+                ExecutionStrategyType.PhpCliExecuteAndCheck,
+                ExecutionStrategyType.PhpCgiExecuteAndCheck,
+
+                // HTML and CSS
+                ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy,
+
+                // C++
+                ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy,
+
+                // NodeJs
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
+                ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
+                ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha,
+
+                // JAVA
+                ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
+                ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
+                ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
+                ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
+
+                // Text only
+                ExecutionStrategyType.CheckOnly,
+
+                // SQL Server
+                ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
+                ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

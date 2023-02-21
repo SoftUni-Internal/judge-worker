@@ -79,6 +79,11 @@ namespace OJS.Workers.Common
 
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
+
+            // Postgres
+            public const string PostgresPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
+            public const string PostgresRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
+            public const string PostgresRunSkeletonRunQueriesAndCheckDatabase = "postgres-run-skeleton-run-queries-and-check-database";
         }
 
         public static class NameMappings
@@ -152,6 +157,12 @@ namespace OJS.Workers.Common
 
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
+
+                    // Postgres
+                    { ExecutionStrategyNames.PostgresPrepareDbAndRunQueries, ExecutionStrategyType
+                    .PostgresPrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.PostgresRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.PostgresRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase },
                 };
 
             public static IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =>
@@ -190,6 +201,11 @@ namespace OJS.Workers.Common
 
                 // Python
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+
+                // Postgres strategies
+                ExecutionStrategyType.PostgresPrepareDatabaseAndRunQueries,
+                ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

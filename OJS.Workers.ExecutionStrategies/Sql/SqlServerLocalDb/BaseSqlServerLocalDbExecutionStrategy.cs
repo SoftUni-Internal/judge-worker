@@ -132,7 +132,7 @@
             return base.GetDataRecordFieldValue(dataRecord, index);
         }
 
-        protected string BuildWorkerDbConnectionString(string databaseName)
+        protected virtual string BuildWorkerDbConnectionString(string databaseName)
         {
             var userIdRegex = new Regex("User Id=.*?;");
             var passwordRegex = new Regex("Password=.*?;");

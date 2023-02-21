@@ -273,5 +273,14 @@
                 : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
                     ? "5.0.13"
                     : "6.0.1";
+
+        public static string PostgresMasterDbConnectionString =>
+            SettingsHelper.GetSetting("PostgresMasterDbConnectionString");
+
+        public static string PostgresRestrictedUserId =>
+            SettingsHelper.GetSetting("PostgresRestrictedUserId");
+
+        public static string PostgresRestrictedUserPassword =>
+            SettingsHelper.GetSetting("PostgresRestrictedUserPassword");
     }
 }

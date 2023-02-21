@@ -18,6 +18,7 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
+    using OJS.Workers.ExecutionStrategies.Sql.Postgres;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
@@ -457,6 +458,28 @@
                     break;
                 case ExecutionStrategyType.CheckOnly:
                     executionStrategy = new CheckOnlyExecutionStrategy(processExecutorFactory, 0, 0);
+                    break;
+                case ExecutionStrategyType.PostgresPrepareDatabaseAndRunQueries:
+                    executionStrategy = new PostgresPrepareDatabaseAndRunQueriesExecutionStrategy(
+                        Settings.PostgresMasterDbConnectionString,
+                        Settings.PostgresRestrictedUserId,
+                        Settings.PostgresRestrictedUserPassword,
+                        submissionProcessorIdentifier);
+                    break;
+                case ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase:
+                    executionStrategy = new PostgresRunQueriesAndCheckDatabaseExecutionStrategy(
+                        Settings.PostgresMasterDbConnectionString,
+                        Settings.PostgresRestrictedUserId,
+                        Settings.PostgresRestrictedUserPassword,
+                        submissionProcessorIdentifier);
+                    break;
+                case ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase:
+                    executionStrategy =
+                        new PostgresRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                            Settings.PostgresMasterDbConnectionString,
+                            Settings.PostgresRestrictedUserId,
+                            Settings.PostgresRestrictedUserPassword,
+                            submissionProcessorIdentifier);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -112,6 +112,7 @@
                     () => command.ExecuteNonQuery());
             }
         }
+
         protected virtual string FixCommandText(string commandText)
             => commandText;
 

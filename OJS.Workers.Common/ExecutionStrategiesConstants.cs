@@ -159,8 +159,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
                     // Postgres
-                    { ExecutionStrategyNames.PostgresPrepareDbAndRunQueries, ExecutionStrategyType
-                    .PostgresPrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.PostgresPrepareDbAndRunQueries, ExecutionStrategyType.PostgresPrepareDatabaseAndRunQueries },
                     { ExecutionStrategyNames.PostgresRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase },
                     { ExecutionStrategyNames.PostgresRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase },
                 };

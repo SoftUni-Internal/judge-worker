@@ -232,6 +232,15 @@
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
 
+        public static string PostgresMasterDbConnectionString =>
+            SettingsHelper.GetSetting("PostgresMasterDbConnectionString");
+
+        public static string PostgresRestrictedUserId =>
+            SettingsHelper.GetSetting("PostgresRestrictedUserId");
+
+        public static string PostgresRestrictedUserPassword =>
+            SettingsHelper.GetSetting("PostgresRestrictedUserPassword");
+
         public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
             => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
                 ? SettingsHelper.GetSetting("DotNetCore3RuntimeVersion")
@@ -273,14 +282,5 @@
                 : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
                     ? "5.0.13"
                     : "6.0.1";
-
-        public static string PostgresMasterDbConnectionString =>
-            SettingsHelper.GetSetting("PostgresMasterDbConnectionString");
-
-        public static string PostgresRestrictedUserId =>
-            SettingsHelper.GetSetting("PostgresRestrictedUserId");
-
-        public static string PostgresRestrictedUserPassword =>
-            SettingsHelper.GetSetting("PostgresRestrictedUserPassword");
     }
 }

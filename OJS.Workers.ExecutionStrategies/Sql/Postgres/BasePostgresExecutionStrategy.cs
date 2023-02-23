@@ -62,8 +62,7 @@
             return createdDbConnectionString;
         }
 
-        protected override IExecutionResult<TestResult> Execute(IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
+        protected override IExecutionResult<TestResult> Execute(IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
         {
             result.IsCompiledSuccessfully = true;
 

@@ -3,7 +3,6 @@
     using System;
     using System.Data;
     using System.Text.RegularExpressions;
-    using System.Transactions;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
@@ -12,8 +11,7 @@
     public abstract class BasePostgresExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
         private readonly string databaseNameForSubmissionProcessor;
-
-        private TransactionScope transactionScope;
+        private string workerDbConnectionString;
         private IDbConnection currentConnection;
 
         protected BasePostgresExecutionStrategy(
@@ -26,44 +24,22 @@
 
         protected override string RestrictedUserId => $"{this.GetDatabaseName()}_{base.RestrictedUserId}";
 
-        private string WorkerDbConnectionString { get; set; }
-
-
         public override IDbConnection GetOpenConnection(string databaseName)
         {
             if (this.currentConnection != null && (this.currentConnection.State & ConnectionState.Open) == 0)
             {
                 this.currentConnection.Dispose();
-                this.currentConnection = new NpgsqlConnection(this.WorkerDbConnectionString);
+                this.currentConnection = new NpgsqlConnection(this.workerDbConnectionString);
                 this.currentConnection.Open();
                 return this.currentConnection;
             }
 
             this.EnsureDatabaseIsSetup();
 
-            // this.transactionScope = new TransactionScope();
-            var connection = new NpgsqlConnection(this.WorkerDbConnectionString);
+            var connection = new NpgsqlConnection(this.workerDbConnectionString);
             connection.Open();
             this.currentConnection = connection;
             return connection;
-        }
-
-        public override void DropDatabase(string databaseName)
-        {
-            if (this.transactionScope != null)
-            {
-                this.transactionScope.Dispose();
-            }
-            else
-            {
-                var connection = this.GetOpenConnection(this.WorkerDbConnectionString);
-
-                var dropDatabase = $@"
-                    DROP DATABASE IF EXISTS {databaseName};
-                ";
-
-                this.ExecuteNonQuery(connection, dropDatabase);
-            }
         }
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
@@ -121,26 +97,18 @@
 
         private void CleanUpDb(IDbConnection connection)
         {
-            var dropAllTables = @"
-                DO $$ DECLARE
-    r RECORD;
-                BEGIN
-                -- if the schema you operate on is not ""current"", you will want to
-                            -- replace current_schema() in query with 'schematodeletetablesfrom'
-                            -- *and* update the generate 'DROP...' accordingly.
-                            FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
-                            EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
-                        END LOOP;
-                        END $$;
+            var dropPublicScheme = @"
+                DROP SCHEMA public CASCADE;
+                CREATE SCHEMA public;
             ";
 
-            // var grantPermissions = @"
-            //     GRANT ALL ON SCHEMA public TO postgres;
-            //     GRANT ALL ON SCHEMA public TO public;
-            // ";
+            var grantPermissions = @"
+                GRANT ALL ON SCHEMA public TO postgres;
+                GRANT ALL ON SCHEMA public TO public;
+            ";
 
-            this.ExecuteNonQuery(connection, dropAllTables);
-            // this.ExecuteNonQuery(connection, grantPermissions);
+            this.ExecuteNonQuery(connection, dropPublicScheme);
+            this.ExecuteNonQuery(connection, grantPermissions);
         }
 
         private void EnsureDatabaseIsSetup()
@@ -172,18 +140,14 @@
 
                     this.ExecuteNonQuery(connection, setupDatabaseQuery);
                 }
-                catch (Exception _)
+                catch (Exception)
                 {
-                    // PG doesn't support IF Exists in one transaction
+                    // PG doesn't support CREATE DATABASE IF Exists
                     this.CleanUpDb(connection);
-                }
-                finally
-                {
-                    connection.Dispose();
                 }
             }
 
-            this.WorkerDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
+            this.workerDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
         }
     }
 }

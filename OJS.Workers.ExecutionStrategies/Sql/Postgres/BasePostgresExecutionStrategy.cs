@@ -3,10 +3,10 @@
     using System;
     using System.Data;
     using System.Text.RegularExpressions;
+    using Npgsql;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
-    using Npgsql;
 
     public abstract class BasePostgresExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
@@ -99,6 +99,22 @@
             return result;
         }
 
+        protected virtual void ExecuteBeforeTests(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext)
+        {
+        }
+
+        protected virtual void ExecuteAfterTests(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext) => this.CleanUpDb(connection);
+
+        protected virtual void ExecuteBeforeEachTest(IDbConnection connection, IExecutionContext<TestsInputModel> executionContext, TestContext test)
+        {
+        }
+
+        protected virtual void ExecuteAfterEachTest(IDbConnection connection, IExecutionContext<TestsInputModel> executionContext, TestContext test)
+        {
+        }
+
         private void CleanUpDb(IDbConnection connection)
         {
             var dropPublicScheme = @"
@@ -114,18 +130,6 @@
             this.ExecuteNonQuery(connection, dropPublicScheme);
             this.ExecuteNonQuery(connection, grantPermissions);
         }
-
-        protected virtual void ExecuteBeforeTests(IDbConnection connection, IExecutionContext<TestsInputModel>
-            executionContext) { }
-
-        protected virtual void ExecuteAfterTests(IDbConnection connection, IExecutionContext<TestsInputModel>
-            executionContext) => this.CleanUpDb(connection);
-
-        protected virtual void ExecuteBeforeEachTest(IDbConnection connection, IExecutionContext<TestsInputModel>
-            executionContext, TestContext test) { }
-
-        protected virtual void ExecuteAfterEachTest(IDbConnection connection, IExecutionContext<TestsInputModel>
-            executionContext, TestContext test) { }
 
         private void EnsureDatabaseIsSetup()
         {

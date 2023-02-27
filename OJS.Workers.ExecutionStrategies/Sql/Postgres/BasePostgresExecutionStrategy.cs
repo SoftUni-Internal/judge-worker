@@ -26,7 +26,7 @@
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
-            if (this.currentConnection != null && (this.currentConnection.State & ConnectionState.Open) == 0)
+            if (this.currentConnection != null)
             {
                 this.currentConnection.Dispose();
                 this.currentConnection = new NpgsqlConnection(this.workerDbConnectionString);
@@ -68,14 +68,19 @@
 
             try
             {
+                this.ExecuteBeforeTests(this.GetOpenConnection(this.GetDatabaseName()), executionContext);
+
                 foreach (var test in executionContext.Input.Tests)
                 {
                     using (var connection = this.GetOpenConnection(this.GetDatabaseName()))
                     {
+                        this.ExecuteBeforeEachTest(connection, executionContext, test);
                         executionFlow(connection, test);
-                        this.CleanUpDb(connection);
+                        this.ExecuteAfterEachTest(connection, executionContext, test);
                     }
                 }
+
+                this.ExecuteAfterTests(this.GetOpenConnection(this.GetDatabaseName()), executionContext);
             }
             catch (Exception ex)
             {
@@ -109,6 +114,18 @@
             this.ExecuteNonQuery(connection, dropPublicScheme);
             this.ExecuteNonQuery(connection, grantPermissions);
         }
+
+        protected virtual void ExecuteBeforeTests(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext) { }
+
+        protected virtual void ExecuteAfterTests(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext) => this.CleanUpDb(connection);
+
+        protected virtual void ExecuteBeforeEachTest(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext, TestContext test) { }
+
+        protected virtual void ExecuteAfterEachTest(IDbConnection connection, IExecutionContext<TestsInputModel>
+            executionContext, TestContext test) { }
 
         private void EnsureDatabaseIsSetup()
         {

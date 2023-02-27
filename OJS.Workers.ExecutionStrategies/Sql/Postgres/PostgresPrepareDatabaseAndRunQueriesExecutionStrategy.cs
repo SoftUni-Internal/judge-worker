@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.Postgres
 {
+    using System.Data;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
@@ -22,9 +23,40 @@
                 result,
                 (connection, test) =>
                 {
-                    this.ExecuteNonQuery(connection, test.Input);
                     var sqlTestResult = this.ExecuteReader(connection, executionContext.Code, executionContext.TimeLimit);
                     this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
                 });
+
+        protected override void ExecuteBeforeTests(
+            IDbConnection connection,
+            IExecutionContext<TestsInputModel> executionContext)
+            => this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
+
+        protected override void ExecuteBeforeEachTest(
+            IDbConnection connection,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test)
+        {
+            this.StartTransaction(connection);
+            this.ExecuteNonQuery(connection, test.Input);
+        }
+
+        protected override void ExecuteAfterEachTest(
+            IDbConnection connection,
+            IExecutionContext<TestsInputModel> executionContext,
+            TestContext test)
+            => this.RollbackTransaction(connection);
+
+        private void StartTransaction(IDbConnection connection)
+        {
+            var start = @"BEGIN;";
+            this.ExecuteNonQuery(connection, start);
+        }
+
+        private void RollbackTransaction(IDbConnection connection)
+        {
+            var rollback = @"ROLLBACK;";
+            this.ExecuteNonQuery(connection, rollback);
+        }
     }
 }

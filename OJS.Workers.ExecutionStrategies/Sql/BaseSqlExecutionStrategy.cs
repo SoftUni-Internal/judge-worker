@@ -45,6 +45,12 @@
             this.RestrictedUserPassword = restrictedUserPassword;
         }
 
+        protected string MasterDbConnectionString { get; }
+
+        protected virtual string RestrictedUserId { get; }
+
+        protected string RestrictedUserPassword { get; }
+
         public abstract IDbConnection GetOpenConnection(string databaseName);
 
         public abstract void DropDatabase(string databaseName);
@@ -52,12 +58,6 @@
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
 
         protected abstract string BuildWorkerDbConnectionString(string databaseName);
-
-        protected string MasterDbConnectionString { get; }
-
-        protected virtual string RestrictedUserId { get; }
-
-        protected string RestrictedUserPassword { get; }
 
         protected virtual IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext,

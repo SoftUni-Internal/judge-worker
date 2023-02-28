@@ -6,9 +6,8 @@
     using Npgsql;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
 
-    public abstract class BasePostgreSqlExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
+    public abstract class BasePostgreSqlExecutionStrategy : BaseSqlServerAndPostgreSqlExecutionStrategy
     {
         private readonly string databaseNameForSubmissionProcessor;
         private string workerDbConnectionString;

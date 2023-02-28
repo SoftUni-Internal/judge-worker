@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.MySql
 {
-    using System;
     using System.Data;
     using System.Globalization;
     using System.Text.RegularExpressions;
@@ -11,50 +10,29 @@
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         private const string TimeSpanFormat = "HH:mm:ss";
 
-        private readonly string sysDbConnectionString;
-        private readonly string restrictedUserId;
-        private readonly string restrictedUserPassword;
-
         protected BaseMySqlExecutionStrategy(
             string sysDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword)
+            : base(sysDbConnectionString, restrictedUserId, restrictedUserPassword)
         {
-            if (string.IsNullOrWhiteSpace(sysDbConnectionString))
-            {
-                throw new ArgumentException("Invalid sys DB connection string!", nameof(sysDbConnectionString));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserId))
-            {
-                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
-            {
-                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
-            }
-
-            this.sysDbConnectionString = sysDbConnectionString;
-            this.restrictedUserId = restrictedUserId;
-            this.restrictedUserPassword = restrictedUserPassword;
         }
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
-            using (var connection = new MySqlConnection(this.sysDbConnectionString))
+            using (var connection = new MySqlConnection(this.MasterDbConnectionString))
             {
                 connection.Open();
 
                 var createDatabaseQuery = $"CREATE DATABASE `{databaseName}`;";
 
                 var createUserQuery = $@"
-                    CREATE USER IF NOT EXISTS '{this.restrictedUserId}'@'%';
-                    ALTER USER '{this.restrictedUserId}' IDENTIFIED BY '{this.restrictedUserPassword}'";
+                    CREATE USER IF NOT EXISTS '{this.RestrictedUserId}'@'%';
+                    ALTER USER '{this.RestrictedUserId}' IDENTIFIED BY '{this.RestrictedUserPassword}'";
                     /* SET PASSWORD FOR '{this.restrictedUserId}'@'%'=PASSWORD('{this.restrictedUserPassword}')"; */
 
                 var grandPrivilegesToUserQuery = $@"
-                    GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.restrictedUserId}'@'%';
+                    GRANT ALL PRIVILEGES ON `{databaseName}`.* TO '{this.RestrictedUserId}'@'%';
                     FLUSH PRIVILEGES;";
 
                 var enableLogBinTrustFunctionCreatorsQuery = "SET GLOBAL log_bin_trust_function_creators = 1;";
@@ -73,7 +51,7 @@
 
         public override void DropDatabase(string databaseName)
         {
-            using (var connection = new MySqlConnection(this.sysDbConnectionString))
+            using (var connection = new MySqlConnection(this.MasterDbConnectionString))
             {
                 connection.Open();
 
@@ -103,18 +81,18 @@
             return base.GetDataRecordFieldValue(dataRecord, index);
         }
 
-        private string BuildWorkerDbConnectionString(string databaseName)
+        protected override string BuildWorkerDbConnectionString(string databaseName)
         {
             var userIdRegex = new Regex("UID=.*?;");
             var passwordRegex = new Regex("Password=.*?;");
 
-            var workerDbConnectionString = this.sysDbConnectionString;
+            var workerDbConnectionString = this.MasterDbConnectionString;
 
             workerDbConnectionString =
-                userIdRegex.Replace(workerDbConnectionString, $"UID={this.restrictedUserId};");
+                userIdRegex.Replace(workerDbConnectionString, $"UID={this.RestrictedUserId};");
 
             workerDbConnectionString =
-                passwordRegex.Replace(workerDbConnectionString, $"Password={this.restrictedUserPassword}");
+                passwordRegex.Replace(workerDbConnectionString, $"Password={this.RestrictedUserPassword}");
 
             workerDbConnectionString += $";Database={databaseName};Pooling=False;";
 

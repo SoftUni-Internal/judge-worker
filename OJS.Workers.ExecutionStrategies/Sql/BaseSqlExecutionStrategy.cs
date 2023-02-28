@@ -20,11 +20,44 @@
 
         private const int DefaultTimeLimit = 2 * 60 * 1000;
 
+        protected BaseSqlExecutionStrategy(
+            string masterDbConnectionString,
+            string restrictedUserId,
+            string restrictedUserPassword)
+        {
+            if (string.IsNullOrWhiteSpace(masterDbConnectionString))
+            {
+                throw new ArgumentException("Invalid master DB connection string!", nameof(masterDbConnectionString));
+            }
+
+            if (string.IsNullOrWhiteSpace(restrictedUserId))
+            {
+                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
+            }
+
+            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
+            {
+                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
+            }
+
+            this.MasterDbConnectionString = masterDbConnectionString;
+            this.RestrictedUserId = restrictedUserId;
+            this.RestrictedUserPassword = restrictedUserPassword;
+        }
+
         public abstract IDbConnection GetOpenConnection(string databaseName);
 
         public abstract void DropDatabase(string databaseName);
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
+
+        protected abstract string BuildWorkerDbConnectionString(string databaseName);
+
+        protected string MasterDbConnectionString { get; }
+
+        protected virtual string RestrictedUserId { get; }
+
+        protected string RestrictedUserPassword { get; }
 
         protected virtual IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext,

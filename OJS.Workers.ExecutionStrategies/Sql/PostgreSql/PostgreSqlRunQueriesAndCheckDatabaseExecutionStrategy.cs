@@ -1,13 +1,12 @@
-﻿namespace OJS.Workers.ExecutionStrategies.Sql.Postgres
+﻿namespace OJS.Workers.ExecutionStrategies.Sql.PostgreSql
 {
     using System.Data;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public class PostgresRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy
-        : BasePostgresExecutionStrategy
+    public class PostgreSqlRunQueriesAndCheckDatabaseExecutionStrategy : BasePostgreSqlExecutionStrategy
     {
-        public PostgresRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+        public PostgreSqlRunQueriesAndCheckDatabaseExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword,
@@ -24,14 +23,12 @@
                 result,
                 (connection, test) =>
                 {
-                    this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
                     var sqlTestResult = this.ExecuteReader(connection, test.Input);
                     this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
                 });
 
-        protected override void ExecuteBeforeTests(
-            IDbConnection connection,
-            IExecutionContext<TestsInputModel> executionContext)
-            => this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
+        protected override void ExecuteBeforeTests(IDbConnection connection, IExecutionContext<TestsInputModel>
+        executionContext)
+            => this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
     }
 }

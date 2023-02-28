@@ -1,12 +1,12 @@
-﻿namespace OJS.Workers.ExecutionStrategies.Sql.Postgres
+﻿namespace OJS.Workers.ExecutionStrategies.Sql.PostgreSql
 {
     using System.Data;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
 
-    public class PostgresPrepareDatabaseAndRunQueriesExecutionStrategy : BasePostgresExecutionStrategy
+    public class PostgreSqlPrepareDatabaseAndRunQueriesExecutionStrategy : BasePostgreSqlExecutionStrategy
     {
-        public PostgresPrepareDatabaseAndRunQueriesExecutionStrategy(
+        public PostgreSqlPrepareDatabaseAndRunQueriesExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword,

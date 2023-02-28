@@ -60,8 +60,8 @@
         DotNetCore6UnitTestsExecutionStrategy = 55,
         DotNetCore5ProjectExecutionStrategy = 56,
         DotNetCore6ProjectExecutionStrategy = 57,
-        PostgresPrepareDatabaseAndRunQueries = 58,
-        PostgresRunQueriesAndCheckDatabase = 59,
-        PostgresRunSkeletonRunQueriesAndCheckDatabase = 60,
+        PostgreSqlPrepareDatabaseAndRunQueries = 58,
+        PostgreSqlRunQueriesAndCheckDatabase = 59,
+        PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
     }
 }

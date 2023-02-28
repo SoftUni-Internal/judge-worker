@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies.Sql.Postgres
+﻿namespace OJS.Workers.ExecutionStrategies.Sql.PostgreSql
 {
     using System;
     using System.Data;
@@ -8,13 +8,13 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
 
-    public abstract class BasePostgresExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
+    public abstract class BasePostgreSqlExecutionStrategy : BaseSqlServerLocalDbExecutionStrategy
     {
         private readonly string databaseNameForSubmissionProcessor;
         private string workerDbConnectionString;
         private IDbConnection currentConnection;
 
-        protected BasePostgresExecutionStrategy(
+        protected BasePostgreSqlExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword,

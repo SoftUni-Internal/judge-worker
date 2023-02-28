@@ -80,10 +80,10 @@ namespace OJS.Workers.Common
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
 
-            // Postgres
-            public const string PostgresPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
-            public const string PostgresRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
-            public const string PostgresRunSkeletonRunQueriesAndCheckDatabase = "postgres-run-skeleton-run-queries-and-check-database";
+            // PostgreSql
+            public const string PostgreSqlPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
+            public const string PostgreSqlRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
+            public const string PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = "postgres-run-skeleton-run-queries-and-check-database";
         }
 
         public static class NameMappings
@@ -158,10 +158,10 @@ namespace OJS.Workers.Common
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
-                    // Postgres
-                    { ExecutionStrategyNames.PostgresPrepareDbAndRunQueries, ExecutionStrategyType.PostgresPrepareDatabaseAndRunQueries },
-                    { ExecutionStrategyNames.PostgresRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase },
-                    { ExecutionStrategyNames.PostgresRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase },
+                    // PostgreSql
+                    { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },
+                    { ExecutionStrategyNames.PostgreSqlRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase },
+                    { ExecutionStrategyNames.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase },
                 };
 
             public static IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =>
@@ -201,10 +201,10 @@ namespace OJS.Workers.Common
                 // Python
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
 
-                // Postgres strategies
-                ExecutionStrategyType.PostgresPrepareDatabaseAndRunQueries,
-                ExecutionStrategyType.PostgresRunQueriesAndCheckDatabase,
-                ExecutionStrategyType.PostgresRunSkeletonRunQueriesAndCheckDatabase,
+                // PostgreSql strategies
+                ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries,
+                ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

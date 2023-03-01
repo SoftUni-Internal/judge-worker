@@ -160,7 +160,6 @@ try:
     print(""Container port: "" + host_port + "";Container name: "" + name + "";"")
 except Exception as e:
     print(e)
-finally:
     executor.stop()
 ";
 
@@ -288,8 +287,8 @@ http {{
                 this.ContainerName = match.Groups[2].Value;
 
                 // preprocess python code template
-                this.PythonCodeTemplate.Replace(ContainerNamePlaceholder, this.ContainerName);
-                codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
+                var processedPythonCodeTemplate = this.PythonCodeTemplate.Replace(ContainerNamePlaceholder, this.ContainerName);
+                codeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
                 this.SaveTestsToFiles(executionContext.Input.Tests);
 

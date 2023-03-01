@@ -18,6 +18,7 @@
     public class RunSpaAndExecuteMochaTestsExecutionStrategy : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
+        private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
         private const string NodeModulesRequirePattern = "(require\\((?'quote'[\'\"]))([\\w\\-]*)(\\k<quote>)";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
@@ -46,7 +47,7 @@
             this.PortNumber = portNumber;
         }
 
-        private int PortNumber { get; }
+        private int PortNumber { get; set; }
 
         private string MochaModulePath { get; }
 
@@ -64,23 +65,18 @@
 
         private string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
 
-        private string PythonCodeTemplate => $@"
+        private string PythonPreExecuteCodeTemplate => $@"
 import docker
-import subprocess
-
 import shutil
 import tarfile
 
 from os import chdir, remove
 from os.path import basename, join, dirname
 
-mocha_path = '{this.MochaModulePath}'
-tests_path = '{this.TestsPath}'
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
 path_to_nginx_conf = '{this.NginxConfFileDirectory}/nginx.conf'
 path_to_node_modules = '{this.JsProjNodeModulesPath}'
-port = '{this.PortNumber}'
 
 
 class DockerExecutor:
@@ -89,7 +85,7 @@ class DockerExecutor:
         self.__ensure_image_is_present()
         self.container = self.client.containers.create(
             image=image_name,
-            ports={{'80/tcp': port}},
+            ports={{'80/tcp': '0'}},
             volumes={{
                 path_to_nginx_conf: {{
                     'bind': '/etc/nginx/nginx.conf',
@@ -110,6 +106,12 @@ class DockerExecutor:
         self.container.stop()
         self.container.wait()
         self.container.remove()
+
+    def get_container(self):
+        return self.container
+
+    def get_container_by_name(self, name):
+        return self.client.containers.get(name)
 
     def copy_to_container(self, source, destination):
         chdir(dirname(source))
@@ -145,6 +147,35 @@ executor = DockerExecutor()
 
 try:
     executor.start()
+
+    #get created container so we can get the container name, port is not assigned yet at this point
+    container = executor.get_container()
+    name = container.name
+    #get container after docker has ran it and assigned a port
+    current_container = executor.get_container_by_name(name)
+    first_element =list(current_container.ports)[0]
+    # get container host port
+    host_port = current_container.ports[first_element][0]['HostPort']
+
+    print(""Container port: "" + host_port)
+except Exception as e:
+    print(e)
+finally:
+    executor.stop()
+";
+
+        private string PythonCodeTemplate => $@"
+import docker
+import subprocess
+
+
+mocha_path = '{this.MochaModulePath}'
+tests_path = '{this.TestsPath}'
+container_name = '{ContainerNamePlaceholder}'
+
+try:
+    docker_client = docker.from_env()
+    container = docker_client.containers.get(container_name)
     commands = [mocha_path, tests_path, '-R', 'json']
 
     process = subprocess.run(
@@ -155,7 +186,9 @@ try:
 except Exception as e:
     print(e)
 finally:
-    executor.stop()
+    container.stop()
+    container.wait()
+    container.remove()
 ";
 
         private string NginxFileContent => $@"
@@ -189,6 +222,8 @@ http {{
     }}
 }}";
 
+        private string PreExecuteCodeSavePath { get; set; }
+
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -205,10 +240,11 @@ http {{
                 return result;
             }
 
-            this.SaveTestsToFiles(executionContext.Input.Tests);
+            // this.SaveTestsToFiles(executionContext.Input.Tests);
             this.SaveNginxFile();
 
-            var codeSavePath = this.SavePythonCodeTemplateToTempFile();
+            this.PreExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
+            var codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
             return this.RunTests(codeSavePath, executor, checker, executionContext, result);
@@ -242,6 +278,15 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             TestContext test)
         {
+            var preExecutionResult = this.Execute(executionContext, executor, this.PreExecuteCodeSavePath, test.Input);
+            Match match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+)");
+            if (match.Success)
+            {
+                this.PortNumber = int.Parse(match.Groups[1].Value);
+            }
+
+            this.SaveTestsToFiles(executionContext.Input.Tests);
+
             var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
             return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
@@ -324,9 +369,9 @@ http {{
                 .Replace("}'", "}")
                 .Replace("}None", "}");
 
-        private string SavePythonCodeTemplateToTempFile()
+        private string SavePythonCodeTemplateToTempFile(string codeTemplate)
         {
-            var pythonCodeTemplate = this.PythonCodeTemplate.Replace("\\", "\\\\");
+            var pythonCodeTemplate = codeTemplate.Replace("\\", "\\\\");
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
         }
 

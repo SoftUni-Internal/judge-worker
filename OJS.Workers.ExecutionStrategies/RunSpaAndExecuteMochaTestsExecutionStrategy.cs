@@ -157,7 +157,7 @@ try:
     # get container host port
     host_port = current_container.ports[first_element][0]['HostPort']
 
-    print(""Container port: "" + host_port)
+    print(""Container port: "" + host_port + "";Container name: "" + name + "";"")
 except Exception as e:
     print(e)
 finally:
@@ -224,6 +224,8 @@ http {{
 
         private string PreExecuteCodeSavePath { get; set; }
 
+        private string ContainerName { get; set; }
+
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -244,10 +246,10 @@ http {{
             this.SaveNginxFile();
 
             this.PreExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
-            var codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
+            // var codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
-            return this.RunTests(codeSavePath, executor, checker, executionContext, result);
+            return this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<TestResult> RunTests(
@@ -279,16 +281,37 @@ http {{
             TestContext test)
         {
             var preExecutionResult = this.Execute(executionContext, executor, this.PreExecuteCodeSavePath, test.Input);
-            Match match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+)");
+            Match match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
             if (match.Success)
             {
                 this.PortNumber = int.Parse(match.Groups[1].Value);
+                this.ContainerName = match.Groups[2].Value;
+
+                // preprocess python code template
+                this.PythonCodeTemplate.Replace(ContainerNamePlaceholder, this.ContainerName);
+                codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
+
+                this.SaveTestsToFiles(executionContext.Input.Tests);
+
+                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
             }
-
-            this.SaveTestsToFiles(executionContext.Input.Tests);
-
-            var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
-            return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
+            else
+            {
+                return new List<TestResult>()
+                {
+                 new TestResult
+                    {
+                        Id = test.Id,
+                        IsTrialTest = false,
+                        ResultType = TestRunResultType.RunTimeError,
+                        CheckerDetails = new CheckerDetails
+                        {
+                            UserOutputFragment = preExecutionResult.ReceivedOutput,
+                        },
+                    }
+                };
+            }
         }
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)

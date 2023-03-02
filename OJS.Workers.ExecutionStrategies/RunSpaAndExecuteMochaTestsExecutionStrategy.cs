@@ -19,6 +19,7 @@
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
+        private const string TestFilePathPlaceholder = "#testFilePathPlaceholder#";
         private const string NodeModulesRequirePattern = "(require\\((?'quote'[\'\"]))([\\w\\-]*)(\\k<quote>)";
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
@@ -72,6 +73,7 @@ import tarfile
 
 from os import chdir, remove
 from os.path import basename, join, dirname
+from datetime import datetime, timezone
 
 image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
@@ -86,6 +88,7 @@ class DockerExecutor:
         self.container = self.client.containers.create(
             image=image_name,
             ports={{'80/tcp': '0'}},
+            labels = ['js-apps'],
             volumes={{
                 path_to_nginx_conf: {{
                     'bind': '/etc/nginx/nginx.conf',
@@ -146,6 +149,25 @@ class DockerExecutor:
 executor = DockerExecutor()
 
 try:
+    # code for cleaning up old js-apps containers
+    datetime_now = datetime.now(timezone.utc)
+    client = docker.from_env()
+    js_apps_containers = client.containers.list(all=True, filters={{""label"":""js-apps"", ""status"": ""running""}})
+    for appsContainer in js_apps_containers:
+        container_info = client.api.inspect_container(appsContainer.name)
+        started_at_string = container_info['State']['StartedAt']
+        # Python 3.6 does not support a ton of datetime stuff, also docker provides 9 symbols for ticks
+        # while python expects 6
+        processed_time_str = started_at_string[0:-4]
+        start_at_date = datetime.strptime(processed_time_str + ""Z"", ""%Y-%m-%dT%H:%M:%S.%fZ"").replace(tzinfo=timezone.utc)
+        time_diff = datetime_now - start_at_date
+        # check if container is older than 1 hour (1 hour was arbitrarily chosen)
+        if time_diff.total_seconds() > 3600:
+            appsContainer.stop()
+            appsContainer.wait()
+            appsContainer.remove()
+
+
     executor.start()
 
     #get created container so we can get the container name, port is not assigned yet at this point
@@ -169,7 +191,7 @@ import subprocess
 
 
 mocha_path = '{this.MochaModulePath}'
-tests_path = '{this.TestsPath}'
+tests_path = '{TestFilePathPlaceholder}'
 container_name = '{ContainerNamePlaceholder}'
 
 try:
@@ -286,8 +308,14 @@ http {{
                 this.PortNumber = int.Parse(match.Groups[1].Value);
                 this.ContainerName = match.Groups[2].Value;
 
-                // preprocess python code template
-                var processedPythonCodeTemplate = this.PythonCodeTemplate.Replace(ContainerNamePlaceholder, this.ContainerName);
+                var filePath = FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}");
+
+                // pass in container name in order to close container after execution
+                // pass test file path to mocha so it executes only this test file, and not all test files each run
+                var processedPythonCodeTemplate = this.PythonCodeTemplate
+                    .Replace(ContainerNamePlaceholder, this.ContainerName)
+                    .Replace(TestFilePathPlaceholder, filePath);
+
                 codeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
                 this.SaveTestsToFiles(executionContext.Input.Tests);
@@ -405,10 +433,11 @@ http {{
             foreach (var test in tests)
             {
                 var testInputContent = this.PreprocessTestInput(test.Input);
+                var filePath = FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}");
 
                 FileHelpers.SaveStringToFile(
                     testInputContent,
-                    FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}"));
+                    filePath);
             }
         }
 

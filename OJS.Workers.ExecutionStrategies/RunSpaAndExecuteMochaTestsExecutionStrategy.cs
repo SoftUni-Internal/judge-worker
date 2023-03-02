@@ -159,7 +159,7 @@ try:
         # Python 3.6 does not support a ton of datetime stuff, also docker provides 9 symbols for ticks
         # while python expects 6
         processed_time_str = started_at_string[0:-4]
-        start_at_date = datetime.strptime(processed_time_str + ""Z"", ""%Y-%m-%dT%H:%M:%S.%fZ"").replace(tzinfo=timezone.utc)
+        start_at_date = datetime.strptime(processed_time_str, ""%Y-%m-%dT%H:%M:%S.%f"").replace(tzinfo=timezone.utc)
         time_diff = datetime_now - start_at_date
         # check if container is older than 1 hour (1 hour was arbitrarily chosen)
         if time_diff.total_seconds() > 3600:
@@ -170,16 +170,16 @@ try:
 
     executor.start()
 
-    #get created container so we can get the container name, port is not assigned yet at this point
+    #get created container config so we can get the container name (note this config does not get ports automatically populated)
     container = executor.get_container()
     name = container.name
-    #get container after docker has ran it and assigned a port
+    # need to get container by name from docker again, so we can get info about the dynamically assigned port
     current_container = executor.get_container_by_name(name)
-    first_element =list(current_container.ports)[0]
+    first_element = list(current_container.ports)[0]
     # get container host port
     host_port = current_container.ports[first_element][0]['HostPort']
 
-    print(""Container port: "" + host_port + "";Container name: "" + name + "";"")
+    print(f'Container port: {{host_port}};Container name: {{name}};')
 except Exception as e:
     print(e)
     executor.stop()

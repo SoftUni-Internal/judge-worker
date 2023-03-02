@@ -162,7 +162,8 @@
                                     sqlTestResult.Results.Add(fieldValue);
                                 }
                             }
-                        } while (reader.NextResult());
+                        }
+                        while (reader.NextResult());
                     }
                 }
             }

@@ -11,14 +11,13 @@
 
     public abstract class BaseSqlExecutionStrategy : BaseExecutionStrategy
     {
+        protected const int DefaultTimeLimit = 2 * 60 * 1000;
         protected static readonly Type DecimalType = typeof(decimal);
         protected static readonly Type DoubleType = typeof(double);
         protected static readonly Type FloatType = typeof(float);
         protected static readonly Type ByteArrayType = typeof(byte[]);
         protected static readonly Type DateTimeType = typeof(DateTime);
         protected static readonly Type TimeSpanType = typeof(TimeSpan);
-
-        protected const int DefaultTimeLimit = 2 * 60 * 1000;
 
         protected BaseSqlExecutionStrategy(
             string masterDbConnectionString,

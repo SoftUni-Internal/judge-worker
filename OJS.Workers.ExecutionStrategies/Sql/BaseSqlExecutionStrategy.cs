@@ -18,7 +18,7 @@
         protected static readonly Type DateTimeType = typeof(DateTime);
         protected static readonly Type TimeSpanType = typeof(TimeSpan);
 
-        private const int DefaultTimeLimit = 2 * 60 * 1000;
+        protected const int DefaultTimeLimit = 2 * 60 * 1000;
 
         protected BaseSqlExecutionStrategy(
             string masterDbConnectionString,
@@ -134,7 +134,7 @@
             return result;
         }
 
-        protected bool ExecuteNonQuery(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
+        protected virtual bool ExecuteNonQuery(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
         {
             using (var command = connection.CreateCommand())
             {
@@ -149,7 +149,7 @@
         protected virtual string FixCommandText(string commandText)
             => commandText;
 
-        protected SqlResult ExecuteReader(
+        protected virtual SqlResult ExecuteReader(
             IDbConnection connection,
             string commandText,
             int timeLimit = DefaultTimeLimit)

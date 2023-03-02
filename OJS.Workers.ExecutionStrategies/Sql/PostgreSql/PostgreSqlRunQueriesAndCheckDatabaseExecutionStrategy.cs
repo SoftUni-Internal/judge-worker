@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.PostgreSql
 {
+    using System;
     using System.Data;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -28,7 +29,7 @@
                 });
 
         protected override void ExecuteBeforeTests(IDbConnection connection, IExecutionContext<TestsInputModel>
-        executionContext)
+            executionContext)
             => this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
     }
 }

@@ -12,6 +12,7 @@
         private readonly string databaseNameForSubmissionProcessor;
         private string workerDbConnectionString;
         private IDbConnection currentConnection;
+        private bool isDisposed;
 
         protected BasePostgreSqlExecutionStrategy(
             string masterDbConnectionString,
@@ -27,18 +28,17 @@
         {
             if (this.currentConnection != null)
             {
-                this.currentConnection.Dispose();
-                this.currentConnection = new NpgsqlConnection(this.workerDbConnectionString);
-                this.currentConnection.Open();
-                return this.currentConnection;
+                return this.CreateConnection();
             }
 
             this.EnsureDatabaseIsSetup();
 
-            var connection = new NpgsqlConnection(this.workerDbConnectionString);
-            connection.Open();
-            this.currentConnection = connection;
-            return connection;
+            if (this.currentConnection != null && this.isDisposed)
+            {
+                this.currentConnection.Dispose();
+            }
+
+            return this.CreateConnection();
         }
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
@@ -114,6 +114,66 @@
         {
         }
 
+        protected override bool ExecuteNonQuery(IDbConnection connection, string commandText, int timeLimit =
+            DefaultTimeLimit)
+        {
+            try
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandTimeout = timeLimit / 1000;
+                    command.CommandText = this.FixCommandText(commandText);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (TimeoutException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override SqlResult ExecuteReader(
+            IDbConnection connection,
+            string commandText,
+            int timeLimit = DefaultTimeLimit)
+        {
+            var sqlTestResult = new SqlResult { Completed = true };
+
+            try
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = commandText;
+                    command.CommandTimeout = timeLimit / 1000;
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        do
+                        {
+                            while (reader.Read())
+                            {
+                                for (var i = 0; i < reader.FieldCount; i++)
+                                {
+                                    var fieldValue = this.GetDataRecordFieldValue(reader, i);
+
+                                    sqlTestResult.Results.Add(fieldValue);
+                                }
+                            }
+                        } while (reader.NextResult());
+                    }
+                }
+            }
+            catch (TimeoutException)
+            {
+                sqlTestResult.Completed = false;
+            }
+
+            return sqlTestResult;
+        }
+
         private void CleanUpDb(IDbConnection connection)
         {
             var dropPublicScheme = @"
@@ -167,6 +227,20 @@
             }
 
             this.workerDbConnectionString = this.BuildWorkerDbConnectionString(databaseName);
+        }
+
+        private IDbConnection CreateConnection()
+        {
+            var connection = new NpgsqlConnection(this.workerDbConnectionString);
+            connection.Open();
+            connection.Disposed += (sender, args) =>
+            {
+                this.isDisposed = true;
+            };
+
+            this.currentConnection = connection;
+            this.isDisposed = false;
+            return this.currentConnection;
         }
     }
 }

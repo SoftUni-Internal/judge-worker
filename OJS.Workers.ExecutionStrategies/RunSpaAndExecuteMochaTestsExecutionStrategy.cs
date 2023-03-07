@@ -19,6 +19,7 @@
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
+        private const string KillContainerPlaceholder = "#killContainerPlaceholder#";
         private const string TestFilePathPlaceholder = "#testFilePathPlaceholder#";
         private const string NodeModulesRequirePattern = "(require\\((?'quote'[\'\"]))([\\w\\-]*)(\\k<quote>)";
         private const string TestsDirectoryName = "test";
@@ -193,6 +194,7 @@ import subprocess
 mocha_path = '{this.MochaModulePath}'
 tests_path = '{TestFilePathPlaceholder}'
 container_name = '{ContainerNamePlaceholder}'
+kill_container = {KillContainerPlaceholder}
 
 try:
     docker_client = docker.from_env()
@@ -207,9 +209,10 @@ try:
 except Exception as e:
     print(e)
 finally:
-    container.stop()
-    container.wait()
-    container.remove()
+    if kill_container == True:
+        container.stop()
+        container.wait()
+        container.remove()
 ";
 
         private string NginxFileContent => $@"
@@ -243,6 +246,8 @@ http {{
     }}
 }}";
 
+        private string ContainerName { get; set; }
+
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -264,11 +269,25 @@ http {{
             var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
-            return this.RunTests(preExecuteCodeSavePath, executor, checker, executionContext, result);
+            var preExecutionResult = this.Execute(executionContext, executor, preExecuteCodeSavePath, string.Empty);
+            var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
+            if (match.Success)
+            {
+                this.PortNumber = int.Parse(match.Groups[1].Value);
+                this.ContainerName = match.Groups[2].Value;
+            }
+            else
+            {
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = "Failed running strategy pre execute step, please contact an Administrator";
+                return result;
+            }
+
+            return this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<TestResult> RunTests(
-            string preExecuteCodeSavePath,
+            string codeSavePath,
             IExecutor executor,
             IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
@@ -278,10 +297,11 @@ http {{
                 executionContext.Input.Tests
                     .Select(
                         test => this.RunIndividualTest(
-                            preExecuteCodeSavePath,
+                            codeSavePath,
                             executor,
                             executionContext,
-                            test))
+                            test,
+                            test.Id == executionContext.Input.Tests.Last().Id))
                     .SelectMany(resultList => resultList));
             return result;
         }
@@ -290,49 +310,27 @@ http {{
             => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private ICollection<TestResult> RunIndividualTest(
-            string preExecuteCodeSavePath,
+            string codeSavePath,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
-            TestContext test)
+            TestContext test,
+            bool shouldKillContainer)
         {
-            var preExecutionResult = this.Execute(executionContext, executor, preExecuteCodeSavePath, test.Input);
-            var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
-            if (match.Success)
-            {
-                this.PortNumber = int.Parse(match.Groups[1].Value);
-                var containerName = match.Groups[2].Value;
+            var filePath = this.BuildTestPath(test.Id);
 
-                var filePath = FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}");
+            // pass in container name in order to close container after execution
+            // pass test file path to mocha so it executes only this test file, and not all test files each run
+            var processedPythonCodeTemplate = this.PythonCodeTemplate
+                .Replace(ContainerNamePlaceholder, this.ContainerName)
+                .Replace(TestFilePathPlaceholder, filePath)
+                .Replace(KillContainerPlaceholder, shouldKillContainer ? "True" : "False");
 
-                // pass in container name in order to close container after execution
-                // pass test file path to mocha so it executes only this test file, and not all test files each run
-                var processedPythonCodeTemplate = this.PythonCodeTemplate
-                    .Replace(ContainerNamePlaceholder, containerName)
-                    .Replace(TestFilePathPlaceholder, filePath);
+            var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
-                var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
+            this.SaveTestsToFiles(executionContext.Input.Tests);
 
-                this.SaveTestsToFiles(executionContext.Input.Tests);
-
-                var processExecutionResult = this.Execute(executionContext, executor, mainCodeSavePath, test.Input);
-                return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
-            }
-            else
-            {
-                return new List<TestResult>()
-                {
-                 new TestResult
-                    {
-                        Id = test.Id,
-                        IsTrialTest = false,
-                        ResultType = TestRunResultType.RunTimeError,
-                        CheckerDetails = new CheckerDetails
-                        {
-                            UserOutputFragment = preExecutionResult.ReceivedOutput,
-                        },
-                    }
-                };
-            }
+            var processExecutionResult = this.Execute(executionContext, executor, mainCodeSavePath, test.Input);
+            return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
         }
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
@@ -427,7 +425,7 @@ http {{
             foreach (var test in tests)
             {
                 var testInputContent = this.PreprocessTestInput(test.Input);
-                var filePath = FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}");
+                var filePath = this.BuildTestPath(test.Id);
 
                 FileHelpers.SaveStringToFile(
                     testInputContent,
@@ -498,5 +496,7 @@ http {{
                 ? testInput.Replace("localhost", "host.docker.internal")
                 : testInput;
         }
+
+        private string BuildTestPath(int testId) => FileHelpers.BuildPath(this.TestsPath, $"{testId}{JavaScriptFileExtension}");
     }
 }

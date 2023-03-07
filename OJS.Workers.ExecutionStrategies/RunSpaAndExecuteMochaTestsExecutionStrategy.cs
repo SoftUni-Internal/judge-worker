@@ -154,19 +154,22 @@ try:
     datetime_now = datetime.now(timezone.utc)
     client = docker.from_env()
     js_apps_containers = client.containers.list(all=True, filters={{""label"":""js-apps"", ""status"": ""running""}})
-    for appsContainer in js_apps_containers:
-        container_info = client.api.inspect_container(appsContainer.name)
+
+    for apps_container in js_apps_containers:
+        container_info = client.api.inspect_container(apps_container.name)
         started_at_string = container_info['State']['StartedAt']
+
         # Python 3.6 does not support a ton of datetime stuff, also docker provides 9 symbols for ticks
         # while python expects 6
         processed_time_str = started_at_string[0:-4]
         start_at_date = datetime.strptime(processed_time_str, ""%Y-%m-%dT%H:%M:%S.%f"").replace(tzinfo=timezone.utc)
         time_diff = datetime_now - start_at_date
+
         # check if container is older than 1 hour (1 hour was arbitrarily chosen)
         if time_diff.total_seconds() > 3600:
-            appsContainer.stop()
-            appsContainer.wait()
-            appsContainer.remove()
+            apps_container.stop()
+            apps_container.wait()
+            apps_container.remove()
 
 
     executor.start()
@@ -174,9 +177,11 @@ try:
     #get created container config so we can get the container name (note this config does not get ports automatically populated)
     container = executor.get_container()
     name = container.name
+
     # need to get container by name from docker again, so we can get info about the dynamically assigned port
     current_container = executor.get_container_by_name(name)
     first_element = list(current_container.ports)[0]
+
     # get container host port
     host_port = current_container.ports[first_element][0]['HostPort']
 

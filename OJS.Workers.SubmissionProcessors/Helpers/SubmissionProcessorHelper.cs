@@ -18,6 +18,7 @@
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
+    using OJS.Workers.ExecutionStrategies.Sql.PostgreSql;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
@@ -457,6 +458,28 @@
                     break;
                 case ExecutionStrategyType.CheckOnly:
                     executionStrategy = new CheckOnlyExecutionStrategy(processExecutorFactory, 0, 0);
+                    break;
+                case ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries:
+                    executionStrategy = new PostgreSqlPrepareDatabaseAndRunQueriesExecutionStrategy(
+                        Settings.PostgreSqlMasterDbConnectionString,
+                        Settings.PostgreSqlRestrictedUserId,
+                        Settings.PostgreSqlRestrictedUserPassword,
+                        submissionProcessorIdentifier);
+                    break;
+                case ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase:
+                    executionStrategy = new PostgreSqlRunQueriesAndCheckDatabaseExecutionStrategy(
+                        Settings.PostgreSqlMasterDbConnectionString,
+                        Settings.PostgreSqlRestrictedUserId,
+                        Settings.PostgreSqlRestrictedUserPassword,
+                        submissionProcessorIdentifier);
+                    break;
+                case ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase:
+                    executionStrategy =
+                        new PostgreSqlRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
+                            Settings.PostgreSqlMasterDbConnectionString,
+                            Settings.PostgreSqlRestrictedUserId,
+                            Settings.PostgreSqlRestrictedUserPassword,
+                            submissionProcessorIdentifier);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

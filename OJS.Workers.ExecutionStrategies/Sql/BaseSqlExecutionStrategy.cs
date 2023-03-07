@@ -11,6 +11,7 @@
 
     public abstract class BaseSqlExecutionStrategy : BaseExecutionStrategy
     {
+        protected const int DefaultTimeLimit = 2 * 60 * 1000;
         protected static readonly Type DecimalType = typeof(decimal);
         protected static readonly Type DoubleType = typeof(double);
         protected static readonly Type FloatType = typeof(float);
@@ -18,13 +19,44 @@
         protected static readonly Type DateTimeType = typeof(DateTime);
         protected static readonly Type TimeSpanType = typeof(TimeSpan);
 
-        private const int DefaultTimeLimit = 2 * 60 * 1000;
+        protected BaseSqlExecutionStrategy(
+            string masterDbConnectionString,
+            string restrictedUserId,
+            string restrictedUserPassword)
+        {
+            if (string.IsNullOrWhiteSpace(masterDbConnectionString))
+            {
+                throw new ArgumentException("Invalid master DB connection string!", nameof(masterDbConnectionString));
+            }
+
+            if (string.IsNullOrWhiteSpace(restrictedUserId))
+            {
+                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
+            }
+
+            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
+            {
+                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
+            }
+
+            this.MasterDbConnectionString = masterDbConnectionString;
+            this.RestrictedUserId = restrictedUserId;
+            this.RestrictedUserPassword = restrictedUserPassword;
+        }
+
+        protected string MasterDbConnectionString { get; }
+
+        protected virtual string RestrictedUserId { get; }
+
+        protected string RestrictedUserPassword { get; }
 
         public abstract IDbConnection GetOpenConnection(string databaseName);
 
         public abstract void DropDatabase(string databaseName);
 
         public virtual string GetDatabaseName() => Guid.NewGuid().ToString();
+
+        protected abstract string BuildWorkerDbConnectionString(string databaseName);
 
         protected virtual IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext,
@@ -101,7 +133,7 @@
             return result;
         }
 
-        protected bool ExecuteNonQuery(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
+        protected virtual bool ExecuteNonQuery(IDbConnection connection, string commandText, int timeLimit = DefaultTimeLimit)
         {
             using (var command = connection.CreateCommand())
             {
@@ -116,7 +148,7 @@
         protected virtual string FixCommandText(string commandText)
             => commandText;
 
-        protected SqlResult ExecuteReader(
+        protected virtual SqlResult ExecuteReader(
             IDbConnection connection,
             string commandText,
             int timeLimit = DefaultTimeLimit)

@@ -243,10 +243,6 @@ http {{
     }}
 }}";
 
-        private string PreExecuteCodeSavePath { get; set; }
-
-        private string ContainerName { get; set; }
-
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
@@ -263,18 +259,16 @@ http {{
                 return result;
             }
 
-            // this.SaveTestsToFiles(executionContext.Input.Tests);
             this.SaveNginxFile();
 
-            this.PreExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
-            // var codeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonCodeTemplate);
+            var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
-            return this.RunTests(string.Empty, executor, checker, executionContext, result);
+            return this.RunTests(preExecuteCodeSavePath, executor, checker, executionContext, result);
         }
 
         protected override IExecutionResult<TestResult> RunTests(
-            string codeSavePath,
+            string preExecuteCodeSavePath,
             IExecutor executor,
             IChecker checker,
             IExecutionContext<TestsInputModel> executionContext,
@@ -284,7 +278,7 @@ http {{
                 executionContext.Input.Tests
                     .Select(
                         test => this.RunIndividualTest(
-                            codeSavePath,
+                            preExecuteCodeSavePath,
                             executor,
                             executionContext,
                             test))
@@ -296,31 +290,31 @@ http {{
             => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private ICollection<TestResult> RunIndividualTest(
-            string codeSavePath,
+            string preExecuteCodeSavePath,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
             TestContext test)
         {
-            var preExecutionResult = this.Execute(executionContext, executor, this.PreExecuteCodeSavePath, test.Input);
-            Match match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
+            var preExecutionResult = this.Execute(executionContext, executor, preExecuteCodeSavePath, test.Input);
+            var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
             if (match.Success)
             {
                 this.PortNumber = int.Parse(match.Groups[1].Value);
-                this.ContainerName = match.Groups[2].Value;
+                var containerName = match.Groups[2].Value;
 
                 var filePath = FileHelpers.BuildPath(this.TestsPath, $"{test.Id}{JavaScriptFileExtension}");
 
                 // pass in container name in order to close container after execution
                 // pass test file path to mocha so it executes only this test file, and not all test files each run
                 var processedPythonCodeTemplate = this.PythonCodeTemplate
-                    .Replace(ContainerNamePlaceholder, this.ContainerName)
+                    .Replace(ContainerNamePlaceholder, containerName)
                     .Replace(TestFilePathPlaceholder, filePath);
 
-                codeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
+                var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
                 this.SaveTestsToFiles(executionContext.Input.Tests);
 
-                var processExecutionResult = this.Execute(executionContext, executor, codeSavePath, test.Input);
+                var processExecutionResult = this.Execute(executionContext, executor, mainCodeSavePath, test.Input);
                 return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
             }
             else

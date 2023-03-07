@@ -10,10 +10,12 @@
     {
         private readonly HttpClient httpClient;
 
-        public HttpService()
+        public HttpService() => this.httpClient = new HttpClient();
+
+        public HttpService(int timeoutInSeconds)
         {
             this.httpClient = new HttpClient();
-            this.httpClient.Timeout = TimeSpan.FromMinutes(3);
+            this.httpClient.Timeout = TimeSpan.FromSeconds(timeoutInSeconds);
         }
 
         public TResponseBody PostJson<TRequestBody, TResponseBody>(string url, TRequestBody body)

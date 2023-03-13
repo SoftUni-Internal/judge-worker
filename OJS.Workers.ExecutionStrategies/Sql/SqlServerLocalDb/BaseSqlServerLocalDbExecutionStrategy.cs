@@ -19,31 +19,7 @@
             string restrictedUserPassword)
             : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword)
         {
-            if (string.IsNullOrWhiteSpace(masterDbConnectionString))
-            {
-                throw new ArgumentException("Invalid master DB connection string!", nameof(masterDbConnectionString));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserId))
-            {
-                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
-            {
-                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
-            }
-
-            this.MasterDbConnectionString = masterDbConnectionString;
-            this.RestrictedUserId = restrictedUserId;
-            this.RestrictedUserPassword = restrictedUserPassword;
         }
-
-        protected string MasterDbConnectionString { get; }
-
-        protected virtual string RestrictedUserId { get; }
-
-        protected string RestrictedUserPassword { get; }
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {

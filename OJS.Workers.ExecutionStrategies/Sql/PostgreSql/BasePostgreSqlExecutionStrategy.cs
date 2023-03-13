@@ -6,9 +6,13 @@
     using Npgsql;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
+    using System.Globalization;
 
-    public abstract class BasePostgreSqlExecutionStrategy : BaseSqlServerAndPostgreSqlExecutionStrategy
+    public abstract class BasePostgreSqlExecutionStrategy : BaseSqlExecutionStrategy
     {
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        private const string TimeSpanFormat = @"HH\:mm\:ss";
+
         private readonly string databaseNameForSubmissionProcessor;
         private string workerDbConnectionString;
         private IDbConnection currentConnection;
@@ -42,6 +46,8 @@
         }
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
+
+        public override void DropDatabase(string databaseName) { }
 
         protected override string BuildWorkerDbConnectionString(string databaseName)
         {
@@ -173,6 +179,31 @@
             }
 
             return sqlTestResult;
+        }
+
+        protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+            {
+                return base.GetDataRecordFieldValue(dataRecord, index);
+            }
+
+            var fieldType = dataRecord.GetFieldType(index);
+
+            if (fieldType == DateTimeType)
+            {
+                return dataRecord.GetDateTime(index)
+                    .ToString(DateTimeFormat, CultureInfo.InvariantCulture);
+            }
+
+            if (fieldType == TimeSpanType)
+            {
+                return ((NpgsqlDataReader)dataRecord)
+                    .GetTimeSpan(index)
+                    .ToString(TimeSpanFormat, CultureInfo.InvariantCulture);
+            }
+
+            return base.GetDataRecordFieldValue(dataRecord, index);
         }
 
         private void CleanUpDb(IDbConnection connection)

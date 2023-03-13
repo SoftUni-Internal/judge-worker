@@ -2,11 +2,11 @@
 {
     using System;
     using System.Data;
+    using System.Globalization;
     using System.Text.RegularExpressions;
     using Npgsql;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;
-    using System.Globalization;
 
     public abstract class BasePostgreSqlExecutionStrategy : BaseSqlExecutionStrategy
     {
@@ -47,7 +47,9 @@
 
         public override string GetDatabaseName() => this.databaseNameForSubmissionProcessor;
 
-        public override void DropDatabase(string databaseName) { }
+        public override void DropDatabase(string databaseName)
+        {
+        }
 
         protected override string BuildWorkerDbConnectionString(string databaseName)
         {

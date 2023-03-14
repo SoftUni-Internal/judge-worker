@@ -25,6 +25,7 @@
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
         private const string NginxConfFileName = "nginx.conf";
+        private readonly Regex TestTimeoutRegex = new Regex(@"Timeout of \d+ms exceeded\.");
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -397,17 +398,19 @@ http {{
         }
 
         private TestResult ParseTestResult(string testResult, int parentTestId)
-            => new TestResult
-            {
-                Id = parentTestId,
-                IsTrialTest = false,
-                ResultType = testResult == null
+        => new TestResult
+        {
+            Id = parentTestId,
+            IsTrialTest = false,
+            ResultType = testResult == null
                     ? TestRunResultType.CorrectAnswer
-                    : TestRunResultType.WrongAnswer,
-                CheckerDetails = testResult == null
+                    : this.TestTimeoutRegex.IsMatch(testResult)
+                        ? TestRunResultType.TimeLimit
+                        : TestRunResultType.WrongAnswer,
+            CheckerDetails = testResult == null
                     ? default(CheckerDetails)
                     : new CheckerDetails { UserOutputFragment = testResult },
-            };
+        };
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
             => receivedOutput

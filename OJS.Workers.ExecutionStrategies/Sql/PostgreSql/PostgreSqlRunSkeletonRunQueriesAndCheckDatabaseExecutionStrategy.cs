@@ -24,7 +24,6 @@
                 result,
                 (connection, test) =>
                 {
-                    this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
                     var sqlTestResult = this.ExecuteReader(connection, test.Input);
                     this.ProcessSqlResult(sqlTestResult, executionContext, test, result);
                 });
@@ -32,6 +31,9 @@
         protected override void ExecuteBeforeTests(
             IDbConnection connection,
             IExecutionContext<TestsInputModel> executionContext)
-            => this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
+        {
+            this.ExecuteNonQuery(connection, executionContext.Input.TaskSkeletonAsString);
+            this.ExecuteNonQuery(connection, executionContext.Code, executionContext.TimeLimit);
+        }
     }
 }

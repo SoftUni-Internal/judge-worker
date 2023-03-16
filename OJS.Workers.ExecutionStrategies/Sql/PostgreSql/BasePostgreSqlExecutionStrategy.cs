@@ -10,7 +10,7 @@
 
     public abstract class BasePostgreSqlExecutionStrategy : BaseSqlExecutionStrategy
     {
-        private const string DateTimeFormat = "yyyy-MM-dd hh:mm:ss";
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         private const string TimeSpanFormat = @"hh\:mm\:ss";
 
         private readonly string databaseNameForSubmissionProcessor;

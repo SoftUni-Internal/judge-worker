@@ -224,6 +224,7 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
                 ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
                 ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
+                ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy,
 
                 // Text only
                 ExecutionStrategyType.CheckOnly,

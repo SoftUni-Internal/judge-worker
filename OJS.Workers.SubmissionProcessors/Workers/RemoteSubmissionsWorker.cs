@@ -29,7 +29,7 @@
             this.logger = logger;
             this.Location = endpointRoot;
             this.endpoint = $"{endpointRoot}/executeSubmission";
-            this.http = new HttpService();
+            this.http = new HttpService(Settings.HttpClientTimeoutForRemoteWorkersInSeconds);
         }
 
         public string Location { get; }

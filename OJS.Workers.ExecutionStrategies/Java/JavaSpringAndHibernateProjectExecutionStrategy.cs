@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Xml;
+    using System.Text;
 
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
@@ -27,14 +28,14 @@
         private const string StartClassNodeXPath = @"//pomns:properties/pomns:start-class";
         private const string DependencyNodeXPathTemplate = @"//pomns:dependencies/pomns:dependency[pomns:groupId='##' and pomns:artifactId='!!']";
         private const string DependenciesNodeXPath = @"//pomns:dependencies";
-        private const string JUnitRunnerConsolePath = @"org.junit.runner.JUnitCore";
+        private const string MavenTestCommand = "test -f {0} -Dtest=\"{1}\"";
+        private const string MavenBuild = "-f {0} clean package -DskipTests";
         private const string PomXmlBuildSettingsPattern = @"<build>(?s:.)*<\/build>";
 
-        private const string MavenBuildOutputPattern = @"\[INFO\] BUILD (\w+)";
-        private static readonly string JUnitFailedTestPattern =
-            $@"There was (?:\d+) failure:{Environment.NewLine}1\) (\w+)\((.+)\){Environment.NewLine}(.+)";
+        private static readonly string MavenFailedTestPattern =
+            $@"\[(ERROR)\]\s(.*)\s<<<\s(FAILURE|ERROR)!(.*)\n([\s\S]*?)at\s(.*)\((.*):(\d+)\)([\s\S]*?)expected: <([\s\S]*?)>\sbut was: <([\s\S]*?)>";
 
-        private static readonly string MavenBuildErrorPattern = @"\[ERROR\](?:\s)*((?:.*)\n|\r|(\r\n))*(?=\[INFO\]\s\d)";
+        private static readonly string MavenBuildErrorPattern = @"\[(ERROR)\]\s+(?<location>[^\s]+)\s*:\[(?<line>\d+),(?<column>\d+)\]\s+(?<message>.+)\n\s+symbol:\s+(?<symbol>.+)\n\s+location:\s+(?<location2>.+)";
 
         public JavaSpringAndHibernateProjectExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -57,11 +58,11 @@
         public Dictionary<string, Tuple<string, string>> Dependencies =>
             new Dictionary<string, Tuple<string, string>>()
             {
-                { "javax.el", new Tuple<string, string>("el-api", "2.2") },
-                { "junit", new Tuple<string, string>("junit", null) },
-                { "org.hsqldb", new Tuple<string, string>("hsqldb", null) },
-                { "org.springframework.boot", new Tuple<string, string>("spring-boot-starter-test", "1.5.2.RELEASE") },
-                { "com.sun.xml.bind", new Tuple<string, string>("jaxb-impl", "2.2.7") }
+                { "org.junit.jupiter", new Tuple<string, string>("junit-jupiter-api", "5.9.2") },
+                { "org.hibernate", new Tuple<string, string>("hibernate-core", "5.6.3.Final") },
+                { "mysql", new Tuple<string, string>("mysql-connector-java", "8.0.27") },
+                { "org.assertj", new Tuple<string, string>("assertj-core", "3.22.0") },
+                { "org.springframework.boot", new Tuple<string, string>("spring-boot-starter-test", "2.6.2") },
             };
 
         protected string MavenPath { get; set; }
@@ -74,74 +75,20 @@
 
         protected string ProjectTestDirectoryInSubmissionZip { get; set; }
 
-        protected string PomXmlBuildSettings => @" <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <phase>test-compile</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>remove-old-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>remove-project-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <removeAll>true</removeAll><!-- When true, remove all built artifacts including all versions. When false, remove all built artifacts of this project version -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>";
+        protected string PomXmlBuildSettings => @"
+        <build>
+            <plugins>
+                <!-- Maven Compiler Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+            </plugins>
+        </build>";
 
         protected override string ClassPathArgument
-            => $"-cp {this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}\\target\\* ";
+            => $"-cp {this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}{Path.DirectorySeparatorChar}target{Path.DirectorySeparatorChar}* ";
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -165,7 +112,7 @@
 
             var pomXmlPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, PomXmlFileNameAndExtension);
 
-            var mavenArgs = new[] { $"-f {pomXmlPath} clean package -DskipTests" };
+            var mavenArgs = new[] { string.Format(MavenBuild, pomXmlPath) };
 
             var mavenExecutor = this.CreateExecutor(ProcessExecutorType.Standard);
 
@@ -177,16 +124,14 @@
               mavenArgs,
               this.WorkingDirectory);
 
-            var mavenBuildOutput = new Regex(MavenBuildOutputPattern);
-            var compilationMatch = mavenBuildOutput.Match(packageExecutionResult.ReceivedOutput);
+            var mavenErrorsRegex = new Regex(MavenBuildErrorPattern);
+            var mavenErrors = this.GetMavenBuildErrors(packageExecutionResult.ReceivedOutput);
 
-            result.IsCompiledSuccessfully = compilationMatch.Groups[1].Value == "SUCCESS";
+            result.IsCompiledSuccessfully = mavenErrors.Count == 0;
 
             if (!result.IsCompiledSuccessfully)
             {
-                var mavenBuildErrors = new Regex(MavenBuildErrorPattern);
-                var errorMatch = mavenBuildErrors.Match(packageExecutionResult.ReceivedOutput);
-                result.CompilerComment = $"{errorMatch.Groups[0]}";
+                result.CompilerComment = this.GetMavenErrorsComment(mavenErrors);
                 return result;
             }
 
@@ -194,27 +139,20 @@
 
             var checker = executionContext.Input.GetChecker();
 
-            var arguments = new List<string>
-            {
-                this.ClassPathArgument,
-                AdditionalExecutionArguments,
-                JUnitRunnerConsolePath
-            };
-
-            var testErrorMatcher = new Regex(JUnitFailedTestPattern);
+            var testErrorMatcher = new Regex(MavenFailedTestPattern);
             var testIndex = 0;
 
             foreach (var test in executionContext.Input.Tests)
             {
                 var testFile = this.TestNames[testIndex++];
-                arguments.Add(testFile);
+                mavenArgs = new[] { string.Format(MavenTestCommand, pomXmlPath, testFile) };
 
                 var processExecutionResult = executor.Execute(
-                this.JavaExecutablePath,
+                this.MavenPath,
                 string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                arguments,
+                mavenArgs,
                 this.WorkingDirectory);
 
                 ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
@@ -224,7 +162,7 @@
                     throw new FileLoadException("Tests could not be loaded, project structure is incorrect");
                 }
 
-                var message = this.EvaluateJUnitOutput(processExecutionResult.ReceivedOutput, testErrorMatcher);
+                var message = this.EvaluateMavenTestOutput(processExecutionResult.ReceivedOutput, testErrorMatcher);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -233,33 +171,14 @@
                     message);
 
                 result.Results.Add(testResult);
-
-                arguments.Remove(testFile);
             }
 
             return result;
         }
 
-        protected string EvaluateJUnitOutput(string testOutput, Regex testErrorMatcher)
-        {
-            var message = TestPassedMessage;
-            var errorMatches = testErrorMatcher.Matches(testOutput);
-
-            if (errorMatches.Count > 0)
-            {
-                var lastMatch = errorMatches[errorMatches.Count - 1];
-                var errorMethod = lastMatch.Groups[1].Value;
-                var className = lastMatch.Groups[2].Value;
-                var errorReason = lastMatch.Groups[3].Value;
-                message = $"Failed test fixture: {errorReason} in CLASS: {className} at METHOD: {errorMethod}";
-            }
-
-            return message;
-        }
-
         protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
-            var submissionFilePath = $"{this.WorkingDirectory}\\{SubmissionFileName}";
+            var submissionFilePath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{SubmissionFileName}";
             File.WriteAllBytes(submissionFilePath, context.FileContent);
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
 
@@ -292,17 +211,19 @@
 
         protected void OverwriteApplicationProperties(string submissionZipFilePath)
         {
-            var fakeApplicationPropertiesText = @"spring.jpa.hibernate.ddl-auto=create-drop
-            spring.jpa.database=HSQL
-            #spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.HSQLDialect
-            spring.datasource.driverClassName=org.hsqldb.jdbcDriver
-            spring.datasource.url=jdbc:hsqldb:mem:.
-            spring.datasource.username=sa
-            spring.datasource.password=
-            spring.main.web-environment=false
-            security.basic.enabled=false";
+            var fakeApplicationPropertiesText = @"
+                spring.jpa.properties.hibernate.show_sql= false
+                spring.jpa.properties.hibernate.use_sql_comments=false
+                spring.jpa.properties.hibernate.format_sql=false
+                logging.level.root=off
+                spring.datasource.url=jdbc:h2:mem:testdb
+                spring.datasource.driverClassName=org.h2.Driver
+                spring.datasource.username=sa
+                spring.datasource.password=
+                spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+                spring.jpa.hibernate.ddl-auto=create-drop";
 
-            var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}\\{ApplicationPropertiesFileName}";
+            var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{ApplicationPropertiesFileName}";
             File.WriteAllText(fakeApplicationPropertiesPath, fakeApplicationPropertiesText);
 
             var pathsInZip = FileHelpers.GetFilePathsFromZip(submissionZipFilePath);
@@ -356,7 +277,7 @@
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                        $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
+                        $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{className}{JavaSourceFileExtension}";
                 File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
                 filePaths[testNumber] = testFileName;
                 this.TestNames.Add($"{this.PackageName}.{className}");
@@ -500,6 +421,52 @@
 
             FileHelpers.DeleteFiles(pomXmlPath);
             return packageName.InnerText.Trim();
+        }
+
+        private List<Match> GetMavenBuildErrors(string output)
+        {
+            var mavenErrorsRegex = new Regex(MavenBuildErrorPattern);
+            var mavenErrors = mavenErrorsRegex.Matches(output).Cast<Match>().ToList();
+            return mavenErrors;
+        }
+
+        private string GetMavenErrorsComment(List<Match> mavenErrors)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var match in mavenErrors)
+            {
+                sb.AppendLine("Error found:");
+                sb.AppendLine($"File name: {Path.GetFileName(match.Groups["location"].Value)}");
+                sb.AppendLine($"Line: {match.Groups["line"].Value}");
+                sb.AppendLine($"Column: {match.Groups["column"].Value}");
+                sb.AppendLine($"Message: {match.Groups["message"].Value}");
+                sb.AppendLine($"Symbol: {match.Groups["symbol"].Value}");
+                sb.AppendLine($"Location: {match.Groups["location2"].Value}");
+            }
+
+            return sb.ToString();
+        }
+
+        private string EvaluateMavenTestOutput(string testOutput, Regex testErrorMatcher)
+        {
+            var message = TestPassedMessage;
+            var errorMatch = testErrorMatcher.Match(testOutput);
+
+            if (!errorMatch.Success)
+            {
+                return message;
+            }
+
+            var errorMessage = errorMatch.Groups[5].Value.Trim();
+            var methodName = errorMatch.Groups[6].Value.Trim();
+            var className = errorMatch.Groups[7].Value.Trim();
+
+            message = $"Test name: {className} " +
+                      $"Method name: {methodName}" +
+                      $"Error message: {errorMessage} ";
+
+            return message;
         }
     }
 }

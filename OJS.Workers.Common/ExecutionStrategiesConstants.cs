@@ -82,6 +82,8 @@ namespace OJS.Workers.Common
 
             // PostgreSql
             public const string PostgreSqlPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
+            // Run SPA and Execute mocha tests
+            public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
             public const string PostgreSqlRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
             public const string PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = "postgres-run-skeleton-run-queries-and-check-database";
         }
@@ -160,6 +162,8 @@ namespace OJS.Workers.Common
 
                     // PostgreSql
                     { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },
+                    // Run SPA and Execute mocha tests
+                    { ExecutionStrategyNames.JavaSpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy },
                     { ExecutionStrategyNames.PostgreSqlRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase },
                     { ExecutionStrategyNames.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase },
                 };
@@ -199,12 +203,48 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.MySqlRunSkeletonRunQueriesAndCheckDatabase,
 
                 // Python
+                ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+                ExecutionStrategyType.PythonProjectTests,
+                ExecutionStrategyType.PythonProjectUnitTests,
+
+                // PHP
+                ExecutionStrategyType.PhpCliExecuteAndCheck,
 
                 // PostgreSql strategies
                 ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries,
                 ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.PhpCgiExecuteAndCheck,
+
+                // HTML and CSS
+                ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy,
+
+                // C++
+                ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy,
+
+                // NodeJs
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
+                ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy,
+                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
+                ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha,
+
+                // JAVA
+                ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
+                ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
+                ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
+                ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
+                ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy,
+
+                // Text only
+                ExecutionStrategyType.CheckOnly,
+
+                // SQL Server
+                ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
+                ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
+                ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

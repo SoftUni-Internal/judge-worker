@@ -176,27 +176,6 @@
             return result;
         }
 
-        private string EvaluateMavenTestOutput(string testOutput, Regex testErrorMatcher)
-        {
-            var message = TestPassedMessage;
-            var errorMatch = testErrorMatcher.Match(testOutput);
-
-            if (!errorMatch.Success)
-            {
-                return message;
-            }
-
-            var errorMessage = errorMatch.Groups[5].Value.Trim();
-            var methodName = errorMatch.Groups[6].Value.Trim();
-            var className = errorMatch.Groups[7].Value.Trim();
-
-            message = $"Test name: {className} " +
-                      $"Method name: {methodName}" +
-                      $"Error message: {errorMessage} ";
-
-            return message;
-        }
-
         protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
         {
             var submissionFilePath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{SubmissionFileName}";
@@ -467,6 +446,27 @@
             }
 
             return sb.ToString();
+        }
+
+        private string EvaluateMavenTestOutput(string testOutput, Regex testErrorMatcher)
+        {
+            var message = TestPassedMessage;
+            var errorMatch = testErrorMatcher.Match(testOutput);
+
+            if (!errorMatch.Success)
+            {
+                return message;
+            }
+
+            var errorMessage = errorMatch.Groups[5].Value.Trim();
+            var methodName = errorMatch.Groups[6].Value.Trim();
+            var className = errorMatch.Groups[7].Value.Trim();
+
+            message = $"Test name: {className} " +
+                      $"Method name: {methodName}" +
+                      $"Error message: {errorMessage} ";
+
+            return message;
         }
     }
 }

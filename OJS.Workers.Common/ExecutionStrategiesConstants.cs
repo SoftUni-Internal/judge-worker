@@ -157,8 +157,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
                     // Run SPA and Execute mocha tests
-                    { ExecutionStrategyNames.JavaSpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType
-                    .JavaSpringAndHibernateProjectExecutionStrategy },
+                    { ExecutionStrategyNames.JavaSpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy },
                 };
 
             public static IDictionary<ExecutionStrategyType, string> ExecutionStrategyToNameMappings =>

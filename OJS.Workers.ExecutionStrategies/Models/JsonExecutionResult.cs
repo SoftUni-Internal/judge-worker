@@ -26,6 +26,8 @@
 
         public int TotalTests { get; set; }
 
+        public List<string> TestTitles { get; set; }
+
         public static JsonExecutionResult Parse(string result, bool forceErrorExtracting = false, bool getTestIndexes = false)
         {
             JObject jsonTestResult = null;
@@ -36,6 +38,7 @@
             var userTestsCount = 0;
             var initialPassedTests = 0;
             var passed = false;
+            var fullTitles = new List<string>();
             try
             {
                 // The fields 'stats' and 'tests' with their respective subfields are required for extracting results,
@@ -59,6 +62,7 @@
                     // correct tests in that group, so that the Execution Strategy has a base for judging the other tests
                     initialPassedTests += currentTitle.ToString().StartsWith("Test 1 ") && entry == null ? 1 : 0;
                     errors.Add(entry);
+                    fullTitles.Add(currentTitle.ToString());
                 }
             }
             catch
@@ -105,7 +109,8 @@
                 TotalTests = totalTests,
                 Passed = passed,
                 UsersTestCount = userTestsCount,
-                InitialPassingTests = initialPassedTests
+                InitialPassingTests = initialPassedTests,
+                TestTitles = fullTitles
             };
         }
     }

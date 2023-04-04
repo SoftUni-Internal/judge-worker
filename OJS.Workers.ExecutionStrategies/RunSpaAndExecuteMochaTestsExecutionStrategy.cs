@@ -393,24 +393,27 @@ http {{
             }
 
             return mochaResult.TestErrors
-                .Select(test => this.ParseTestResult(test, parentTestId))
+                .Select((test, index) => this.ParseTestResult(test, parentTestId, index, mochaResult.TestTitles))
                 .ToList();
         }
 
-        private TestResult ParseTestResult(string testResult, int parentTestId)
-        => new TestResult
+        private TestResult ParseTestResult(string testResult, int parentTestId, int index, List<string> testTitles)
         {
-            Id = parentTestId,
-            IsTrialTest = false,
-            ResultType = testResult == null
-                    ? TestRunResultType.CorrectAnswer
-                    : this.testTimeoutRegex.IsMatch(testResult)
-                        ? TestRunResultType.TimeLimit
-                        : TestRunResultType.WrongAnswer,
-            CheckerDetails = testResult == null
-                    ? default(CheckerDetails)
-                    : new CheckerDetails { UserOutputFragment = testResult },
-        };
+            var isTimeout = this.testTimeoutRegex.IsMatch(testResult);
+            return new TestResult
+            {
+                Id = parentTestId,
+                IsTrialTest = false,
+                ResultType = testResult == null
+                                ? TestRunResultType.CorrectAnswer
+                                : isTimeout
+                                    ? TestRunResultType.TimeLimit
+                                    : TestRunResultType.WrongAnswer,
+                CheckerDetails = testResult == null
+                                ? default(CheckerDetails)
+                                : new CheckerDetails { UserOutputFragment = isTimeout ? $"{testTitles[index]}\n{testResult}" : testResult },
+            };
+        }
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
             => receivedOutput

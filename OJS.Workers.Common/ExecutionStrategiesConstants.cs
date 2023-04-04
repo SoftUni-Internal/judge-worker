@@ -32,6 +32,7 @@ namespace OJS.Workers.Common
             public const string JavaProjectTests = "java-project-tests";
             public const string JavaUnitTests = "java-unit-tests";
             public const string JavaZipFileCode = "java-zip-file-code";
+            public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
 
             // JavaScript
             public const string JavaScriptCode = "javascript-code";
@@ -79,9 +80,6 @@ namespace OJS.Workers.Common
 
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
-
-            // Run SPA and Execute mocha tests
-            public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
         }
 
         public static class NameMappings

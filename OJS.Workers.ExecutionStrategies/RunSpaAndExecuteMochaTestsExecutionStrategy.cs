@@ -399,7 +399,12 @@ http {{
 
         private TestResult ParseTestResult(string testResult, int parentTestId, int index, List<string> testTitles)
         {
-            var isTimeout = this.testTimeoutRegex.IsMatch(testResult);
+            var isTimeout = false;
+            if (testResult != null)
+            {
+                isTimeout = this.testTimeoutRegex.IsMatch(testResult);
+            }
+
             return new TestResult
             {
                 Id = parentTestId,

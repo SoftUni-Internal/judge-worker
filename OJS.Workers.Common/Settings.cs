@@ -227,6 +227,9 @@
         public static int SolidityCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("SolidityCompilerProcessExitTimeOutMultiplier", 1);
 
+        public static int HttpClientTimeoutForRemoteWorkersInSeconds =>
+            SettingsHelper.GetSettingOrDefault("HttpClientTimeoutForRemoteWorkersInSeconds", 120);
+
         public static IEnumerable<string> RemoteWorkerEndpoints => SettingsHelper.GetSetting("RemoteWorkerEndpoints")
             .Split(';')
             .Where(x => !string.IsNullOrWhiteSpace(x))

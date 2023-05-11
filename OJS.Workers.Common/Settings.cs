@@ -235,6 +235,15 @@
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
 
+        public static string PostgreSqlMasterDbConnectionString =>
+            SettingsHelper.GetSetting("PostgreSqlMasterDbConnectionString");
+
+        public static string PostgreSqlRestrictedUserId =>
+            SettingsHelper.GetSetting("PostgreSqlRestrictedUserId");
+
+        public static string PostgreSqlRestrictedUserPassword =>
+            SettingsHelper.GetSetting("PostgreSqlRestrictedUserPassword");
+
         public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
             => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
                 ? SettingsHelper.GetSetting("DotNetCore3RuntimeVersion")

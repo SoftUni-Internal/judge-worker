@@ -11,39 +11,15 @@
         private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
         private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffffff zzz";
         private const string TimeSpanFormat = "HH:mm:ss.fffffff";
-
         private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
 
         protected BaseSqlServerLocalDbExecutionStrategy(
             string masterDbConnectionString,
             string restrictedUserId,
             string restrictedUserPassword)
+            : base(masterDbConnectionString, restrictedUserId, restrictedUserPassword)
         {
-            if (string.IsNullOrWhiteSpace(masterDbConnectionString))
-            {
-                throw new ArgumentException("Invalid master DB connection string!", nameof(masterDbConnectionString));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserId))
-            {
-                throw new ArgumentException("Invalid restricted user ID!", nameof(restrictedUserId));
-            }
-
-            if (string.IsNullOrWhiteSpace(restrictedUserPassword))
-            {
-                throw new ArgumentException("Invalid restricted user password!", nameof(restrictedUserPassword));
-            }
-
-            this.MasterDbConnectionString = masterDbConnectionString;
-            this.RestrictedUserId = restrictedUserId;
-            this.RestrictedUserPassword = restrictedUserPassword;
         }
-
-        protected string MasterDbConnectionString { get; }
-
-        protected virtual string RestrictedUserId { get; }
-
-        protected string RestrictedUserPassword { get; }
 
         public override IDbConnection GetOpenConnection(string databaseName)
         {
@@ -103,6 +79,24 @@
             }
         }
 
+        protected override string BuildWorkerDbConnectionString(string databaseName)
+        {
+            var userIdRegex = new Regex("User Id=.*?;");
+            var passwordRegex = new Regex("Password=.*?;");
+
+            var createdDbConnectionString = this.MasterDbConnectionString;
+
+            createdDbConnectionString =
+                userIdRegex.Replace(createdDbConnectionString, $"User Id={this.RestrictedUserId};");
+
+            createdDbConnectionString =
+                passwordRegex.Replace(createdDbConnectionString, $"Password={this.RestrictedUserPassword}");
+
+            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
+
+            return createdDbConnectionString;
+        }
+
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)
         {
             if (!dataRecord.IsDBNull(index))
@@ -130,24 +124,6 @@
             }
 
             return base.GetDataRecordFieldValue(dataRecord, index);
-        }
-
-        protected string BuildWorkerDbConnectionString(string databaseName)
-        {
-            var userIdRegex = new Regex("User Id=.*?;");
-            var passwordRegex = new Regex("Password=.*?;");
-
-            var createdDbConnectionString = this.MasterDbConnectionString;
-
-            createdDbConnectionString =
-                userIdRegex.Replace(createdDbConnectionString, $"User Id={this.RestrictedUserId};");
-
-            createdDbConnectionString =
-                passwordRegex.Replace(createdDbConnectionString, $"Password={this.RestrictedUserPassword}");
-
-            createdDbConnectionString += $";Database={databaseName};Pooling=False;";
-
-            return createdDbConnectionString;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <TargetFrameworks>net47;netstandard2.0</TargetFrameworks>
@@ -26,7 +26,7 @@
     <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
     <PackageReference Include="MySql.Data" Version="8.0.13" />
     <PackageReference Include="System.CodeDom" Version="4.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
   <!-- .NET 4.7 references, compilation flags and build options -->

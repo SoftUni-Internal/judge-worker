@@ -1,13 +1,12 @@
-﻿using OJS.Workers.Common;
-using OJS.Workers.ExecutionStrategies.Models;
-
-namespace OJS.Workers.ExecutionStrategies.Sql.MySql
+﻿namespace OJS.Workers.ExecutionStrategies.Sql.MySql
 {
     using System;
     using System.Data;
     using System.Globalization;
     using System.Text.RegularExpressions;
     using global::MySql.Data.MySqlClient;
+    using OJS.Workers.Common;
+    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class BaseMySqlExecutionStrategy : BaseSqlExecutionStrategy
     {

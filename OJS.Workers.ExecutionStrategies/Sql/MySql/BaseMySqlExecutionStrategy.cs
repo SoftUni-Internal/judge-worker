@@ -42,29 +42,6 @@
             this.restrictedUserPassword = restrictedUserPassword;
         }
 
-        protected override IExecutionResult<TestResult> Execute(
-            IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
-        {
-            result = base.Execute(executionContext, result, executionFlow);
-
-            // TODO: Fix concurrent execution of SQL queries.
-            // This is a temporary fix for the following error,
-            // but the strategy should be reworked to avoid this error in the first place.
-            // It happens rarely, but it still happens. Chances are it will not happen again on the next execution.
-            const string ConcurrencyExceptionMessage =
-                "The ReadAsync method cannot be called when another read operation is pending.";
-
-            if (!result.IsCompiledSuccessfully &&
-                (result.CompilerComment
-                    ?.Trim()
-                    .Equals(ConcurrencyExceptionMessage, StringComparison.InvariantCultureIgnoreCase) ?? false))
-            {
-                result.CompilerComment = "Please, re-submit your solution. If the problem persists, contact an administrator.";
-            }
-
-            return result;
-        }
-
         public override IDbConnection GetOpenConnection(string databaseName)
         {
             using (var connection = new MySqlConnection(this.sysDbConnectionString))
@@ -104,6 +81,29 @@
 
                 this.ExecuteNonQuery(connection, $"DROP DATABASE IF EXISTS `{databaseName}`;");
             }
+        }
+
+        protected override IExecutionResult<TestResult> Execute(
+            IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
+        {
+            result = base.Execute(executionContext, result, executionFlow);
+
+            // TODO: Fix concurrent execution of SQL queries.
+            // This is a temporary fix for the following error,
+            // but the strategy should be reworked to avoid this error in the first place.
+            // It happens rarely, but it still happens. Chances are it will not happen again on the next execution.
+            const string ConcurrencyExceptionMessage =
+                "The ReadAsync method cannot be called when another read operation is pending.";
+
+            if (!result.IsCompiledSuccessfully &&
+                (result.CompilerComment
+                    ?.Trim()
+                    .Equals(ConcurrencyExceptionMessage, StringComparison.InvariantCultureIgnoreCase) ?? false))
+            {
+                result.CompilerComment = "Please, re-submit your solution. If the problem persists, contact an administrator.";
+            }
+
+            return result;
         }
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)

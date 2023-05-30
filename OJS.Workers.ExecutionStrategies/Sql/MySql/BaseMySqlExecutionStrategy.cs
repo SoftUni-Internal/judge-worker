@@ -45,7 +45,7 @@
         protected override IExecutionResult<TestResult> Execute(
             IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
         {
-            base.Execute(executionContext, result, executionFlow);
+            result = base.Execute(executionContext, result, executionFlow);
 
             // TODO: Fix concurrent execution of SQL queries.
             // This is a temporary fix for the following error,

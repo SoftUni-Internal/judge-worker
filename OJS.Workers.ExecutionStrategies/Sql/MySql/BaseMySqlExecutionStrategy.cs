@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.MySql
 {
+    using System;
     using System.Data;
     using System.Globalization;
     using System.Text.RegularExpressions;
@@ -62,7 +63,9 @@
         }
 
         protected override IExecutionResult<TestResult> Execute(
-            IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result, Action<IDbConnection, TestContext> executionFlow)
+            IExecutionContext<TestsInputModel> executionContext,
+            IExecutionResult<TestResult> result,
+            Action<IDbConnection, TestContext> executionFlow)
         {
             result = base.Execute(executionContext, result, executionFlow);
 
@@ -70,13 +73,13 @@
             // This is a temporary fix for the following error,
             // but the strategy should be reworked to avoid this error in the first place.
             // It happens rarely, but it still happens. Chances are it will not happen again on the next execution.
-            const string ConcurrencyExceptionMessage =
+            var concurrencyExceptionMessage =
                 "The ReadAsync method cannot be called when another read operation is pending.";
 
             if (!result.IsCompiledSuccessfully &&
                 (result.CompilerComment
                     ?.Trim()
-                    .Equals(ConcurrencyExceptionMessage, StringComparison.InvariantCultureIgnoreCase) ?? false))
+                    .Equals(concurrencyExceptionMessage, StringComparison.InvariantCultureIgnoreCase) ?? false))
             {
                 result.CompilerComment = "Please, re-submit your solution. If the problem persists, contact an administrator.";
             }

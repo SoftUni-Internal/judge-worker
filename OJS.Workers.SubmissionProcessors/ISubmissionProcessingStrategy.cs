@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.SubmissionProcessors
 {
+    using System;
     using System.Collections.Concurrent;
 
     using log4net;
@@ -22,7 +23,7 @@
         void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
             where TResult : ISingleCodeRunResult, new();
 
-        void OnError(IOjsSubmission submission);
+        void OnError(IOjsSubmission submission, Exception ex);
 
         void SetSubmissionToProcessing();
 

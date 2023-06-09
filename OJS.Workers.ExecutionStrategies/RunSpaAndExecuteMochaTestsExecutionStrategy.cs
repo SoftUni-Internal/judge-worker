@@ -25,6 +25,7 @@
         private const string TestsDirectoryName = "test";
         private const string UserApplicationDirectoryName = "app";
         private const string NginxConfFileName = "nginx.conf";
+        private readonly Regex testTimeoutRegex = new Regex(@"Timeout (?:of )?\d+ms exceeded\.");
 
         public RunSpaAndExecuteMochaTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -392,22 +393,32 @@ http {{
             }
 
             return mochaResult.TestErrors
-                .Select(test => this.ParseTestResult(test, parentTestId))
+                .Select((test, index) => this.ParseTestResult(test, parentTestId, index, mochaResult.TestTitles))
                 .ToList();
         }
 
-        private TestResult ParseTestResult(string testResult, int parentTestId)
-            => new TestResult
+        private TestResult ParseTestResult(string testResult, int parentTestId, int index, List<string> testTitles)
+        {
+            var isTimeout = false;
+            if (testResult != null)
+            {
+                isTimeout = this.testTimeoutRegex.IsMatch(testResult);
+            }
+
+            return new TestResult
             {
                 Id = parentTestId,
                 IsTrialTest = false,
                 ResultType = testResult == null
-                    ? TestRunResultType.CorrectAnswer
-                    : TestRunResultType.WrongAnswer,
+                                ? TestRunResultType.CorrectAnswer
+                                : isTimeout
+                                    ? TestRunResultType.TimeLimit
+                                    : TestRunResultType.WrongAnswer,
                 CheckerDetails = testResult == null
-                    ? default(CheckerDetails)
-                    : new CheckerDetails { UserOutputFragment = testResult },
+                                ? default(CheckerDetails)
+                                : new CheckerDetails { UserOutputFragment = isTimeout ? $"{testTitles[index]}\n{testResult}" : testResult },
             };
+        }
 
         private string PreproccessReceivedExecutionOutput(string receivedOutput)
             => receivedOutput

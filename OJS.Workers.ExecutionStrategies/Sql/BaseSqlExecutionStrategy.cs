@@ -209,7 +209,8 @@
                         checkerResult.IsCorrect
                             ? TestRunResultType.CorrectAnswer
                             : TestRunResultType.WrongAnswer,
-                    CheckerDetails = checkerResult.CheckerDetails
+                    CheckerDetails = checkerResult.CheckerDetails,
+                    IsTrialTest = test.IsTrialTest,
                 });
             }
             else

@@ -68,7 +68,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in executing the submission: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Runtime;
+                submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.ExecuteSubmission)}", ex);
             }
         }

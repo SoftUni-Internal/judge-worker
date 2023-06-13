@@ -29,13 +29,13 @@
         private const string DependencyNodeXPathTemplate = @"//pomns:dependencies/pomns:dependency[pomns:groupId='##' and pomns:artifactId='!!']";
         private const string DependenciesNodeXPath = @"//pomns:dependencies";
         private const string MavenTestCommand = "test -f {0} -Dtest=\"{1}\"";
-        private const string MavenBuild = "-f {0} clean package -DskipTests";
+        private const string MavenBuild = "-f {0} clean install -DskipTests";
         private const string PomXmlBuildSettingsPattern = @"<build>(?s:.)*<\/build>";
+        private const string TestsFolderPattern = @"src/test/java/*";
+        private const string MainCodeFolderPattern = @"src/main/java/";
 
-        private static readonly string MavenFailedTestPattern =
-            $@"\[(ERROR)\]\s(.*)\s<<<\s(FAILURE|ERROR)!(.*)\n([\s\S]*?)at\s(.*)\((.*):(\d+)\)([\s\S]*?)expected: <([\s\S]*?)>\sbut was: <([\s\S]*?)>";
-
-        private static readonly string MavenBuildErrorPattern = @"\[(ERROR)\]\s+(?<location>[^\s]+)\s*:\[(?<line>\d+),(?<column>\d+)\]\s+(?<message>.+)\n\s+symbol:\s+(?<symbol>.+)\n\s+location:\s+(?<location2>.+)";
+        private static readonly string MavenErrorFailurePattern =
+            $@"\[ERROR\]";
 
         public JavaSpringAndHibernateProjectExecutionStrategy(
             Func<CompilerType, string> getCompilerPathFunc,
@@ -99,6 +99,12 @@
             try
             {
                 submissionFilePath = this.CreateSubmissionFile(executionContext);
+                var isValid = this.ValidateFolderStructure(submissionFilePath);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException("Folder structure is invalid!");
+                }
             }
             catch (ArgumentException exception)
             {
@@ -124,22 +130,19 @@
               mavenArgs,
               this.WorkingDirectory);
 
-            var mavenErrorsRegex = new Regex(MavenBuildErrorPattern);
-            var mavenErrors = this.GetMavenBuildErrors(packageExecutionResult.ReceivedOutput);
+            var mavenBuildFailureRegex = new Regex(MavenErrorFailurePattern);
 
-            result.IsCompiledSuccessfully = mavenErrors.Count == 0;
+            result.IsCompiledSuccessfully = !mavenBuildFailureRegex.IsMatch(packageExecutionResult.ReceivedOutput);
 
             if (!result.IsCompiledSuccessfully)
             {
-                result.CompilerComment = this.GetMavenErrorsComment(mavenErrors);
+                result.CompilerComment = this.GetMavenErrorsComment(packageExecutionResult.ReceivedOutput);
                 return result;
             }
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);
 
             var checker = executionContext.Input.GetChecker();
-
-            var testErrorMatcher = new Regex(MavenFailedTestPattern);
             var testIndex = 0;
 
             foreach (var test in executionContext.Input.Tests)
@@ -162,7 +165,7 @@
                     throw new FileLoadException("Tests could not be loaded, project structure is incorrect");
                 }
 
-                var message = this.EvaluateMavenTestOutput(processExecutionResult.ReceivedOutput, testErrorMatcher);
+                var message = this.EvaluateMavenTestOutput(processExecutionResult.ReceivedOutput, mavenBuildFailureRegex);
 
                 var testResult = this.CheckAndGetTestResult(
                     test,
@@ -272,6 +275,10 @@
         {
             var testNumber = 0;
             var filePaths = new string[context.Input.Tests.Count()];
+
+            FileHelpers.RemoveFilesFromZip(
+                submissionZipFilePath,
+                TestsFolderPattern);
 
             foreach (var test in context.Input.Tests)
             {
@@ -423,26 +430,15 @@
             return packageName.InnerText.Trim();
         }
 
-        private List<Match> GetMavenBuildErrors(string output)
-        {
-            var mavenErrorsRegex = new Regex(MavenBuildErrorPattern);
-            var mavenErrors = mavenErrorsRegex.Matches(output).Cast<Match>().ToList();
-            return mavenErrors;
-        }
-
-        private string GetMavenErrorsComment(List<Match> mavenErrors)
+        private string GetMavenErrorsComment(string testOutput)
         {
             var sb = new StringBuilder();
 
-            foreach (var match in mavenErrors)
+            foreach (var line in testOutput.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                         .Where(x => x
+                             .StartsWith("[ERROR]") || x.StartsWith("[FAILURE]")))
             {
-                sb.AppendLine("Error found:");
-                sb.AppendLine($"File name: {Path.GetFileName(match.Groups["location"].Value)}");
-                sb.AppendLine($"Line: {match.Groups["line"].Value}");
-                sb.AppendLine($"Column: {match.Groups["column"].Value}");
-                sb.AppendLine($"Message: {match.Groups["message"].Value}");
-                sb.AppendLine($"Symbol: {match.Groups["symbol"].Value}");
-                sb.AppendLine($"Location: {match.Groups["location2"].Value}");
+                sb.Append("\t" + line);
             }
 
             return sb.ToString();
@@ -455,6 +451,17 @@
 
             if (!errorMatch.Success)
             {
+                return message;
+            }
+
+            return this.GetMavenErrorsComment(testOutput);
+        }
+
+        private bool ValidateFolderStructure(string submissionFilePath)
+        {
+            var paths = FileHelpers.GetFilePathsFromZip(submissionFilePath).ToList();
+
+            return paths.Any(x => x.StartsWith(MainCodeFolderPattern)) && paths.Any(x => x.StartsWith(PomXmlFileNameAndExtension));
                 return message;
             }
 

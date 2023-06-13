@@ -1,12 +1,9 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.MySql
 {
-    using System;
     using System.Data;
     using System.Globalization;
     using System.Text.RegularExpressions;
     using global::MySql.Data.MySqlClient;
-    using OJS.Workers.Common;
-    using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class BaseMySqlExecutionStrategy : BaseSqlExecutionStrategy
     {
@@ -60,31 +57,6 @@
 
                 this.ExecuteNonQuery(connection, $"DROP DATABASE IF EXISTS `{databaseName}`;");
             }
-        }
-
-        protected override IExecutionResult<TestResult> Execute(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result,
-            Action<IDbConnection, TestContext> executionFlow)
-        {
-            result = base.Execute(executionContext, result, executionFlow);
-
-            // TODO: Fix concurrent execution of SQL queries.
-            // This is a temporary fix for the following error,
-            // but the strategy should be reworked to avoid this error in the first place.
-            // It happens rarely, but it still happens. Chances are it will not happen again on the next execution.
-            var concurrencyExceptionMessage =
-                "The ReadAsync method cannot be called when another read operation is pending.";
-
-            if (!result.IsCompiledSuccessfully &&
-                (result.CompilerComment
-                    ?.Trim()
-                    .Equals(concurrencyExceptionMessage, StringComparison.InvariantCultureIgnoreCase) ?? false))
-            {
-                result.CompilerComment = "Please, re-submit your solution. If the problem persists, contact an administrator.";
-            }
-
-            return result;
         }
 
         protected override string GetDataRecordFieldValue(IDataRecord dataRecord, int index)

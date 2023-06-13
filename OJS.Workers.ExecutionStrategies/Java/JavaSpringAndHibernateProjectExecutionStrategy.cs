@@ -462,18 +462,6 @@
             var paths = FileHelpers.GetFilePathsFromZip(submissionFilePath).ToList();
 
             return paths.Any(x => x.StartsWith(MainCodeFolderPattern)) && paths.Any(x => x.StartsWith(PomXmlFileNameAndExtension));
-                return message;
-            }
-
-            var errorMessage = errorMatch.Groups[5].Value.Trim();
-            var methodName = errorMatch.Groups[6].Value.Trim();
-            var className = errorMatch.Groups[7].Value.Trim();
-
-            message = $"Test name: {className} " +
-                      $"Method name: {methodName}" +
-                      $"Error message: {errorMessage} ";
-
-            return message;
         }
     }
 }

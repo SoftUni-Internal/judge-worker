@@ -110,7 +110,7 @@
             }
             catch (Exception ex)
             {
-                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}" + $"{ex.StackTrace}";
+                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
                 submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
             }

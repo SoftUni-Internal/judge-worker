@@ -40,5 +40,7 @@
         public TInput Input { get; set; }
 
         public int MaxPoints { get; set; }
+
+        public ExceptionType ExceptionType { get; set; }
     }
 }

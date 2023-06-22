@@ -29,7 +29,7 @@
         private const string DependencyNodeXPathTemplate = @"//pomns:dependencies/pomns:dependency[pomns:groupId='##' and pomns:artifactId='!!']";
         private const string DependenciesNodeXPath = @"//pomns:dependencies";
         private const string MavenTestCommand = "test -f {0} -Dtest=\"{1}\"";
-        private const string MavenBuild = "-f {0} clean install -DskipTests";
+        private const string MavenBuild = "compile";
         private const string PomXmlBuildSettingsPattern = @"<build>(?s:.)*<\/build>";
         private const string TestsFolderPattern = @"src/test/java/*";
         private const string MainCodeFolderPattern = @"src/main/java/";

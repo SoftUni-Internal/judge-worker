@@ -179,7 +179,7 @@
             }
 
             submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
-            submission.ExceptionType = ExceptionType.Runtime;
+            submission.ExceptionType = ExceptionType.Strategy;
             throw new Exception(result.Exception.Message);
         }
     }

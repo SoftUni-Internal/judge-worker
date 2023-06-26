@@ -143,6 +143,10 @@
                 {
                     logger.Warn("AggregateException caught.", ex.InnerException);
                 }
+                catch (Exception ex)
+                {
+                    result.ErrorOutput = $"Error while reading the process streams. {ex.Message}";
+                }
 
                 // Close the task that gets the process output
                 try
@@ -152,6 +156,10 @@
                 catch (AggregateException ex)
                 {
                     logger.Warn("AggregateException caught.", ex.InnerException);
+                }
+                catch (Exception ex)
+                {
+                    result.ErrorOutput = $"Error while reading the process streams. {ex.Message}";
                 }
 
                 Debug.Assert(process.HasExited, "Standard process didn't exit!");

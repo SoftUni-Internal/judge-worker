@@ -169,7 +169,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in getting remote submission result: {ex.Message}";
-
+                submission.ExceptionType = ExceptionType.Remote;
                 throw new Exception($"Exception in {nameof(this.ExecuteSubmissionRemotely)}", ex);
             }
 
@@ -179,7 +179,7 @@
             }
 
             submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
-
+            submission.ExceptionType = ExceptionType.Strategy;
             throw new Exception(result.Exception.Message);
         }
     }

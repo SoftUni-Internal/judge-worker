@@ -1,9 +1,9 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Models
 {
+    using System;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
-    using System;
 
     public class OjsSubmission<TInput> : IOjsSubmission
     {
@@ -42,6 +42,6 @@
 
         public int MaxPoints { get; set; }
 
-        public DateTime? LastExecutionOn { get; set; }
+        public DateTime? StartedExecutionOn { get; set; }
     }
 }

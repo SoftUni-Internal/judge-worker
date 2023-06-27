@@ -33,7 +33,6 @@
                 case nameof(DotNetCoreProjectTestsExecutionStrategy):
                 case nameof(DotNetCoreProjectExecutionStrategy):
                 case nameof(DotNetCoreUnitTestsExecutionStrategy):
-                case nameof(DotNetCoreTestRunnerExecutionStrategy):
                     new DotNetCoreSanitizer().Sanitize(executionContext);
                     break;
                 case nameof(CPlusPlusCompileExecuteAndCheckExecutionStrategy):

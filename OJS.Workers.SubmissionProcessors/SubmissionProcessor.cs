@@ -95,6 +95,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
+                submission.ExceptionType = ExceptionType.Strategy;
 
                 throw new Exception($"Exception in {nameof(this.SubmissionProcessingStrategy.BeforeExecute)}", ex);
             }
@@ -110,7 +111,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
-
+                submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
             }
         }
@@ -208,7 +209,7 @@
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
 
-                this.SubmissionProcessingStrategy.OnError(submission);
+                this.SubmissionProcessingStrategy.OnError(submission, ex);
             }
         }
     }

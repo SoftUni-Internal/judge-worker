@@ -3,6 +3,7 @@
     using System;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Helpers;
     using OJS.Workers.SubmissionProcessors.Models;
 
@@ -34,7 +35,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in creating execution strategy: {ex.Message}";
-
+                submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.CreateExecutionStrategy)}", ex);
             }
         }
@@ -49,7 +50,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in creating execution context: {ex.Message}";
-
+                submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.CreateExecutionContext)}", ex);
             }
         }
@@ -67,7 +68,7 @@
             catch (Exception ex)
             {
                 submission.ProcessingComment = $"Exception in executing the submission: {ex.Message}";
-
+                submission.ExceptionType = ExceptionType.Strategy;
                 throw new Exception($"Exception in {nameof(this.ExecuteSubmission)}", ex);
             }
         }

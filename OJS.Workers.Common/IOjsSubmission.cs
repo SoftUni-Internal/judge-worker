@@ -25,5 +25,7 @@
         ExecutionType ExecutionType { get; }
 
         ExecutionStrategyType ExecutionStrategyType { get; }
+
+        ExceptionType ExceptionType { get; set; }
     }
 }

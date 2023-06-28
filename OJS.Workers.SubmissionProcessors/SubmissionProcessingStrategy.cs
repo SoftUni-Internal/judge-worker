@@ -50,7 +50,7 @@
 
         public abstract IOjsSubmission RetrieveSubmission();
 
-        public abstract void OnError(IOjsSubmission submission);
+        public abstract void OnError(IOjsSubmission submission, Exception ex);
 
         public abstract void SetSubmissionToProcessing();
 

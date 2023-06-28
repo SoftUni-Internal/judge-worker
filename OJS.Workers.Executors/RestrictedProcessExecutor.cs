@@ -107,6 +107,10 @@ namespace OJS.Workers.Executors
                 {
                     logger.Warn($"AggregateException caught in Error Output Thread. Inner Exception: {ex.InnerException}");
                 }
+                catch (Exception ex)
+                {
+                    result.ErrorOutput = $"Error while reading the process streams. {ex.Message}";
+                }
 
                 // Close the task that gets the process output
                 try
@@ -116,6 +120,10 @@ namespace OJS.Workers.Executors
                 catch (AggregateException ex)
                 {
                     logger.Warn($"AggregateException caught in Standard Output Thread. Inner Exception: {ex.InnerException}");
+                }
+                catch (Exception ex)
+                {
+                    result.ErrorOutput = $"Error while reading the process streams. {ex.Message}";
                 }
 
                 Debug.Assert(restrictedProcess.HasExited, "Restricted process didn't exit!");

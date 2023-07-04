@@ -158,7 +158,7 @@
 
                 entryToExtract.Extract(destinationDirectory);
 
-                var extractedFilePath = $"{destinationDirectory}\\{entryToExtract.FileName.Replace("/", "\\")}";
+                var extractedFilePath = $"{destinationDirectory}{Path.DirectorySeparatorChar}{entryToExtract.FileName.Replace("/",  Path.DirectorySeparatorChar.ToString())}";
 
                 return extractedFilePath;
             }

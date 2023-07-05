@@ -52,10 +52,10 @@
         // Runtime constants
         public const string NewLineUnix = "\n";
         public const string NewLineWin = "\r\n";
-        public static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
-        public static readonly string CSharpFileExtension = $".{CompilerType.CSharp.GetFileExtension()}";
-        public static readonly string ClassDelimiterUnix = $"~~!!!==#==!!!~~{NewLineUnix}";
-        public static readonly string ClassDelimiterWin = $"~~!!!==#==!!!~~{NewLineWin}";
+        public static readonly string javaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
+        public static readonly string cSharpFileExtension = $".{CompilerType.CSharp.GetFileExtension()}";
+        public static readonly string classDelimiterUnix = $"~~!!!==#==!!!~~{NewLineUnix}";
+        public static readonly string classDelimiterWin = $"~~!!!==#==!!!~~{NewLineWin}";
 
         // Temp Directory folder paths
         public static string ExecutionStrategiesWorkingDirectoryPath
@@ -64,12 +64,12 @@
             {
                 var rootPath = string.Empty;
 
-                if (OSPlatformHelpers.IsUnix())
+                if (OsPlatformHelpers.IsUnix())
                 {
                     rootPath = Path.GetTempPath();
                 }
 
-                if (OSPlatformHelpers.IsWindows())
+                if (OsPlatformHelpers.IsWindows())
                 {
                     rootPath = Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine);
                 }

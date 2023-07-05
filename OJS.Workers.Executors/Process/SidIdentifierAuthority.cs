@@ -11,9 +11,6 @@
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6, ArraySubType = UnmanagedType.I1)]
         public byte[] Value;
 
-        public SidIdentifierAuthority(byte[] value)
-        {
-            this.Value = value;
-        }
+        public SidIdentifierAuthority(byte[] value) => this.Value = value;
     }
 }

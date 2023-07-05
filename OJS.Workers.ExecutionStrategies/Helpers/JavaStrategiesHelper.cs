@@ -20,7 +20,7 @@
         private const string JvmThreadInitializationErrorMessage = "Failed to start thread.";
 
         public static char ClassPathArgumentSeparator
-            => OSPlatformHelpers.IsWindows() ? ';' : ':';
+            => OsPlatformHelpers.IsWindows() ? ';' : ':';
 
         /// <summary>
         /// Validates if the Java Virtual Machine has been initialized successfully,

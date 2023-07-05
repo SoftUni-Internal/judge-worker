@@ -17,11 +17,11 @@ namespace OJS.Workers.Executors
     {
         private const int TimeBeforeClosingOutputStreams = 300;
 
-        private static ILog logger;
+        private static ILog _logger;
 
         public RestrictedProcessExecutor(int baseTimeUsed, int baseMemoryUsed, ITasksService tasksService)
             : base(baseTimeUsed, baseMemoryUsed, tasksService)
-            => logger = LogManager.GetLogger(typeof(RestrictedProcessExecutor));
+            => _logger = LogManager.GetLogger(typeof(RestrictedProcessExecutor));
 
         protected override ProcessExecutionResult InternalExecute(
             string fileName,
@@ -95,7 +95,7 @@ namespace OJS.Workers.Executors
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn($"AggregateException caught in Memory Sampling Thread. Inner Exception: {ex.InnerException}");
+                    _logger.Warn($"AggregateException caught in Memory Sampling Thread. Inner Exception: {ex.InnerException}");
                 }
 
                 // Close the task that gets the process error output
@@ -105,7 +105,7 @@ namespace OJS.Workers.Executors
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn($"AggregateException caught in Error Output Thread. Inner Exception: {ex.InnerException}");
+                    _logger.Warn($"AggregateException caught in Error Output Thread. Inner Exception: {ex.InnerException}");
                 }
                 catch (Exception ex)
                 {
@@ -119,7 +119,7 @@ namespace OJS.Workers.Executors
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn($"AggregateException caught in Standard Output Thread. Inner Exception: {ex.InnerException}");
+                    _logger.Warn($"AggregateException caught in Standard Output Thread. Inner Exception: {ex.InnerException}");
                 }
                 catch (Exception ex)
                 {

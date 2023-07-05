@@ -1,39 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <TargetFrameworks>net47;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj" />
+    </ItemGroup>
 
-  <!-- common NuGet package refs that affect all projects -->
-  <ItemGroup>
-    <PackageReference Include="DotNetZip" Version="1.13.0" />
-  </ItemGroup>
-
-  <!-- .NET Standard 2.0 references, compilation flags and build options -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
-
-  <!-- .NET 4.7 references, compilation flags and build options -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47'">
-    <DefineConstants>NET47;NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
-	  <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj" />
-  </ItemGroup>
 </Project>

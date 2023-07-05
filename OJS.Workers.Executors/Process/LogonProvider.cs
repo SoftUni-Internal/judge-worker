@@ -2,9 +2,9 @@
 {
     public enum LogonProvider
     {
-        LOGON32_PROVIDER_DEFAULT,
-        LOGON32_PROVIDER_WINNT35,
-        LOGON32_PROVIDER_WINNT40,
-        LOGON32_PROVIDER_WINNT50
+        Logon32ProviderDefault,
+        Logon32ProviderWinnt35,
+        Logon32ProviderWinnt40,
+        Logon32ProviderWinnt50
     }
 }

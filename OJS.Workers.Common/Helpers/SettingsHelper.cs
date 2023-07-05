@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.Common.Helpers
 {
     using System;
-    using System.IO;
 
     using Microsoft.Extensions.Configuration;
 

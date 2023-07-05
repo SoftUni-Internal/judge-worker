@@ -10,56 +10,56 @@
 
     public static class NativeMethods
     {
-        public const int SYNCHRONIZE = 0x00100000;
-        public const int PROCESS_TERMINATE = 0x0001;
-        public const int STILL_ACTIVE = 0x00000103;
+        public const int Synchronize = 0x00100000;
+        public const int ProcessTerminate = 0x0001;
+        public const int StillActive = 0x00000103;
 
-        public const uint STANDARD_RIGHTS_REQUIRED = 0x000F0000;
-        public const uint STANDARD_RIGHTS_READ = 0x00020000;
+        public const uint StandardRightsRequired = 0x000F0000;
+        public const uint StandardRightsRead = 0x00020000;
 
-        public const uint TOKEN_ASSIGN_PRIMARY = 0x0001;
-        public const uint TOKEN_DUPLICATE = 0x0002;
-        public const uint TOKEN_IMPERSONATE = 0x0004;
-        public const uint TOKEN_QUERY = 0x0008;
-        public const uint TOKEN_QUERY_SOURCE = 0x0010;
-        public const uint TOKEN_ADJUST_PRIVILEGES = 0x0020;
-        public const uint TOKEN_ADJUST_GROUPS = 0x0040;
-        public const uint TOKEN_ADJUST_DEFAULT = 0x0080;
-        public const uint TOKEN_ADJUST_SESSIONID = 0x0100;
-        public const uint TOKEN_READ = STANDARD_RIGHTS_READ | TOKEN_QUERY;
-        public const uint TOKEN_ALL_ACCESS =
-            STANDARD_RIGHTS_REQUIRED | TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_IMPERSONATE | TOKEN_QUERY
-             | TOKEN_QUERY_SOURCE | TOKEN_ADJUST_PRIVILEGES | TOKEN_ADJUST_GROUPS | TOKEN_ADJUST_DEFAULT
-             | TOKEN_ADJUST_SESSIONID;
+        public const uint TokenAssignPrimary = 0x0001;
+        public const uint TokenDuplicate = 0x0002;
+        public const uint TokenImpersonate = 0x0004;
+        public const uint TokenQuery = 0x0008;
+        public const uint TokenQuerySource = 0x0010;
+        public const uint TokenAdjustPrivileges = 0x0020;
+        public const uint TokenAdjustGroups = 0x0040;
+        public const uint TokenAdjustDefault = 0x0080;
+        public const uint TokenAdjustSessionid = 0x0100;
+        public const uint TokenRead = StandardRightsRead | TokenQuery;
+        public const uint TokenAllAccess =
+            StandardRightsRequired | TokenAssignPrimary | TokenDuplicate | TokenImpersonate | TokenQuery
+             | TokenQuerySource | TokenAdjustPrivileges | TokenAdjustGroups | TokenAdjustDefault
+             | TokenAdjustSessionid;
 
         // Group related SID Attributes
-        public const uint SE_GROUP_MANDATORY = 0x00000001;
-        public const uint SE_GROUP_ENABLED_BY_DEFAULT = 0x00000002;
-        public const uint SE_GROUP_ENABLED = 0x00000004;
-        public const uint SE_GROUP_OWNER = 0x00000008;
-        public const uint SE_GROUP_USE_FOR_DENY_ONLY = 0x00000010;
-        public const uint SE_GROUP_INTEGRITY = 0x00000020;
-        public const uint SE_GROUP_INTEGRITY_ENABLED = 0x00000040;
-        public const uint SE_GROUP_LOGON_ID = 0xC0000000;
-        public const uint SE_GROUP_RESOURCE = 0x20000000;
-        public const uint SE_GROUP_VALID_ATTRIBUTES = SE_GROUP_MANDATORY |
-            SE_GROUP_ENABLED_BY_DEFAULT | SE_GROUP_ENABLED | SE_GROUP_OWNER |
-            SE_GROUP_USE_FOR_DENY_ONLY | SE_GROUP_LOGON_ID | SE_GROUP_RESOURCE |
-            SE_GROUP_INTEGRITY | SE_GROUP_INTEGRITY_ENABLED;
+        public const uint SeGroupMandatory = 0x00000001;
+        public const uint SeGroupEnabledByDefault = 0x00000002;
+        public const uint SeGroupEnabled = 0x00000004;
+        public const uint SeGroupOwner = 0x00000008;
+        public const uint SeGroupUseForDenyOnly = 0x00000010;
+        public const uint SeGroupIntegrity = 0x00000020;
+        public const uint SeGroupIntegrityEnabled = 0x00000040;
+        public const uint SeGroupLogonId = 0xC0000000;
+        public const uint SeGroupResource = 0x20000000;
+        public const uint SeGroupValidAttributes = SeGroupMandatory |
+            SeGroupEnabledByDefault | SeGroupEnabled | SeGroupOwner |
+            SeGroupUseForDenyOnly | SeGroupLogonId | SeGroupResource |
+            SeGroupIntegrity | SeGroupIntegrityEnabled;
 
-        public const int SAFER_SCOPEID_MACHINE = 1;
-        public const int SAFER_SCOPEID_USER = 2;
+        public const int SaferScopeidMachine = 1;
+        public const int SaferScopeidUser = 2;
 
-        public const int SAFER_LEVELID_DISALLOWED = 0x00000;
-        public const int SAFER_LEVELID_UNTRUSTED = 0x1000;
-        public const int SAFER_LEVELID_CONSTRAINED = 0x10000;
-        public const int SAFER_LEVELID_NORMALUSER = 0x20000;
-        public const int SAFER_LEVELID_FULLYTRUSTED = 0x40000;
+        public const int SaferLevelidDisallowed = 0x00000;
+        public const int SaferLevelidUntrusted = 0x1000;
+        public const int SaferLevelidConstrained = 0x10000;
+        public const int SaferLevelidNormaluser = 0x20000;
+        public const int SaferLevelidFullytrusted = 0x40000;
 
-        public const int SAFER_LEVEL_OPEN = 1;
+        public const int SaferLevelOpen = 1;
 
         [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Reviewed. Suppression is OK here.")]
-        public static SidIdentifierAuthority SECURITY_MANDATORY_LABEL_AUTHORITY =
+        public static SidIdentifierAuthority securityMandatoryLabelAuthority =
             new SidIdentifierAuthority(new byte[] { 0, 0, 0, 0, 0, 16 });
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -168,7 +168,7 @@
             out IntPtr newTokenHandle);
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern bool ConvertStringSidToSid(string StringSid, out IntPtr ptrSid);
+        internal static extern bool ConvertStringSidToSid(string stringSid, out IntPtr ptrSid);
 
         /// <summary>
         /// The function sets various types of information for a specified
@@ -245,16 +245,16 @@
 
         [DllImport("psapi.dll", EntryPoint = "GetProcessMemoryInfo")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool GetProcessMemoryInfo([In] IntPtr Process, [Out] out ProcessMemoryCounters ppsmemCounters, uint cb);
+        internal static extern bool GetProcessMemoryInfo([In] IntPtr process, [Out] out ProcessMemoryCounters ppsmemCounters, uint cb);
 
         [DllImport("advapi32.dll", SetLastError = true)]
         internal static extern bool SaferCloseLevel(IntPtr hLevelHandle);
 
         [DllImport("advapi32.dll", SetLastError = true)]
-        internal static extern bool SaferCreateLevel(int dwScopeId, int dwLevelId, int OpenFlags, out IntPtr pLevelHandle, IntPtr lpReserved);
+        internal static extern bool SaferCreateLevel(int dwScopeId, int dwLevelId, int openFlags, out IntPtr pLevelHandle, IntPtr lpReserved);
 
         [DllImport("advapi32.dll", SetLastError = true)]
-        internal static extern bool SaferComputeTokenFromLevel(IntPtr LevelHandle, IntPtr InAccessToken, out IntPtr OutAccessToken, int dwFlags, IntPtr lpReserved);
+        internal static extern bool SaferComputeTokenFromLevel(IntPtr levelHandle, IntPtr inAccessToken, out IntPtr outAccessToken, int dwFlags, IntPtr lpReserved);
 
         [DllImport("kernel32.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
@@ -266,7 +266,7 @@
 
         // SafeLocalMemHandle
         [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true, BestFitMapping = false)]
-        internal static extern bool ConvertStringSecurityDescriptorToSecurityDescriptor(string stringSecurityDescriptor, int stringSDRevision, out SafeLocalMemHandle securityDescriptor, IntPtr securityDescriptorSize);
+        internal static extern bool ConvertStringSecurityDescriptorToSecurityDescriptor(string stringSecurityDescriptor, int stringSdRevision, out SafeLocalMemHandle securityDescriptor, IntPtr securityDescriptorSize);
 
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [DllImport("kernel32.dll")]

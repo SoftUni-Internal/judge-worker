@@ -23,13 +23,13 @@
                 }
                 else
                 {
-                    const string Ellipsis = "...";
+                    const string ellipsis = "...";
 
                     result = string.Format(
                         "{0}{1}{2}",
-                        startIndex > Ellipsis.Length ? Ellipsis : string.Empty,
+                        startIndex > ellipsis.Length ? ellipsis : string.Empty,
                         input.Substring(startIndex, endIndex - startIndex),
-                        input.Length - endIndex > Ellipsis.Length ? Ellipsis : string.Empty);
+                        input.Length - endIndex > ellipsis.Length ? ellipsis : string.Empty);
                 }
             }
 

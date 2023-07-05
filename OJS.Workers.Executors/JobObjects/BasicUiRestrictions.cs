@@ -11,6 +11,6 @@
         /// <summary>
         /// The restriction class for the user interface.
         /// </summary>
-        public uint UIRestrictionsClass { get; set; }
+        public uint UiRestrictionsClass { get; set; }
     }
 }

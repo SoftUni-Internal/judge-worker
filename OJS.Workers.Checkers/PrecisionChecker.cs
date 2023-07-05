@@ -18,10 +18,7 @@
             return result;
         }
 
-        public override void SetParameter(string parameter)
-        {
-            this.precision = int.Parse(parameter, CultureInfo.InvariantCulture);
-        }
+        public override void SetParameter(string parameter) => this.precision = int.Parse(parameter, CultureInfo.InvariantCulture);
 
         private bool AreEqualWithPrecision(string userLine, string correctLine)
         {

@@ -139,7 +139,7 @@
         {
             var consoleAppEntryPointPath = FileHelpers.BuildPath(
                 this.NUnitLiteConsoleAppDirectory,
-                $"{NUnitLiteConsoleAppProgramName}{Constants.CSharpFileExtension}");
+                $"{NUnitLiteConsoleAppProgramName}{Constants.cSharpFileExtension}");
 
             File.WriteAllText(consoleAppEntryPointPath, NUnitLiteConsoleAppProgramTemplate);
 

@@ -1,19 +1,15 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Exceptions;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Extensions;
-    using OJS.Workers.ExecutionStrategies.Helpers;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.Executors;
+﻿using OJS.Workers.Common;
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
+using OJS.Workers.ExecutionStrategies.Extensions;
+using OJS.Workers.ExecutionStrategies.Helpers;
+using OJS.Workers.ExecutionStrategies.Models;
+using OJS.Workers.Executors;
+using System.Text.RegularExpressions;
 
+namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
+{
     public class DotNetCoreUnitTestsExecutionStrategy : DotNetCoreProjectTestsExecutionStrategy
     {
         private readonly IEnumerable<string> packageNamesToRemoveFromUserCsProjFile = new[]
@@ -23,7 +19,7 @@
             "Microsoft.EntityFrameworkCore.InMemory"
         };
 
-        private readonly string csFileSearchPattern = $"*{Constants.CSharpFileExtension}";
+        private readonly string csFileSearchPattern = $"*{Constants.cSharpFileExtension}";
 
         private string nUnitLiteConsoleAppCsProjTemplate;
 
@@ -92,7 +88,7 @@
             var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
             var testedCodePath = FileHelpers.BuildPath(
                 this.NUnitLiteConsoleAppDirectory,
-                UnitTestStrategiesHelper.TestedCodeFileNameWithExtension);
+                UnitTestStrategiesHelper.testedCodeFileNameWithExtension);
             var originalTestsPassed = -1;
 
             var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy).ToList();

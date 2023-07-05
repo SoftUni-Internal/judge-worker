@@ -134,7 +134,7 @@ class Classes{{
                 var className = JavaCodePreprocessorHelper
                     .GetPublicClassName(executionContext.Input.TaskSkeletonAsString);
 
-                var filePath = FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{JavaSourceFileExtension}");
+                var filePath = FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{javaSourceFileExtension}");
 
                 File.WriteAllText(filePath, executionContext.Input.TaskSkeletonAsString);
                 FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, filePath);
@@ -280,7 +280,7 @@ class Classes{{
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                    FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{JavaSourceFileExtension}");
+                    FileHelpers.BuildPath(this.WorkingDirectory, $"{className}{javaSourceFileExtension}");
 
                 File.WriteAllText(testFileName, test.Input);
                 filePaths[testNumber] = testFileName;
@@ -304,7 +304,7 @@ class Classes{{
         protected virtual void ExtractUserClassNames(string submissionFilePath)
             => this.UserClassNames.AddRange(
                 FileHelpers.GetFilePathsFromZip(submissionFilePath)
-                    .Where(x => !x.EndsWith("/") && x.EndsWith(JavaSourceFileExtension))
+                    .Where(x => !x.EndsWith("/") && x.EndsWith(javaSourceFileExtension))
                     .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
                     .Select(x => x.Replace("/", ".")));
 

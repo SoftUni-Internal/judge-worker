@@ -1,10 +1,5 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
-    using System;
-    using System.CodeDom.Compiler;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using Microsoft.CSharp;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
@@ -12,6 +7,7 @@
     using OJS.Workers.ExecutionStrategies.Extensions;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
+    using System.CodeDom.Compiler;
 
     public class DotNetCoreTestRunnerExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {

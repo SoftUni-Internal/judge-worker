@@ -9,13 +9,13 @@
             var info = new BasicLimitInformation
             {
                 LimitFlags =
-                    (int)(LimitFlags.JOB_OBJECT_LIMIT_JOB_MEMORY
+                    (int)(LimitFlags.JobObjectLimitJobMemory
                      //// The following two flags are causing the process to have unexpected behavior
                      //// | LimitFlags.JOB_OBJECT_LIMIT_JOB_TIME
                      //// | LimitFlags.JOB_OBJECT_LIMIT_PROCESS_TIME
-                     | LimitFlags.JOB_OBJECT_LIMIT_ACTIVE_PROCESS
-                     | LimitFlags.JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION
-                     | LimitFlags.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE),
+                     | LimitFlags.JobObjectLimitActiveProcess
+                     | LimitFlags.JobObjectLimitDieOnUnhandledException
+                     | LimitFlags.JobObjectLimitKillOnJobClose),
                 PerJobUserTimeLimit = maximumTime, // TODO: Remove or rework
                 PerProcessUserTimeLimit = maximumTime,
                 ActiveProcessLimit = 1,
@@ -41,15 +41,15 @@
         {
             var restrictions = new BasicUiRestrictions
                                    {
-                                       UIRestrictionsClass =
-                                           (int)(UiRestrictionFlags.JOB_OBJECT_UILIMIT_DESKTOP
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_DISPLAYSETTINGS
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_EXITWINDOWS
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_GLOBALATOMS
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_HANDLES
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_READCLIPBOARD
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_SYSTEMPARAMETERS
-                                            | UiRestrictionFlags.JOB_OBJECT_UILIMIT_WRITECLIPBOARD)
+                                       UiRestrictionsClass =
+                                           (int)(UiRestrictionFlags.JobObjectUilimitDesktop
+                                            | UiRestrictionFlags.JobObjectUilimitDisplaysettings
+                                            | UiRestrictionFlags.JobObjectUilimitExitwindows
+                                            | UiRestrictionFlags.JobObjectUilimitGlobalatoms
+                                            | UiRestrictionFlags.JobObjectUilimitHandles
+                                            | UiRestrictionFlags.JobObjectUilimitReadclipboard
+                                            | UiRestrictionFlags.JobObjectUilimitSystemparameters
+                                            | UiRestrictionFlags.JobObjectUilimitWriteclipboard)
                                    };
 
             return restrictions;

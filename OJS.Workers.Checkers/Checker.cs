@@ -142,7 +142,7 @@
             string correctLine,
             string userLine)
         {
-            const int FragmentMaxLength = 512;
+            const int fragmentMaxLength = 512;
 
             var adminCheckerDetails = new CheckerDetails
             {
@@ -154,13 +154,13 @@
             if (correctLine != null)
             {
                 adminCheckerDetails.ExpectedOutputFragment =
-                    PrepareOutputFragment(correctLine, firstDifferenceIndex, FragmentMaxLength);
+                    PrepareOutputFragment(correctLine, firstDifferenceIndex, fragmentMaxLength);
             }
 
             if (userLine != null)
             {
                 adminCheckerDetails.UserOutputFragment =
-                    PrepareOutputFragment(userLine, firstDifferenceIndex, FragmentMaxLength);
+                    PrepareOutputFragment(userLine, firstDifferenceIndex, fragmentMaxLength);
             }
 
             return adminCheckerDetails;
@@ -171,7 +171,7 @@
             string userLine,
             string correctLine)
         {
-            const int FragmentMaxLength = 512;
+            const int fragmentMaxLength = 512;
 
             var adminCheckerDetails = new CheckerDetails
             {
@@ -183,13 +183,13 @@
             if (correctLine != null)
             {
                 adminCheckerDetails.ExpectedOutputFragment =
-                    PrepareOutputFragment(correctLine, firstDifferenceIndex, FragmentMaxLength);
+                    PrepareOutputFragment(correctLine, firstDifferenceIndex, fragmentMaxLength);
             }
 
             if (userLine != null)
             {
                 adminCheckerDetails.UserOutputFragment =
-                    PrepareOutputFragment(userLine, firstDifferenceIndex, FragmentMaxLength);
+                    PrepareOutputFragment(userLine, firstDifferenceIndex, fragmentMaxLength);
             }
 
             return adminCheckerDetails;
@@ -204,7 +204,7 @@
             CheckerDetails checkerDetails;
             if (isTrialTest)
             {
-                const int FragmentMaxLength = 4096;
+                const int fragmentMaxLength = 4096;
 
                 checkerDetails = default(CheckerDetails);
 
@@ -213,13 +213,13 @@
                 if (expectedOutput != null)
                 {
                     checkerDetails.ExpectedOutputFragment =
-                        PrepareOutputFragment(expectedOutput, firstDifferenceIndex, FragmentMaxLength);
+                        PrepareOutputFragment(expectedOutput, firstDifferenceIndex, fragmentMaxLength);
                 }
 
                 if (receivedOutput != null)
                 {
                     checkerDetails.UserOutputFragment =
-                        PrepareOutputFragment(receivedOutput, firstDifferenceIndex, FragmentMaxLength);
+                        PrepareOutputFragment(receivedOutput, firstDifferenceIndex, fragmentMaxLength);
                 }
             }
             else

@@ -15,10 +15,7 @@
             this.handle = NativeMethods.CreateJobObject(ref attr, null);
         }
 
-        ~JobObject()
-        {
-            this.Dispose(false);
-        }
+        ~JobObject() => this.Dispose(false);
 
         public void SetExtendedLimitInformation(ExtendedLimitInformation extendedInfo)
         {
@@ -77,15 +74,9 @@
             this.handle = IntPtr.Zero;
         }
 
-        public bool AddProcess(IntPtr processHandle)
-        {
-            return NativeMethods.AssignProcessToJobObject(this.handle, processHandle);
-        }
+        public bool AddProcess(IntPtr processHandle) => NativeMethods.AssignProcessToJobObject(this.handle, processHandle);
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-        }
+        public void Dispose() => this.Dispose(true);
 
         protected virtual void Dispose(bool disposing)
         {

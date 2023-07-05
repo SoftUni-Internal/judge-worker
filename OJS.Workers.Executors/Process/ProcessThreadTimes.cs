@@ -4,19 +4,19 @@
 
     internal struct ProcessThreadTimes
     {
-        public long Create;
-        public long Exit;
-        public long Kernel;
-        public long User;
+        public long create;
+        public long exit;
+        public long kernel;
+        public long user;
 
-        public DateTime StartTime => DateTime.FromFileTime(this.Create);
+        public DateTime StartTime => DateTime.FromFileTime(this.create);
 
-        public DateTime ExitTime => DateTime.FromFileTime(this.Exit);
+        public DateTime ExitTime => DateTime.FromFileTime(this.exit);
 
-        public TimeSpan PrivilegedProcessorTime => new TimeSpan(this.Kernel);
+        public TimeSpan PrivilegedProcessorTime => new TimeSpan(this.kernel);
 
-        public TimeSpan UserProcessorTime => new TimeSpan(this.User);
+        public TimeSpan UserProcessorTime => new TimeSpan(this.user);
 
-        public TimeSpan TotalProcessorTime => new TimeSpan(this.User + this.Kernel);
+        public TimeSpan TotalProcessorTime => new TimeSpan(this.user + this.kernel);
     }
 }

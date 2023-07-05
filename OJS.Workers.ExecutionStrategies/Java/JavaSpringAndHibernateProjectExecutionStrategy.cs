@@ -287,7 +287,7 @@
             var fileNameWithoutExtension = this.MainClassFileName.Substring(
                 this.MainClassFileName.LastIndexOf(".", StringComparison.Ordinal) + 1);
 
-            this.MainClassFileName = fileNameWithoutExtension + JavaSourceFileExtension;
+            this.MainClassFileName = fileNameWithoutExtension + javaSourceFileExtension;
         }
 
         protected void OverwriteApplicationProperties(string submissionZipFilePath)
@@ -356,7 +356,7 @@
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                        $"{this.WorkingDirectory}\\{className}{JavaSourceFileExtension}";
+                        $"{this.WorkingDirectory}\\{className}{javaSourceFileExtension}";
                 File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
                 filePaths[testNumber] = testFileName;
                 this.TestNames.Add($"{this.PackageName}.{className}");
@@ -370,21 +370,19 @@
             FileHelpers.DeleteFiles(filePaths);
         }
 
-        protected override void ExtractUserClassNames(string submissionFilePath)
-        {
+        protected override void ExtractUserClassNames(string submissionFilePath) =>
             this.UserClassNames.AddRange(FileHelpers
                 .GetFilePathsFromZip(submissionFilePath)
-                .Where(x => !x.EndsWith("/") && x.EndsWith(JavaSourceFileExtension))
-                    .Select(x => x.Contains(IntelliJProjectTemplatePattern)
+                .Where(x => !x.EndsWith("/") && x.EndsWith(javaSourceFileExtension))
+                .Select(x => x.Contains(IntelliJProjectTemplatePattern)
                     ? x.Substring(x.LastIndexOf(
-                        IntelliJProjectTemplatePattern,
-                        StringComparison.Ordinal)
-                        + IntelliJProjectTemplatePattern.Length
-                        + 1)
+                                      IntelliJProjectTemplatePattern,
+                                      StringComparison.Ordinal)
+                                  + IntelliJProjectTemplatePattern.Length
+                                  + 1)
                     : x)
                 .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
                 .Select(x => x.Replace("/", ".")));
-        }
 
         protected void PreparePomXml(string submissionFilePath)
         {

@@ -47,13 +47,13 @@
             var threadSecurityAttributes = new SecurityAttributes();
             this.processInformation = default(ProcessInformation);
 
-            const uint CreationFlags = (uint)(
-                CreateProcessFlags.CREATE_SUSPENDED |
-                CreateProcessFlags.CREATE_BREAKAWAY_FROM_JOB |
-                CreateProcessFlags.CREATE_UNICODE_ENVIRONMENT |
-                CreateProcessFlags.CREATE_NEW_PROCESS_GROUP |
-                CreateProcessFlags.DETACHED_PROCESS | // http://stackoverflow.com/questions/6371149/what-is-the-difference-between-detach-process-and-create-no-window-process-creat
-                CreateProcessFlags.CREATE_NO_WINDOW) |
+            const uint creationFlags = (uint)(
+                CreateProcessFlags.CreateSuspended |
+                CreateProcessFlags.CreateBreakawayFromJob |
+                CreateProcessFlags.CreateUnicodeEnvironment |
+                CreateProcessFlags.CreateNewProcessGroup |
+                CreateProcessFlags.DetachedProcess | // http://stackoverflow.com/questions/6371149/what-is-the-difference-between-detach-process-and-create-no-window-process-creat
+                CreateProcessFlags.CreateNoWindow) |
                 (uint)ProcessPriorityClass.High;
 
             string commandLine;
@@ -81,7 +81,7 @@
                     processSecurityAttributes,
                     threadSecurityAttributes,
                     true, // In order to standard input, output and error redirection work, the handles must be inheritable and the CreateProcess() API must specify that inheritable handles are to be inherited by the child process by specifying TRUE in the bInheritHandles parameter.
-                    CreationFlags,
+                    creationFlags,
                     IntPtr.Zero,
                     workingDirectory,
                     startupInfo,
@@ -123,7 +123,7 @@
                 }
 
                 return NativeMethods.GetExitCodeProcess(this.safeProcessHandle, out this.exitCode)
-                       && this.exitCode != NativeMethods.STILL_ACTIVE;
+                       && this.exitCode != NativeMethods.StillActive;
             }
         }
 
@@ -260,7 +260,7 @@
             // HANDLE hStdInput - Standard input handle of the child process.
             // HANDLE hStdOutput - Standard output handle of the child process.
             // HANDLE hStdError - Standard error handle of the child process.
-            startupInfo.Flags = (int)StartupInfoFlags.STARTF_USESTDHANDLES;
+            startupInfo.Flags = (int)StartupInfoFlags.StartfUsestdhandles;
             this.CreatePipe(out var standardInputWritePipeHandle, out startupInfo.StandardInputHandle, true, bufferSize);
             this.CreatePipe(out var standardOutputReadPipeHandle, out startupInfo.StandardOutputHandle, false, bufferSize);
             this.CreatePipe(
@@ -348,7 +348,7 @@
                         out parentHandle, // Address of new handle.
                         0,
                         false, // Make it un-inheritable.
-                        (int)DuplicateOptions.DUPLICATE_SAME_ACCESS))
+                        (int)DuplicateOptions.DuplicateSameAccess))
                 {
                     throw new Win32Exception();
                 }
@@ -369,7 +369,7 @@
             IntPtr processToken;
             if (!NativeMethods.OpenProcessToken(
                     NativeMethods.GetCurrentProcess(),
-                    NativeMethods.TOKEN_DUPLICATE | NativeMethods.TOKEN_ASSIGN_PRIMARY | NativeMethods.TOKEN_QUERY | NativeMethods.TOKEN_ADJUST_DEFAULT,
+                    NativeMethods.TokenDuplicate | NativeMethods.TokenAssignPrimary | NativeMethods.TokenQuery | NativeMethods.TokenAdjustDefault,
                     out processToken))
             {
                 throw new Win32Exception();
@@ -379,7 +379,7 @@
             IntPtr restrictedToken;
             if (!NativeMethods.CreateRestrictedToken(
                     processToken,
-                    CreateRestrictedTokenFlags.SANDBOX_INERT, // TODO: DISABLE_MAX_PRIVILEGE ??
+                    CreateRestrictedTokenFlags.SandboxInert, // TODO: DISABLE_MAX_PRIVILEGE ??
                     0, // Disable SID
                     null,
                     0, // Delete privilege
@@ -403,9 +403,9 @@
             IntPtr token;
 
             if (!NativeMethods.SaferCreateLevel(
-                    NativeMethods.SAFER_SCOPEID_USER,
-                    NativeMethods.SAFER_LEVELID_CONSTRAINED,
-                    NativeMethods.SAFER_LEVEL_OPEN,
+                    NativeMethods.SaferScopeidUser,
+                    NativeMethods.SaferLevelidConstrained,
+                    NativeMethods.SaferLevelOpen,
                     out saferLevel,
                     IntPtr.Zero))
             {
@@ -428,7 +428,7 @@
             // Create the low integrity SID.
             IntPtr integritySid;
             if (!NativeMethods.AllocateAndInitializeSid(
-                    ref NativeMethods.SECURITY_MANDATORY_LABEL_AUTHORITY,
+                    ref NativeMethods.securityMandatoryLabelAuthority,
                     1,
                     (int)securityMandatoryLabel,
                     0,
@@ -444,7 +444,7 @@
             }
 
             var tokenMandatoryLabel = new TokenMandatoryLabel { Label = default(SidAndAttributes) };
-            tokenMandatoryLabel.Label.Attributes = NativeMethods.SE_GROUP_INTEGRITY;
+            tokenMandatoryLabel.Label.Attributes = NativeMethods.SeGroupIntegrity;
             tokenMandatoryLabel.Label.Sid = integritySid;
             //// Marshal the TOKEN_MANDATORY_LABEL structure to the native memory.
             var sizeOfTokenMandatoryLabel = Marshal.SizeOf(tokenMandatoryLabel);
@@ -470,10 +470,10 @@
             var processTimes = default(ProcessThreadTimes);
             if (!NativeMethods.GetProcessTimes(
                     this.safeProcessHandle,
-                    out processTimes.Create,
-                    out processTimes.Exit,
-                    out processTimes.Kernel,
-                    out processTimes.User))
+                    out processTimes.create,
+                    out processTimes.exit,
+                    out processTimes.kernel,
+                    out processTimes.user))
             {
                 throw new Win32Exception();
             }

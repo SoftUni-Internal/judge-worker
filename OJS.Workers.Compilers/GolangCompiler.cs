@@ -23,7 +23,7 @@
         {
             var inputFileNameWithoutExtension = inputFileName.Substring(0, inputFileName.LastIndexOf('.'));
 
-            return OSPlatformHelpers.IsWindows()
+            return OsPlatformHelpers.IsWindows()
                 ? base.GetOutputFileName(inputFileNameWithoutExtension)
                 : inputFileNameWithoutExtension;
         }

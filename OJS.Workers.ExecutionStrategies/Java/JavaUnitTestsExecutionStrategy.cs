@@ -47,15 +47,14 @@
             => this.TestNames = new List<string>();
 
         protected string JUnitTestRunnerSourceFilePath =>
-            FileHelpers.BuildPath(this.WorkingDirectory, $"{JUnitRunnerClassName}{JavaSourceFileExtension}");
+            FileHelpers.BuildPath(this.WorkingDirectory, $"{JUnitRunnerClassName}{javaSourceFileExtension}");
 
         protected List<string> TestNames { get; }
 
         protected override string ClassPathArgument => $@" -classpath ""{this.JavaLibrariesPath}*""";
 
-        protected virtual string JUnitTestRunnerCode
-        {
-            get => $@"
+        protected virtual string JUnitTestRunnerCode =>
+            $@"
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
@@ -107,7 +106,6 @@ public class _$TestRunner {{
         System.out.printf(""Total Tests: %d Successful: %d Failed: %d"", total, successful, failed);
     }}
 }}";
-        }
 
         protected override IExecutionResult<TestResult> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
@@ -274,7 +272,7 @@ public class _$TestRunner {{
         private void ExtractUserTestFiles(string submissionFilePath)
         {
             var fileNames = FileHelpers.GetFilePathsFromZip(submissionFilePath)
-                .Where(x => x.EndsWith(JavaSourceFileExtension));
+                .Where(x => x.EndsWith(javaSourceFileExtension));
             this.TestNames.AddRange(fileNames);
         }
 
@@ -292,7 +290,7 @@ public class _$TestRunner {{
         }
 
         private IEnumerable<string> ExtractFileNames(string testInput)
-            => testInput.Split(new[] { ClassDelimiterUnix, ClassDelimiterWin }, StringSplitOptions.RemoveEmptyEntries)
+            => testInput.Split(new[] { classDelimiterUnix, classDelimiterWin }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(this.PrepareFileFromClassname);
 
         private string PrepareFileFromClassname(string projectClass)

@@ -65,7 +65,7 @@
         {
             var projectDirectory = Path.GetDirectoryName(csProjFilePath);
             var testedCodePath =
-                $"{projectDirectory}\\{UnitTestStrategiesHelper.TestedCodeFileNameWithExtension}";
+                $"{projectDirectory}\\{UnitTestStrategiesHelper.testedCodeFileNameWithExtension}";
             var originalTestsPassed = -1;
             var count = 0;
 

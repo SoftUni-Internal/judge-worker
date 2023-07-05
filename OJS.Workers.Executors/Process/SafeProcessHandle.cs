@@ -9,7 +9,7 @@
     [SuppressUnmanagedCodeSecurity]
     public sealed class SafeProcessHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        private static SafeProcessHandle invalidHandle = new SafeProcessHandle(IntPtr.Zero);
+        private static SafeProcessHandle _invalidHandle = new SafeProcessHandle(IntPtr.Zero);
 
         // Note that OpenProcess returns 0 on failure
         internal SafeProcessHandle()
@@ -18,10 +18,8 @@
         }
 
         internal SafeProcessHandle(IntPtr handle)
-            : base(true)
-        {
+            : base(true) =>
             this.SetHandle(handle);
-        }
 
         internal void InitialSetHandle(IntPtr h)
         {
@@ -29,9 +27,6 @@
             this.handle = h;
         }
 
-        protected override bool ReleaseHandle()
-        {
-            return NativeMethods.CloseHandle(this.handle);
-        }
+        protected override bool ReleaseHandle() => NativeMethods.CloseHandle(this.handle);
     }
 }

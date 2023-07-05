@@ -58,7 +58,7 @@
         protected Func<CompilerType, string> GetCompilerPathFunc { get; }
 
         protected string SandboxExecutorSourceFilePath
-            => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.JavaSourceFileExtension}";
+            => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.javaSourceFileExtension}";
 
         protected virtual string ClassPathArgument
             => $@" -cp ""{this.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}"" ";

@@ -53,10 +53,7 @@
 
         public SafeFileHandle StandardErrorHandle = new SafeFileHandle(IntPtr.Zero, false);
 
-        public StartupInfo()
-        {
-            this.SizeInBytes = Marshal.SizeOf(this);
-        }
+        public StartupInfo() => this.SizeInBytes = Marshal.SizeOf(this);
 
         public void Dispose()
         {

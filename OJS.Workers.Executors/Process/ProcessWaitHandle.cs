@@ -20,7 +20,7 @@
                 out waitHandle,
                 0,
                 false,
-                (int)DuplicateOptions.DUPLICATE_SAME_ACCESS);
+                (int)DuplicateOptions.DuplicateSameAccess);
 
             if (!succeeded)
             {

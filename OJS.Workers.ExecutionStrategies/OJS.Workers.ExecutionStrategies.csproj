@@ -1,61 +1,26 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <TargetFrameworks>net47;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\OJS.Workers.Checkers\OJS.Workers.Checkers.csproj" />
+      <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj" />
+      <ProjectReference Include="..\OJS.Workers.Compilers\OJS.Workers.Compilers.csproj" />
+      <ProjectReference Include="..\OJS.Workers.Executors\OJS.Workers.Executors.csproj" />
+    </ItemGroup>
 
-  <!-- common NuGet package refs that affect all projects -->
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="DotNetZip" Version="1.13.0" />
-    <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Npgsql" Version="4.0.0" />
-  </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Build" Version="17.0.0" />
+      <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.4" />
+      <PackageReference Include="MySql.Data" Version="8.0.33" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+      <PackageReference Include="Npgsql" Version="8.0.0-preview.4" />
+      <PackageReference Include="System.CodeDom" Version="4.5.0" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+    </ItemGroup>
 
-  <!-- .NET Standard 2.0 references, compilation flags and build options -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="Microsoft.Build" Version="15.9.20" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
-    <PackageReference Include="MySql.Data" Version="8.0.13" />
-    <PackageReference Include="System.CodeDom" Version="4.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
-  </ItemGroup>
-
-  <!-- .NET 4.7 references, compilation flags and build options -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47'">
-    <DefineConstants>NET47;NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
-    <PackageReference Include="Microsoft.Build" Version="14.3.0" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="14.3.0" />
-    <PackageReference Include="MySql.Data" Version="6.9.9" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OJS.Workers.Checkers\OJS.Workers.Checkers.csproj" />
-    <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj" />
-    <ProjectReference Include="..\OJS.Workers.Compilers\OJS.Workers.Compilers.csproj" />
-    <ProjectReference Include="..\OJS.Workers.Executors\OJS.Workers.Executors.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Transactions" />
-  </ItemGroup>
 </Project>

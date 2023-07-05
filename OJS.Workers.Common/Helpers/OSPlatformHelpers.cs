@@ -4,7 +4,7 @@
     using System.Runtime.InteropServices;
     using static OJS.Workers.Common.Constants;
 
-    public static class OSPlatformHelpers
+    public static class OsPlatformHelpers
     {
         public static bool IsWindows() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

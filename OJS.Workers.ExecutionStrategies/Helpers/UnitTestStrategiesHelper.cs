@@ -11,8 +11,8 @@
     {
         public const string TestedCodeFileName = "TestedCode";
 
-        public static readonly string TestedCodeFileNameWithExtension =
-            $"{TestedCodeFileName}{CSharpFileExtension}";
+        public static readonly string testedCodeFileNameWithExtension =
+            $"{TestedCodeFileName}{cSharpFileExtension}";
 
         /// <summary>
         /// Gets the output message and the count of the original tests passed,

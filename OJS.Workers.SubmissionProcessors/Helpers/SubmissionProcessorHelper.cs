@@ -8,7 +8,6 @@
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
-    using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework;
     using OJS.Workers.ExecutionStrategies.Golang;
     using OJS.Workers.ExecutionStrategies.Java;

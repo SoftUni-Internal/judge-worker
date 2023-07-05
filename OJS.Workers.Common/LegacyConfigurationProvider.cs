@@ -1,26 +1,26 @@
-﻿namespace OJS.Workers.Common
+﻿using Microsoft.Extensions.Configuration;
+
+namespace OJS.Workers.Common;
+
+using System.Configuration;
+
+public class LegacyConfigurationProvider : ConfigurationProvider, IConfigurationSource
 {
-    using System.Configuration;
+    public static bool HasSettings() => System.Configuration.ConfigurationManager.AppSettings.HasKeys();
 
-    using Microsoft.Extensions.Configuration;
-
-    public class LegacyConfigurationProvider : ConfigurationProvider, IConfigurationSource
+    public override void Load()
     {
-        public static bool HasSettings() => ConfigurationManager.AppSettings.HasKeys();
-
-        public override void Load()
+        foreach (ConnectionStringSettings connectionString in ConfigurationManager.ConnectionStrings)
         {
-            foreach (ConnectionStringSettings connectionString in ConfigurationManager.ConnectionStrings)
-            {
-                this.Data.Add($"ConnectionStrings:{connectionString.Name}", connectionString.ConnectionString);
-            }
-
-            foreach (var settingKey in ConfigurationManager.AppSettings.AllKeys)
-            {
-                this.Data.Add(settingKey, ConfigurationManager.AppSettings[settingKey]);
-            }
+            this.Data.Add($"ConnectionStrings:{connectionString.Name}", connectionString.ConnectionString);
         }
 
-        public IConfigurationProvider Build(IConfigurationBuilder builder) => this;
+        foreach (var settingKey in ConfigurationManager.AppSettings.AllKeys)
+        {
+            this.Data.Add(settingKey, ConfigurationManager.AppSettings[settingKey]);
+        }
     }
+
+    public IConfigurationProvider Build(IConfigurationBuilder builder) => this;
 }
+

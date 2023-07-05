@@ -9,11 +9,9 @@
         {
         }
 
-        public override string RenameInputFile(string inputFile)
-        {
+        public override string RenameInputFile(string inputFile) =>
             // Add "cpp" extension so the compiler will treat the file as C++ code file
-            return inputFile + ".cpp";
-        }
+            inputFile + ".cpp";
 
         public override string BuildCompilerArguments(string inputFile, string outputFile, string additionalArguments)
         {

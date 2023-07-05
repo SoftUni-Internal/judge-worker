@@ -508,7 +508,7 @@ http {{
             testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
                 .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
 
-            return OSPlatformHelpers.IsDocker()
+            return OsPlatformHelpers.IsDocker()
                 ? testInput.Replace("localhost", "host.docker.internal")
                 : testInput;
         }

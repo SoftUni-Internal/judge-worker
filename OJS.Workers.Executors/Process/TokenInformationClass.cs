@@ -133,7 +133,7 @@
         /// <summary>
         /// The buffer receives a DWORD value that is nonzero if the token has the UIAccess flag set.
         /// </summary>
-        TokenUIAccess,
+        TokenUiAccess,
 
         /// <summary>
         /// The buffer receives a TOKEN_MANDATORY_POLICY structure that specifies the token's mandatory integrity policy.

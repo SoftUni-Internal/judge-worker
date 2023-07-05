@@ -1,6 +1,5 @@
-﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore.V3
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 {
-    using System;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Extensions;

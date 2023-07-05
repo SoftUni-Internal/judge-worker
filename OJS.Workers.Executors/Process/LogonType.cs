@@ -2,12 +2,12 @@
 {
     public enum LogonType
     {
-        LOGON32_LOGON_INTERACTIVE = 2,
-        LOGON32_LOGON_NETWORK,
-        LOGON32_LOGON_BATCH,
-        LOGON32_LOGON_SERVICE,
-        LOGON32_LOGON_UNLOCK = 7,
-        LOGON32_LOGON_NETWORK_CLEARTEXT,
-        LOGON32_LOGON_NEW_CREDENTIALS
+        Logon32LogonInteractive = 2,
+        Logon32LogonNetwork,
+        Logon32LogonBatch,
+        Logon32LogonService,
+        Logon32LogonUnlock = 7,
+        Logon32LogonNetworkCleartext,
+        Logon32LogonNewCredentials
     }
 }

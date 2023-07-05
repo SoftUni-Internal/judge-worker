@@ -69,7 +69,7 @@
         {
             foreach (var itemName in itemNames)
             {
-                project.AddItem("Compile", $"{itemName}{Constants.CSharpFileExtension}");
+                project.AddItem("Compile", $"{itemName}{Constants.cSharpFileExtension}");
             }
         }
 

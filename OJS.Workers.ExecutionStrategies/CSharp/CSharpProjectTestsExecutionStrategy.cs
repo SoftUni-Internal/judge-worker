@@ -153,7 +153,7 @@
 
         protected void SaveSetupFixture(string directory)
         {
-            this.SetupFixturePath = $"{directory}\\{SetupFixtureFileName}{CSharpFileExtension}";
+            this.SetupFixturePath = $"{directory}\\{SetupFixtureFileName}{cSharpFileExtension}";
             File.WriteAllText(this.SetupFixturePath, SetupFixtureTemplate);
             this.TestPaths.Add(this.SetupFixturePath);
         }
@@ -164,7 +164,7 @@
             foreach (var test in tests)
             {
                 var testName = this.TestNames[index++];
-                var testedCodePath = FileHelpers.BuildPath(compileDirectory, $"{testName}{CSharpFileExtension}");
+                var testedCodePath = FileHelpers.BuildPath(compileDirectory, $"{testName}{cSharpFileExtension}");
                 this.TestPaths.Add(testedCodePath);
                 File.WriteAllText(testedCodePath, test.Input);
             }

@@ -15,11 +15,11 @@
     {
         private const int TimeBeforeClosingOutputStreams = 100;
 
-        private static ILog logger;
+        private static ILog _logger;
 
         public StandardProcessExecutor(int baseTimeUsed, int baseMemoryUsed, ITasksService tasksService)
             : base(baseTimeUsed, baseMemoryUsed, tasksService)
-            => logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
+            => _logger = LogManager.GetLogger(typeof(StandardProcessExecutor));
 
         protected override ProcessExecutionResult InternalExecute(
             string fileName,
@@ -56,7 +56,7 @@
 
                 var processStartTime = process.StartTime;
 
-                if (!OSPlatformHelpers.IsUnix())
+                if (!OsPlatformHelpers.IsUnix())
                 {
                     process.PriorityClass = ProcessPriorityClass.High;
                 }
@@ -89,7 +89,7 @@
 
                 // If not on Windows, read time consumption every few milliseconds to determine the time usage of the process
                 TaskInfo timeSamplingThreadInfo = null;
-                if (!OSPlatformHelpers.IsWindows())
+                if (!OsPlatformHelpers.IsWindows())
                 {
                     timeSamplingThreadInfo = this.StartProcessorTimeSamplingThread(process, result);
                 }
@@ -118,7 +118,7 @@
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn("AggregateException caught.", ex.InnerException);
+                    _logger.Warn("AggregateException caught.", ex.InnerException);
                 }
 
                 // Close the time sampling thread if open
@@ -130,7 +130,7 @@
                     }
                     catch (AggregateException ex)
                     {
-                        logger.Warn("AggregateException caught.", ex.InnerException);
+                        _logger.Warn("AggregateException caught.", ex.InnerException);
                     }
                 }
 
@@ -141,7 +141,7 @@
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn("AggregateException caught.", ex.InnerException);
+                    _logger.Warn("AggregateException caught.", ex.InnerException);
                 }
                 catch (Exception ex)
                 {
@@ -155,7 +155,7 @@
                 }
                 catch (AggregateException ex)
                 {
-                    logger.Warn("AggregateException caught.", ex.InnerException);
+                    _logger.Warn("AggregateException caught.", ex.InnerException);
                 }
                 catch (Exception ex)
                 {
@@ -168,7 +168,7 @@
                 result.ExitCode = process.ExitCode;
                 result.TimeWorked = process.ExitTime - processStartTime;
 
-                if (OSPlatformHelpers.IsWindows())
+                if (OsPlatformHelpers.IsWindows())
                 {
                     result.PrivilegedProcessorTime = process.PrivilegedProcessorTime;
                     result.UserProcessorTime = process.UserProcessorTime;

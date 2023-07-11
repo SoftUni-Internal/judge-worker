@@ -341,17 +341,6 @@
                         Settings.PhpCliBaseTimeUsedInMilliseconds,
                         Settings.PhpCliBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy:
-                    executionStrategy = new SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.GanacheCliNodeExecutablePath,
-                        Settings.TruffleCliNodeExecutablePath,
-                        int.Parse(submissionProcessorIdentifier),
-                        Settings.SolidityBaseTimeUsedInMilliseconds,
-                        Settings.SolidityBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries:
                     executionStrategy = new SqlServerSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
                         Settings.SqlServerLocalDbMasterDbConnectionString,

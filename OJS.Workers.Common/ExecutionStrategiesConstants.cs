@@ -248,9 +248,6 @@ namespace OJS.Workers.Common
                 // CSharp
                 ExecutionStrategyType.CSharpProjectTestsExecutionStrategy,
                 ExecutionStrategyType.CSharpUnitTestsExecutionStrategy,
-
-                // Solidity
-                ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

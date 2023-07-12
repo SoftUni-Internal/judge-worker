@@ -90,10 +90,6 @@
 
         public static string SolidityCompilerPath => SettingsHelper.GetSetting("SolidityCompilerPath");
 
-        public static string GanacheCliNodeExecutablePath => SettingsHelper.GetSetting("GanacheCliNodeExecutablePath");
-
-        public static string TruffleCliNodeExecutablePath => SettingsHelper.GetSetting("TruffleCliNodeExecutablePath");
-
         public static string SqlServerLocalDbMasterDbConnectionString =>
             SettingsHelper.GetSetting("SqlServerLocalDbMasterDbConnectionString");
 

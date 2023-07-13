@@ -107,9 +107,6 @@
 
         public static int ThreadsCount => SettingsHelper.GetSettingOrDefault("ThreadsCount", 2);
 
-        public static int GanacheCliDefaultPortNumber =>
-            SettingsHelper.GetSettingOrDefault("GanacheCliDefaultPortNumber", 8545);
-
         // Base time and memory used
         public static int NodeJsBaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("NodeJsBaseTimeUsedInMilliseconds", 0);

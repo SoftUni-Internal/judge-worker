@@ -8,8 +8,9 @@
     {
         private readonly int portNumber;
 
-        public LocalSubmissionWorker(int portNumber)
-            => this.portNumber = portNumber;
+        public LocalSubmissionWorker()
+        {
+        }
 
         public string Location
             => this.portNumber.ToString();

@@ -136,7 +136,7 @@ namespace OJS.Workers
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService)
         {
-            var worker = new LocalSubmissionWorker(Settings.GanacheCliDefaultPortNumber + index);
+            var worker = new LocalSubmissionWorker();
             var submissionProcessor = new SubmissionProcessor<TSubmission>(
                 name: $"LSP #{index}",
                 dependencyContainer: this.DependencyContainer,

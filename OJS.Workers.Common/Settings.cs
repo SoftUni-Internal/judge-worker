@@ -180,12 +180,6 @@
         public static int PythonBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("PythonBaseMemoryUsedInBytes", 0);
 
-        public static int SolidityBaseTimeUsedInMilliseconds =>
-            SettingsHelper.GetSettingOrDefault("SolidityBaseTimeUsedInMilliseconds", 0);
-
-        public static int SolidityBaseMemoryUsedInBytes =>
-            SettingsHelper.GetSettingOrDefault("SolidityBaseTimeUsedInMilliseconds", 0);
-
         // Compiler time out multipliers
         public static int CPlusPlusCompilerProcessExitTimeOutMultiplier =>
             SettingsHelper.GetSettingOrDefault("CPlusPlusCompilerProcessExitTimeOutMultiplier", 1);

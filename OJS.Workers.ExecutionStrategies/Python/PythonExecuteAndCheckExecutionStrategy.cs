@@ -14,7 +14,7 @@
 
     public class PythonExecuteAndCheckExecutionStrategy : BaseInterpretedCodeExecutionStrategy
     {
-        private readonly string pythonExecutablePath;
+        protected readonly string PythonExecutablePath;
 
         public PythonExecuteAndCheckExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -28,7 +28,7 @@
                 throw new ArgumentException($"Python not found in: {pythonExecutablePath}", nameof(pythonExecutablePath));
             }
 
-            this.pythonExecutablePath = pythonExecutablePath;
+            this.PythonExecutablePath = pythonExecutablePath;
         }
 
         protected virtual IEnumerable<string> ExecutionArguments
@@ -111,7 +111,7 @@
             string input,
             string directory = null)
             => executor.Execute(
-                this.pythonExecutablePath,
+                this.PythonExecutablePath,
                 input,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,

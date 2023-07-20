@@ -16,7 +16,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     {
         private const string TestsFolderName = "tests";
 
-        private string[] testPaths;
+        protected string[] TestPaths;
 
         public PythonProjectTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -62,7 +62,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testPath = this.testPaths[i];
+                var testPath = this.TestPaths[i];
 
                 var processExecutionResult = this.Execute(
                     executionContext,
@@ -84,11 +84,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// Full paths to the files are preserved in a private field.
         /// </summary>
         /// <param name="tests">All tests from the execution context</param>
-        private void SaveTests(IList<TestContext> tests)
+        protected void SaveTests(IList<TestContext> tests)
         {
             var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);
 
-            this.testPaths = new string[tests.Count];
+            this.TestPaths = new string[tests.Count];
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -98,7 +98,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
                 PythonStrategiesHelper.CreateFileInPackage(testSavePath, test.Input);
 
-                this.testPaths[i] = testSavePath;
+                this.TestPaths[i] = testSavePath;
             }
         }
     }

@@ -26,13 +26,13 @@
         {
         }
 
-        protected static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
+        protected virtual Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
 
-        private static Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
+        protected virtual Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
 
-        private static Regex ErrorsInTestsRegex => new Regex(ErrorInTestRegexPattern, RegexOptions.Multiline);
+        protected virtual Regex ErrorsInTestsRegex => new Regex(ErrorInTestRegexPattern, RegexOptions.Multiline);
 
-        private static Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
+        protected virtual Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
 
         protected override TestResult RunIndividualTest(
             string codeSavePath,
@@ -102,7 +102,7 @@
             FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
         }
 
-        private void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
+        protected void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
 

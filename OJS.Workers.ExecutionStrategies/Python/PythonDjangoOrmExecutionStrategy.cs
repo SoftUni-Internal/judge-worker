@@ -1,14 +1,14 @@
 namespace OJS.Workers.ExecutionStrategies.Python
 {
-    using OJS.Workers.Common;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.Executors;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Collections.Generic;
-    using OJS.Workers.Common.Helpers;
     using System.Text.RegularExpressions;
+    using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
+    using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
 
     public class PythonDjangoOrmExecutionStrategy : PythonProjectTestsExecutionStrategy
     {
@@ -25,12 +25,18 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string TestResultsRegexPattern = @"(FAIL|OK)";
         private const string SuccessTestsRegexPattern = @"^\s*OK\s*$";
 
-        private const string SqlLiteConfig = "DATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.sqlite3\',\n        \'NAME\': \'db.sqlite3\',\n    }";
+        private const string SqlLiteConfig =
+            "DATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.sqlite3\',\n        \'NAME\': \'db.sqlite3\',\n    }";
 
         private readonly string pipExecutablePath;
 
-        public PythonDjangoOrmExecutionStrategy(IProcessExecutorFactory processExecutorFactory, string
-            pythonExecutablePath, string pipExecutablePath, int baseTimeUsed, int baseMemoryUsed) : base(
+        public PythonDjangoOrmExecutionStrategy(
+            IProcessExecutorFactory processExecutorFactory,
+            string pythonExecutablePath,
+            string pipExecutablePath,
+            int baseTimeUsed,
+            int baseMemoryUsed)
+            : base(
             processExecutorFactory, pythonExecutablePath, baseTimeUsed, baseMemoryUsed)
             => this.pipExecutablePath = pipExecutablePath ?? throw new ArgumentNullException(nameof(pipExecutablePath));
 
@@ -85,7 +91,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testPath = this.TestPaths[i];
+                var testPath = this.testPaths[i];
 
                 var processExecutionResult = this.ExecuteTest(executor, executionContext, testPath);
 
@@ -97,14 +103,18 @@ namespace OJS.Workers.ExecutionStrategies.Python
             return result;
         }
 
-        private ProcessExecutionResult ExecuteTest(IExecutor executor,
-            IExecutionContext<TestsInputModel> executionContext, string testPath)
+        private ProcessExecutionResult ExecuteTest(
+            IExecutor executor,
+            IExecutionContext<TestsInputModel> executionContext,
+            string testPath)
         {
-            var processExecutionResult = this.Execute(this.PythonExecutablePath,
+            var processExecutionResult = this.Execute(
+                this.PythonExecutablePath,
                 this.ExecutionArguments.Concat(new[]
                 {
-                    $"manage.py test --pattern=\"{testPath.Split(Path.DirectorySeparatorChar).Last()}\""
-                }), executor, executionContext);
+                    $"manage.py test --pattern=\"{testPath.Split(Path.DirectorySeparatorChar).Last()}\"",
+                }), executor,
+                executionContext);
 
             this.FixReceivedOutput(processExecutionResult);
             return processExecutionResult;
@@ -112,8 +122,10 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
         private void RestorePackages(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = this.Execute(this.pipExecutablePath,
-                this.ExecutionArguments.Concat(new[] { $"install -r {RequirementsFileName}" }), executor,
+            var result = this.Execute(
+                this.pipExecutablePath,
+                this.ExecutionArguments.Concat(new[] { $"install -r {RequirementsFileName}" }),
+                executor,
                 executionContext);
 
             if (result.ExitCode == 0)
@@ -127,8 +139,10 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
             this.DeleteVirtualEnvironment(executor, executionContext);
-            var result = this.Execute(PyenvAppFileName,
-                this.ExecutionArguments.Concat(new[] { $"virtualenv 3.11 {VirtualEnvName}" }), executor,
+            var result = this.Execute(
+                PyenvAppFileName,
+                this.ExecutionArguments.Concat(new[] { $"virtualenv 3.11 {VirtualEnvName}" }),
+                executor,
                 executionContext);
 
             if (result.ExitCode == 0)
@@ -141,8 +155,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
         private void ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = this.Execute(PyenvAppFileName,
-                this.ExecutionArguments.Concat(new[] { $"local {VirtualEnvName}" }), executor, executionContext);
+            var result = this.Execute(
+                PyenvAppFileName,
+                this.ExecutionArguments.Concat(new[] { $"local {VirtualEnvName}" }),
+                executor,
+                executionContext);
 
             if (result.ExitCode == 0)
             {
@@ -153,15 +170,20 @@ namespace OJS.Workers.ExecutionStrategies.Python
         }
 
         private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
-            => this.Execute(PyenvAppFileName,
+            => this.Execute(
+                PyenvAppFileName,
                 this.ExecutionArguments.Concat(new[] { $"virtualenv-delete {VirtualEnvName}" }),
-                executor, executionContext, "y");
+                executor,
+                executionContext,
+                "y");
 
         private void ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = this.Execute("/bin/bash",
+            var result = this.Execute(
+                "/bin/bash",
                 this.ExecutionArguments.Concat(new[] { $"-c export DJANGO_SETTINGS_MODULE={VirtualEnvName}.settings" }),
-                executor, executionContext);
+                executor,
+                executionContext);
 
             if (result.ExitCode == 0)
             {
@@ -173,8 +195,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
         private void ApplyMigrations(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
-            var result = this.Execute(this.PythonExecutablePath,
-                this.ExecutionArguments.Concat(new[] { "manage.py migrate" }), executor, executionContext);
+            var result = this.Execute(
+                this.PythonExecutablePath,
+                this.ExecutionArguments.Concat(new[] { "manage.py migrate" }),
+                executor,
+                executionContext);
 
             if (result.ExitCode == 0)
             {
@@ -184,8 +209,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             throw new ArgumentException("Failed to apply migrations! Error output: " + result.ErrorOutput);
         }
 
-        private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern,
-            string replacement = SqlLiteConfig)
+        private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
         {
             var settingsContent = File.ReadAllText(pathToSettingsFile);
 
@@ -193,14 +217,17 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 settingsContent,
                 pattern,
                 replacement,
-                RegexOptions.Multiline
-            );
+                RegexOptions.Multiline);
 
             FileHelpers.WriteAllText(pathToSettingsFile, newSettingsContent);
         }
 
-        private ProcessExecutionResult Execute(string fileName, IEnumerable<string> arguments, IExecutor executor,
-            IExecutionContext<TestsInputModel> executionContext, string inputData = "")
+        private ProcessExecutionResult Execute(
+            string fileName,
+            IEnumerable<string> arguments,
+            IExecutor executor,
+            IExecutionContext<TestsInputModel> executionContext,
+            string inputData = "")
             => executor.Execute(
                 fileName,
                 inputData,

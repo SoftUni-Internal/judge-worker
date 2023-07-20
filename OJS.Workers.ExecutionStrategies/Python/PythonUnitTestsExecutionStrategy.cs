@@ -92,7 +92,7 @@
             {
                 var (message, testsPassed) = UnitTestStrategiesHelper.GetTestResult(
                     processExecutionResult.ReceivedOutput,
-                    TestsRegex,
+                    this.TestsRegex,
                     originalTestsPassed,
                     isFirstRun,
                     this.ExtractTestsCountFromMatchCollection);

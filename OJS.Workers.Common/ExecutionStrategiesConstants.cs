@@ -114,7 +114,6 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
                     { ExecutionStrategyNames.PythonDjangoOrmExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmExecutionStrategy },
 
-
                     // PHP
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
                     { ExecutionStrategyNames.PhpCodeCgi, ExecutionStrategyType.PhpCgiExecuteAndCheck },

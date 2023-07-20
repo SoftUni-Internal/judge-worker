@@ -69,8 +69,8 @@
         {
             var message = "Failing tests are not captured correctly. Please contact an Administrator.";
 
-            var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
-            var failedTestMatch = FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
+            var errorMatch = this.ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
+            var failedTestMatch = this.FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
 
             if (errorMatch.Success)
             {
@@ -81,7 +81,7 @@
             {
                 message = failedTestMatch.Groups[1].Value;
             }
-            else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
+            else if (this.SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
             {
                 message = TestPassedMessage;
             }
@@ -106,7 +106,7 @@
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
 
-            if (TestsRegex.IsMatch(output))
+            if (this.TestsRegex.IsMatch(output))
             {
                 processExecutionResult.ReceivedOutput = output;
                 processExecutionResult.ErrorOutput = string.Empty;

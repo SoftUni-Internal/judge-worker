@@ -103,7 +103,7 @@
 
                 if (!isValid)
                 {
-                    throw new ArgumentException("Folder structure is invalid!");
+                    throw new ArgumentException($"Folder structure is invalid! The zip folder structure must contain files with path: pom.xml and your main code must be in folder pattern {MainCodeFolderPattern}");
                 }
             }
             catch (ArgumentException exception)

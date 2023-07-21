@@ -481,6 +481,14 @@
                             Settings.PostgreSqlRestrictedUserPassword,
                             submissionProcessorIdentifier);
                     break;
+                case ExecutionStrategyType.PythonDjangoOrmExecutionStrategy:
+                    executionStrategy = new PythonDjangoOrmExecutionStrategy(
+                        processExecutorFactory,
+                        Settings.PythonExecutablePathV311,
+                        Settings.PipExecutablePathV311,
+                        Settings.PythonV311BaseTimeUsedInMilliseconds,
+                        Settings.PythonV311BaseMemoryUsedInBytes);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

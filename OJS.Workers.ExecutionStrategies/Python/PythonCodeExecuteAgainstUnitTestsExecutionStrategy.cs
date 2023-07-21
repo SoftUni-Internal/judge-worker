@@ -26,13 +26,13 @@
         {
         }
 
-        protected static Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
+        protected virtual Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Singleline);
 
-        private static Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
+        protected virtual Regex SuccessTestsRegex => new Regex(SuccessTestsRegexPattern, RegexOptions.Singleline);
 
-        private static Regex ErrorsInTestsRegex => new Regex(ErrorInTestRegexPattern, RegexOptions.Multiline);
+        protected virtual Regex ErrorsInTestsRegex => new Regex(ErrorInTestRegexPattern, RegexOptions.Multiline);
 
-        private static Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
+        protected virtual Regex FailedTestsRegex => new Regex(FailedTestRegexPattern, RegexOptions.Multiline);
 
         protected override TestResult RunIndividualTest(
             string codeSavePath,
@@ -69,8 +69,8 @@
         {
             var message = "Failing tests are not captured correctly. Please contact an Administrator.";
 
-            var errorMatch = ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
-            var failedTestMatch = FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
+            var errorMatch = this.ErrorsInTestsRegex.Match(processExecutionResult.ReceivedOutput);
+            var failedTestMatch = this.FailedTestsRegex.Match(processExecutionResult.ReceivedOutput);
 
             if (errorMatch.Success)
             {
@@ -81,7 +81,7 @@
             {
                 message = failedTestMatch.Groups[1].Value;
             }
-            else if (SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
+            else if (this.SuccessTestsRegex.IsMatch(processExecutionResult.ReceivedOutput))
             {
                 message = TestPassedMessage;
             }
@@ -102,11 +102,11 @@
             FileHelpers.WriteAllText(codeSavePath, codeAndTestText);
         }
 
-        private void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
+        protected void FixReceivedOutput(ProcessExecutionResult processExecutionResult)
         {
             var output = processExecutionResult.ErrorOutput ?? string.Empty;
 
-            if (TestsRegex.IsMatch(output))
+            if (this.TestsRegex.IsMatch(output))
             {
                 processExecutionResult.ReceivedOutput = output;
                 processExecutionResult.ErrorOutput = string.Empty;

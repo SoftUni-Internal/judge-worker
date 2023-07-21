@@ -6,18 +6,10 @@
     public class LocalSubmissionWorker
         : ISubmissionWorker
     {
-        private readonly int portNumber;
-
-        public LocalSubmissionWorker()
-        {
-        }
-
-        public string Location
-            => this.portNumber.ToString();
+        public string Location => string.Empty;
 
         public IExecutionResult<TResult> RunSubmission<TInput, TResult>(OjsSubmission<TInput> submission)
             where TResult : class, ISingleCodeRunResult, new()
-            => new SubmissionExecutor(this.portNumber.ToString())
-                .Execute<TInput, TResult>(submission);
+            => new SubmissionExecutor().Execute<TInput, TResult>(submission);
     }
 }

@@ -75,19 +75,19 @@
 
             try
             {
-                this.ExecuteBeforeTests(this.GetOpenConnection(this.GetDatabaseName()), executionContext);
-
-                foreach (var test in executionContext.Input.Tests)
+                using (var connection = this.GetOpenConnection(this.GetDatabaseName()))
                 {
-                    using (var connection = this.GetOpenConnection(this.GetDatabaseName()))
+                    this.ExecuteBeforeTests(connection, executionContext);
+
+                    foreach (var test in executionContext.Input.Tests)
                     {
                         this.ExecuteBeforeEachTest(connection, executionContext, test);
                         executionFlow(connection, test);
                         this.ExecuteAfterEachTest(connection, executionContext, test);
                     }
-                }
 
-                this.ExecuteAfterTests(this.GetOpenConnection(this.GetDatabaseName()), executionContext);
+                    this.ExecuteAfterTests(connection, executionContext);
+                }
             }
             catch (Exception ex)
             {

@@ -133,7 +133,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to restore packages! Error output: " + result.ReceivedOutput);
+            throw new ArgumentException($"Failed to restore packages! " + GetErrorOutput(result));
         }
 
         private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -150,7 +150,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to create virtual environment! Error output: " + result.ReceivedOutput);
+            throw new ArgumentException($"Failed to create virtual environment! {GetErrorOutput(result)}");
         }
 
         private void ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -166,7 +166,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to activate virtual environment! Error output: " + result.ReceivedOutput);
+            throw new ArgumentException("Failed to activate virtual environment! " + GetErrorOutput(result));
         }
 
         private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -190,7 +190,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to export DJANGO_SETTINGS_MODULE! Error output: " + result.ReceivedOutput);
+            throw new ArgumentException("Failed to export DJANGO_SETTINGS_MODULE! " + GetErrorOutput(result));
         }
 
         private void ApplyMigrations(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -206,7 +206,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to apply migrations! Error output: " + result.ReceivedOutput);
+            throw new ArgumentException("Failed to apply migrations! " + GetErrorOutput(result));
         }
 
         private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
@@ -221,6 +221,9 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             FileHelpers.WriteAllText(pathToSettingsFile, newSettingsContent);
         }
+
+        private string GetErrorOutput(ProcessExecutionResult result)
+            => $"Error output: {result.ReceivedOutput + Environment.NewLine + result.ErrorOutput} and result type: {result.Type}";
 
         private ProcessExecutionResult Execute(
             string fileName,

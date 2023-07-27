@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Sql.PostgreSql
 {
-    using System;
     using System.Data;
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.Models;

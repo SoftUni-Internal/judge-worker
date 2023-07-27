@@ -12,6 +12,18 @@
             public const string TrimEnd = nameof(TrimEndChecker);
             public const string CSharpCode = nameof(CSharpCodeChecker);
             public const string CSharpCoreCode = nameof(CSharpCoreCodeChecker);
+
+            public static string[] All => new[]
+            {
+                ExactMatch,
+                CaseInsensitive,
+                Precision,
+                Sort,
+                Trim,
+                TrimEnd,
+                CSharpCode,
+                CSharpCoreCode,
+            };
         }
     }
 }

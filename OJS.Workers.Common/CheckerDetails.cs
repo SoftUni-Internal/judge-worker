@@ -1,6 +1,6 @@
 ﻿namespace OJS.Workers.Common
 {
-    public struct CheckerDetails
+    public class CheckerDetails
     {
         public string Comment { get; set; }
 

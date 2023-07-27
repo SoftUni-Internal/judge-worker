@@ -6,7 +6,6 @@
     using OJS.Workers.Common;
     using OJS.Workers.ExecutionStrategies.CodeSanitizers;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
-    using OJS.Workers.ExecutionStrategies.CSharp;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
 
     /// <summary>

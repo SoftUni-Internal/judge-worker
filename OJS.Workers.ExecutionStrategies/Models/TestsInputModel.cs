@@ -4,8 +4,6 @@
 
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
-
     using static OJS.Workers.Common.Constants;
 
     public class TestsInputModel

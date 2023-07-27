@@ -2,10 +2,10 @@
 {
     public class CheckerDetails
     {
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
 
-        public string ExpectedOutputFragment { get; set; }
+        public string ExpectedOutputFragment { get; set; } = string.Empty;
 
-        public string UserOutputFragment { get; set; }
+        public string UserOutputFragment { get; set; } = string.Empty;
     }
 }

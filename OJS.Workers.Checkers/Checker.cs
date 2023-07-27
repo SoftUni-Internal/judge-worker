@@ -206,7 +206,7 @@
             {
                 const int fragmentMaxLength = 4096;
 
-                checkerDetails = default(CheckerDetails);
+                checkerDetails = new CheckerDetails();
 
                 var firstDifferenceIndex = expectedOutput.GetFirstDifferenceIndexWith(receivedOutput, this.IgnoreCharCasing);
 

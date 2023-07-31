@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Models
 {
+    using System;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
@@ -40,6 +41,8 @@
         public TInput Input { get; set; }
 
         public int MaxPoints { get; set; }
+
+        public DateTime? StartedExecutionOn { get; set; }
 
         public ExceptionType ExceptionType { get; set; }
     }

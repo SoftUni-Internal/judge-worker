@@ -1,6 +1,8 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Formatters
 {
-    public interface IFormatterServiceFactory
+    using SoftUni.Services.Infrastructure;
+
+    public interface IFormatterServiceFactory : ISingletonService
     {
         IFormatterService<T> Get<T>();
     }

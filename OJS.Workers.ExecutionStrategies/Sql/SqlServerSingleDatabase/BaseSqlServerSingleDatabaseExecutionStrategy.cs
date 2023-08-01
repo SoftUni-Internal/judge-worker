@@ -1,6 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase
+﻿namespace OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase
 {
     using System.Data;
     using System.Data.SqlClient;

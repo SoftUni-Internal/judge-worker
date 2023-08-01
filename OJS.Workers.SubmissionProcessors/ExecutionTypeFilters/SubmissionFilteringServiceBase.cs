@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
-    using System;
     using System.Collections.Generic;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;

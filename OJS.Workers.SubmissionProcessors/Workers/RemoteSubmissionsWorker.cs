@@ -84,6 +84,8 @@
                         return this.BuildTestResult<TResult>(test, testResult);
                     })
                     .ToList(),
+                StartedExecutionOn = result.ExecutionResult.StartedExecutionOn,
+                CompletedExecutionOn = result.ExecutionResult.CompletedExecutionOn,
             };
 
             return executionResult;

@@ -1,6 +1,5 @@
 ﻿namespace OJS.Workers.Common
 {
-    using System;
     using OJS.Workers.Common.Models;
 
     public interface IOjsSubmission

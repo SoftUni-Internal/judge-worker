@@ -29,4 +29,3 @@
         ExceptionType ExceptionType { get; set; }
     }
 }
-

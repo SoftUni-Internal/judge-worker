@@ -19,7 +19,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string RequirementsFileName = "requirements.txt";
 
         private const string InvalidProjectStructureErrorMessage =
-            "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt and no_urls_django/settings.py";
+            "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt in root of the zip and {0}/settings.py";
 
         private const string DatabaseConfigRegexPattern = @"DATABASES\s*=\s*\{[^}]*?\}\n";
         private const string TestResultsRegexPattern = @"(FAIL|OK)";
@@ -63,7 +63,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             if (!File.Exists(requirementsFilePath) || !File.Exists(pathToSettingsFile))
             {
-                throw new ArgumentException(InvalidProjectStructureErrorMessage);
+                throw new ArgumentException(string.Format(InvalidProjectStructureErrorMessage, ProjectSettingsFolder));
             }
 
             var executor = this.CreateExecutor();

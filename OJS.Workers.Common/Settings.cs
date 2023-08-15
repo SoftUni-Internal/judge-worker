@@ -191,6 +191,9 @@
         public static int PythonV311BaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("PythonV311BaseTimeUsedInMilliseconds", 0);
 
+        public static int PythonV311InstallPackagesTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("PythonV311InstallPackagesTimeUsedInMilliseconds", 0);
+
         public static int PythonV311BaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("PythonV311BaseMemoryUsedInBytes", 0);
 

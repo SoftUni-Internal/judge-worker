@@ -13,7 +13,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     public class PythonDjangoOrmExecutionStrategy : PythonProjectTestsExecutionStrategy
     {
         private const string VirtualEnvName = "env";
-        private const string ProjectSettingsFolder = "no_urls_django";
+        private const string ProjectSettingsFolder = "orm_skeleton";
         private const string SettingsFileName = "settings.py";
         private const string PyenvAppFileName = "pyenv";
         private const string RequirementsFileName = "requirements.txt";
@@ -29,16 +29,21 @@ namespace OJS.Workers.ExecutionStrategies.Python
             "DATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.sqlite3\',\n        \'NAME\': \'db.sqlite3\',\n    }";
 
         private readonly string pipExecutablePath;
+        private readonly int installPackagesTimeUsed;
 
         public PythonDjangoOrmExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             string pipExecutablePath,
             int baseTimeUsed,
-            int baseMemoryUsed)
+            int baseMemoryUsed,
+            int installPackagesTimeUsed)
             : base(
             processExecutorFactory, pythonExecutablePath, baseTimeUsed, baseMemoryUsed)
-            => this.pipExecutablePath = pipExecutablePath ?? throw new ArgumentNullException(nameof(pipExecutablePath));
+        {
+            this.pipExecutablePath = pipExecutablePath ?? throw new ArgumentNullException(nameof(pipExecutablePath));
+            this.installPackagesTimeUsed = installPackagesTimeUsed;
+        }
 
         protected override Regex TestsRegex => new Regex(TestResultsRegexPattern, RegexOptions.Multiline);
 
@@ -126,7 +131,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 this.pipExecutablePath,
                 this.ExecutionArguments.Concat(new[] { $"install -r {RequirementsFileName}" }),
                 executor,
-                executionContext);
+                executionContext,
+                this.installPackagesTimeUsed);
 
             if (result.ExitCode == 0)
             {
@@ -175,6 +181,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 this.ExecutionArguments.Concat(new[] { $"virtualenv-delete {VirtualEnvName}" }),
                 executor,
                 executionContext,
+                executionContext.TimeLimit,
                 "y");
 
         private void ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -230,11 +237,12 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IEnumerable<string> arguments,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
+            int timeLimit = default,
             string inputData = "")
             => executor.Execute(
                 fileName,
                 inputData,
-                executionContext.TimeLimit,
+                timeLimit != default ? executionContext.TimeLimit : timeLimit,
                 executionContext.MemoryLimit,
                 arguments,
                 this.WorkingDirectory,

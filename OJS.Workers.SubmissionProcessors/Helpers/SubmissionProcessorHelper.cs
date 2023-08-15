@@ -487,7 +487,8 @@
                         Settings.PythonExecutablePathV311,
                         Settings.PipExecutablePathV311,
                         Settings.PythonV311BaseTimeUsedInMilliseconds,
-                        Settings.PythonV311BaseMemoryUsedInBytes);
+                        Settings.PythonV311BaseMemoryUsedInBytes,
+                        Settings.PythonV311InstallPackagesTimeUsedInMilliseconds);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

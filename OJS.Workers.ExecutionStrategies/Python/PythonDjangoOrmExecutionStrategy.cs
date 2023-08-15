@@ -242,7 +242,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             => executor.Execute(
                 fileName,
                 inputData,
-                timeLimit != default ? executionContext.TimeLimit : timeLimit,
+                timeLimit == default ? executionContext.TimeLimit : timeLimit,
                 executionContext.MemoryLimit,
                 arguments,
                 this.WorkingDirectory,

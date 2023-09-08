@@ -139,7 +139,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException($"Failed to restore packages! " + GetErrorOutput(result));
+            throw new ArgumentException($"Failed to restore packages! " + this.GetErrorOutput(result));
         }
 
         private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -156,7 +156,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException($"Failed to create virtual environment! {GetErrorOutput(result)}");
+            throw new ArgumentException($"Failed to create virtual environment! {this.GetErrorOutput(result)}");
         }
 
         private void ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -172,7 +172,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to activate virtual environment! " + GetErrorOutput(result));
+            throw new ArgumentException("Failed to activate virtual environment! " + this.GetErrorOutput(result));
         }
 
         private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -197,7 +197,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to export DJANGO_SETTINGS_MODULE! " + GetErrorOutput(result));
+            throw new ArgumentException("Failed to export DJANGO_SETTINGS_MODULE! " + this.GetErrorOutput(result));
         }
 
         private void ApplyMigrations(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
@@ -213,7 +213,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 return;
             }
 
-            throw new ArgumentException("Failed to apply migrations! " + GetErrorOutput(result));
+            throw new ArgumentException("Failed to apply migrations! " + this.GetErrorOutput(result));
         }
 
         private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
@@ -237,12 +237,12 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IEnumerable<string> arguments,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
-            int timeLimit = default,
+            int timeLimit = 0,
             string inputData = "")
             => executor.Execute(
                 fileName,
                 inputData,
-                timeLimit == default ? executionContext.TimeLimit : timeLimit,
+                timeLimit == 0 ? executionContext.TimeLimit : timeLimit,
                 executionContext.MemoryLimit,
                 arguments,
                 this.WorkingDirectory,

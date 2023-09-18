@@ -63,5 +63,6 @@
         PostgreSqlPrepareDatabaseAndRunQueries = 58,
         PostgreSqlRunQueriesAndCheckDatabase = 59,
         PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
+        PythonDjangoOrmExecutionStrategy = 61,
     }
 }

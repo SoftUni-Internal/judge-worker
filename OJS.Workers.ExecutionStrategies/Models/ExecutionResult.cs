@@ -1,7 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Models
 {
+    using System;
     using System.Collections.Generic;
-
     using OJS.Workers.Common;
 
     public class ExecutionResult<TResult> : IExecutionResult<TResult>
@@ -12,5 +12,9 @@
         public string CompilerComment { get; set; }
 
         public ICollection<TResult> Results { get; set; } = new List<TResult>();
+
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
     }
 }

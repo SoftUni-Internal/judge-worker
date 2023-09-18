@@ -109,6 +109,10 @@
 
         public static string MySqlRestrictedUserPassword => SettingsHelper.GetSetting("MySqlRestrictedUserPassword");
 
+        public static string PythonExecutablePathV311 => SettingsHelper.GetSetting("PythonExecutablePathV311");
+
+        public static string PipExecutablePathV311 => SettingsHelper.GetSetting("PipExecutablePathV311");
+
         public static int ThreadsCount => SettingsHelper.GetSettingOrDefault("ThreadsCount", 2);
 
         public static int GanacheCliDefaultPortNumber =>
@@ -183,6 +187,15 @@
 
         public static int PythonBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("PythonBaseMemoryUsedInBytes", 0);
+
+        public static int PythonV311BaseTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("PythonV311BaseTimeUsedInMilliseconds", 0);
+
+        public static int PythonV311InstallPackagesTimeUsedInMilliseconds =>
+            SettingsHelper.GetSettingOrDefault("PythonV311InstallPackagesTimeUsedInMilliseconds", 0);
+
+        public static int PythonV311BaseMemoryUsedInBytes =>
+            SettingsHelper.GetSettingOrDefault("PythonV311BaseMemoryUsedInBytes", 0);
 
         public static int SolidityBaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("SolidityBaseTimeUsedInMilliseconds", 0);

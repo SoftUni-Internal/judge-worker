@@ -32,6 +32,7 @@ namespace OJS.Workers.Common
             public const string JavaProjectTests = "java-project-tests";
             public const string JavaUnitTests = "java-unit-tests";
             public const string JavaZipFileCode = "java-zip-file-code";
+            public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
 
             // JavaScript
             public const string JavaScriptCode = "javascript-code";
@@ -50,6 +51,7 @@ namespace OJS.Workers.Common
             public const string PythonCodeUnitTests = "python-code-unit-tests";
             public const string PythonProjectTests = "python-project-tests";
             public const string PythonProjectUnitTests = "python-project-unit-tests";
+            public const string PythonDjangoOrmExecutionStrategy = "python-django-orm-project-tests";
 
             // Php
             public const string PhpCode = "php-code";
@@ -110,6 +112,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonCodeUnitTests, ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests },
                     { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+                    { ExecutionStrategyNames.PythonDjangoOrmExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmExecutionStrategy },
 
                     // PHP
                     { ExecutionStrategyNames.PhpCode, ExecutionStrategyType.PhpCliExecuteAndCheck },
@@ -138,6 +141,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaProjectTests, ExecutionStrategyType.JavaProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.JavaZipFileCode, ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck },
                     { ExecutionStrategyNames.JavaUnitTests, ExecutionStrategyType.JavaUnitTestsExecutionStrategy },
+                    { ExecutionStrategyNames.JavaSpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy },
 
                     // Plain text
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
@@ -201,6 +205,7 @@ namespace OJS.Workers.Common
                 // Python
                 ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+                ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
 
                 // PostgreSql strategies
                 ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries,
@@ -232,6 +237,7 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
                 ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
                 ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
+                ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy,
 
                 // Text only
                 ExecutionStrategyType.CheckOnly,

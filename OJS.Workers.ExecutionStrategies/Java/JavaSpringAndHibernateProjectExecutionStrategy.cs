@@ -284,7 +284,7 @@
             {
                 var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
                 var testFileName =
-                        $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{className}{JavaSourceFileExtension}";
+                        $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{className}{javaSourceFileExtension}";
                 File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
                 filePaths[testNumber] = testFileName;
                 this.TestNames.Add($"{this.PackageName}.{className}");

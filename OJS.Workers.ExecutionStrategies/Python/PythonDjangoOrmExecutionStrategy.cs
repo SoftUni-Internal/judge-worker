@@ -237,7 +237,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IEnumerable<string> arguments,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
-
             int timeLimit = 0,
             string inputData = "")
             => executor.Execute(

@@ -210,7 +210,6 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
                 ExecutionStrategyType.PythonUnitTests,
 
-
                 // PHP
                 ExecutionStrategyType.PhpCliExecuteAndCheck,
 

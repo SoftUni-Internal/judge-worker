@@ -237,12 +237,13 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IEnumerable<string> arguments,
             IExecutor executor,
             IExecutionContext<TestsInputModel> executionContext,
-            int timeLimit = default,
+
+            int timeLimit = 0,
             string inputData = "")
             => executor.Execute(
                 fileName,
                 inputData,
-                timeLimit == default ? executionContext.TimeLimit : timeLimit,
+                timeLimit == 0 ? executionContext.TimeLimit : timeLimit,
                 executionContext.MemoryLimit,
                 arguments,
                 this.WorkingDirectory,

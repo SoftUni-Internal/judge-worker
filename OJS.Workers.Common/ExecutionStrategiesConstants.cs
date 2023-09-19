@@ -208,8 +208,8 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
                 ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
-                ExecutionStrategyType.PythonProjectTests,
-                ExecutionStrategyType.PythonProjectUnitTests,
+                ExecutionStrategyType.PythonUnitTests,
+
 
                 // PHP
                 ExecutionStrategyType.PhpCliExecuteAndCheck,
@@ -283,6 +283,13 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
                 ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
+
+                // Ruby
+                ExecutionStrategyType.RubyExecutionStrategy,
+
+                // CSharp
+                ExecutionStrategyType.CSharpProjectTestsExecutionStrategy,
+                ExecutionStrategyType.CSharpUnitTestsExecutionStrategy,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

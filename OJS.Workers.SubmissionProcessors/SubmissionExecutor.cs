@@ -11,10 +11,6 @@
     {
         private readonly string submissionProcessorIdentifier;
 
-        public SubmissionExecutor()
-        {
-        }
-
         public SubmissionExecutor(string submissionProcessorIdentifier) => this.submissionProcessorIdentifier = submissionProcessorIdentifier;
 
         public IExecutionResult<TResult> Execute<TInput, TResult>(

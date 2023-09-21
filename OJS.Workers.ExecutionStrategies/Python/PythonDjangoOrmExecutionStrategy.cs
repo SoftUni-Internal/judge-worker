@@ -221,7 +221,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
         {
             var settingsContent = File.ReadAllText(pathToSettingsFile);
-            System.Console.WriteLine(settingsContent);
             var newSettingsContent = Regex.Replace(
                 settingsContent,
                 pattern,

@@ -1,4 +1,3 @@
-using System.Text;
 
 namespace OJS.Workers.ExecutionStrategies.Python
 {
@@ -221,6 +220,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
         {
             var settingsContent = File.ReadAllText(pathToSettingsFile);
+
             var newSettingsContent = Regex.Replace(
                 settingsContent,
                 pattern,

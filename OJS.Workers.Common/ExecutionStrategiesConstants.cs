@@ -51,6 +51,7 @@ namespace OJS.Workers.Common
             public const string PythonCodeUnitTests = "python-code-unit-tests";
             public const string PythonProjectTests = "python-project-tests";
             public const string PythonProjectUnitTests = "python-project-unit-tests";
+            public const string PythontUnitTests = "python-unit-tests";
             public const string PythonDjangoOrmExecutionStrategy = "python-django-orm-project-tests";
 
             // Php
@@ -112,6 +113,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonCodeUnitTests, ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests },
                     { ExecutionStrategyNames.PythonProjectTests, ExecutionStrategyType.PythonProjectTests },
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
+                    { ExecutionStrategyNames.PythontUnitTests, ExecutionStrategyType.PythonUnitTests },
                     { ExecutionStrategyNames.PythonDjangoOrmExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmExecutionStrategy },
 
                     // PHP
@@ -205,6 +207,7 @@ namespace OJS.Workers.Common
                 // Python
                 ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+                ExecutionStrategyType.PythonUnitTests,
                 ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
 
                 // PostgreSql strategies
@@ -246,6 +249,13 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
                 ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
+
+                // Ruby
+                ExecutionStrategyType.RubyExecutionStrategy,
+
+                // CSharp
+                ExecutionStrategyType.CSharpProjectTestsExecutionStrategy,
+                ExecutionStrategyType.CSharpUnitTestsExecutionStrategy,
             };
 
             public static ISet<CompilerType> DisabledLocalWorkerExecuteAndCompileTypes => new HashSet<CompilerType>

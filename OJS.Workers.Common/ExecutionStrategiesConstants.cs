@@ -209,6 +209,7 @@ namespace OJS.Workers.Common
                 // Python
                 ExecutionStrategyType.PythonExecuteAndCheck,
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
+                ExecutionStrategyType.PythonUnitTests,
                 ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
                 ExecutionStrategyType.PythonUnitTests,
 

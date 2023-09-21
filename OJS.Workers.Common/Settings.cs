@@ -90,10 +90,6 @@
 
         public static string SolidityCompilerPath => SettingsHelper.GetSetting("SolidityCompilerPath");
 
-        public static string GanacheCliNodeExecutablePath => SettingsHelper.GetSetting("GanacheCliNodeExecutablePath");
-
-        public static string TruffleCliNodeExecutablePath => SettingsHelper.GetSetting("TruffleCliNodeExecutablePath");
-
         public static string SqlServerLocalDbMasterDbConnectionString =>
             SettingsHelper.GetSetting("SqlServerLocalDbMasterDbConnectionString");
 
@@ -114,9 +110,6 @@
         public static string PipExecutablePathV311 => SettingsHelper.GetSetting("PipExecutablePathV311");
 
         public static int ThreadsCount => SettingsHelper.GetSettingOrDefault("ThreadsCount", 2);
-
-        public static int GanacheCliDefaultPortNumber =>
-            SettingsHelper.GetSettingOrDefault("GanacheCliDefaultPortNumber", 8545);
 
         // Base time and memory used
         public static int NodeJsBaseTimeUsedInMilliseconds =>
@@ -196,12 +189,6 @@
 
         public static int PythonV311BaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("PythonV311BaseMemoryUsedInBytes", 0);
-
-        public static int SolidityBaseTimeUsedInMilliseconds =>
-            SettingsHelper.GetSettingOrDefault("SolidityBaseTimeUsedInMilliseconds", 0);
-
-        public static int SolidityBaseMemoryUsedInBytes =>
-            SettingsHelper.GetSettingOrDefault("SolidityBaseTimeUsedInMilliseconds", 0);
 
         // Compiler time out multipliers
         public static int CPlusPlusCompilerProcessExitTimeOutMultiplier =>

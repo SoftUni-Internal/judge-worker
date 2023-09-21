@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
@@ -21,12 +23,12 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string InvalidProjectStructureErrorMessage =
             "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt in root of the zip and {0}/settings.py";
 
-        private const string DatabaseConfigRegexPattern = @"DATABASES\s*=\s*\{[^}]*?\}\n";
+        private const string DatabaseConfigRegexPattern = @"DATABASES\s*=\s*\{[\s\S]*?\}\s*(?=\n{1,2}#|\n{2,}|\Z)";
         private const string TestResultsRegexPattern = @"(FAIL|OK)";
         private const string SuccessTestsRegexPattern = @"^\s*OK\s*$";
 
         private const string SqlLiteConfig =
-            "DATABASES = {\n    \'default\': {\n        \'ENGINE\': \'django.db.backends.sqlite3\',\n        \'NAME\': \'db.sqlite3\',\n    }";
+            "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': 'db.sqlite3',\n    }\n}\n";
 
         private readonly string pipExecutablePath;
         private readonly int installPackagesTimeUsed;
@@ -219,7 +221,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
         {
             var settingsContent = File.ReadAllText(pathToSettingsFile);
-
+            System.Console.WriteLine(settingsContent);
             var newSettingsContent = Regex.Replace(
                 settingsContent,
                 pattern,

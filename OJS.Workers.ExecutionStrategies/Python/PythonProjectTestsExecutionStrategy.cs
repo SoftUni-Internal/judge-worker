@@ -14,7 +14,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
     public class PythonProjectTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
-        protected string[] testPaths;
+        protected string[] TestPaths;
         private const string TestsFolderName = "tests";
 
         public PythonProjectTestsExecutionStrategy(
@@ -61,7 +61,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testPath = this.testPaths[i];
+                var testPath = this.TestPaths[i];
 
                 var processExecutionResult = this.Execute(
                     executionContext,
@@ -87,7 +87,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
             var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);
 
-            this.testPaths = new string[tests.Count];
+            this.TestPaths = new string[tests.Count];
 
             for (var i = 0; i < tests.Count; i++)
             {
@@ -97,7 +97,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
                 PythonStrategiesHelper.CreateFileInPackage(testSavePath, test.Input);
 
-                this.testPaths[i] = testSavePath;
+                this.TestPaths[i] = testSavePath;
             }
         }
     }

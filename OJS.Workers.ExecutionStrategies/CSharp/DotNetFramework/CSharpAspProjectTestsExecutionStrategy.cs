@@ -1,10 +1,10 @@
-﻿using Microsoft.Build.Evaluation;
-using OJS.Workers.Common.Models;
-using OJS.Workers.ExecutionStrategies.Extensions;
-using OJS.Workers.Executors;
-
-namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
 {
+    using Microsoft.Build.Evaluation;
+    using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.Executors;
+
     public class CSharpAspProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy
     {
         protected const string MoqAssemblyReference =

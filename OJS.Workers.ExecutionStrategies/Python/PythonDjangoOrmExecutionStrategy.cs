@@ -1,3 +1,4 @@
+
 namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
@@ -96,7 +97,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testPath = this.testPaths[i];
+                var testPath = this.TestPaths[i];
 
                 var processExecutionResult = this.ExecuteTest(executor, executionContext, testPath);
 

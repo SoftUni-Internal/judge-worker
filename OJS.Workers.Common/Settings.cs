@@ -109,9 +109,6 @@
 
         public static string PipExecutablePathV311 => SettingsHelper.GetSetting("PipExecutablePathV311");
 
-
-        public static string PipExecutablePathV311 => SettingsHelper.GetSetting("PipExecutablePathV311");
-
         public static int ThreadsCount => SettingsHelper.GetSettingOrDefault("ThreadsCount", 2);
 
         // Base time and memory used
@@ -183,15 +180,6 @@
 
         public static int PythonBaseMemoryUsedInBytes =>
             SettingsHelper.GetSettingOrDefault("PythonBaseMemoryUsedInBytes", 0);
-
-        public static int PythonV311BaseTimeUsedInMilliseconds =>
-            SettingsHelper.GetSettingOrDefault("PythonV311BaseTimeUsedInMilliseconds", 0);
-
-        public static int PythonV311InstallPackagesTimeUsedInMilliseconds =>
-            SettingsHelper.GetSettingOrDefault("PythonV311InstallPackagesTimeUsedInMilliseconds", 0);
-
-        public static int PythonV311BaseMemoryUsedInBytes =>
-            SettingsHelper.GetSettingOrDefault("PythonV311BaseMemoryUsedInBytes", 0);
 
         public static int PythonV311BaseTimeUsedInMilliseconds =>
             SettingsHelper.GetSettingOrDefault("PythonV311BaseTimeUsedInMilliseconds", 0);

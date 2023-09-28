@@ -1,11 +1,11 @@
-﻿using OJS.Workers.Common;
-using OJS.Workers.Common.Helpers;
-using OJS.Workers.Common.Models;
-using OJS.Workers.ExecutionStrategies.Models;
-using OJS.Workers.Executors;
-
-namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
+﻿namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetFramework
 {
+    using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
+    using OJS.Workers.Common.Models;
+    using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Executors;
+
     using static Common.Constants;
 
     public class CSharpPerformanceProjectTestsExecutionStrategy : CSharpProjectTestsExecutionStrategy

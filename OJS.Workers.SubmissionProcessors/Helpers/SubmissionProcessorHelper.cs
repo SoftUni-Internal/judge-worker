@@ -70,13 +70,6 @@
                         Settings.GolangBaseTimeUsedInMilliseconds,
                         Settings.GolangBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.DotNetCoreTestRunner:
-                    executionStrategy = new DotNetCoreTestRunnerExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy:
@@ -99,22 +92,6 @@
                     break;
                 case ExecutionStrategyType.CSharpProjectTestsExecutionStrategy:
                     executionStrategy = new CSharpProjectTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.NUnitConsoleRunnerPath,
-                        Settings.MsBuildBaseTimeUsedInMilliseconds,
-                        Settings.MsBuildBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.CSharpPerformanceProjectTestsExecutionStrategy:
-                    executionStrategy = new CSharpPerformanceProjectTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.NUnitConsoleRunnerPath,
-                        Settings.DotNetCliBaseTimeUsedInMilliseconds,
-                        Settings.DotNetCliBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.CSharpAspProjectTestsExecutionStrategy:
-                    executionStrategy = new CSharpAspProjectTestsExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.NUnitConsoleRunnerPath,
@@ -349,23 +326,6 @@
                         Settings.PythonBaseTimeUsedInMilliseconds,
                         Settings.PythonBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.PhpProjectExecutionStrategy:
-                    executionStrategy = new PhpProjectExecutionStrategy(
-                        processExecutorFactory,
-                        Settings.PhpCliExecutablePath,
-                        Settings.PhpCliBaseTimeUsedInMilliseconds,
-                        Settings.PhpCliBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.PhpProjectWithDbExecutionStrategy:
-                    executionStrategy = new PhpProjectWithDbExecutionStrategy(
-                        processExecutorFactory,
-                        Settings.PhpCliExecutablePath,
-                        Settings.MySqlSysDbConnectionString,
-                        Settings.MySqlRestrictedUserId,
-                        Settings.MySqlRestrictedUserPassword,
-                        Settings.PhpCliBaseTimeUsedInMilliseconds,
-                        Settings.PhpCliBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.PhpCgiExecuteAndCheck:
                     executionStrategy = new PhpCgiExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,
@@ -379,35 +339,6 @@
                         Settings.PhpCliExecutablePath,
                         Settings.PhpCliBaseTimeUsedInMilliseconds,
                         Settings.PhpCliBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy:
-                    executionStrategy = new SolidityCompileDeployAndRunUnitTestsExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.GanacheCliNodeExecutablePath,
-                        Settings.TruffleCliNodeExecutablePath,
-                        int.Parse(submissionProcessorIdentifier),
-                        Settings.SolidityBaseTimeUsedInMilliseconds,
-                        Settings.SolidityBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.SqlServerLocalDbPrepareDatabaseAndRunQueries:
-                    executionStrategy = new SqlServerLocalDbPrepareDatabaseAndRunQueriesExecutionStrategy(
-                        Settings.SqlServerLocalDbMasterDbConnectionString,
-                        Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.SqlServerLocalDbRunQueriesAndCheckDatabase:
-                    executionStrategy = new SqlServerLocalDbRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.SqlServerLocalDbMasterDbConnectionString,
-                        Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
-                    break;
-                case ExecutionStrategyType.SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabase:
-                    executionStrategy = new SqlServerLocalDbRunSkeletonRunQueriesAndCheckDatabaseExecutionStrategy(
-                        Settings.SqlServerLocalDbMasterDbConnectionString,
-                        Settings.SqlServerLocalDbRestrictedUserId,
-                        Settings.SqlServerLocalDbRestrictedUserPassword);
                     break;
                 case ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries:
                     executionStrategy = new SqlServerSingleDatabasePrepareDatabaseAndRunQueriesExecutionStrategy(
@@ -451,9 +382,6 @@
                     break;
                 case ExecutionStrategyType.DoNothing:
                     executionStrategy = new DoNothingExecutionStrategy();
-                    break;
-                case ExecutionStrategyType.RemoteExecution:
-                    executionStrategy = new RemoteExecutionStrategy();
                     break;
                 case ExecutionStrategyType.CheckOnly:
                     executionStrategy = new CheckOnlyExecutionStrategy(processExecutorFactory, 0, 0);

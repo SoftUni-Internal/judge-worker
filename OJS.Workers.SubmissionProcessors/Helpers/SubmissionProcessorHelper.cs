@@ -4,7 +4,6 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
-    using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
@@ -18,7 +17,6 @@
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
     using OJS.Workers.ExecutionStrategies.Sql.PostgreSql;
-    using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;

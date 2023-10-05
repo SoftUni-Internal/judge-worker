@@ -22,7 +22,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string InvalidProjectStructureErrorMessage =
             "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt in root of the zip and {0}/settings.py";
 
-        private const string DatabaseConfigRegexPattern = @"DATABASES\s*=\s*\{[\s\S]*?\}\s*(?=\n{1,2}#|\n{2,}|\Z)";
+        private const string DatabaseConfigRegexPattern = @"(?:^|^\n\s*)DATABASES\s*=\s*\{[\s\S]*?\}\s*(?=\n{1,2}#|\n{2,}|\Z)(?!\s*\Z)";
         private const string TestResultsRegexPattern = @"(FAIL|OK)";
         private const string SuccessTestsRegexPattern = @"^\s*OK\s*$";
 

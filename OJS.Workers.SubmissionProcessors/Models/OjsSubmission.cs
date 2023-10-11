@@ -43,5 +43,9 @@
         public int MaxPoints { get; set; }
 
         public ExceptionType ExceptionType { get; set; }
+
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
     }
 }

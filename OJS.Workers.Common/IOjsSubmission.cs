@@ -27,5 +27,9 @@
         ExecutionStrategyType ExecutionStrategyType { get; }
 
         ExceptionType ExceptionType { get; set; }
+
+        DateTime? StartedExecutionOn { get; set; }
+
+        DateTime? CompletedExecutionOn { get; set; }
     }
 }

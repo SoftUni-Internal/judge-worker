@@ -5,5 +5,9 @@
         public ExceptionModel Exception { get; set; }
 
         public ExecutionResultResponseModel ExecutionResult { get; set; }
+
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
     }
 }

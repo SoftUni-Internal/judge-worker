@@ -182,6 +182,8 @@
 
             submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
             submission.ExceptionType = ExceptionType.Strategy;
+            submission.StartedExecutionOn = result.StartedExecutionOn;
+            submission.CompletedExecutionOn = result.CompletedExecutionOn;
             throw new Exception(result.Exception.Message);
         }
     }

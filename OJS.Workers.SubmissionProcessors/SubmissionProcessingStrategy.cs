@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections.Concurrent;
-
     using log4net;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Exceptions;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
 
     public abstract class SubmissionProcessingStrategy<TSubmission> : ISubmissionProcessingStrategy<TSubmission>
@@ -48,7 +47,7 @@
 
         public abstract void BeforeExecute();
 
-        public abstract IOjsSubmission RetrieveSubmission();
+        public abstract IOjsSubmission RetrieveSubmission(WorkerType workerType);
 
         public abstract void OnError(IOjsSubmission submission, Exception ex);
 

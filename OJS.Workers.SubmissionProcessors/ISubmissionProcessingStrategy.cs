@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
-
     using log4net;
-
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Models;
 
     public interface ISubmissionProcessingStrategy<TSubmission>
     {
@@ -16,7 +15,7 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject);
 
-        IOjsSubmission RetrieveSubmission();
+        IOjsSubmission RetrieveSubmission(WorkerType workerType);
 
         void BeforeExecute();
 

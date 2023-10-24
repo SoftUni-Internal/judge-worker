@@ -235,6 +235,11 @@
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
 
+        public static IEnumerable<string> AlphaWorkerEndpoints => SettingsHelper.GetSetting("AlphaWorkerEndpoints")
+            .Split(';')
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim());
+
         public static string PostgreSqlMasterDbConnectionString =>
             SettingsHelper.GetSetting("PostgreSqlMasterDbConnectionString");
 

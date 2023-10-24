@@ -17,6 +17,7 @@
     {
         private readonly object sharedLockObject;
         private readonly ISubmissionsFilteringService submissionsFilteringService;
+        private readonly WorkerType workerType;
         private readonly IDependencyContainer dependencyContainer;
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
         private bool stopping;
@@ -27,7 +28,8 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
-            ISubmissionWorker submissionWorker)
+            ISubmissionWorker submissionWorker,
+            WorkerType workerType)
         {
             this.Name = name;
 
@@ -40,6 +42,7 @@
             this.submissionsForProcessing = submissionsForProcessing;
             this.sharedLockObject = sharedLockObject;
             this.submissionsFilteringService = submissionsFilteringService;
+            this.workerType = workerType;
             this.SubmissionWorker = submissionWorker;
 
             this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
@@ -120,7 +123,7 @@
         {
             try
             {
-                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission();
+                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission(this.workerType);
 
                 if (submission == null)
                 {

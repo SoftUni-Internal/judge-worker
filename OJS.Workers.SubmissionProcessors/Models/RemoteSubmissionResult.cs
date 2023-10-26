@@ -11,5 +11,7 @@
         public DateTime? StartedExecutionOn { get; set; }
 
         public DateTime? CompletedExecutionOn { get; set; }
+
+        public string WorkerEndpoint { get; set; }
     }
 }

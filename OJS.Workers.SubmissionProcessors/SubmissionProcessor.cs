@@ -28,8 +28,8 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
-            ISubmissionWorker submissionWorker,
-            WorkerType workerType)
+            WorkerType workerType,
+            ISubmissionWorker submissionWorker)
         {
             this.Name = name;
 

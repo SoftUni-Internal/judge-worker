@@ -1,12 +1,11 @@
 namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
     using System.Collections.Generic;
-
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Common;
     using OJS.Workers.SubmissionProcessors.Workers;
-
     using static OJS.Workers.Common.ExecutionStrategiesConstants.NameMappings;
 
     public class RemoteSubmissionsFilteringService
@@ -33,7 +32,9 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
         {
             try
             {
-                var result = this.http.Get($"{submissionWorker.Location}/health?p433w0rd=h34lth-m0n1t0r1ng");
+                var healthConfigKey = SettingsHelper.GetSetting("HealthConfigKey");
+                var healthConfigPassword = SettingsHelper.GetSetting("HealthConfigPassword");
+                var result = this.http.Get($"{submissionWorker.Location}/health?{healthConfigKey}={healthConfigPassword}");
                 return result == "Healthy";
             }
             catch

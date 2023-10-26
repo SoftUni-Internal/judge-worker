@@ -151,7 +151,7 @@ namespace OJS.Workers
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
                 submissionsFilteringService: submissionsFilteringService,
-                submissionWorker: worker,
+                worker,
                 workerType);
 
             var thread = new Thread(submissionProcessor.Start)
@@ -182,7 +182,7 @@ namespace OJS.Workers
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
                 submissionsFilteringService: submissionsFilteringService,
-                submissionWorker: worker,
+                worker,
                 workerType);
 
             var thread = new Thread(submissionProcessor.Start)

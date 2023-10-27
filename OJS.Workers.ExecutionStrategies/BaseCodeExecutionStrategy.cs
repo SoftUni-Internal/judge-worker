@@ -61,7 +61,6 @@
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
                 IsTrialTest = test.IsTrialTest,
-                CheckerDetails = new CheckerDetails(),
             };
 
             if (processExecutionResult.Type == ProcessExecutionResultType.RunTimeError)

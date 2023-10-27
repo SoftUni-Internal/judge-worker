@@ -11,7 +11,7 @@
 
         public TestRunResultType ResultType { get; set; }
 
-        public CheckerDetails CheckerDetails { get; set; }
+        public CheckerDetails CheckerDetails { get; set; } = new();
 
         public bool IsTrialTest { get; set; }
 

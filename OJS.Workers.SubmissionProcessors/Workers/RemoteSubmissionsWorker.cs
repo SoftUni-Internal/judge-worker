@@ -185,10 +185,7 @@
             submission.ExceptionType = ExceptionType.Strategy;
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
-<<<<<<< HEAD
-=======
             submission.WorkerEndpoint = this.Location;
->>>>>>> add-alpha-workers-to-legacy
             throw new Exception(result.Exception.Message);
         }
     }

@@ -49,6 +49,7 @@
             var executionResult = new ExecutionResult<TResult>();
             executionResult.StartedExecutionOn = result.StartedExecutionOn;
             executionResult.CompletedExecutionOn = result.CompletedExecutionOn;
+            executionResult.WorkerEndpoint = result.WorkerEndpoint;
 
             if (result == null)
             {
@@ -170,11 +171,13 @@
             {
                 submission.ProcessingComment = $"Exception in getting remote submission result: {ex.Message}";
                 submission.ExceptionType = ExceptionType.Remote;
+                submission.WorkerEndpoint = this.Location;
                 throw new Exception($"Exception in {nameof(this.ExecuteSubmissionRemotely)}", ex);
             }
 
             if (result.Exception == null)
             {
+                result.WorkerEndpoint = this.Location;
                 return result;
             }
 
@@ -182,6 +185,10 @@
             submission.ExceptionType = ExceptionType.Strategy;
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
+<<<<<<< HEAD
+=======
+            submission.WorkerEndpoint = this.Location;
+>>>>>>> add-alpha-workers-to-legacy
             throw new Exception(result.Exception.Message);
         }
     }

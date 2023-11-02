@@ -72,7 +72,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
             this.CreateVirtualEnvironment(executor, executionContext);
             this.ActivateVirtualEnvironment(executor, executionContext);
             this.ChangeDbConnection(pathToSettingsFile);
-            this.RestorePackages(executor, executionContext);
             this.ExportDjangoSettingsModule(executor, executionContext);
             this.ApplyMigrations(executor, executionContext);
 
@@ -123,23 +122,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             this.FixReceivedOutput(processExecutionResult);
             return processExecutionResult;
-        }
-
-        private void RestorePackages(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
-        {
-            var result = this.Execute(
-                this.pipExecutablePath,
-                this.ExecutionArguments.Concat(new[] { $"install -r {RequirementsFileName}" }),
-                executor,
-                executionContext,
-                this.installPackagesTimeUsed);
-
-            if (result.ExitCode == 0)
-            {
-                return;
-            }
-
-            throw new ArgumentException($"Failed to restore packages! " + this.GetErrorOutput(result));
         }
 
         private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)

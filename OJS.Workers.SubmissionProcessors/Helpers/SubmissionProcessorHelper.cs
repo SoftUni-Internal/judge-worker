@@ -135,11 +135,30 @@
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
                     break;
+                case ExecutionStrategyType.Java17PreprocessCompileExecuteAndCheck:
+                    executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.Java17ExecutablePath,
+                        Settings.JavaLibsPath,
+                        Settings.JavaBaseTimeUsedInMilliseconds,
+                        Settings.JavaBaseMemoryUsedInBytes,
+                        Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
+                    break;
                 case ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck:
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,
                         Settings.JavaExecutablePath,
+                        Settings.JavaLibsPath,
+                        Settings.JavaBaseTimeUsedInMilliseconds,
+                        Settings.JavaBaseMemoryUsedInBytes);
+                    break;
+                case ExecutionStrategyType.Java17ZipFileCompileExecuteAndCheck:
+                    executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
+                        GetCompilerPath,
+                        processExecutorFactory,
+                        Settings.Java17ExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
@@ -163,6 +182,7 @@
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy:
+                case ExecutionStrategyType.Java17SpringAndHibernateProjectExecution:
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
                         GetCompilerPath,
                         processExecutorFactory,

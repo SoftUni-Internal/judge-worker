@@ -30,6 +30,8 @@
 
         public static string JavaExecutablePath => SettingsHelper.GetSetting("JavaExecutablePath");
 
+        public static string Java17ExecutablePath => SettingsHelper.GetSetting("Java17ExecutablePath");
+
         public static string JavaLibsPath => SettingsHelper.GetSetting("JavaLibsPath");
 
         public static string RubyPath => SettingsHelper.GetSetting("RubyPath");
@@ -285,5 +287,15 @@
                 : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
                     ? "5.0.13"
                     : "6.0.1";
+
+        public static string GetJavaCompilerPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck
+                ? SettingsHelper.GetSetting("JavaCompilerPath")
+                : SettingsHelper.GetSetting("Java17CompilerPath");
+
+        public static string GetJavaZipCompilerPath(ExecutionStrategyType type)
+            => type == ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy
+                ? SettingsHelper.GetSetting("JavaCompilerPath")
+                : SettingsHelper.GetSetting("Java17CompilerPath");
     }
 }

@@ -8,14 +8,15 @@
 
     public class JavaCompiler : Compiler
     {
+        private readonly string javaCompilerPath;
+
         private const string JavaCompiledFileExtension = ".class";
 
         private static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";
 
-        public JavaCompiler(int processExitTimeOutMultiplier)
+        public JavaCompiler(int processExitTimeOutMultiplier, string compilerPath)
             : base(processExitTimeOutMultiplier)
-        {
-        }
+            => this.javaCompilerPath = compilerPath;
 
         public override string BuildCompilerArguments(string inputFile, string outputFile, string additionalArguments)
         {

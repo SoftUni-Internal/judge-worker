@@ -54,8 +54,10 @@
         PostgreSqlRunQueriesAndCheckDatabase = 59,
         PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
         PythonDjangoOrmExecutionStrategy = 61,
-        Java17PreprocessCompileExecuteAndCheck = 62,
+        Java17ProjectTestsExecutionStrategy = 62,
         Java17ZipFileCompileExecuteAndCheck = 63,
-        Java17SpringAndHibernateProjectExecution = 64,
+        Java17UnitTestsExecutionStrategy = 64,
+        Java17SpringAndHibernateProjectExecution = 65,
+        Java17PreprocessCompileExecuteAndCheck = 66
     }
 }

@@ -129,24 +129,19 @@
                     executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
                         GetJavaCompilerPath,
                         processExecutorFactory,
-                        IsJava17(type)
-                            ? Settings.Java17ExecutablePath
-                            : Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
+                        GetJavaExecutablePath(type),
+                        GetJavaLibsPath(type),
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
                     break;
                 case ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck:
                 case ExecutionStrategyType.Java17ZipFileCompileExecuteAndCheck:
-                case ExecutionStrategyType.Java17UnitTestsExecutionStrategy:
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
                         GetJavaCompilerPath,
                         processExecutorFactory,
-                        IsJava17(type)
-                            ? Settings.Java17ExecutablePath
-                            : Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
+                        GetJavaExecutablePath(type),
+                        GetJavaLibsPath(type),
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
@@ -155,19 +150,18 @@
                     executionStrategy = new JavaProjectTestsExecutionStrategy(
                         GetJavaCompilerPath,
                         processExecutorFactory,
-                        IsJava17(type)
-                            ? Settings.Java17ExecutablePath
-                            : Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
+                        GetJavaExecutablePath(type),
+                        GetJavaLibsPath(type),
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
+                case ExecutionStrategyType.Java17UnitTestsExecutionStrategy:
                 case ExecutionStrategyType.JavaUnitTestsExecutionStrategy:
                     executionStrategy = new JavaUnitTestsExecutionStrategy(
                         GetJavaCompilerPath,
                         processExecutorFactory,
-                        Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
+                        GetJavaExecutablePath(type),
+                        GetJavaLibsPath(type),
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
@@ -176,10 +170,8 @@
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
                         GetJavaCompilerPath,
                         processExecutorFactory,
-                        IsJava17(type)
-                            ? Settings.Java17ExecutablePath
-                            : Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
+                        GetJavaExecutablePath(type),
+                        GetJavaLibsPath(type),
                         Settings.MavenPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
@@ -486,6 +478,16 @@
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
         }
+
+        private static string GetJavaExecutablePath(ExecutionStrategyType strategyType)
+            => IsJava17(strategyType)
+                ? Settings.Java17ExecutablePath
+                : Settings.JavaExecutablePath;
+
+        private static string GetJavaLibsPath(ExecutionStrategyType strategyType)
+            => IsJava17(strategyType)
+                ? Settings.Java17LibsPath
+                : Settings.JavaLibsPath;
 
         private static string GetJavaCompilerPath(CompilerType type, ExecutionStrategyType strategyType)
             => Settings.GetJavaCompilerPath(strategyType);

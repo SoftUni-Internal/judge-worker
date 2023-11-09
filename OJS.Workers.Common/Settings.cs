@@ -34,6 +34,8 @@
 
         public static string JavaLibsPath => SettingsHelper.GetSetting("JavaLibsPath");
 
+        public static string Java17LibsPath => SettingsHelper.GetSetting("Java17LibsPath");
+
         public static string RubyPath => SettingsHelper.GetSetting("RubyPath");
 
         public static string NodeJsExecutablePath => SettingsHelper.GetSetting("NodeJsExecutablePath");
@@ -290,20 +292,12 @@
 
         public static string GetJavaCompilerPath(ExecutionStrategyType type)
         {
-            var isNot17 = type == ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck;
+            var isJava17 = type.ToString().Contains("17");
 
-            return isNot17
-                ? SettingsHelper.GetSetting("JavaCompilerPath")
-                : SettingsHelper.GetSetting("Java17CompilerPath");
-        }
+            return isJava17
+                ? SettingsHelper.GetSetting("Java17CompilerPath")
+                : SettingsHelper.GetSetting("JavaCompilerPath");
 
-        public static string GetJavaZipCompilerPath(ExecutionStrategyType type)
-        {
-            var isNot17 = type == ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy;
-
-            return isNot17
-                ? SettingsHelper.GetSetting("JavaCompilerPath")
-                : SettingsHelper.GetSetting("Java17CompilerPath");
         }
     }
 }

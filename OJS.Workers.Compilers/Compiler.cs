@@ -51,8 +51,7 @@ public abstract class Compiler : ICompiler
                     Settings.GetJavaCompilerPath(type));
             case CompilerType.JavaZip:
                 return new JavaZipCompiler(
-                    Settings.JavaZipCompilerProcessExitTimeOutMultiplier,
-                    Settings.GetJavaZipCompilerPath(type));
+                    Settings.JavaZipCompilerProcessExitTimeOutMultiplier);
             case CompilerType.JavaInPlaceCompiler:
                 return new JavaInPlaceFolderCompiler(Settings.JavaInPlaceCompilerProcessExitTimeOutMultiplier);
             case CompilerType.MsBuildLibrary:

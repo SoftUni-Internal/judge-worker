@@ -38,7 +38,7 @@
             $@"\[ERROR\]";
 
         public JavaSpringAndHibernateProjectExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibrariesPath,

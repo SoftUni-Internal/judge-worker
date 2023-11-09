@@ -105,7 +105,6 @@
                         Settings.DotNetCliBaseTimeUsedInMilliseconds,
                         Settings.DotNetCliBaseMemoryUsedInBytes);
                     break;
-
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
@@ -126,55 +125,46 @@
                         Settings.RubyBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck:
-                    executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
-                        Settings.JavaBaseTimeUsedInMilliseconds,
-                        Settings.JavaBaseMemoryUsedInBytes,
-                        Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
-                    break;
                 case ExecutionStrategyType.Java17PreprocessCompileExecuteAndCheck:
                     executionStrategy = new JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-                        GetCompilerPath,
+                        GetJavaCompilerPath,
                         processExecutorFactory,
-                        Settings.Java17ExecutablePath,
+                        IsJava17(type)
+                            ? Settings.Java17ExecutablePath
+                            : Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes,
                         Settings.JavaBaseUpdateTimeOffsetInMilliseconds);
                     break;
                 case ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck:
-                    executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-                        GetCompilerPath,
-                        processExecutorFactory,
-                        Settings.JavaExecutablePath,
-                        Settings.JavaLibsPath,
-                        Settings.JavaBaseTimeUsedInMilliseconds,
-                        Settings.JavaBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.Java17ZipFileCompileExecuteAndCheck:
+                case ExecutionStrategyType.Java17UnitTestsExecutionStrategy:
                     executionStrategy = new JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-                        GetCompilerPath,
+                        GetJavaCompilerPath,
                         processExecutorFactory,
-                        Settings.Java17ExecutablePath,
+                        IsJava17(type)
+                            ? Settings.Java17ExecutablePath
+                            : Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.Java17ProjectTestsExecutionStrategy:
                     executionStrategy = new JavaProjectTestsExecutionStrategy(
-                        GetCompilerPath,
+                        GetJavaCompilerPath,
                         processExecutorFactory,
-                        Settings.JavaExecutablePath,
+                        IsJava17(type)
+                            ? Settings.Java17ExecutablePath
+                            : Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.JavaUnitTestsExecutionStrategy:
                     executionStrategy = new JavaUnitTestsExecutionStrategy(
-                        GetCompilerPath,
+                        GetJavaCompilerPath,
                         processExecutorFactory,
                         Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
@@ -184,9 +174,11 @@
                 case ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy:
                 case ExecutionStrategyType.Java17SpringAndHibernateProjectExecution:
                     executionStrategy = new JavaSpringAndHibernateProjectExecutionStrategy(
-                        GetCompilerPath,
+                        GetJavaCompilerPath,
                         processExecutorFactory,
-                        Settings.JavaExecutablePath,
+                        IsJava17(type)
+                            ? Settings.Java17ExecutablePath
+                            : Settings.JavaExecutablePath,
                         Settings.JavaLibsPath,
                         Settings.MavenPath,
                         Settings.JavaBaseTimeUsedInMilliseconds,
@@ -493,6 +485,17 @@
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
             }
+        }
+
+        private static string GetJavaCompilerPath(CompilerType type, ExecutionStrategyType strategyType)
+            => Settings.GetJavaCompilerPath(strategyType);
+
+        private static bool IsJava17(ExecutionStrategyType type)
+        {
+            // => type.ToString().Contains("17");
+            var java17 = type.ToString().Contains("17");
+
+            return java17;
         }
     }
 }

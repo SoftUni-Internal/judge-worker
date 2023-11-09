@@ -22,7 +22,7 @@
         private readonly string testResultRegexPattern = $@"(?:{TestRanPrefix})\s*(true|false)";
 
         public JavaProjectTestsExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibrariesPath,
@@ -122,7 +122,7 @@ class Classes{{
                 return result;
             }
 
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType, this.Type);
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
             var executor = this.CreateExecutor(ProcessExecutorType.Restricted);

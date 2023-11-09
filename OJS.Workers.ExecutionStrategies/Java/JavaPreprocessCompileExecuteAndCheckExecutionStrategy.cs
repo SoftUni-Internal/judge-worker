@@ -25,7 +25,7 @@
         private readonly int baseUpdateTimeOffset;
 
         public JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibrariesPath,
@@ -56,7 +56,7 @@
 
         protected string JavaLibrariesPath { get; }
 
-        protected Func<CompilerType, string> GetCompilerPathFunc { get; }
+        protected Func<CompilerType, ExecutionStrategyType, string> GetCompilerPathFunc { get; }
 
         protected string SandboxExecutorSourceFilePath
             => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.javaSourceFileExtension}";
@@ -288,7 +288,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             IExecutionContext<TInput> executionContext,
             string submissionFilePath)
         {
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType, this.Type);
 
             // Compile all source files - sandbox executor and submission file
             var compilerResult = this.CompileSourceFiles(
@@ -398,6 +398,13 @@ class _$SandboxSecurityManager extends SecurityManager {
             compilerResult.CompilerComment = compilerComment.Length > 0 ? compilerComment : null;
 
             return compilerResult;
+        }
+
+        protected bool IsJava17()
+        {
+            var java17 = this.Type.ToString().Contains("17");
+
+            return java17;
         }
     }
 }

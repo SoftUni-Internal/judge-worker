@@ -289,13 +289,21 @@
                     : "6.0.1";
 
         public static string GetJavaCompilerPath(ExecutionStrategyType type)
-            => type == ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck
+        {
+            var isNot17 = type == ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck;
+
+            return isNot17
                 ? SettingsHelper.GetSetting("JavaCompilerPath")
                 : SettingsHelper.GetSetting("Java17CompilerPath");
+        }
 
         public static string GetJavaZipCompilerPath(ExecutionStrategyType type)
-            => type == ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy
+        {
+            var isNot17 = type == ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy;
+
+            return isNot17
                 ? SettingsHelper.GetSetting("JavaCompilerPath")
                 : SettingsHelper.GetSetting("Java17CompilerPath");
+        }
     }
 }

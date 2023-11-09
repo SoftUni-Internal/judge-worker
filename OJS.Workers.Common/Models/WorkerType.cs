@@ -2,7 +2,7 @@
 {
     public enum WorkerType
     {
-        None = 0,
+        Default = 0,
         Legacy = 1,
         Local = 2,
         Alpha = 3,

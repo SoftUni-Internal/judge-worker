@@ -493,11 +493,6 @@
             => Settings.GetJavaCompilerPath(strategyType);
 
         private static bool IsJava17(ExecutionStrategyType type)
-        {
-            // => type.ToString().Contains("17");
-            var java17 = type.ToString().Contains("17");
-
-            return java17;
-        }
+            => type.ToString().Contains("17");
     }
 }

@@ -399,12 +399,5 @@ class _$SandboxSecurityManager extends SecurityManager {
 
             return compilerResult;
         }
-
-        protected bool IsJava17()
-        {
-            var java17 = this.Type.ToString().Contains("17");
-
-            return java17;
-        }
     }
 }

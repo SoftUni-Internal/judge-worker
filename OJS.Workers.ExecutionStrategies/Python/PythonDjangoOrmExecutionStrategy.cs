@@ -16,6 +16,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         private const string SettingsFileName = "settings.py";
         private const string PyenvAppFileName = "pyenv";
         private const string RequirementsFileName = "requirements.txt";
+        private const int MaximumTimeForEnvDeletion = 10000;
 
         private const string InvalidProjectStructureErrorMessage =
             "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt in root of the zip and {0}/settings.py";
@@ -186,7 +187,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 this.ExecutionArguments.Concat(new[] { $"virtualenv-delete {envName}" }),
                 executor,
                 executionContext,
-                executionContext.TimeLimit,
+                MaximumTimeForEnvDeletion,
                 "y");
 
         private void ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)

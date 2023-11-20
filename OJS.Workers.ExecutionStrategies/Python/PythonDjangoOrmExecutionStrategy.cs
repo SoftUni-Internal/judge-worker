@@ -150,7 +150,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
         private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
         {
-            this.DeleteVirtualEnvironment(executor, executionContext, envName);
             var result = this.Execute(
                 PyenvAppFileName,
                 this.ExecutionArguments.Concat(new[] { $"virtualenv 3.11 {envName}" }),

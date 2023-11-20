@@ -30,7 +30,11 @@
 
         public static string JavaExecutablePath => SettingsHelper.GetSetting("JavaExecutablePath");
 
+        public static string Java17ExecutablePath => SettingsHelper.GetSetting("Java17ExecutablePath");
+
         public static string JavaLibsPath => SettingsHelper.GetSetting("JavaLibsPath");
+
+        public static string Java17LibsPath => SettingsHelper.GetSetting("Java17LibsPath");
 
         public static string RubyPath => SettingsHelper.GetSetting("RubyPath");
 
@@ -285,5 +289,15 @@
                 : type == ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy
                     ? "5.0.13"
                     : "6.0.1";
+
+        public static string GetJavaCompilerPath(ExecutionStrategyType type)
+        {
+            var isJava17 = type.ToString().Contains("17");
+
+            return isJava17
+                ? SettingsHelper.GetSetting("Java17CompilerPath")
+                : SettingsHelper.GetSetting("JavaCompilerPath");
+
+        }
     }
 }

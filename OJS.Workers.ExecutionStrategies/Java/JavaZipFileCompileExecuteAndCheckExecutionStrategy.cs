@@ -15,7 +15,7 @@
         protected const string SubmissionFileName = "_$submission";
 
         public JavaZipFileCompileExecuteAndCheckExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibsPath,
@@ -51,7 +51,7 @@
             IExecutionContext<TInput> executionContext,
             string submissionFilePath)
         {
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType, this.Type);
 
             // Compile the zip file with user code and sandbox executor
             var compilerResult = this.Compile(

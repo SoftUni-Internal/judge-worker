@@ -12,12 +12,12 @@
         private const string JavaCompiledFilesSearchPattern = "*.class";
         private const string JavaSourceFilesSearchPattern = "*.java";
         private const string MainClassFileName = "Main.class";
+
         private static readonly string MainClassFilePathSuffix = FileHelpers.BuildPath(string.Empty, MainClassFileName);
 
         public JavaZipCompiler(int processExitTimeOutMultiplier)
             : base(processExitTimeOutMultiplier)
-        {
-        }
+        {}
 
         public override bool ShouldDeleteSourceFile => false;
 

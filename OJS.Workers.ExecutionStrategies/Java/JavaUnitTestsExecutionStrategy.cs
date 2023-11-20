@@ -31,7 +31,7 @@
         protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
         public JavaUnitTestsExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibrariesPath,
@@ -318,7 +318,7 @@ public class _$TestRunner {{
 
         private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
         {
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType, this.Type);
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
             return this.Compile(

@@ -8,6 +8,7 @@
 
     public class JavaCompiler : Compiler
     {
+
         private const string JavaCompiledFileExtension = ".class";
 
         private static readonly string JavaSourceFileExtension = $".{CompilerType.Java.GetFileExtension()}";

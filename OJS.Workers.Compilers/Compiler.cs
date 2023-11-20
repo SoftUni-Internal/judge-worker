@@ -48,7 +48,8 @@ public abstract class Compiler : ICompiler
             case CompilerType.Java:
                 return new JavaCompiler(Settings.JavaCompilerProcessExitTimeOutMultiplier);
             case CompilerType.JavaZip:
-                return new JavaZipCompiler(Settings.JavaZipCompilerProcessExitTimeOutMultiplier);
+                return new JavaZipCompiler(
+                    Settings.JavaZipCompilerProcessExitTimeOutMultiplier);
             case CompilerType.JavaInPlaceCompiler:
                 return new JavaInPlaceFolderCompiler(Settings.JavaInPlaceCompilerProcessExitTimeOutMultiplier);
             case CompilerType.MsBuildLibrary:

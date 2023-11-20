@@ -21,10 +21,11 @@
 
         private const double NanosecondsInOneMillisecond = 1000000;
 
+
         private readonly int baseUpdateTimeOffset;
 
         public JavaPreprocessCompileExecuteAndCheckExecutionStrategy(
-            Func<CompilerType, string> getCompilerPathFunc,
+            Func<CompilerType, ExecutionStrategyType, string> getCompilerPathFunc,
             IProcessExecutorFactory processExecutorFactory,
             string javaExecutablePath,
             string javaLibrariesPath,
@@ -55,7 +56,7 @@
 
         protected string JavaLibrariesPath { get; }
 
-        protected Func<CompilerType, string> GetCompilerPathFunc { get; }
+        protected Func<CompilerType, ExecutionStrategyType, string> GetCompilerPathFunc { get; }
 
         protected string SandboxExecutorSourceFilePath
             => $"{Path.Combine(this.WorkingDirectory, SandboxExecutorClassName)}{Constants.javaSourceFileExtension}";
@@ -96,8 +97,8 @@ public class " + SandboxExecutorClassName + @" {
             }
 
             // Set the sandbox security manager
-            _$SandboxSecurityManager securityManager = new _$SandboxSecurityManager();
-            System.setSecurityManager(securityManager);
+            // _$SandboxSecurityManager securityManager = new _$SandboxSecurityManager();
+            // System.setSecurityManager(securityManager);
 
             startTime = System.nanoTime();
 
@@ -113,8 +114,10 @@ public class " + SandboxExecutorClassName + @" {
             }
         }
     }
-}
+}";
 
+        protected string SandboxSecurityManagerCode
+            => @"
 class _$SandboxSecurityManager extends SecurityManager {
     private static final String JAVA_HOME_DIR = System.getProperty(""java.home"");
     private static final String USER_DIR = System.getProperty(""user.dir"");
@@ -285,7 +288,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             IExecutionContext<TInput> executionContext,
             string submissionFilePath)
         {
-            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType);
+            var compilerPath = this.GetCompilerPathFunc(executionContext.CompilerType, this.Type);
 
             // Compile all source files - sandbox executor and submission file
             var compilerResult = this.CompileSourceFiles(

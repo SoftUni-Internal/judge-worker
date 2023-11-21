@@ -249,6 +249,8 @@
         public static string PostgreSqlRestrictedUserPassword =>
             SettingsHelper.GetSetting("PostgreSqlRestrictedUserPassword");
 
+        public static string DefaultWorkerType => SettingsHelper.GetSetting("DefaultWorkerType");
+
         public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
             => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck
                 ? SettingsHelper.GetSetting("DotNetCore3RuntimeVersion")

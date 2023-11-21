@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using log4net;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Exceptions;
@@ -47,7 +48,7 @@
 
         public abstract void BeforeExecute();
 
-        public abstract IOjsSubmission RetrieveSubmission(WorkerType workerType);
+        public abstract IOjsSubmission RetrieveSubmission(List<WorkerType> workerTypes);
 
         public abstract void OnError(IOjsSubmission submission, Exception ex);
 

@@ -24,6 +24,9 @@
                 CSharpCode,
                 CSharpCoreCode,
             };
+
+            public const string CompilationErrorMessage =
+                "Please make sure the checker Parameter is correct and can be compiled";
         }
     }
 }

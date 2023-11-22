@@ -48,6 +48,7 @@
 
         // Environment variables
         public const string AspNetCoreEnvironmentVariable = "ASPNETCORE_ENVIRONMENT";
+        public const string RunsInDockerEnvironmentVariable = "RUNS_IN_DOCKER";
 
         // Runtime constants
         public const string NewLineUnix = "\n";

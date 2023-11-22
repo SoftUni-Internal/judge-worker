@@ -12,7 +12,8 @@
         public static bool IsUnix() => IsLinux() || IsMacOsX();
 
         public static bool IsDocker() =>
-            Environment.GetEnvironmentVariable(AspNetCoreEnvironmentVariable) == "Docker";
+            bool.TryParse(Environment.GetEnvironmentVariable(RunsInDockerEnvironmentVariable),
+                out var runsInDocker) && runsInDocker;
 
         private static bool IsLinux() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux);

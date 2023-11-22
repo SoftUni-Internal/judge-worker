@@ -90,31 +90,60 @@ namespace OJS.Workers
             var alphaWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var sharedLockObject = new object();
 
+            var legacyWorkerTypesList = new List<WorkerType> { WorkerType.Legacy };
+            var alphaWorkerTypesList = new List<WorkerType> { WorkerType.Alpha };
+            var localWorkerTypesList = new List<WorkerType> { WorkerType.Local };
+
+           var isEnumParsed = Enum.TryParse(Settings.DefaultWorkerType, false, out WorkerType defaultWorkerType);
+           if (!isEnumParsed)
+           {
+               this.Logger.Fatal("Unable to parse the set default worker type");
+               throw new InvalidOperationException();
+           }
+           
+            switch (defaultWorkerType)
+            {
+                case WorkerType.Legacy:
+                    legacyWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                case WorkerType.Alpha:
+                    alphaWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                case WorkerType.Local:
+                    localWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                default:
+                    this.Logger.Fatal("Wrong default worker type");
+                    throw new InvalidOperationException();
+            }
+            
             var workerThreads = new List<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)>();
 
             var formatterServiceFactory = new FormatterServiceFactory();
             var remoteSubmissionsFilteringService = new RemoteSubmissionsFilteringService();
             var localSubmissionsFilteringService = new LocalSubmissionsFilteringService();
+            
             workerThreads.AddRange(this.GetLocalWorkers(
                 Settings.ThreadsCount,
                 localWorkerSubmissionsForProcessing,
                 sharedLockObject,
                 localSubmissionsFilteringService,
-                new List<WorkerType>{WorkerType.Local}));
+                localWorkerTypesList));
             
             workerThreads.AddRange(this.GetRemoteWorkers(
                 Settings.RemoteWorkerEndpoints,
                 legacyWorkersSubmissionsForProcessing,
                 sharedLockObject, formatterServiceFactory,
                 remoteSubmissionsFilteringService,
-                new List<WorkerType>{WorkerType.Default, WorkerType.Legacy}));
+                legacyWorkerTypesList));
+            
             workerThreads.AddRange(this.GetRemoteWorkers(
                 Settings.AlphaWorkerEndpoints,
                 alphaWorkersSubmissionsForProcessing,
                 sharedLockObject,
                 formatterServiceFactory,
                 remoteSubmissionsFilteringService,
-                new List<WorkerType>{WorkerType.Alpha}));
+                alphaWorkerTypesList));
 
             workerThreads
                 .ToList()

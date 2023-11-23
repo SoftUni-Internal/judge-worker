@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Threading;
-
     using log4net;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -17,7 +16,7 @@
     {
         private readonly object sharedLockObject;
         private readonly ISubmissionsFilteringService submissionsFilteringService;
-        private readonly WorkerType workerType;
+        private readonly List<WorkerType> workerTypes;
         private readonly IDependencyContainer dependencyContainer;
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
         private bool stopping;
@@ -28,7 +27,7 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
-            WorkerType workerType,
+            List<WorkerType> workerTypes,
             ISubmissionWorker submissionWorker)
         {
             this.Name = name;
@@ -42,7 +41,7 @@
             this.submissionsForProcessing = submissionsForProcessing;
             this.sharedLockObject = sharedLockObject;
             this.submissionsFilteringService = submissionsFilteringService;
-            this.workerType = workerType;
+            this.workerTypes = workerTypes;
             this.SubmissionWorker = submissionWorker;
 
             this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
@@ -123,7 +122,7 @@
         {
             try
             {
-                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission(this.workerType);
+                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission(this.workerTypes);
 
                 if (submission == null)
                 {

@@ -90,14 +90,60 @@ namespace OJS.Workers
             var alphaWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var sharedLockObject = new object();
 
+            var legacyWorkerTypesList = new List<WorkerType> { WorkerType.Legacy };
+            var alphaWorkerTypesList = new List<WorkerType> { WorkerType.Alpha };
+            var localWorkerTypesList = new List<WorkerType> { WorkerType.Local };
+
+           var isEnumParsed = Enum.TryParse(Settings.DefaultWorkerType, false, out WorkerType defaultWorkerType);
+           if (!isEnumParsed)
+           {
+               this.Logger.Fatal("Unable to parse the set default worker type");
+               throw new InvalidOperationException();
+           }
+           
+            switch (defaultWorkerType)
+            {
+                case WorkerType.Legacy:
+                    legacyWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                case WorkerType.Alpha:
+                    alphaWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                case WorkerType.Local:
+                    localWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                default:
+                    this.Logger.Fatal("Wrong default worker type");
+                    throw new InvalidOperationException();
+            }
+            
             var workerThreads = new List<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)>();
 
             var formatterServiceFactory = new FormatterServiceFactory();
             var remoteSubmissionsFilteringService = new RemoteSubmissionsFilteringService();
             var localSubmissionsFilteringService = new LocalSubmissionsFilteringService();
-            workerThreads.AddRange(this.GetLocalWorkers(Settings.ThreadsCount, localWorkerSubmissionsForProcessing, sharedLockObject, localSubmissionsFilteringService,WorkerType.Local));
-            workerThreads.AddRange(this.GetRemoteWorkers(Settings.RemoteWorkerEndpoints, legacyWorkersSubmissionsForProcessing, sharedLockObject, formatterServiceFactory, remoteSubmissionsFilteringService,WorkerType.Legacy));
-            workerThreads.AddRange(this.GetRemoteWorkers(Settings.AlphaWorkerEndpoints, alphaWorkersSubmissionsForProcessing, sharedLockObject, formatterServiceFactory, remoteSubmissionsFilteringService,WorkerType.Alpha));
+            
+            workerThreads.AddRange(this.GetLocalWorkers(
+                Settings.ThreadsCount,
+                localWorkerSubmissionsForProcessing,
+                sharedLockObject,
+                localSubmissionsFilteringService,
+                localWorkerTypesList));
+            
+            workerThreads.AddRange(this.GetRemoteWorkers(
+                Settings.RemoteWorkerEndpoints,
+                legacyWorkersSubmissionsForProcessing,
+                sharedLockObject, formatterServiceFactory,
+                remoteSubmissionsFilteringService,
+                legacyWorkerTypesList));
+            
+            workerThreads.AddRange(this.GetRemoteWorkers(
+                Settings.AlphaWorkerEndpoints,
+                alphaWorkersSubmissionsForProcessing,
+                sharedLockObject,
+                formatterServiceFactory,
+                remoteSubmissionsFilteringService,
+                alphaWorkerTypesList));
 
             workerThreads
                 .ToList()
@@ -115,7 +161,7 @@ namespace OJS.Workers
             object sharedLockObject,
             IFormatterServiceFactory formatterServiceFactory,
             ISubmissionsFilteringService submissionsFilteringService,
-            WorkerType workerType)
+            List<WorkerType> workerTypes)
         {
             var remoteWorkerEndpointsList = remoteWorkerEndpoints.ToList();
             return Enumerable.Range(0, remoteWorkerEndpointsList.Count)
@@ -126,7 +172,7 @@ namespace OJS.Workers
                     sharedLockObject,
                     formatterServiceFactory,
                     submissionsFilteringService,
-                    workerType));
+                    workerTypes));
         }
 
         private IEnumerable<(SubmissionProcessor<TSubmission> submissionProcessor, Thread thread)> GetLocalWorkers(
@@ -134,15 +180,15 @@ namespace OJS.Workers
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
-            WorkerType workerType)
+            List<WorkerType> workerTypes)
             => Enumerable.Range(0, count)
-                .Select(index => this.CreateLocalWorker(index + 1, submissionsForProcessing, sharedLockObject, submissionsFilteringService,workerType));
+                .Select(index => this.CreateLocalWorker(index + 1, submissionsForProcessing, sharedLockObject, submissionsFilteringService,workerTypes));
 
         private (SubmissionProcessor<TSubmission> submissionProcessor, Thread thread) CreateLocalWorker(int index,
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
-            WorkerType workerType)
+            List<WorkerType> workerTypes)
         {
             var worker = new LocalSubmissionWorker(index);
             var submissionProcessor = new SubmissionProcessor<TSubmission>(
@@ -151,7 +197,7 @@ namespace OJS.Workers
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
                 submissionsFilteringService: submissionsFilteringService,
-                workerType: workerType,
+                workerTypes: workerTypes,
                 submissionWorker: worker);
 
             var thread = new Thread(submissionProcessor.Start)
@@ -169,7 +215,7 @@ namespace OJS.Workers
             object sharedLockObject,
             IFormatterServiceFactory formatterServiceFactory,
             ISubmissionsFilteringService submissionsFilteringService,
-            WorkerType workerType)
+            List<WorkerType> workerTypes)
         {
             var worker = new RemoteSubmissionsWorker(
                 endpoint,
@@ -182,7 +228,7 @@ namespace OJS.Workers
                 submissionsForProcessing: submissionsForProcessing,
                 sharedLockObject: sharedLockObject,
                 submissionsFilteringService: submissionsFilteringService,
-                workerType: workerType,
+                workerTypes: workerTypes,
                 submissionWorker: worker);
 
             var thread = new Thread(submissionProcessor.Start)

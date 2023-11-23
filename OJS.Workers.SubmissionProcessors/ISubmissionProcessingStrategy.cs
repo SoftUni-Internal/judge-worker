@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using log4net;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
@@ -15,7 +16,7 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject);
 
-        IOjsSubmission RetrieveSubmission(WorkerType workerType);
+        IOjsSubmission RetrieveSubmission(List<WorkerType> workerTypes);
 
         void BeforeExecute();
 

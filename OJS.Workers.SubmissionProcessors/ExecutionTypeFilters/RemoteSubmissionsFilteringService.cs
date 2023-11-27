@@ -17,7 +17,10 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
         private readonly HttpService http;
 
         public RemoteSubmissionsFilteringService()
-            => this.http = new HttpService();
+        {
+            this.http = new HttpService();
+            this.logger = LogManager.GetLogger(typeof(RemoteSubmissionsFilteringService));
+        }
 
         protected override ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes
             => EnabledRemoteWorkerStrategies;

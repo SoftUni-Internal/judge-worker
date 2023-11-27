@@ -1,10 +1,7 @@
-﻿using log4net;
-using Microsoft.Build.Framework;
-
-namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
+﻿namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
-    using System;
     using System.Collections.Generic;
+    using log4net;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Workers;
@@ -18,7 +15,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
         {
             this.logger = LogManager.GetLogger(typeof(SubmissionFilteringServiceBase));
         }
-        
+
         protected abstract ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes { get; }
 
         protected abstract ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes { get; }
@@ -31,7 +28,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             {
                 return false;
             }
-            
+
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
             var isEnabledStrategy = this.IsDisabledStrategy(submission);
             var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
@@ -46,9 +43,9 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             {
                 return true;
             }
-            
+
             var reason = string.Empty;
-            
+
             if (isDisabledStrategy)
             {
                 reason = "Strategy is disabled.";
@@ -58,7 +55,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             {
                 reason = "Strategy is not enabled.";
             }
-                
+
             if (!canProcessSubmissionInternal)
             {
                 reason = "Cannot be processed by the worker.";
@@ -68,7 +65,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             {
                 reason = "Compiler type is disabled.";
             }
-                
+
             this.logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
 
             return false;

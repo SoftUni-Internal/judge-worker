@@ -30,7 +30,7 @@
             }
 
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
-            var isEnabledStrategy = this.IsDisabledStrategy(submission);
+            var isEnabledStrategy = this.IsEnabledStrategy(submission);
             var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
             var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
 

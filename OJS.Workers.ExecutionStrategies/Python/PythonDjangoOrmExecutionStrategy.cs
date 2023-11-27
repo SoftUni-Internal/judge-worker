@@ -1,4 +1,3 @@
-
 namespace OJS.Workers.ExecutionStrategies.Python
 {
     using System;
@@ -13,11 +12,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
     public class PythonDjangoOrmExecutionStrategy : PythonProjectTestsExecutionStrategy
     {
-        private const string VirtualEnvName = "env";
         private const string ProjectSettingsFolder = "orm_skeleton";
         private const string SettingsFileName = "settings.py";
         private const string PyenvAppFileName = "pyenv";
         private const string RequirementsFileName = "requirements.txt";
+        private const int MaximumTimeForEnvDeletion = 10000;
 
         private const string InvalidProjectStructureErrorMessage =
             "Folder project structure is invalid! Please check your zip file! It should contain requirements.txt in root of the zip and {0}/settings.py";
@@ -57,6 +56,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
+            var virtualEnvironmentName = Guid.NewGuid().ToString();
             this.SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
             var requirementsFilePath = this.WorkingDirectory + Path.DirectorySeparatorChar + RequirementsFileName;
             var pathToSettingsFile = this.WorkingDirectory + Path.DirectorySeparatorChar + ProjectSettingsFolder +
@@ -70,14 +70,21 @@ namespace OJS.Workers.ExecutionStrategies.Python
             var executor = this.CreateExecutor();
             var checker = executionContext.Input.GetChecker();
 
-            this.CreateVirtualEnvironment(executor, executionContext);
-            this.ActivateVirtualEnvironment(executor, executionContext);
-            this.ChangeDbConnection(pathToSettingsFile);
-            this.ExportDjangoSettingsModule(executor, executionContext);
-            this.ApplyMigrations(executor, executionContext);
+            try
+            {
+                this.CreateVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
+                this.ActivateVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
+                this.ChangeDbConnection(pathToSettingsFile);
+                this.RestorePackages(executor, executionContext);
+                this.ExportDjangoSettingsModule(executor, executionContext, virtualEnvironmentName);
+                this.ApplyMigrations(executor, executionContext);
 
-            this.RunTests(string.Empty, executor, checker, executionContext, result);
-            this.DeleteVirtualEnvironment(executor, executionContext);
+                this.RunTests(string.Empty, executor, checker, executionContext, result);
+            }
+            finally
+            {
+                this.DeleteVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
+            }
 
             return result;
         }
@@ -96,7 +103,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
             for (var i = 0; i < tests.Count; i++)
             {
                 var test = tests[i];
-                var testPath = this.TestPaths[i];
+                var testPath = this.testPaths[i];
 
                 var processExecutionResult = this.ExecuteTest(executor, executionContext, testPath);
 
@@ -125,12 +132,28 @@ namespace OJS.Workers.ExecutionStrategies.Python
             return processExecutionResult;
         }
 
-        private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+        private void RestorePackages(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
         {
-            this.DeleteVirtualEnvironment(executor, executionContext);
+            var result = this.Execute(
+                this.pipExecutablePath,
+                this.ExecutionArguments.Concat(new[] { $"install -r {RequirementsFileName}" }),
+                executor,
+                executionContext,
+                this.installPackagesTimeUsed);
+
+            if (result.ExitCode == 0)
+            {
+                return;
+            }
+
+            throw new ArgumentException($"Failed to restore packages! " + this.GetErrorOutput(result));
+        }
+
+        private void CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
+        {
             var result = this.Execute(
                 PyenvAppFileName,
-                this.ExecutionArguments.Concat(new[] { $"virtualenv 3.11 {VirtualEnvName}" }),
+                this.ExecutionArguments.Concat(new[] { $"virtualenv 3.11 {envName}" }),
                 executor,
                 executionContext);
 
@@ -142,11 +165,11 @@ namespace OJS.Workers.ExecutionStrategies.Python
             throw new ArgumentException($"Failed to create virtual environment! {this.GetErrorOutput(result)}");
         }
 
-        private void ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+        private void ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
         {
             var result = this.Execute(
                 PyenvAppFileName,
-                this.ExecutionArguments.Concat(new[] { $"local {VirtualEnvName}" }),
+                this.ExecutionArguments.Concat(new[] { $"local {envName}" }),
                 executor,
                 executionContext);
 
@@ -158,20 +181,20 @@ namespace OJS.Workers.ExecutionStrategies.Python
             throw new ArgumentException("Failed to activate virtual environment! " + this.GetErrorOutput(result));
         }
 
-        private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+        private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
             => this.Execute(
                 PyenvAppFileName,
-                this.ExecutionArguments.Concat(new[] { $"virtualenv-delete {VirtualEnvName}" }),
+                this.ExecutionArguments.Concat(new[] { $"virtualenv-delete {envName}" }),
                 executor,
                 executionContext,
-                executionContext.TimeLimit,
+                MaximumTimeForEnvDeletion,
                 "y");
 
-        private void ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+        private void ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
         {
             var result = this.Execute(
                 "/bin/bash",
-                this.ExecutionArguments.Concat(new[] { $"-c export DJANGO_SETTINGS_MODULE={VirtualEnvName}.settings" }),
+                this.ExecutionArguments.Concat(new[] { $"-c export DJANGO_SETTINGS_MODULE={envName}.settings" }),
                 executor,
                 executionContext);
 

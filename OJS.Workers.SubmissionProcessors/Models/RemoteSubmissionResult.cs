@@ -1,5 +1,7 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.Models
 {
+    using System;
+
     public class RemoteSubmissionResult
     {
         public ExceptionModel Exception { get; set; }

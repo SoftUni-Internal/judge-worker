@@ -1,21 +1,18 @@
-﻿namespace OJS.Workers.Tools.AntiCheat
-{
-    using System.IO;
-    using System.Text;
+﻿namespace OJS.Workers.Tools;
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Tools.Disassemblers;
-    using OJS.Workers.Tools.Disassemblers.Contracts;
-    using OJS.Workers.Tools.Similarity;
+using OJS.Workers.Common;
+using OJS.Workers.Common.Helpers;
 
-    public class JavaCompileDisassemblePlagiarismDetector : CompileDisassemblePlagiarismDetector
+using OJS.Services.Worker.Models.Anti_Cheating;
+using System.Text;
+
+public class JavaCompileDisassemblePlagiarismDetector : CompileDisassemblePlagiarismDetector
     {
         // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javap.html
         private const string JavaDisassemblerAllClassesAndMembersArgument = "-p";
         private const string JavaCompiledFilesSearchPattern = "*.class";
 
-        private string workingDirectory;
+        private string? workingDirectory;
 
         public JavaCompileDisassemblePlagiarismDetector(
             ICompiler compiler,
@@ -26,17 +23,14 @@
         {
         }
 
-        ~JavaCompileDisassemblePlagiarismDetector()
-        {
-            DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory, true);
-        }
+        ~JavaCompileDisassemblePlagiarismDetector() => DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory!, true);
 
         protected override string DisassemblerAdditionalArguments => JavaDisassemblerAllClassesAndMembersArgument;
 
         protected override CompileResult CompileCode(string sourceCode)
         {
             // First delete old working directory
-            DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory, true);
+            DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory!, true);
 
             this.workingDirectory = DirectoryHelpers.CreateTempDirectory();
 
@@ -45,7 +39,7 @@
             var compileResult = this.Compiler.Compile(
                 this.CompilerPath,
                 sourceFilePath,
-                this.CompilerAdditionalArguments);
+                this.CompilerAdditionalArguments!);
 
             return compileResult;
         }
@@ -53,7 +47,7 @@
         protected override DisassembleResult DisassembleFile(string compiledFilePath)
         {
             var compiledFilesToDisassemble =
-                Directory.GetFiles(this.workingDirectory, JavaCompiledFilesSearchPattern, SearchOption.AllDirectories);
+                Directory.GetFiles(this.workingDirectory!, JavaCompiledFilesSearchPattern, SearchOption.AllDirectories);
 
             var result = new DisassembleResult(compiledFilesToDisassemble.Length > 0);
 
@@ -77,9 +71,8 @@
                 result.DisassembledCode = disassembledCode.ToString();
             }
 
-            DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory, true);
+            DirectoryHelpers.SafeDeleteDirectory(this.workingDirectory!, true);
 
             return result;
         }
     }
-}

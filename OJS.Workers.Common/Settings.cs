@@ -12,6 +12,8 @@
 
         public static string DotNetCompilerPath => SettingsHelper.GetSetting("DotNetCompilerPath");
 
+        public static string DotNetDisassemblerPath => SettingsHelper.GetSetting("DotNetCompilerPath");
+
         public static string MavenPath => SettingsHelper.GetSetting("MavenPath");
 
         public static string CSharpCompilerPath => SettingsHelper.GetSetting("CSharpCompilerPath");
@@ -31,6 +33,8 @@
         public static string JavaExecutablePath => SettingsHelper.GetSetting("JavaExecutablePath");
 
         public static string JavaLibsPath => SettingsHelper.GetSetting("JavaLibsPath");
+
+        public static string JavaDisassemblerPath => SettingsHelper.GetSetting("JavaDisassemblerPath");
 
         public static string RubyPath => SettingsHelper.GetSetting("RubyPath");
 

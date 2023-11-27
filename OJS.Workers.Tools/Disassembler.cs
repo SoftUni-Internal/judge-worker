@@ -1,15 +1,11 @@
-﻿namespace OJS.Workers.Tools.Disassemblers
-{
-    using System;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
+﻿namespace OJS.Workers.Tools;
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Tools.Disassemblers.Contracts;
+using OJS.Services.Worker.Models.Anti_Cheating;
+using OJS.Workers.Common;
+using System.Diagnostics;
+using System.Text;
 
-    public abstract class Disassembler : IDisassembler
+public abstract class Disassembler : IDisassembler
     {
         protected const int ProcessSuccessExitCode = 0;
 
@@ -27,7 +23,7 @@
 
         protected string DisassemblerPath { get; }
 
-        public DisassembleResult Disassemble(string compiledFilePath, string additionalArguments = null)
+        public DisassembleResult Disassemble(string compiledFilePath, string? additionalArguments = null)
         {
             if (!File.Exists(compiledFilePath))
             {
@@ -48,19 +44,19 @@
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     WorkingDirectory = workingDirectory,
-                    Arguments = arguments
+                    Arguments = arguments,
                 };
 
             this.UpdateDisassemblerProcessStartInfo(disassemblerProcessStartInfo);
 
-            string disassambledCode;
+            string? disassambledCode;
             var isDisassembledSuccessfully =
                 this.ExecuteDisassemblerProcess(disassemblerProcessStartInfo, out disassambledCode);
 
             return new DisassembleResult(isDisassembledSuccessfully, disassambledCode);
         }
 
-        protected abstract string BuildDisassemblerArguments(string inputFilePath, string additionalArguments);
+        protected abstract string BuildDisassemblerArguments(string inputFilePath, string? additionalArguments);
 
         protected virtual void UpdateDisassemblerProcessStartInfo(ProcessStartInfo disassemblerProcessStartInfo)
         {
@@ -68,7 +64,7 @@
 
         protected virtual bool ExecuteDisassemblerProcess(
             ProcessStartInfo disassemblerProcessStartInfo,
-            out string disassembledCode)
+            out string? disassembledCode)
         {
             disassembledCode = null;
 
@@ -124,4 +120,3 @@
             }
         }
     }
-}

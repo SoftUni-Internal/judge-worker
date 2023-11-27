@@ -1,14 +1,13 @@
-﻿namespace OJS.Workers.Tools.AntiCheat
-{
-    using System;
+﻿namespace OJS.Workers.Tools;
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Models;
-    using OJS.Workers.Compilers;
-    using OJS.Workers.Tools.AntiCheat.Contracts;
-    using OJS.Workers.Tools.Disassemblers;
+using OJS.Common.Contracts;
+using OJS.Workers.Common;
+using OJS.Workers.Common.Models;
+using OJS.Workers.Compilers;
 
-    public class PlagiarismDetectorFactory : IPlagiarismDetectorFactory
+using OJS.Services.Worker.Models.Anti_Cheating;
+
+public class PlagiarismDetectorFactory : IPlagiarismDetectorFactory
     {
         public IPlagiarismDetector CreatePlagiarismDetector(PlagiarismDetectorCreationContext context)
         {
@@ -22,25 +21,25 @@
                 case PlagiarismDetectorType.CSharpCompileDisassemble:
                     return new CSharpCompileDisassemblePlagiarismDetector(
                         new CSharpCompiler(Settings.CSharpCompilerProcessExitTimeOutMultiplier),
-                        context.CompilerPath,
-                        new DotNetDisassembler(context.DisassemblerPath),
+                        context.CompilerPath!,
+                        new DotNetDisassembler(context.DisassemblerPath!),
                         context.SimilarityFinder);
 
                 case PlagiarismDetectorType.CSharpDotNetCoreCompileDisassemble:
-                    return new CSharpDotNetCoreCompileDisasaemblePlagiarismDetector(
+                    return new CSharpDotNetCoreCompileDisassemblePlagiarismDetector(
                         new CSharpDotNetCoreCompiler(
                             Settings.CSharpDotNetCoreCompilerProcessExitTimeOutMultiplier,
                             Settings.CSharpDotNetCoreCompilerPath(ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck),
                             Settings.DotNetCoreSharedAssembliesPath(ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck)),
-                        context.CompilerPath,
-                        new DotNetDisassembler(context.DisassemblerPath),
+                        context.CompilerPath!,
+                        new DotNetDisassembler(context.DisassemblerPath!),
                         context.SimilarityFinder);
 
                 case PlagiarismDetectorType.JavaCompileDisassemble:
                     return new JavaCompileDisassemblePlagiarismDetector(
                         new JavaCompiler(Settings.JavaCompilerProcessExitTimeOutMultiplier),
-                        context.CompilerPath,
-                        new JavaDisassembler(context.DisassemblerPath),
+                        context.CompilerPath!,
+                        new JavaDisassembler(context.DisassemblerPath!),
                         context.SimilarityFinder);
 
                 case PlagiarismDetectorType.PlainText:
@@ -51,4 +50,3 @@
             }
         }
     }
-}

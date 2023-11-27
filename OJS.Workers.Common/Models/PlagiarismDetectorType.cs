@@ -4,16 +4,16 @@
 
     public enum PlagiarismDetectorType
     {
-        [Description("C# код")]
+        [Description("C# code")]
         CSharpCompileDisassemble = 1,
 
-        [Description("Java код")]
+        [Description("Java code")]
         JavaCompileDisassemble = 2,
 
-        [Description("Текст")]
+        [Description("Text")]
         PlainText = 3,
 
-        [Description("C# код (.NET Core)")]
+        [Description("C# code (.NET Core)")]
         CSharpDotNetCoreCompileDisassemble = 4,
     }
 }

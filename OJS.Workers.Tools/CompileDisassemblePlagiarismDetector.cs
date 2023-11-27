@@ -1,17 +1,12 @@
-﻿namespace OJS.Workers.Tools.AntiCheat
-{
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
+﻿namespace OJS.Workers.Tools;
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Tools.AntiCheat.Contracts;
-    using OJS.Workers.Tools.Disassemblers;
-    using OJS.Workers.Tools.Disassemblers.Contracts;
-    using OJS.Workers.Tools.Similarity;
+using OJS.Common.Contracts;
+using OJS.Common.Models;
+using OJS.Services.Worker.Models.Anti_Cheating;
+using OJS.Workers.Common;
+using OJS.Workers.Common.Helpers;
 
-    public abstract class CompileDisassemblePlagiarismDetector : IPlagiarismDetector
+public abstract class CompileDisassemblePlagiarismDetector : IPlagiarismDetector
     {
         private readonly ISimilarityFinder similarityFinder;
         private readonly IDictionary<string, string> sourcesCache;
@@ -35,22 +30,22 @@
 
         protected IDisassembler Disassembler { get; }
 
-        protected virtual string CompilerAdditionalArguments => null;
+        protected virtual string? CompilerAdditionalArguments => null;
 
-        protected virtual string DisassemblerAdditionalArguments => null;
+        protected virtual string? DisassemblerAdditionalArguments => null;
 
         public PlagiarismResult DetectPlagiarism(
             string firstSource,
             string secondSource,
-            IEnumerable<IDetectPlagiarismVisitor> visitors = null)
+            IEnumerable<IDetectPlagiarismVisitor>? visitors = null)
         {
-            string firstDisassembledCode;
+            string? firstDisassembledCode;
             if (!this.GetDisassembledCode(firstSource, out firstDisassembledCode))
             {
                 return new PlagiarismResult(0);
             }
 
-            string secondDisassembledCode;
+            string? secondDisassembledCode;
             if (!this.GetDisassembledCode(secondSource, out secondDisassembledCode))
             {
                 return new PlagiarismResult(0);
@@ -60,8 +55,8 @@
             {
                 foreach (var visitor in visitors)
                 {
-                    firstDisassembledCode = visitor.Visit(firstDisassembledCode);
-                    secondDisassembledCode = visitor.Visit(secondDisassembledCode);
+                    firstDisassembledCode = visitor.Visit(firstDisassembledCode!);
+                    secondDisassembledCode = visitor.Visit(secondDisassembledCode!);
                 }
             }
 
@@ -69,7 +64,7 @@
                 .DiffText(firstDisassembledCode, secondDisassembledCode, true, true, true);
 
             var differencesCount = differences.Sum(difference => difference.DeletedA + difference.InsertedB);
-            var textLength = firstDisassembledCode.Length + secondDisassembledCode.Length;
+            var textLength = firstDisassembledCode?.Length + secondDisassembledCode?.Length;
 
             // TODO: Revert the percentage
             var percentage = ((decimal)differencesCount * 100) / textLength;
@@ -78,11 +73,11 @@
             {
                 Differences = differences,
                 FirstToCompare = firstDisassembledCode,
-                SecondToCompare = secondDisassembledCode
+                SecondToCompare = secondDisassembledCode,
             };
         }
 
-        protected virtual bool GetDisassembledCode(string source, out string disassembledCode)
+        protected virtual bool GetDisassembledCode(string source, out string? disassembledCode)
         {
             if (this.sourcesCache.ContainsKey(source))
             {
@@ -106,7 +101,10 @@
 
             disassembledCode = disassembleResult.DisassembledCode;
 
-            this.sourcesCache.Add(source, disassembledCode);
+            if (disassembledCode != null)
+            {
+                this.sourcesCache.Add(source, disassembledCode);
+            }
 
             return true;
         }
@@ -118,7 +116,7 @@
             var compileResult = this.Compiler.Compile(
                 this.CompilerPath,
                 sourceFilePath,
-                this.CompilerAdditionalArguments);
+                this.CompilerAdditionalArguments!);
 
             if (File.Exists(sourceFilePath))
             {
@@ -142,4 +140,3 @@
             return disassemblerResult;
         }
     }
-}

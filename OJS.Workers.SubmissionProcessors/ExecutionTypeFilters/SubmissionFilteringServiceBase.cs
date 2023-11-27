@@ -1,4 +1,7 @@
-﻿namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
+﻿using log4net;
+using Microsoft.Build.Framework;
+
+namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
     using System;
     using System.Collections.Generic;
@@ -9,6 +12,13 @@
     public abstract class SubmissionFilteringServiceBase
             : ISubmissionsFilteringService
     {
+        private readonly ILog logger;
+
+        protected SubmissionFilteringServiceBase()
+        {
+            this.logger = LogManager.GetLogger(typeof(SubmissionFilteringServiceBase));
+        }
+        
         protected abstract ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes { get; }
 
         protected abstract ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes { get; }
@@ -16,11 +26,53 @@
         protected abstract ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes { get; }
 
         public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
-            => submission != null
-                && !this.IsDisabledStrategy(submission)
-                && this.IsEnabledStrategy(submission)
-                && this.CanProcessSubmissionInternal(submission, submissionWorker)
-                && !this.IsDisabledCompilerType(submission);
+        {
+            if (submission == null)
+            {
+                return false;
+            }
+            
+            var isDisabledStrategy = this.IsDisabledStrategy(submission);
+            var isEnabledStrategy = this.IsDisabledStrategy(submission);
+            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
+            var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
+
+            var canProcessSubmission = !isDisabledStrategy
+                   && isEnabledStrategy
+                   && canProcessSubmissionInternal
+                   && !isDisabledCompilerType;
+
+            if (canProcessSubmission)
+            {
+                return true;
+            }
+            
+            var reason = string.Empty;
+            
+            if (isDisabledStrategy)
+            {
+                reason = "Strategy is disabled.";
+            }
+
+            if (!isEnabledStrategy)
+            {
+                reason = "Strategy is not enabled.";
+            }
+                
+            if (!canProcessSubmissionInternal)
+            {
+                reason = "Cannot be processed by the worker.";
+            }
+
+            if (isDisabledCompilerType)
+            {
+                reason = "Compiler type is disabled.";
+            }
+                
+            this.logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
+
+            return false;
+        }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => true;

@@ -1,6 +1,8 @@
 namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
+    using System;
     using System.Collections.Generic;
+    using log4net;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
@@ -11,6 +13,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
     public class RemoteSubmissionsFilteringService
         : SubmissionFilteringServiceBase
     {
+        private readonly ILog logger;
         private readonly HttpService http;
 
         public RemoteSubmissionsFilteringService()
@@ -34,11 +37,19 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             {
                 var healthConfigKey = SettingsHelper.GetSetting("HealthConfigKey");
                 var healthConfigPassword = SettingsHelper.GetSetting("HealthConfigPassword");
+
                 var result = this.http.Get($"{submissionWorker.Location}/health?{healthConfigKey}={healthConfigPassword}");
-                return result == "Healthy";
+                if (result == "Healthy")
+                {
+                    return true;
+                }
+
+                this.logger.Info($"Response from the worker is: {result}");
+                return false;
             }
-            catch
+            catch (Exception ex)
             {
+                this.logger.Error($"Exception in getting remote worker health response. Reason: {ex.Message}.");
                 return false;
             }
         }

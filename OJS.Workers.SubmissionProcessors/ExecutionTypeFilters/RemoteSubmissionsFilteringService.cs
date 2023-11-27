@@ -17,7 +17,10 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
         private readonly HttpService http;
 
         public RemoteSubmissionsFilteringService()
-            => this.http = new HttpService();
+        {
+            this.http = new HttpService();
+            this.logger = LogManager.GetLogger(typeof(RemoteSubmissionsFilteringService));
+        }
 
         protected override ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes
             => EnabledRemoteWorkerStrategies;
@@ -33,23 +36,25 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 
         private bool IsOnline(ISubmissionWorker submissionWorker)
         {
+            var healthConfigKey = SettingsHelper.GetSetting("HealthConfigKey");
+            var healthConfigPassword = SettingsHelper.GetSetting("HealthConfigPassword");
+            var url = $"{submissionWorker.Location}/health?{healthConfigKey}={healthConfigPassword}";
+
             try
             {
-                var healthConfigKey = SettingsHelper.GetSetting("HealthConfigKey");
-                var healthConfigPassword = SettingsHelper.GetSetting("HealthConfigPassword");
+                var result = this.http.Get(url);
 
-                var result = this.http.Get($"{submissionWorker.Location}/health?{healthConfigKey}={healthConfigPassword}");
                 if (result == "Healthy")
                 {
                     return true;
                 }
 
-                this.logger.Info($"Response from the worker is: {result}");
+                this.logger.Info($"Response from '{url}' is: {result}");
                 return false;
             }
             catch (Exception ex)
             {
-                this.logger.Error($"Exception in getting remote worker health response. Reason: {ex.Message}.");
+                this.logger.Error($"Exception in getting remote worker health response from '{url}'. Reason: {ex.Message}.");
                 return false;
             }
         }

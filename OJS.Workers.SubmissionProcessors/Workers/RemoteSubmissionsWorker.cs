@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-
+    using System.Threading;
     using log4net;
 
     using OJS.Workers.Common;
@@ -165,6 +165,12 @@
             try
             {
                 result = this.http.PostJson<object, RemoteSubmissionResult>(this.endpoint, submissionRequestBody);
+            }
+            catch (ThreadAbortException ex)
+            {
+                submission.ProcessingComment = $"Exception in getting remote submission result: {ex.Message}";
+                submission.ExceptionType = ExceptionType.Thread;
+                throw new Exception($"Exception in {nameof(this.ExecuteSubmissionRemotely)}", ex);
             }
             catch (Exception ex)
             {

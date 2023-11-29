@@ -47,32 +47,31 @@
         protected override string JsCodePreevaulationCode => @"
 chai.use(sinonChai);
 let bgCoderConsole = {};
-before(function(done)
-{
-    jsdom.env({
-        html: '',
-        done: function(errors, window) {
-            global.window = window;
-            global.document = window.document;
-            global.$ = jq(window);
-            global.handlebars = handlebars;
-            Object.getOwnPropertyNames(window)
-                .filter(function(prop) {
-                return prop.toLowerCase().indexOf('html') >= 0;
-            }).forEach(function(prop) {
+    before(function(done)
+    {
+        const dom = new jsdom.JSDOM(``);
+        const { window } = dom;
+
+        global.window = window;
+        global.document = window.document;
+        global.$ = jq(window);
+        global.handlebars = handlebars;
+
+        Object.getOwnPropertyNames(window)
+            .filter(prop => prop.toLowerCase().includes('html'))
+            .forEach(prop => {
                 global[prop] = window[prop];
             });
 
-            Object.keys(console)
-                .forEach(function (prop) {
-                    bgCoderConsole[prop] = console[prop];
-                    console[prop] = new Function('');
-                });
+        let bgCoderConsole = {};
+        Object.keys(console)
+            .forEach(prop => {
+                bgCoderConsole[prop] = console[prop];
+                console[prop] = function() {}; // Empty function to suppress console output
+            });
 
-            done();
-        }
-    });
-});
+        done();
+        });
 
 after(function() {
     Object.keys(bgCoderConsole)

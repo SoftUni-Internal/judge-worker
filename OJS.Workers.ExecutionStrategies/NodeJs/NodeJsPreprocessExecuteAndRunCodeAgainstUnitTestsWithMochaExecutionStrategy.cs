@@ -47,31 +47,32 @@
         protected override string JsCodePreevaulationCode => @"
 chai.use(sinonChai);
 let bgCoderConsole = {};
-    before(function(done)
-    {
-        const dom = new jsdom.JSDOM(``);
-        const { window } = dom;
-
-        global.window = window;
-        global.document = window.document;
-        global.$ = jq(window);
-        global.handlebars = handlebars;
-
-        Object.getOwnPropertyNames(window)
-            .filter(prop => prop.toLowerCase().includes('html'))
-            .forEach(prop => {
+before(function(done)
+{
+    jsdom.env({
+        html: '',
+        done: function(errors, window) {
+            global.window = window;
+            global.document = window.document;
+            global.$ = jq(window);
+            global.handlebars = handlebars;
+            Object.getOwnPropertyNames(window)
+                .filter(function(prop) {
+                return prop.toLowerCase().indexOf('html') >= 0;
+            }).forEach(function(prop) {
                 global[prop] = window[prop];
             });
 
-        let bgCoderConsole = {};
-        Object.keys(console)
-            .forEach(prop => {
-                bgCoderConsole[prop] = console[prop];
-                console[prop] = function() {}; // Empty function to suppress console output
-            });
+            Object.keys(console)
+                .forEach(function (prop) {
+                    bgCoderConsole[prop] = console[prop];
+                    console[prop] = new Function('');
+                });
 
-        done();
-        });
+            done();
+        }
+    });
+});
 
 after(function() {
     Object.keys(bgCoderConsole)
@@ -195,7 +196,7 @@ describe('Test {i} ', function(){{
                             "<minTestCount>(\\d+)</minTestCount>").Groups[1].Value);
                      if (numberOfUserTests < minTestCount)
                     {
-                        message = $"Insufficient amount of tests, you have to have atleast {minTestCount} tests!";
+                        message = $"Insufficient amount of tests, you have to have at least {minTestCount} tests!";
                     }
 
                     testResult = this.CheckAndGetTestResult(

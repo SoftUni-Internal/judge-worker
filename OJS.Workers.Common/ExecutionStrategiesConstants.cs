@@ -35,16 +35,12 @@ namespace OJS.Workers.Common
             public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
 
             // JavaScript
-            public const string JavaScriptCode = "javascript-code";
-            public const string JavaScriptJsDomUnitTests = "javascript-js-dom-unit-tests";
-            public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mocha";
-            public const string JavaScriptAsyncJsDomTestsWithReact = "javascript-async-js-dom-tests-with-react";
+            public const string JavaScriptCode = "javascript-codeV20";
+            public const string JavaScriptJsDomUnitTests = "javascript-js-dom-unit-testsV20";
+            public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mochaV20";
 
             public const string JavaScriptCodeAgainstUnitTestsWithMocha =
-                "javascript-code-against-unit-tests-with-mocha";
-
-            public const string JavaScriptCodeAgainstUnitTestsWithDomAndMocha =
-                "javascript-code-against-unit-tests-with-dom-and-mocha";
+                "javascript-code-against-unit-tests-with-mochaV20";
 
             // Python
             public const string PythonCode = "python-code";
@@ -61,7 +57,7 @@ namespace OJS.Workers.Common
             // Go
             public const string GoCode = "go-code";
             // HTML and CSS
-            public const string HtmlAndCssZipFile = "html-and-css-zip-file";
+            public const string HtmlAndCssZipFile = "html-and-css-zip-fileV20";
 
             // C++
             public const string CppCode = "cpp-code";
@@ -134,9 +130,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
-                    { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
-                    { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },
@@ -231,9 +225,7 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
                 ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
                 ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
-                ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy,
                 ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
-                ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha,
 
                 // JAVA
                 ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,

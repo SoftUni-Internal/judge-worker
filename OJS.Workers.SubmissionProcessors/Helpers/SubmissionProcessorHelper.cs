@@ -173,7 +173,6 @@
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,
                         GetNodeJsExecutablePath(type),
@@ -182,7 +181,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
                         GetNodeJsExecutablePath(type),
@@ -194,27 +192,7 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                case ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                    executionStrategy = new NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
-                        processExecutorFactory,
-                        GetNodeJsExecutablePath(type),
-                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.JsDomModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.JQueryModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.HandlebarsModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
-                        Settings.BrowserifyModulePath,
-                        Settings.BabelifyModulePath,
-                        Settings.Es2015ImportPluginPath,
-                        Settings.NodeJsBaseTimeUsedInMilliseconds,
-                        Settings.NodeJsBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
                         processExecutorFactory,
                         GetNodeJsExecutablePath(type),
@@ -230,7 +208,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
                         GetNodeJsExecutablePath(type),
@@ -245,30 +222,7 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                    executionStrategy = new NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy(
-                        processExecutorFactory,
-                        GetNodeJsExecutablePath(type),
-                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.JsDomModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.JQueryModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.HandlebarsModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.SinonJsDomModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
-                        Settings.BabelCoreModulePath,
-                        GetJsPackagesPath(type, nameof(Settings.ReactJsxPluginPath)),
-                        GetJsPackagesPath(type, nameof(Settings.ReactModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.ReactDomModulePath)),
-                        GetJsPackagesPath(type, nameof(Settings.NodeFetchModulePath)),
-                        Settings.NodeJsBaseTimeUsedInMilliseconds,
-                        Settings.NodeJsBaseMemoryUsedInBytes);
-                    break;
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy:
                     executionStrategy = new NodeJsZipExecuteHtmlAndCssStrategy(
                         processExecutorFactory,
                         GetNodeJsExecutablePath(type),
@@ -457,23 +411,13 @@
             switch (type)
             {
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     return Settings.NodeJsExecutablePath;
-                case ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck:
-                    return Settings.NodeJsV20ExecutablePath;
                 default:
-                    throw new ArgumentOutOfRangeException($"Type {type} not part of nodeJs strategy types.");
+                    throw new ArgumentOutOfRangeException($"Type: {type} is  not part of NodeJs strategy types.");
             }
         }
 
@@ -482,23 +426,13 @@
             switch (type)
             {
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     return typeof(Settings).GetProperty(package)?.GetValue(null)?.ToString() ?? string.Empty;
-                case ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck:
-                    return typeof(Settings).GetProperty(package + "V20")?.GetValue(null)?.ToString() ?? string.Empty;
                 default:
-                    throw new ArgumentOutOfRangeException($"Type {type} not part of nodeJs strategy types.");
+                    throw new ArgumentOutOfRangeException($"Type: {type} is not part of NodeJs strategy types.");
             }
         }
 

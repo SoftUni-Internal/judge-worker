@@ -36,18 +36,13 @@
 
         public static string NodeJsExecutablePath => SettingsHelper.GetSetting("NodeJsExecutablePath");
 
-        public static string NodeJsV20ExecutablePath => SettingsHelper.GetSetting("NodeJsV20ExecutablePath");
-
         public static string JsProjNodeModules => SettingsHelper.GetSetting("JSProjNodeModules");
 
         public static int JsProjDefaultApplicationPortNumber => SettingsHelper.GetSettingOrDefault("JsProjDefaultApplicationPortNumber", 9636, true);
 
         public static string MochaModulePath => SettingsHelper.GetSetting("MochaModulePath");
 
-        public static string MochaModulePathV20 => SettingsHelper.GetSetting("MochaModulePathV20");
-
         public static string ChaiModulePath => SettingsHelper.GetSetting("ChaiModulePath");
-        public static string ChaiModulePathV20 => SettingsHelper.GetSetting("ChaiModulePathV20");
 
         public static string PlaywrightModulePath => SettingsHelper.GetSetting("PlaywrightModulePath");
 
@@ -55,32 +50,18 @@
 
         public static string JsDomModulePath => SettingsHelper.GetSetting("JsDomModulePath");
 
-        public static string JsDomModulePathV20 => SettingsHelper.GetSetting("JsDomModulePathV20");
-
         public static string JQueryModulePath => SettingsHelper.GetSetting("JQueryModulePath");
-
-        public static string JQueryModulePathV20 => SettingsHelper.GetSetting("JQueryModulePathV20");
 
         public static string HandlebarsModulePath => SettingsHelper.GetSetting("HandlebarsModulePath");
 
-        public static string HandlebarsModulePathV20 => SettingsHelper.GetSetting("HandlebarsModulePathV20");
-
         public static string SinonModulePath => SettingsHelper.GetSetting("SinonModulePath");
-
-        public static string SinonModulePathV20 => SettingsHelper.GetSetting("SinonModulePathV20");
 
         public static string SinonJsDomModulePath => SettingsHelper.GetSetting("SinonJsDomModulePath");
 
-        public static string SinonJsDomModulePathV20 => SettingsHelper.GetSetting("SinonJsDomModulePathV20");
-
         public static string SinonChaiModulePath => SettingsHelper.GetSetting("SinonChaiModulePath");
-
-        public static string SinonChaiModulePathV20 => SettingsHelper.GetSetting("SinonChaiModulePathV20");
 
         public static string UnderscoreModulePath => SettingsHelper.GetSetting("UnderscoreModulePath");
 
-
-        public static string UnderscoreModulePathV20 => SettingsHelper.GetSetting("UnderscoreModulePathV20");
 
         public static string BrowserifyModulePath => SettingsHelper.GetSetting("BrowserifyModulePath");
 
@@ -92,17 +73,11 @@
 
         public static string ReactJsxPluginPath => SettingsHelper.GetSetting("ReactJsxPluginPath");
 
-        public static string ReactJsxPluginPathV20 => SettingsHelper.GetSetting("ReactJsxPluginPathV20");
         public static string ReactModulePath => SettingsHelper.GetSetting("ReactModulePath");
-
-        public static string ReactModulePathV20 => SettingsHelper.GetSetting("ReactModulePathV20");
 
         public static string ReactDomModulePath => SettingsHelper.GetSetting("ReactDOMModulePath");
 
-        public static string ReactDomModulePathV20 => SettingsHelper.GetSetting("ReactDOMModulePathV20");
         public static string NodeFetchModulePath => SettingsHelper.GetSetting("NodeFetchModulePath");
-
-        public static string NodeFetchModulePathV20 => SettingsHelper.GetSetting("NodeFetchModulePathV20");
 
         public static string BootstrapModulePath => SettingsHelper.GetSetting("BootstrapModulePath");
 

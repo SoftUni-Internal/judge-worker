@@ -17,8 +17,6 @@
         MySqlRunQueriesAndCheckDatabase = 17,
         MySqlRunSkeletonRunQueriesAndCheckDatabase = 18,
         NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy = 19,
-        NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha = 20,
-        NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy = 21,
         NodeJsZipExecuteHtmlAndCssStrategy = 22,
         CSharpUnitTestsExecutionStrategy = 23,
         CSharpProjectTestsExecutionStrategy = 24,
@@ -54,13 +52,6 @@
         PostgreSqlRunQueriesAndCheckDatabase = 59,
         PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
         PythonDjangoOrmExecutionStrategy = 61,
-        NodeJsV20PreprocessExecuteAndCheck = 67,
-        NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha = 68,
-        NodeJsV20PreprocessExecuteAndRunJsDomUnitTests = 69,
-        NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy = 70,
-        NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha = 71,
-        NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy = 72,
-        NodeJsV20ZipExecuteHtmlAndCssStrategy = 73,
 
     }
 }

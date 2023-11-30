@@ -13,7 +13,7 @@
 
         private const int MemoryIntervalBetweenTwoMemoryConsumptionRequests = 45;
         private const int TimeIntervalBetweenTwoTimeConsumptionRequests = 10;
-        private const int MinimumMemoryLimitInBytes = 5 * 1024 * 1024;
+        private const int MinimumMemoryLimitInBytes = 1;
 
         private readonly int baseTimeUsed;
         private readonly int baseMemoryUsed;

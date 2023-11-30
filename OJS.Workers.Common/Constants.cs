@@ -21,7 +21,7 @@
         public const int DefaultTimeBeforeAbortingThreadsInMilliseconds = 10000;
 
         public const int DefaultTimeLimitInMilliseconds = 100;
-        public const int DefaultMemoryLimitInBytes = 1;
+        public const int DefaultMemoryLimitInBytes = 16 * 1024 * 1024;
 
         // File extensions
         public const string ClassLibraryFileExtension = ".dll";

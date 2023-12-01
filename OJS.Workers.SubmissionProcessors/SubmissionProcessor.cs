@@ -129,9 +129,19 @@
                     return null;
                 }
 
-                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                try
                 {
-                    this.SubmissionProcessingStrategy.ReleaseSubmission();
+                    if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                    {
+                        this.SubmissionProcessingStrategy.ReleaseSubmission();
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    submission.ExceptionType = ExceptionType.Strategy;
+
+                    this.SubmissionProcessingStrategy.OnError(submission, ex);
                     return null;
                 }
 

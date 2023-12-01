@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
+    using System;
     using System.Collections.Generic;
     using log4net;
     using OJS.Workers.Common;
@@ -35,9 +36,9 @@
             var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
 
             var canProcessSubmission = !isDisabledStrategy
-                   && isEnabledStrategy
-                   && canProcessSubmissionInternal
-                   && !isDisabledCompilerType;
+                                       && isEnabledStrategy
+                                       && canProcessSubmissionInternal
+                                       && !isDisabledCompilerType;
 
             if (canProcessSubmission)
             {
@@ -67,8 +68,17 @@
             }
 
             this.logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
+            if (!canProcessSubmissionInternal)
+            {
+                return false;
+            }
+            else
+            {
+                submission.CompilerComment =
+                    "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
 
-            return false;
+                throw new Exception($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
+            }
         }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)

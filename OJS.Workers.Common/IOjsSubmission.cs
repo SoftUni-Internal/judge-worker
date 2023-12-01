@@ -34,5 +34,7 @@
         DateTime? CompletedExecutionOn { get; set; }
 
         string WorkerEndpoint { get; set; }
+
+        string CompilerComment { get; set; }
     }
 }

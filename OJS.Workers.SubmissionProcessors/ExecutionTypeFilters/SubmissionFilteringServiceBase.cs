@@ -23,11 +23,11 @@
 
         protected abstract ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes { get; }
 
-        public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
+        public WorkerStateForSubmission GetWorkerStateForSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
         {
             if (submission == null)
             {
-                return false;
+                return WorkerStateForSubmission.NullableSubmission;
             }
 
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
@@ -42,43 +42,25 @@
 
             if (canProcessSubmission)
             {
-                return true;
+                return WorkerStateForSubmission.Ready;
             }
-
-            var reason = string.Empty;
 
             if (isDisabledStrategy)
             {
-                reason = "Strategy is disabled.";
+                return WorkerStateForSubmission.DisabledStrategy;
             }
 
             if (!isEnabledStrategy)
             {
-                reason = "Strategy is not enabled.";
+                return WorkerStateForSubmission.NotEnabledStrategy;
             }
 
             if (!canProcessSubmissionInternal)
             {
-                reason = "Cannot be processed by the worker.";
+                return WorkerStateForSubmission.Unhealthy;
             }
 
-            if (isDisabledCompilerType)
-            {
-                reason = "Compiler type is disabled.";
-            }
-
-            this.logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
-            if (!canProcessSubmissionInternal)
-            {
-                return false;
-            }
-            else
-            {
-                submission.CompilerComment =
-                    "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
-
-                throw new Exception($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
-            }
+            return WorkerStateForSubmission.DisabledCompilerType;
         }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)

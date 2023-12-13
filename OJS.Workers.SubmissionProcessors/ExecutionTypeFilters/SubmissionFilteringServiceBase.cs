@@ -25,11 +25,6 @@
 
         public WorkerStateForSubmission GetWorkerStateForSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
         {
-            if (submission == null)
-            {
-                return WorkerStateForSubmission.NullableSubmission;
-            }
-
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
             var isEnabledStrategy = this.IsEnabledStrategy(submission);
             var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);

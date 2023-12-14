@@ -141,7 +141,7 @@
                 {
                     // Could be temporary, so we release the submission back in the queue.
                     this.SubmissionProcessingStrategy.ReleaseSubmission();
-                    this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: Cannot be processed by the worker.");
+                    this.Logger.Error($"Submission with Id: {submission.Id} is returned to the queue, because it cannot be processed by the worker.");
                     return null;
                 }
 

@@ -49,5 +49,7 @@
         public DateTime? CompletedExecutionOn { get; set; }
 
         public string WorkerEndpoint { get; set; }
+
+        public string CompilerComment { get; set; }
     }
 }

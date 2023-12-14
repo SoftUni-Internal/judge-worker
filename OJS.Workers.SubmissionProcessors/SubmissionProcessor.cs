@@ -129,13 +129,48 @@
                     return null;
                 }
 
-                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                var workerStateForSubmission =
+                    this.submissionsFilteringService.GetWorkerStateForSubmission(submission, this.SubmissionWorker);
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Ready)
                 {
+                    return submission;
+                }
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Unhealthy)
+                {
+                    // Could be temporary, so we release the submission back in the queue.
                     this.SubmissionProcessingStrategy.ReleaseSubmission();
+                    this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: Cannot be processed by the worker.");
                     return null;
                 }
 
-                return submission;
+                // At this point we are sure that the submission can never be processed by the worker type it is reserved for, so we treat it as error.
+                var message = string.Empty;
+                switch (workerStateForSubmission)
+                {
+                    case WorkerStateForSubmission.DisabledStrategy:
+                        message = "Strategy is disabled.";
+                        break;
+                    case WorkerStateForSubmission.NotEnabledStrategy:
+                        message = "Strategy is not enabled.";
+                        break;
+                    case WorkerStateForSubmission.DisabledCompilerType:
+                        message = "Compiler type is disabled.";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            $"Worker state for submission: {workerStateForSubmission} is invalid.");
+                }
+
+                submission.CompilerComment =
+                    "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
+
+                this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
+
+                submission.ExceptionType = ExceptionType.Strategy;
+                this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
+                return null;
             }
             catch (Exception ex)
             {

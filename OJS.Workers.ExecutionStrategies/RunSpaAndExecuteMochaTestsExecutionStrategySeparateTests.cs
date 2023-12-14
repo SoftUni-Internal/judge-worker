@@ -15,7 +15,7 @@
     using OJS.Workers.Executors;
     using static OJS.Workers.Common.Constants;
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategy2 : PythonExecuteAndCheckExecutionStrategy
+    public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests : PythonExecuteAndCheckExecutionStrategy
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string MochaTestsPlaceholder = "#mochaTests#";
@@ -28,7 +28,7 @@
         private const string NginxConfFileName = "nginx.conf";
         private readonly Regex testTimeoutRegex = new Regex(@"Timeout (?:of )?\d+ms exceeded\.");
 
-        public RunSpaAndExecuteMochaTestsExecutionStrategy2(
+        public RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
             IProcessExecutorFactory processExecutorFactory,
             string pythonExecutablePath,
             string jsProjNodeModulesPath,
@@ -259,6 +259,14 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
+            if (executionContext.Input.TaskSkeletonAsString.Equals(""))
+            {
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = "Submission type skeleton must not be empty.";
+
+                return result;
+            }
+
             try
             {
                 this.ExtractSubmissionFiles(executionContext);
@@ -287,6 +295,7 @@ http {{
             {
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = "Failed running strategy pre execute step, please contact an Administrator";
+
                 return result;
             }
 
@@ -300,45 +309,46 @@ http {{
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            result.Results.AddRange(
-                executionContext.Input.Tests
-                    .Select(
-                        test => this.RunIndividualTest(
-                            codeSavePath,
-                            executor,
-                            executionContext,
-                            test,
-                            test.Id == executionContext.Input.Tests.Last().Id))
-                    .SelectMany(resultList => resultList));
-            return result;
-        }
-
-        protected override IExecutor CreateExecutor()
-            => this.CreateExecutor(ProcessExecutorType.Standard);
-
-        private ICollection<TestResult> RunIndividualTest(
-            string codeSavePath,
-            IExecutor executor,
-            IExecutionContext<TestsInputModel> executionContext,
-            TestContext test,
-            bool shouldKillContainer)
-        {
-            var filePath = this.BuildTestPath(test.Id);
+            var filePath = this.BuildTestPath("tests");
 
             // pass in container name in order to close container after execution
             // pass test file path to mocha so it executes only this test file, and not all test files each run
             var processedPythonCodeTemplate = this.PythonCodeTemplate
                 .Replace(ContainerNamePlaceholder, this.ContainerName)
                 .Replace(TestFilePathPlaceholder, filePath)
-                .Replace(KillContainerPlaceholder, shouldKillContainer ? "True" : "False");
+                .Replace(KillContainerPlaceholder, "True");
 
             var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
-            this.SaveTestsToFiles(executionContext.Input.Tests);
+            var testsConcatenated = String.Join(
+                $"{Environment.NewLine}{Environment.NewLine}",
+                executionContext
+                    .Input
+                    .Tests
+                    .Select(t => t.Input));
 
-            var processExecutionResult = this.Execute(executionContext, executor, mainCodeSavePath, test.Input);
-            return this.ExtractTestResultsFromReceivedOutput(processExecutionResult.ReceivedOutput, test.Id);
+            var skeletonWithTests = executionContext
+                .Input
+                .TaskSkeletonAsString
+                .Replace(MochaTestsPlaceholder, testsConcatenated);
+
+            FileHelpers.SaveStringToFile(
+                this.PreprocessTestInput(skeletonWithTests),
+                filePath);
+
+            var processExecutionResult = this.Execute(executionContext, executor, mainCodeSavePath, skeletonWithTests);
+
+            var testResults = this.ExtractTestResultsFromReceivedOutput(
+                processExecutionResult.ReceivedOutput,
+                executionContext.Input.Tests);
+
+            result.Results.AddRange(testResults);
+
+            return result;
         }
+
+        protected override IExecutor CreateExecutor()
+            => this.CreateExecutor(ProcessExecutorType.Standard);
 
         private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
         {
@@ -373,7 +383,7 @@ http {{
             }
         }
 
-        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, int parentTestId)
+        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, IEnumerable<TestContext> tests)
         {
             JsonExecutionResult mochaResult = JsonExecutionResult.Parse(this.PreproccessReceivedExecutionOutput(receivedOutput));
             if (mochaResult.TotalTests == 0)
@@ -382,7 +392,7 @@ http {{
                 {
                     new TestResult
                     {
-                        Id = parentTestId,
+                        Id = 0,
                         IsTrialTest = false,
                         ResultType = TestRunResultType.WrongAnswer,
                         CheckerDetails = new CheckerDetails
@@ -393,12 +403,21 @@ http {{
                 };
             }
 
+            var titlesToTestsMapping = this.MapTitlesToTestId(
+                tests, mochaResult.TestTitles);
+
             return mochaResult.TestErrors
-                .Select((test, index) => this.ParseTestResult(test, parentTestId, index, mochaResult.TestTitles))
+                .Select((test, index) => this.ParseTestResult(test, titlesToTestsMapping, index, mochaResult.TestTitles))
                 .ToList();
         }
 
-        private TestResult ParseTestResult(string testResult, int parentTestId, int index, List<string> testTitles)
+        private Dictionary<string, int> MapTitlesToTestId(IEnumerable<TestContext> tests, IEnumerable<string> titles)
+            => titles.ToDictionary(
+                title => title,
+                title => tests.FirstOrDefault(t => t.Input.Contains(title.Replace("E2E tests ", "")))?.Id ?? 0
+            );
+
+        private TestResult ParseTestResult(string testResult, Dictionary<string, int> titlesToTestsMapping, int index, List<string> testTitles)
         {
             var isTimeout = false;
             if (testResult != null)
@@ -408,7 +427,7 @@ http {{
 
             return new TestResult
             {
-                Id = parentTestId,
+                Id = titlesToTestsMapping[testTitles[index]],
                 IsTrialTest = false,
                 ResultType = testResult == null
                                 ? TestRunResultType.CorrectAnswer
@@ -437,17 +456,15 @@ http {{
         private void SaveNginxFile()
             => FileHelpers.SaveStringToFile(this.NginxFileContent, this.NginxConfFileFullPath);
 
-        private void SaveTestsToFiles(IEnumerable<TestContext> tests)
+        private void SaveTestsAndSkeleton(string skeleton, IEnumerable<TestContext> tests)
         {
-            foreach (var test in tests)
-            {
-                var testInputContent = this.PreprocessTestInput(test.Input);
-                var filePath = this.BuildTestPath(test.Id);
+            var testsConcatenated = String.Join("\n\n\t", tests.Select(t => t.Input));
 
-                FileHelpers.SaveStringToFile(
-                    testInputContent,
-                    filePath);
-            }
+            var skeletonWithTests = skeleton.Replace(MochaTestsPlaceholder, testsConcatenated);
+
+            var playwrightFilePath = FileHelpers.SaveStringToFile(
+                this.PreprocessTestInput(skeletonWithTests),
+                FileHelpers.BuildPath(this.TestsPath, "tests.js"));
         }
 
         private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
@@ -509,11 +526,9 @@ http {{
             testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
                 .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
 
-            return OsPlatformHelpers.IsDocker()
-                ? testInput.Replace("localhost", "host.docker.internal")
-                : testInput;
+            return testInput.Replace("localhost", "host.docker.internal");
         }
 
-        private string BuildTestPath(int testId) => FileHelpers.BuildPath(this.TestsPath, $"{testId}{JavaScriptFileExtension}");
+        private string BuildTestPath(string fileName) => FileHelpers.BuildPath(this.TestsPath, $"{fileName}{JavaScriptFileExtension}");
     }
 }

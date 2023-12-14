@@ -83,7 +83,7 @@
                 }
             }
 
-            if (forceErrorExtracting)
+            if (forceErrorExtracting || totalTests <= 0)
             {
                 try
                 {

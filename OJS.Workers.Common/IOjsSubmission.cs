@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.Common
 {
+    using System;
     using OJS.Workers.Common.Models;
 
     public interface IOjsSubmission
@@ -27,5 +28,9 @@
         ExecutionStrategyType ExecutionStrategyType { get; }
 
         ExceptionType ExceptionType { get; set; }
+
+        DateTime? StartedExecutionOn { get; set; }
+
+        DateTime? CompletedExecutionOn { get; set; }
     }
 }

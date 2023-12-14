@@ -47,6 +47,8 @@
             var result = this.ExecuteSubmissionRemotely(testInputSubmission, submissionRequestBody);
 
             var executionResult = new ExecutionResult<TResult>();
+            executionResult.StartedExecutionOn = result.StartedExecutionOn;
+            executionResult.CompletedExecutionOn = result.CompletedExecutionOn;
 
             if (result == null)
             {
@@ -60,6 +62,7 @@
                     $"RSP {this.Location} returned {nameof(result.Exception)} for #{submission.Id} with message: " +
                     $"{result.Exception.Message} and stack trace: {result.Exception.StackTrace}");
                 executionResult.CompilerComment = result.Exception.Message;
+
                 return executionResult;
             }
 
@@ -73,18 +76,15 @@
             this.logger.Info(
                 $"RSP {this.Location} successfully returned {nameof(result.ExecutionResult)} for #{submission.Id}.");
 
-            executionResult = new ExecutionResult<TResult>
-            {
-                CompilerComment = result.ExecutionResult.CompilerComment,
-                IsCompiledSuccessfully = result.ExecutionResult.IsCompiledSuccessfully,
-                Results = result.ExecutionResult.TaskResult.TestResults
-                    .Select(testResult =>
-                    {
-                        var test = testInputSubmission.Input.Tests.FirstOrDefault(t => t.Id == testResult.Id);
-                        return this.BuildTestResult<TResult>(test, testResult);
-                    })
-                    .ToList(),
-            };
+            executionResult.CompilerComment = result.ExecutionResult.CompilerComment;
+            executionResult.IsCompiledSuccessfully = result.ExecutionResult.IsCompiledSuccessfully;
+            executionResult.Results = result.ExecutionResult.TaskResult.TestResults
+                .Select(testResult =>
+                {
+                    var test = testInputSubmission.Input.Tests.FirstOrDefault(t => t.Id == testResult.Id);
+                    return this.BuildTestResult<TResult>(test, testResult);
+                })
+                .ToList();
 
             return executionResult;
         }
@@ -180,6 +180,8 @@
 
             submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
             submission.ExceptionType = ExceptionType.Strategy;
+            submission.StartedExecutionOn = result.StartedExecutionOn;
+            submission.CompletedExecutionOn = result.CompletedExecutionOn;
             throw new Exception(result.Exception.Message);
         }
     }

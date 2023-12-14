@@ -14,9 +14,8 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
     public class PythonProjectTestsExecutionStrategy : PythonCodeExecuteAgainstUnitTestsExecutionStrategy
     {
+        protected string[] testPaths;
         private const string TestsFolderName = "tests";
-
-        private string[] testPaths;
 
         public PythonProjectTestsExecutionStrategy(
             IProcessExecutorFactory processExecutorFactory,
@@ -84,7 +83,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         /// Full paths to the files are preserved in a private field.
         /// </summary>
         /// <param name="tests">All tests from the execution context</param>
-        private void SaveTests(IList<TestContext> tests)
+        protected void SaveTests(IList<TestContext> tests)
         {
             var testsDirectoryName = FileHelpers.BuildPath(this.WorkingDirectory, TestsFolderName);
 

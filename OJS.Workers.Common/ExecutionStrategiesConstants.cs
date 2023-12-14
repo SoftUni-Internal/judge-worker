@@ -83,8 +83,8 @@ namespace OJS.Workers.Common
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
 
-            // Run SPA and Execute mocha tests 2
-            public const string RunSpaAndExecuteMochaTestsExecutionStrategy2 = "run-spa-and-execute-mocha-tests-2";
+            // Run SPA and Execute mocha tests separate tests
+            public const string RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = "run-spa-and-execute-mocha-tests-separate-tests";
 
             // PostgreSql
             public const string PostgreSqlPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
@@ -168,7 +168,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
                     // Run SPA and Execute mocha tests
-                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy2, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy2 },
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy2 },
 
                     // PostgreSql
                     { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },

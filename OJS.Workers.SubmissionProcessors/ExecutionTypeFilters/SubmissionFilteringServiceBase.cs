@@ -27,18 +27,8 @@
         {
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
             var isEnabledStrategy = this.IsEnabledStrategy(submission);
-            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
             var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
-
-            var canProcessSubmission = !isDisabledStrategy
-                                       && isEnabledStrategy
-                                       && canProcessSubmissionInternal
-                                       && !isDisabledCompilerType;
-
-            if (canProcessSubmission)
-            {
-                return WorkerStateForSubmission.Ready;
-            }
+            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
 
             if (isDisabledStrategy)
             {
@@ -50,12 +40,17 @@
                 return WorkerStateForSubmission.NotEnabledStrategy;
             }
 
+            if (!isDisabledCompilerType)
+            {
+                return WorkerStateForSubmission.DisabledCompilerType;
+            }
+
             if (!canProcessSubmissionInternal)
             {
                 return WorkerStateForSubmission.Unhealthy;
             }
 
-            return WorkerStateForSubmission.DisabledCompilerType;
+            return WorkerStateForSubmission.Ready;
         }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)

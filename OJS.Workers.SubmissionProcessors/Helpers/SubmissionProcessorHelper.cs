@@ -289,7 +289,7 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
-                case ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy2:
+                case ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests:
                     executionStrategy = new RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
                         processExecutorFactory,
                         Settings.PythonExecutablePath,

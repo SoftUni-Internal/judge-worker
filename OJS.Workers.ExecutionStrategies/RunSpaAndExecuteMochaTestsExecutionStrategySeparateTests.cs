@@ -19,6 +19,7 @@
     {
         private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
         private const string MochaTestsPlaceholder = "#mochaTests#";
+        private const string MochaTestsFullTitlePrefix = "E2E tests";
         private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
         private const string KillContainerPlaceholder = "#killContainerPlaceholder#";
         private const string TestFilePathPlaceholder = "#testFilePathPlaceholder#";
@@ -414,7 +415,12 @@ http {{
         private Dictionary<string, int> MapTitlesToTestId(IEnumerable<TestContext> tests, IEnumerable<string> titles)
             => titles.ToDictionary(
                 title => title,
-                title => tests.FirstOrDefault(t => t.Input.Contains(title.Replace("E2E tests ", "")))?.Id ?? 0
+                title => tests.FirstOrDefault(t => t
+                    .Input
+                    .Contains(title
+                        .Replace(MochaTestsFullTitlePrefix, "")
+                        .Trim()))?
+                    .Id ?? 0
             );
 
         private TestResult ParseTestResult(string testResult, Dictionary<string, int> titlesToTestsMapping, int index, List<string> testTitles)

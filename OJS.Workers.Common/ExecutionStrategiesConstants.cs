@@ -168,7 +168,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
                     // Run SPA and Execute mocha tests
-                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy2 },
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests },
 
                     // PostgreSql
                     { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },
@@ -203,7 +203,7 @@ namespace OJS.Workers.Common
 
                 // JS Project strategy
                 ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
-                ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy2,
+                ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests,
                 ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
 
                 // MySQL strategies

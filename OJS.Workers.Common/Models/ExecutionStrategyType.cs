@@ -54,6 +54,6 @@
         PostgreSqlRunQueriesAndCheckDatabase = 59,
         PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
         PythonDjangoOrmExecutionStrategy = 61,
-        RunSpaAndExecuteMochaTestsExecutionStrategy2 = 62,
+        RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = 62,
     }
 }

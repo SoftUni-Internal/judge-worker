@@ -155,9 +155,6 @@
                         case WorkerStateForSubmission.NotEnabledStrategy:
                             message = "Strategy is not enabled.";
                             break;
-                        case WorkerStateForSubmission.NullableSubmission:
-                            message = "Submission is null";
-                            break;
                         case WorkerStateForSubmission.DisabledCompilerType:
                             message = "Compiler type is disabled.";
                             break;
@@ -166,11 +163,8 @@
                                 $"Worker state for submission: {workerStateForSubmission} is invalid.");
                     }
 
-                    if (workerStateForSubmission != WorkerStateForSubmission.NullableSubmission)
-                    {
                         submission.CompilerComment =
                             "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
-                    }
 
                     this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
 

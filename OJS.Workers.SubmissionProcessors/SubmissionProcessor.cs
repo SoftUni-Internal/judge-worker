@@ -163,7 +163,7 @@
                             $"Worker state for submission: {workerStateForSubmission} is invalid.");
                 }
 
-                submission.CompilerComment =
+                submission.ProcessingComment =
                     "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
 
                 this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");

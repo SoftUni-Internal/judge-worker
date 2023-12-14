@@ -40,7 +40,7 @@
                 return WorkerStateForSubmission.NotEnabledStrategy;
             }
 
-            if (!isDisabledCompilerType)
+            if (isDisabledCompilerType)
             {
                 return WorkerStateForSubmission.DisabledCompilerType;
             }

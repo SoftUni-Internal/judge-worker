@@ -88,36 +88,6 @@
             where TResult : class, ISingleCodeRunResult, new()
             => this.SubmissionWorker.RunSubmission<TInput, TResult>(submission);
 
-        protected void BeforeExecute(IOjsSubmission submission)
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.BeforeExecute();
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-
-                throw new Exception($"Exception in {nameof(this.SubmissionProcessingStrategy.BeforeExecute)}", ex);
-            }
-        }
-
-        protected void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
-            where TOutput : ISingleCodeRunResult, new()
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
-            }
-        }
-
         private IOjsSubmission GetSubmissionForProcessing()
         {
             try
@@ -129,13 +99,44 @@
                     return null;
                 }
 
-                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                var workerStateForSubmission =
+                    this.submissionsFilteringService.GetWorkerStateForSubmission(submission, this.SubmissionWorker);
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Ready)
                 {
+                    return submission;
+                }
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Unhealthy)
+                {
+                    // Could be temporary, so we release the submission back in the queue.
                     this.SubmissionProcessingStrategy.ReleaseSubmission();
+                    this.Logger.Error($"Submission with Id: {submission.Id} is returned to the queue, because it cannot be processed by the worker.");
                     return null;
                 }
 
-                return submission;
+                // At this point we are sure that the submission can never be processed by the worker type it is reserved for, so we treat it as error.
+                var message = string.Empty;
+                switch (workerStateForSubmission)
+                {
+                    case WorkerStateForSubmission.DisabledStrategy:
+                        message = "Strategy is disabled.";
+                        break;
+                    case WorkerStateForSubmission.NotEnabledStrategy:
+                        message = "Strategy is not enabled.";
+                        break;
+                    case WorkerStateForSubmission.DisabledCompilerType:
+                        message = "Compiler type is disabled.";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            $"Worker state for submission: {workerStateForSubmission} is invalid.");
+                }
+
+                this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
+
+                this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
+                return null;
             }
             catch (Exception ex)
             {
@@ -149,13 +150,13 @@
         {
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} started.");
 
-            this.BeforeExecute(submission);
+            this.SubmissionProcessingStrategy.BeforeExecute();
 
             var executionResult = this.HandleProcessSubmission<TInput, TResult>(submission);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} ended.");
 
-            this.ProcessExecutionResult(executionResult, submission);
+            this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Submission #{submission.Id} successfully processed.");
         }

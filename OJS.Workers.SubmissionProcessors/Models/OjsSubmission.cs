@@ -13,8 +13,6 @@
 
         public string AdditionalCompilerArguments { get; set; }
 
-        public string ProcessingComment { get; set; }
-
         public int MemoryLimit { get; set; }
 
         public int TimeLimit { get; set; }

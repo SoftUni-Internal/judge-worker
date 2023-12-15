@@ -1,5 +1,6 @@
 ﻿namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
+    using System;
     using System.Collections.Generic;
     using log4net;
     using OJS.Workers.Common;
@@ -22,53 +23,34 @@
 
         protected abstract ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes { get; }
 
-        public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
+        public WorkerStateForSubmission GetWorkerStateForSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
         {
-            if (submission == null)
-            {
-                return false;
-            }
-
             var isDisabledStrategy = this.IsDisabledStrategy(submission);
             var isEnabledStrategy = this.IsEnabledStrategy(submission);
-            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
             var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
-
-            var canProcessSubmission = !isDisabledStrategy
-                   && isEnabledStrategy
-                   && canProcessSubmissionInternal
-                   && !isDisabledCompilerType;
-
-            if (canProcessSubmission)
-            {
-                return true;
-            }
-
-            var reason = string.Empty;
+            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
 
             if (isDisabledStrategy)
             {
-                reason = "Strategy is disabled.";
+                return WorkerStateForSubmission.DisabledStrategy;
             }
 
             if (!isEnabledStrategy)
             {
-                reason = "Strategy is not enabled.";
-            }
-
-            if (!canProcessSubmissionInternal)
-            {
-                reason = "Cannot be processed by the worker.";
+                return WorkerStateForSubmission.NotEnabledStrategy;
             }
 
             if (isDisabledCompilerType)
             {
-                reason = "Compiler type is disabled.";
+                return WorkerStateForSubmission.DisabledCompilerType;
             }
 
-            this.logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {reason} ");
+            if (!canProcessSubmissionInternal)
+            {
+                return WorkerStateForSubmission.Unhealthy;
+            }
 
-            return false;
+            return WorkerStateForSubmission.Ready;
         }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)

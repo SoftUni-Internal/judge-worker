@@ -4,6 +4,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
     using System.Collections.Generic;
     using log4net;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Common;
@@ -54,7 +55,7 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
             }
             catch (Exception ex)
             {
-                this.logger.Error($"Exception in getting remote worker health response from '{url}'. Reason: {ex.Message}.");
+                this.logger.Error($"Exception in getting remote worker health response from '{url}'. Reason: {ex.GetAllMessages()}.");
                 return false;
             }
         }

@@ -66,6 +66,7 @@
 
         public static string UnderscoreModulePath => SettingsHelper.GetSetting("UnderscoreModulePath");
 
+
         public static string BrowserifyModulePath => SettingsHelper.GetSetting("BrowserifyModulePath");
 
         public static string BabelifyModulePath => SettingsHelper.GetSetting("BabelifyModulePath");

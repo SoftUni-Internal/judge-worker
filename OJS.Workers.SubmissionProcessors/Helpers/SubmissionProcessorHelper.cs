@@ -179,103 +179,64 @@
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.UnderscoreModulePath,
+                        GetNodeJsExecutablePath(type),
+                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
                         Settings.NodeJsBaseTimeUsedInMilliseconds * 2,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.UnderscoreModulePath,
-                        Settings.NodeJsBaseTimeUsedInMilliseconds,
-                        Settings.NodeJsBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                    executionStrategy = new NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
-                        processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.JsDomModulePath,
-                        Settings.JQueryModulePath,
-                        Settings.HandlebarsModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.UnderscoreModulePath,
-                        Settings.BrowserifyModulePath,
-                        Settings.BabelifyModulePath,
-                        Settings.Es2015ImportPluginPath,
+                        GetNodeJsExecutablePath(type),
+                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.JsDomModulePath,
-                        Settings.JQueryModulePath,
-                        Settings.HandlebarsModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.UnderscoreModulePath,
+                        GetNodeJsExecutablePath(type),
+                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JsDomModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JQueryModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.HandlebarsModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.JsDomModulePath,
-                        Settings.JQueryModulePath,
-                        Settings.HandlebarsModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.UnderscoreModulePath,
-                        Settings.NodeJsBaseTimeUsedInMilliseconds,
-                        Settings.NodeJsBaseMemoryUsedInBytes);
-                    break;
-                case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                    executionStrategy = new NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy(
-                        processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.JsDomModulePath,
-                        Settings.JQueryModulePath,
-                        Settings.HandlebarsModulePath,
-                        Settings.SinonJsDomModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.UnderscoreModulePath,
-                        Settings.BabelCoreModulePath,
-                        Settings.ReactJsxPluginPath,
-                        Settings.ReactModulePath,
-                        Settings.ReactDomModulePath,
-                        Settings.NodeFetchModulePath,
+                        GetNodeJsExecutablePath(type),
+                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JsDomModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JQueryModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.HandlebarsModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
                     executionStrategy = new NodeJsZipExecuteHtmlAndCssStrategy(
                         processExecutorFactory,
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
-                        Settings.JsDomModulePath,
-                        Settings.JQueryModulePath,
-                        Settings.UnderscoreModulePath,
+                        GetNodeJsExecutablePath(type),
+                        GetJsPackagesPath(type, nameof(Settings.MochaModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.ChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.SinonChaiModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JsDomModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.JQueryModulePath)),
+                        GetJsPackagesPath(type, nameof(Settings.UnderscoreModulePath)),
                         Settings.BootstrapModulePath,
                         Settings.BootstrapCssPath,
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
@@ -447,6 +408,36 @@
                 TimeLimit = submission.TimeLimit,
                 Input = submission.Input
             };
+        }
+
+        private static string GetNodeJsExecutablePath(ExecutionStrategyType type)
+        {
+            switch (type)
+            {
+                case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
+                    return Settings.NodeJsExecutablePath;
+                default:
+                    throw new ArgumentOutOfRangeException($"Type: {type} is  not part of NodeJs strategy types.");
+            }
+        }
+
+        private static string GetJsPackagesPath(ExecutionStrategyType type, string package)
+        {
+            switch (type)
+            {
+                case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
+                    return typeof(Settings).GetProperty(package)?.GetValue(null)?.ToString() ?? string.Empty;
+                default:
+                    throw new ArgumentOutOfRangeException($"Type: {type} is not part of NodeJs strategy types.");
+            }
         }
 
         private static string GetCompilerPath(CompilerType type)

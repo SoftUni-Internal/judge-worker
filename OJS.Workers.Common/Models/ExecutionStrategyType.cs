@@ -58,6 +58,13 @@
         Java17ZipFileCompileExecuteAndCheck = 63,
         Java17UnitTestsExecutionStrategy = 64,
         Java17SpringAndHibernateProjectExecution = 65,
-        Java17PreprocessCompileExecuteAndCheck = 66
+        Java17PreprocessCompileExecuteAndCheck = 66,
+        NodeJsV20PreprocessExecuteAndCheck = 67,
+        NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha = 68,
+        NodeJsV20PreprocessExecuteAndRunJsDomUnitTests = 69,
+        NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy = 70,
+        NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha = 71,
+        NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy = 72,
+        NodeJsV20ZipExecuteHtmlAndCssStrategy = 73,
     }
 }

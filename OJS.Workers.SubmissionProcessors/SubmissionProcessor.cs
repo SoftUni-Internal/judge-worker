@@ -88,7 +88,6 @@
             where TResult : class, ISingleCodeRunResult, new()
             => this.SubmissionWorker.RunSubmission<TInput, TResult>(submission);
 
-
         private IOjsSubmission GetSubmissionForProcessing()
         {
             try

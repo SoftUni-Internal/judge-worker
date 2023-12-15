@@ -90,47 +90,36 @@
             return executionResult;
         }
 
-        private object BuildRequestBody(OjsSubmission<TestsInputModel> submission)
-        {
-            try
+        private object BuildRequestBody(OjsSubmission<TestsInputModel> submission) =>
+            new
             {
-                return new
-                {
-                    ExecutionType = this.formatterServicesFactory.Get<ExecutionType>()
+                ExecutionType = this.formatterServicesFactory.Get<ExecutionType>()
                         .Format(submission.ExecutionType),
-                    ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
+                ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
                         .Format(submission.ExecutionStrategyType),
-                    FileContent = string.IsNullOrEmpty(submission.Code)
+                FileContent = string.IsNullOrEmpty(submission.Code)
                         ? submission.FileContent
                         : null,
-                    Code = submission.Code ?? string.Empty,
-                    submission.TimeLimit,
-                    submission.MemoryLimit,
-                    ExecutionDetails = new
-                    {
-                        submission.MaxPoints,
-                        CheckerType = this.formatterServicesFactory.Get<string>()
+                Code = submission.Code ?? string.Empty,
+                submission.TimeLimit,
+                submission.MemoryLimit,
+                ExecutionDetails = new
+                {
+                    submission.MaxPoints,
+                    CheckerType = this.formatterServicesFactory.Get<string>()
                             .Format(submission.Input.CheckerTypeName),
-                        submission.Input.CheckerParameter,
-                        submission.Input.Tests,
-                        submission.Input.TaskSkeleton,
-                        submission.Input.TaskSkeletonAsString,
-                    },
-                    ExecutionOptions = new
-                    {
-                        KeepDetails = true,
-                        EscapeTests = false,
-                        EscapeLineEndings = true,
-                    },
-                };
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception in building request body: {ex.Message}";
-
-                throw new Exception($"Exception in {nameof(this.BuildRequestBody)}", ex);
-            }
-        }
+                    submission.Input.CheckerParameter,
+                    submission.Input.Tests,
+                    submission.Input.TaskSkeleton,
+                    submission.Input.TaskSkeletonAsString,
+                },
+                ExecutionOptions = new
+                {
+                    KeepDetails = true,
+                    EscapeTests = false,
+                    EscapeLineEndings = true,
+                },
+            };
 
         private TResult BuildTestResult<TResult>(TestContext test, TestResultResponseModel testResult)
             where TResult : class
@@ -169,7 +158,6 @@
             }
             catch (Exception ex)
             {
-                submission.ProcessingComment = $"Exception in getting remote submission result: {ex.Message}";
                 submission.ExceptionType = ExceptionType.Remote;
                 submission.WorkerEndpoint = this.Location;
                 throw new Exception($"Exception in {nameof(this.ExecuteSubmissionRemotely)}", ex);
@@ -181,8 +169,6 @@
                 return result;
             }
 
-            submission.ProcessingComment = $"Exception in executing the submission: {result.Exception.Message}";
-            submission.ExceptionType = ExceptionType.Strategy;
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
             submission.WorkerEndpoint = this.Location;

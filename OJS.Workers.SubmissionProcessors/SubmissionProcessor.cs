@@ -88,35 +88,6 @@
             where TResult : class, ISingleCodeRunResult, new()
             => this.SubmissionWorker.RunSubmission<TInput, TResult>(submission);
 
-        protected void BeforeExecute(IOjsSubmission submission)
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.BeforeExecute();
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-
-                throw new Exception($"Exception in {nameof(this.SubmissionProcessingStrategy.BeforeExecute)}", ex);
-            }
-        }
-
-        protected void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
-            where TOutput : ISingleCodeRunResult, new()
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
-            }
-        }
 
         private IOjsSubmission GetSubmissionForProcessing()
         {
@@ -163,12 +134,8 @@
                             $"Worker state for submission: {workerStateForSubmission} is invalid.");
                 }
 
-                submission.ProcessingComment =
-                    "The submission cannot be handled due to unsupported submission type. Please contact an Administrator.";
-
                 this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
 
-                submission.ExceptionType = ExceptionType.Strategy;
                 this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
                 return null;
             }
@@ -184,13 +151,13 @@
         {
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} started.");
 
-            this.BeforeExecute(submission);
+            this.SubmissionProcessingStrategy.BeforeExecute();
 
             var executionResult = this.HandleProcessSubmission<TInput, TResult>(submission);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} ended.");
 
-            this.ProcessExecutionResult(executionResult, submission);
+            this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Submission #{submission.Id} successfully processed.");
         }

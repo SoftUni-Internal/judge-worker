@@ -13,8 +13,6 @@
 
         public string AdditionalCompilerArguments { get; set; }
 
-        public string ProcessingComment { get; set; }
-
         public int MemoryLimit { get; set; }
 
         public int TimeLimit { get; set; }
@@ -49,7 +47,5 @@
         public DateTime? CompletedExecutionOn { get; set; }
 
         public string WorkerEndpoint { get; set; }
-
-        public string CompilerComment { get; set; }
     }
 }

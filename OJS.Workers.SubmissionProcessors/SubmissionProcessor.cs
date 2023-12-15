@@ -19,6 +19,7 @@
         private readonly List<WorkerType> workerTypes;
         private readonly IDependencyContainer dependencyContainer;
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
+        private readonly int maximumSubmissionProcessingFailures = 5;
         private bool stopping;
 
         public SubmissionProcessor(
@@ -107,8 +108,19 @@
                     return submission;
                 }
 
+                var message = string.Empty;
+
                 if (workerStateForSubmission == WorkerStateForSubmission.Unhealthy)
                 {
+                    if (this.SubmissionProcessingStrategy.GetSubmissionForProcessingFailureCount()
+                        >= this.maximumSubmissionProcessingFailures)
+                    {
+                        message = $"Submission cannot be processed by the remote worker.The health check of the worker failed.";
+                        this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
+                        this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
+                        return null;
+                    }
+
                     // Could be temporary, so we release the submission back in the queue.
                     this.SubmissionProcessingStrategy.ReleaseSubmission();
                     this.Logger.Error($"Submission with Id: {submission.Id} is returned to the queue, because it cannot be processed by the worker.");
@@ -116,7 +128,6 @@
                 }
 
                 // At this point we are sure that the submission can never be processed by the worker type it is reserved for, so we treat it as error.
-                var message = string.Empty;
                 switch (workerStateForSubmission)
                 {
                     case WorkerStateForSubmission.DisabledStrategy:

@@ -82,7 +82,7 @@ namespace OJS.Workers.Common
 
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
-            
+
             // Run SPA and Execute mocha tests separate tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = "run-spa-and-execute-mocha-tests-separate-tests";
 
@@ -166,7 +166,7 @@ namespace OJS.Workers.Common
 
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
-                    
+
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests },
 

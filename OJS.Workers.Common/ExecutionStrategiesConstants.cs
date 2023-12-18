@@ -83,6 +83,9 @@ namespace OJS.Workers.Common
             // Run SPA and Execute mocha tests
             public const string RunSpaAndExecuteMochaTestsExecutionStrategy = "run-spa-and-execute-mocha-tests";
 
+            // Run SPA and Execute mocha tests separate tests
+            public const string RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = "run-spa-and-execute-mocha-tests-separate-tests";
+
             // PostgreSql
             public const string PostgreSqlPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
             public const string PostgreSqlRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
@@ -166,6 +169,9 @@ namespace OJS.Workers.Common
                     // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategy, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy },
 
+                    // Run SPA and Execute mocha tests
+                    { ExecutionStrategyNames.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests, ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests },
+
                     // PostgreSql
                     { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },
                     { ExecutionStrategyNames.PostgreSqlRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase },
@@ -199,6 +205,7 @@ namespace OJS.Workers.Common
 
                 // JS Project strategy
                 ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategy,
+                ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests,
                 ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy,
 
                 // MySQL strategies

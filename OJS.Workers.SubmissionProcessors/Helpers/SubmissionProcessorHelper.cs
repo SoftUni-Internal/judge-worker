@@ -254,6 +254,18 @@
                         Settings.NodeJsBaseTimeUsedInMilliseconds,
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
+                case ExecutionStrategyType.RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests:
+                    executionStrategy = new RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
+                        processExecutorFactory,
+                        Settings.PythonExecutablePath,
+                        Settings.JsProjNodeModules,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.PlaywrightChromiumModulePath,
+                        Settings.JsProjDefaultApplicationPortNumber,
+                        Settings.NodeJsBaseTimeUsedInMilliseconds,
+                        Settings.NodeJsBaseMemoryUsedInBytes);
+                    break;
                 case ExecutionStrategyType.PythonExecuteAndCheck:
                     executionStrategy = new PythonExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,

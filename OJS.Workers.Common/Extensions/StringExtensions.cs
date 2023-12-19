@@ -81,5 +81,20 @@
                         ? "-" + x
                         : x.ToString()))
                 .ToLower();
+
+        public static string TrimFromEnd(this string source, string wordToTrim)
+        {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(wordToTrim))
+            {
+                return source;
+            }
+
+            if (source.EndsWith(wordToTrim, StringComparison.Ordinal))
+            {
+                return source.Substring(0, source.Length - wordToTrim.Length);
+            }
+
+            return source;
+        }
     }
 }

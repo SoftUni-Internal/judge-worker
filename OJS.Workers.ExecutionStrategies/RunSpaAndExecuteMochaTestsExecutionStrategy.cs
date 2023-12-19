@@ -414,9 +414,14 @@ http {{
                                 : isTimeout
                                     ? TestRunResultType.TimeLimit
                                     : TestRunResultType.WrongAnswer,
-                CheckerDetails = testResult == null
-                                ? default(CheckerDetails)
-                                : new CheckerDetails { UserOutputFragment = isTimeout ? $"{testTitles[index]}\n{testResult}" : testResult },
+                CheckerDetails = new CheckerDetails
+                {
+                    Comment = string.Empty,
+                    ExpectedOutputFragment = string.Empty,
+                    UserOutputFragment = isTimeout
+                        ? $"{testTitles[index]}\n{testResult}"
+                        : testResult
+                },
             };
         }
 

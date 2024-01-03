@@ -27,6 +27,8 @@
 
         void SetSubmissionToProcessing();
 
+        int GetSubmissionForProcessingFailureCount();
+
         void ReleaseSubmission();
     }
 }

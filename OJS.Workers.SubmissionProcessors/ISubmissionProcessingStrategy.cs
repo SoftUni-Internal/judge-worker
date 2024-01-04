@@ -23,9 +23,11 @@
         void ProcessExecutionResult<TResult>(IExecutionResult<TResult> executionResult)
             where TResult : ISingleCodeRunResult, new();
 
-        void OnError(IOjsSubmission submission, Exception ex);
+        void OnProcessingSubmissionError(IOjsSubmission submission, Exception ex);
 
-        void SetSubmissionToProcessing();
+        void OnRetrieveSubmissionError(IOjsSubmission submissionModel, string message);
+
+        void SetSubmissionToProcessed();
 
         int GetSubmissionForProcessingFailureCount();
 

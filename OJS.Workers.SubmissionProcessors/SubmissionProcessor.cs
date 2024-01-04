@@ -117,7 +117,9 @@
                     {
                         message = $"Submission cannot be processed by the remote worker.The health check of the worker failed.";
                         this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
-                        this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
+
+                        this.SubmissionProcessingStrategy.OnRetrieveSubmissionError(submission, message);
+                        this.SubmissionProcessingStrategy.SetSubmissionToProcessed();
                         return null;
                     }
 
@@ -146,7 +148,8 @@
 
                 this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
 
-                this.SubmissionProcessingStrategy.OnError(submission, new Exception(message));
+                this.SubmissionProcessingStrategy.OnRetrieveSubmissionError(submission, message);
+                this.SubmissionProcessingStrategy.SetSubmissionToProcessed();
                 return null;
             }
             catch (Exception ex)
@@ -223,7 +226,7 @@
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
 
-                this.SubmissionProcessingStrategy.OnError(submission, ex);
+                this.SubmissionProcessingStrategy.OnProcessingSubmissionError(submission, ex);
             }
         }
     }

@@ -50,9 +50,13 @@
 
         public abstract IOjsSubmission RetrieveSubmission(List<WorkerType> workerTypes);
 
-        public abstract void OnError(IOjsSubmission submission, Exception ex);
+        public abstract void OnProcessingSubmissionError(IOjsSubmission submission, Exception ex);
+
+        public abstract void OnRetrieveSubmissionError(IOjsSubmission submissionModel, string message);
 
         public abstract void SetSubmissionToProcessing();
+
+        public abstract void SetSubmissionToProcessed();
 
         public abstract int GetSubmissionForProcessingFailureCount();
 

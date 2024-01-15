@@ -45,7 +45,6 @@ namespace OJS.Workers.Common
 
             public const string JavaScriptCodeAgainstUnitTestsWithDomAndMocha =
                 "javascript-code-against-unit-tests-with-dom-and-mocha";
-            
 
             // Python
             public const string PythonCode = "python-code";

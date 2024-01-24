@@ -1,21 +1,27 @@
 namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 {
+    using System;
     using System.Collections.Generic;
-
+    using log4net;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Helpers;
     using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Common;
     using OJS.Workers.SubmissionProcessors.Workers;
-
     using static OJS.Workers.Common.ExecutionStrategiesConstants.NameMappings;
 
     public class RemoteSubmissionsFilteringService
         : SubmissionFilteringServiceBase
     {
+        private readonly ILog logger;
         private readonly HttpService http;
 
         public RemoteSubmissionsFilteringService()
-            => this.http = new HttpService();
+        {
+            this.http = new HttpService();
+            this.logger = LogManager.GetLogger(typeof(RemoteSubmissionsFilteringService));
+        }
 
         protected override ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes
             => EnabledRemoteWorkerStrategies;
@@ -31,13 +37,25 @@ namespace OJS.Workers.SubmissionProcessors.ExecutionTypeFilters
 
         private bool IsOnline(ISubmissionWorker submissionWorker)
         {
+            var healthConfigKey = SettingsHelper.GetSetting("HealthConfigKey");
+            var healthConfigPassword = SettingsHelper.GetSetting("HealthConfigPassword");
+            var url = $"{submissionWorker.Location}/health?{healthConfigKey}={healthConfigPassword}";
+
             try
             {
-                var result = this.http.Get($"{submissionWorker.Location}/health?p433w0rd=h34lth-m0n1t0r1ng");
-                return result == "Healthy";
+                var result = this.http.Get(url);
+
+                if (result == "Healthy")
+                {
+                    return true;
+                }
+
+                this.logger.Info($"Response from '{url}' is: {result}");
+                return false;
             }
-            catch
+            catch (Exception ex)
             {
+                this.logger.Error($"Exception in getting remote worker health response from '{url}'. Reason: {ex.GetAllMessages()}.");
                 return false;
             }
         }

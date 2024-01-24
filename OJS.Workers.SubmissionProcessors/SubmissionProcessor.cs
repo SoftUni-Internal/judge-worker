@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Threading;
-
     using log4net;
-
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -17,8 +16,10 @@
     {
         private readonly object sharedLockObject;
         private readonly ISubmissionsFilteringService submissionsFilteringService;
+        private readonly List<WorkerType> workerTypes;
         private readonly IDependencyContainer dependencyContainer;
         private readonly ConcurrentQueue<TSubmission> submissionsForProcessing;
+        private readonly int maximumSubmissionProcessingFailures = 5;
         private bool stopping;
 
         public SubmissionProcessor(
@@ -27,6 +28,7 @@
             ConcurrentQueue<TSubmission> submissionsForProcessing,
             object sharedLockObject,
             ISubmissionsFilteringService submissionsFilteringService,
+            List<WorkerType> workerTypes,
             ISubmissionWorker submissionWorker)
         {
             this.Name = name;
@@ -40,6 +42,7 @@
             this.submissionsForProcessing = submissionsForProcessing;
             this.sharedLockObject = sharedLockObject;
             this.submissionsFilteringService = submissionsFilteringService;
+            this.workerTypes = workerTypes;
             this.SubmissionWorker = submissionWorker;
 
             this.Logger.Info($"{nameof(SubmissionProcessor<TSubmission>)} initialized.");
@@ -86,54 +89,68 @@
             where TResult : class, ISingleCodeRunResult, new()
             => this.SubmissionWorker.RunSubmission<TInput, TResult>(submission);
 
-        protected void BeforeExecute(IOjsSubmission submission)
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.BeforeExecute();
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception before executing the submission: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-
-                throw new Exception($"Exception in {nameof(this.SubmissionProcessingStrategy.BeforeExecute)}", ex);
-            }
-        }
-
-        protected void ProcessExecutionResult<TOutput>(IExecutionResult<TOutput> executionResult, IOjsSubmission submission)
-            where TOutput : ISingleCodeRunResult, new()
-        {
-            try
-            {
-                this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
-            }
-            catch (Exception ex)
-            {
-                submission.ProcessingComment = $"Exception in processing execution result: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-                throw new Exception($"Exception in {nameof(this.ProcessExecutionResult)}", ex);
-            }
-        }
-
         private IOjsSubmission GetSubmissionForProcessing()
         {
             try
             {
-                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission();
+                var submission = this.SubmissionProcessingStrategy.RetrieveSubmission(this.workerTypes);
 
                 if (submission == null)
                 {
                     return null;
                 }
 
-                if (!this.submissionsFilteringService.CanProcessSubmission(submission, this.SubmissionWorker))
+                var workerStateForSubmission =
+                    this.submissionsFilteringService.GetWorkerStateForSubmission(submission, this.SubmissionWorker);
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Ready)
                 {
+                    return submission;
+                }
+
+                var message = string.Empty;
+
+                if (workerStateForSubmission == WorkerStateForSubmission.Unhealthy)
+                {
+                    if (this.SubmissionProcessingStrategy.GetSubmissionForProcessingFailureCount()
+                        >= this.maximumSubmissionProcessingFailures)
+                    {
+                        message = $"Submission cannot be processed by the remote worker.The health check of the worker failed.";
+                        this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
+
+                        this.SubmissionProcessingStrategy.OnRetrieveSubmissionError(submission, message);
+                        this.SubmissionProcessingStrategy.SetSubmissionToProcessed();
+                        return null;
+                    }
+
+                    // Could be temporary, so we release the submission back in the queue.
                     this.SubmissionProcessingStrategy.ReleaseSubmission();
+                    this.Logger.Error($"Submission with Id: {submission.Id} is returned to the queue, because it cannot be processed by the worker.");
                     return null;
                 }
 
-                return submission;
+                // At this point we are sure that the submission can never be processed by the worker type it is reserved for, so we treat it as error.
+                switch (workerStateForSubmission)
+                {
+                    case WorkerStateForSubmission.DisabledStrategy:
+                        message = "Strategy is disabled.";
+                        break;
+                    case WorkerStateForSubmission.NotEnabledStrategy:
+                        message = "Strategy is not enabled.";
+                        break;
+                    case WorkerStateForSubmission.DisabledCompilerType:
+                        message = "Compiler type is disabled.";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            $"Worker state for submission: {workerStateForSubmission} is invalid.");
+                }
+
+                this.Logger.Error($"Submission with Id: {submission.Id}, cannot be processed. Reason: {message} ");
+
+                this.SubmissionProcessingStrategy.OnRetrieveSubmissionError(submission, message);
+                this.SubmissionProcessingStrategy.SetSubmissionToProcessed();
+                return null;
             }
             catch (Exception ex)
             {
@@ -147,13 +164,13 @@
         {
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} started.");
 
-            this.BeforeExecute(submission);
+            this.SubmissionProcessingStrategy.BeforeExecute();
 
             var executionResult = this.HandleProcessSubmission<TInput, TResult>(submission);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Work on submission #{submission.Id} ended.");
 
-            this.ProcessExecutionResult(executionResult, submission);
+            this.SubmissionProcessingStrategy.ProcessExecutionResult(executionResult);
 
             this.Logger.Info($"{this.Name}({this.SubmissionWorker.Location}): Submission #{submission.Id} successfully processed.");
         }
@@ -209,7 +226,7 @@
                     $"{nameof(this.ProcessSubmission)} on submission #{submission.Id} has thrown an exception:",
                     ex);
 
-                this.SubmissionProcessingStrategy.OnError(submission, ex);
+                this.SubmissionProcessingStrategy.OnProcessingSubmissionError(submission, ex);
             }
         }
     }

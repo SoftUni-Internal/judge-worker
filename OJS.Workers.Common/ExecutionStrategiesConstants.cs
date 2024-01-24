@@ -60,6 +60,7 @@ namespace OJS.Workers.Common
 
             // Go
             public const string GoCode = "go-code";
+
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
 
@@ -125,7 +126,6 @@ namespace OJS.Workers.Common
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
-
                     // C++
                     { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
                     { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using log4net;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.SubmissionProcessors.Workers;
@@ -9,18 +10,48 @@
     public abstract class SubmissionFilteringServiceBase
             : ISubmissionsFilteringService
     {
+        private readonly ILog logger;
+
+        protected SubmissionFilteringServiceBase()
+        {
+            this.logger = LogManager.GetLogger(typeof(SubmissionFilteringServiceBase));
+        }
+
         protected abstract ISet<ExecutionStrategyType> EnabledExecutionStrategyTypes { get; }
 
         protected abstract ISet<ExecutionStrategyType> DisabledExecutionStrategyTypes { get; }
 
         protected abstract ISet<CompilerType> DisabledExecuteAndCompileCompilerTypes { get; }
 
-        public bool CanProcessSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
-            => submission != null
-                && !this.IsDisabledStrategy(submission)
-                && this.IsEnabledStrategy(submission)
-                && this.CanProcessSubmissionInternal(submission, submissionWorker)
-                && !this.IsDisabledCompilerType(submission);
+        public WorkerStateForSubmission GetWorkerStateForSubmission(IOjsSubmission submission, ISubmissionWorker submissionWorker)
+        {
+            var isDisabledStrategy = this.IsDisabledStrategy(submission);
+            var isEnabledStrategy = this.IsEnabledStrategy(submission);
+            var isDisabledCompilerType = this.IsDisabledCompilerType(submission);
+            var canProcessSubmissionInternal = this.CanProcessSubmissionInternal(submission, submissionWorker);
+
+            if (isDisabledStrategy)
+            {
+                return WorkerStateForSubmission.DisabledStrategy;
+            }
+
+            if (!isEnabledStrategy)
+            {
+                return WorkerStateForSubmission.NotEnabledStrategy;
+            }
+
+            if (isDisabledCompilerType)
+            {
+                return WorkerStateForSubmission.DisabledCompilerType;
+            }
+
+            if (!canProcessSubmissionInternal)
+            {
+                return WorkerStateForSubmission.Unhealthy;
+            }
+
+            return WorkerStateForSubmission.Ready;
+        }
 
         protected virtual bool CanProcessSubmissionInternal(IOjsSubmission submission, ISubmissionWorker submissionWorker)
             => true;

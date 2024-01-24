@@ -235,6 +235,11 @@
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
 
+        public static IEnumerable<string> AlphaWorkerEndpoints => SettingsHelper.GetSetting("AlphaWorkerEndpoints")
+            .Split(';')
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim());
+
         public static string PostgreSqlMasterDbConnectionString =>
             SettingsHelper.GetSetting("PostgreSqlMasterDbConnectionString");
 
@@ -243,6 +248,8 @@
 
         public static string PostgreSqlRestrictedUserPassword =>
             SettingsHelper.GetSetting("PostgreSqlRestrictedUserPassword");
+
+        public static string DefaultWorkerType => SettingsHelper.GetSetting("DefaultWorkerType");
 
         public static string DotNetCoreRuntimeVersion(ExecutionStrategyType type)
             => type == ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck

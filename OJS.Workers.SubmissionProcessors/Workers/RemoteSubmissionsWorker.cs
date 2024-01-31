@@ -120,6 +120,7 @@
                     EscapeTests = false,
                     EscapeLineEndings = true,
                 },
+                WithExceptionStackTrace = true,
             };
 
         private TResult BuildTestResult<TResult>(TestContext test, TestResultResponseModel testResult)

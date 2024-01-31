@@ -97,6 +97,7 @@
                         .Format(submission.ExecutionType),
                 ExecutionStrategy = this.formatterServicesFactory.Get<ExecutionStrategyType>()
                         .Format(submission.ExecutionStrategyType),
+                CompilerType = submission.CompilerType.ToString(),
                 FileContent = string.IsNullOrEmpty(submission.Code)
                         ? submission.FileContent
                         : null,
@@ -172,7 +173,7 @@
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
             submission.WorkerEndpoint = this.Location;
-            throw new Exception(result.Exception.Message);
+            throw new Exception($"Remote worker cauth an unexpected error:{Environment.NewLine}{result.Exception.Message}");
         }
     }
 }

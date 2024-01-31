@@ -174,7 +174,9 @@
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
             submission.WorkerEndpoint = this.Location;
-            throw new Exception($"Remote worker cauth an unexpected error:{Environment.NewLine}{result.Exception.Message}");
+            throw new Exception(
+                $"Remote worker cauth an unexpected error:{Environment.NewLine}{result.Exception.Message}" +
+                $"{Environment.NewLine}{result.Exception.StackTrace}");
         }
     }
 }

@@ -240,6 +240,11 @@
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim());
 
+        public static IEnumerable<string> LegacyCloudWorkerEndpoints => SettingsHelper.GetSetting("LegacyCloudWorkerEndpoints")
+            .Split(';')
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim());
+
         public static string PostgreSqlMasterDbConnectionString =>
             SettingsHelper.GetSetting("PostgreSqlMasterDbConnectionString");
 

@@ -88,7 +88,7 @@ namespace OJS.Workers
             var localWorkerSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var legacyWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var alphaWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
-            var legaxyCloudWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
+            var legacyCloudWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var sharedLockObject = new object();
 
             var legacyWorkerTypesList = new List<WorkerType> { WorkerType.Legacy };
@@ -153,7 +153,7 @@ namespace OJS.Workers
 
             workerThreads.AddRange(this.GetRemoteWorkers(
                 Settings.LegacyCloudWorkerEndpoints,
-                legacyWorkersSubmissionsForProcessing,
+                legacyCloudWorkersSubmissionsForProcessing,
                 sharedLockObject,
                 formatterServiceFactory,
                 remoteSubmissionsFilteringService,

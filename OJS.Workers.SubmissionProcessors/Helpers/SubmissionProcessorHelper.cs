@@ -4,7 +4,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies;
-    using OJS.Workers.ExecutionStrategies.Blockchain;
+using OJS.Workers.ExecutionStrategies.Blockchain;
     using OJS.Workers.ExecutionStrategies.CPlusPlus;
     using OJS.Workers.ExecutionStrategies.CSharp;
     using OJS.Workers.ExecutionStrategies.CSharp.DotNetCore;
@@ -19,7 +19,7 @@
     using OJS.Workers.ExecutionStrategies.Ruby;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
     using OJS.Workers.ExecutionStrategies.Sql.PostgreSql;
-    using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
+using OJS.Workers.ExecutionStrategies.Sql.SqlServerLocalDb;
     using OJS.Workers.ExecutionStrategies.Sql.SqlServerSingleDatabase;
     using OJS.Workers.Executors.Implementations;
     using OJS.Workers.SubmissionProcessors.Models;
@@ -176,7 +176,6 @@
                         Settings.JavaBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -185,7 +184,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -198,7 +196,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
-                case ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha:
                     executionStrategy = new NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMochaExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -217,7 +214,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -233,7 +229,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -249,7 +244,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
-                case ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy:
                     executionStrategy = new NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,
@@ -271,7 +265,6 @@
                         Settings.NodeJsBaseMemoryUsedInBytes);
                     break;
                 case ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy:
-                case ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy:
                     executionStrategy = new NodeJsZipExecuteHtmlAndCssStrategy(
                         processExecutorFactory,
                         Settings.NodeJsExecutablePath,

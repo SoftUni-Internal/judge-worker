@@ -41,15 +41,25 @@ namespace OJS.Workers.Common
 
             // JavaScript
             public const string JavaScriptCode = "javascript-code";
+            public const string JavaScriptCodeV20 = "javascript-codeV20";
             public const string JavaScriptJsDomUnitTests = "javascript-js-dom-unit-tests";
+            public const string JavaScriptV20JsDomUnitTests = "javascript-js-dom-unit-testsV20";
             public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mocha";
+            public const string JavaScriptV20UnitTestsWithMocha = "javascript-unit-tests-with-mochaV20";
             public const string JavaScriptAsyncJsDomTestsWithReact = "javascript-async-js-dom-tests-with-react";
+            public const string JavaScriptV20AsyncJsDomTestsWithReact = "javascript-async-js-dom-tests-with-reactV20";
 
             public const string JavaScriptCodeAgainstUnitTestsWithMocha =
                 "javascript-code-against-unit-tests-with-mocha";
 
+            public const string JavaScriptV20CodeAgainstUnitTestsWithMocha =
+                "javascript-code-against-unit-tests-with-mochaV20";
+
             public const string JavaScriptCodeAgainstUnitTestsWithDomAndMocha =
                 "javascript-code-against-unit-tests-with-dom-and-mocha";
+
+            public const string JavaScriptV20CodeAgainstUnitTestsWithDomAndMocha =
+                "javascript-code-against-unit-tests-with-dom-and-mochaV20";
 
             // Python
             public const string PythonCode = "python-code";
@@ -68,6 +78,7 @@ namespace OJS.Workers.Common
 
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
+            public const string HtmlAndCssZipFileV20 = "html-and-css-zip-fileV20";
 
             // C++
             public const string CppCode = "cpp-code";
@@ -131,16 +142,24 @@ namespace OJS.Workers.Common
 
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
+                    { ExecutionStrategyNames.HtmlAndCssZipFileV20, ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy },
+
                     // C++
                     { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
                     { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },
 
                     // JavaScript
                     { ExecutionStrategyNames.JavaScriptCode, ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck },
+                    { ExecutionStrategyNames.JavaScriptCodeV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
+                    { ExecutionStrategyNames.JavaScriptV20UnitTestsWithMocha, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
+                    { ExecutionStrategyNames.JavaScriptV20JsDomUnitTests, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests },
                     { ExecutionStrategyNames.JavaScriptAsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptV20AsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptV20CodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
+                    { ExecutionStrategyNames.JavaScriptV20CodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
 
                     // Java

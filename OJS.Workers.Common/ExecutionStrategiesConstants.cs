@@ -33,11 +33,11 @@ namespace OJS.Workers.Common
             public const string JavaUnitTests = "java-unit-tests";
             public const string JavaZipFileCode = "java-zip-file-code";
             public const string JavaSpringAndHibernateProjectExecutionStrategy = "run-java-spring-data-junit-tests";
-            public const string Java17ProjectTests = "java-17-project-tests";
-            public const string Java17PreprocessCompileExecuteAndCheck = "java-17-code";
-            public const string Java17ZipFileCode = "java-17-zip-file-code";
-            public const string Java17UnitTests = "java-17-unit-tests";
-            public const string Java17SpringAndHibernateProjectExecutionStrategy = "run-java17-spring-data-junit-tests";
+            public const string Java21ProjectTests = "java-21-project-tests";
+            public const string Java21PreprocessCompileExecuteAndCheck = "java-21-code";
+            public const string Java21ZipFileCode = "java-21-zip-file-code";
+            public const string Java21UnitTests = "java-21-unit-tests";
+            public const string Java21SpringAndHibernateProjectExecutionStrategy = "run-java-21-spring-data-junit-tests";
 
             // JavaScript
             public const string JavaScriptCode = "javascript-code";
@@ -78,8 +78,8 @@ namespace OJS.Workers.Common
 
             // HTML and CSS
             public const string HtmlAndCssZipFile = "html-and-css-zip-file";
-
             public const string HtmlAndCssZipFileV20 = "html-and-css-zip-fileV20";
+
             // C++
             public const string CppCode = "cpp-code";
             public const string CppZipFile = "cpp-zip-file";
@@ -105,7 +105,6 @@ namespace OJS.Workers.Common
 
             // PostgreSql
             public const string PostgreSqlPrepareDbAndRunQueries = "postgres-prepare-db-and-run-queries";
-            // Run SPA and Execute mocha tests
             public const string PostgreSqlRunQueriesAndCheckDatabase = "postgres-run-queries-and-check-database";
             public const string PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = "postgres-run-skeleton-run-queries-and-check-database";
         }
@@ -147,6 +146,7 @@ namespace OJS.Workers.Common
                     // HTML
                     { ExecutionStrategyNames.HtmlAndCssZipFile, ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy },
                     { ExecutionStrategyNames.HtmlAndCssZipFileV20, ExecutionStrategyType.NodeJsV20ZipExecuteHtmlAndCssStrategy },
+
                     // C++
                     { ExecutionStrategyNames.CppCode, ExecutionStrategyType.CPlusPlusCompileExecuteAndCheckExecutionStrategy },
                     { ExecutionStrategyNames.CppZipFile, ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy },
@@ -162,8 +162,8 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptV20AsyncJsDomTestsWithReact, ExecutionStrategyType.NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptV20CodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
-                    { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
                     { ExecutionStrategyNames.JavaScriptV20CodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
+                    { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithDomAndMocha, ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },
@@ -171,11 +171,11 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaZipFileCode, ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck },
                     { ExecutionStrategyNames.JavaUnitTests, ExecutionStrategyType.JavaUnitTestsExecutionStrategy },
                     { ExecutionStrategyNames.JavaSpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy },
-                    { ExecutionStrategyNames.Java17PreprocessCompileExecuteAndCheck, ExecutionStrategyType.Java17PreprocessCompileExecuteAndCheck },
-                    { ExecutionStrategyNames.Java17ProjectTests, ExecutionStrategyType.Java17ProjectTestsExecutionStrategy },
-                    { ExecutionStrategyNames.Java17ZipFileCode, ExecutionStrategyType.Java17ZipFileCompileExecuteAndCheck },
-                    { ExecutionStrategyNames.Java17UnitTests, ExecutionStrategyType.Java17UnitTestsExecutionStrategy },
-                    { ExecutionStrategyNames.Java17SpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.Java17SpringAndHibernateProjectExecution },
+                    { ExecutionStrategyNames.Java21PreprocessCompileExecuteAndCheck, ExecutionStrategyType.Java21PreprocessCompileExecuteAndCheck },
+                    { ExecutionStrategyNames.Java21ProjectTests, ExecutionStrategyType.Java21ProjectTestsExecutionStrategy },
+                    { ExecutionStrategyNames.Java21ZipFileCode, ExecutionStrategyType.Java21ZipFileCompileExecuteAndCheck },
+                    { ExecutionStrategyNames.Java21UnitTests, ExecutionStrategyType.Java21UnitTestsExecutionStrategy },
+                    { ExecutionStrategyNames.Java21SpringAndHibernateProjectExecutionStrategy, ExecutionStrategyType.Java21SpringAndHibernateProjectExecution },
 
                     // Plain text
                     { ExecutionStrategyNames.PlainText, ExecutionStrategyType.CheckOnly },
@@ -201,7 +201,6 @@ namespace OJS.Workers.Common
 
                     // PostgreSql
                     { ExecutionStrategyNames.PostgreSqlPrepareDbAndRunQueries, ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries },
-                    // Run SPA and Execute mocha tests
                     { ExecutionStrategyNames.PostgreSqlRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase },
                     { ExecutionStrategyNames.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase, ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase },
                 };
@@ -245,45 +244,11 @@ namespace OJS.Workers.Common
                 ExecutionStrategyType.PythonCodeExecuteAgainstUnitTests,
                 ExecutionStrategyType.PythonUnitTests,
                 ExecutionStrategyType.PythonDjangoOrmExecutionStrategy,
-                ExecutionStrategyType.PythonUnitTests,
-
-                // PHP
-                ExecutionStrategyType.PhpCliExecuteAndCheck,
 
                 // PostgreSql strategies
                 ExecutionStrategyType.PostgreSqlPrepareDatabaseAndRunQueries,
                 ExecutionStrategyType.PostgreSqlRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.PostgreSqlRunSkeletonRunQueriesAndCheckDatabase,
-                ExecutionStrategyType.PhpCgiExecuteAndCheck,
-
-                // HTML and CSS
-                ExecutionStrategyType.NodeJsZipExecuteHtmlAndCssStrategy,
-
-                // C++
-                ExecutionStrategyType.CPlusPlusZipFileExecutionStrategy,
-
-                // NodeJs
-                ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck,
-                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha,
-                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests,
-                ExecutionStrategyType.NodeJsExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy,
-                ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy,
-                ExecutionStrategyType.NodeJsZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha,
-
-                // JAVA
-                ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck,
-                ExecutionStrategyType.JavaProjectTestsExecutionStrategy,
-                ExecutionStrategyType.JavaZipFileCompileExecuteAndCheck,
-                ExecutionStrategyType.JavaUnitTestsExecutionStrategy,
-                ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy,
-
-                // Text only
-                ExecutionStrategyType.CheckOnly,
-
-                // SQL Server
-                ExecutionStrategyType.SqlServerSingleDatabasePrepareDatabaseAndRunQueries,
-                ExecutionStrategyType.SqlServerSingleDatabaseRunQueriesAndCheckDatabase,
-                ExecutionStrategyType.SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabase,
                 ExecutionStrategyType.PythonProjectTests,
                 ExecutionStrategyType.PythonProjectUnitTests,
 

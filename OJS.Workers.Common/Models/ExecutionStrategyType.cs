@@ -54,5 +54,18 @@
         PostgreSqlRunQueriesAndCheckDatabase = 59,
         PostgreSqlRunSkeletonRunQueriesAndCheckDatabase = 60,
         PythonDjangoOrmExecutionStrategy = 61,
+        Java21ProjectTestsExecutionStrategy = 62,
+        Java21ZipFileCompileExecuteAndCheck = 63,
+        Java21UnitTestsExecutionStrategy = 64,
+        Java21SpringAndHibernateProjectExecution = 65,
+        Java21PreprocessCompileExecuteAndCheck = 66,
+        NodeJsV20PreprocessExecuteAndCheck = 67,
+        NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha = 68,
+        NodeJsV20PreprocessExecuteAndRunJsDomUnitTests = 69,
+        NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy = 70,
+        NodeJsV20ZipPreprocessExecuteAndRunUnitTestsWithDomAndMocha = 71,
+        NodeJsV20ExecuteAndRunAsyncJsDomTestsWithReactExecutionStrategy = 72,
+        NodeJsV20ZipExecuteHtmlAndCssStrategy = 73,
+        RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = 74,
     }
 }

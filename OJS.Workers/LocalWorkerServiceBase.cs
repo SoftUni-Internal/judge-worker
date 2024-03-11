@@ -115,7 +115,7 @@ namespace OJS.Workers
                     localWorkerTypesList.Add(WorkerType.Default);
                     break;
                 case WorkerType.LegacyCloud:
-                    localWorkerTypesList.Add(WorkerType.Default);
+                    legacyCloudWorkerTypesList.Add(WorkerType.Default);
                     break;
                 default:
                     this.Logger.Fatal("Wrong default worker type");

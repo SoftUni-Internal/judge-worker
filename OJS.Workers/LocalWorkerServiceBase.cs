@@ -88,11 +88,13 @@ namespace OJS.Workers
             var localWorkerSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var legacyWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var alphaWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
+            var legacyCloudWorkersSubmissionsForProcessing = new ConcurrentQueue<TSubmission>();
             var sharedLockObject = new object();
 
             var legacyWorkerTypesList = new List<WorkerType> { WorkerType.Legacy };
             var alphaWorkerTypesList = new List<WorkerType> { WorkerType.Alpha };
             var localWorkerTypesList = new List<WorkerType> { WorkerType.Local };
+            var legacyCloudWorkerTypesList = new List<WorkerType> { WorkerType.LegacyCloud };
 
            var isEnumParsed = Enum.TryParse(Settings.DefaultWorkerType, false, out WorkerType defaultWorkerType);
            if (!isEnumParsed)
@@ -111,6 +113,9 @@ namespace OJS.Workers
                     break;
                 case WorkerType.Local:
                     localWorkerTypesList.Add(WorkerType.Default);
+                    break;
+                case WorkerType.LegacyCloud:
+                    legacyCloudWorkerTypesList.Add(WorkerType.Default);
                     break;
                 default:
                     this.Logger.Fatal("Wrong default worker type");
@@ -133,7 +138,8 @@ namespace OJS.Workers
             workerThreads.AddRange(this.GetRemoteWorkers(
                 Settings.RemoteWorkerEndpoints,
                 legacyWorkersSubmissionsForProcessing,
-                sharedLockObject, formatterServiceFactory,
+                sharedLockObject,
+                formatterServiceFactory,
                 remoteSubmissionsFilteringService,
                 legacyWorkerTypesList));
             
@@ -144,6 +150,14 @@ namespace OJS.Workers
                 formatterServiceFactory,
                 remoteSubmissionsFilteringService,
                 alphaWorkerTypesList));
+
+            workerThreads.AddRange(this.GetRemoteWorkers(
+                Settings.LegacyCloudWorkerEndpoints,
+                legacyCloudWorkersSubmissionsForProcessing,
+                sharedLockObject,
+                formatterServiceFactory,
+                remoteSubmissionsFilteringService,
+                legacyCloudWorkerTypesList));
 
             workerThreads
                 .ToList()

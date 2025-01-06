@@ -102,6 +102,7 @@
                         ? submission.FileContent
                         : null,
                 Code = submission.Code ?? string.Empty,
+                submission.Id,
                 submission.TimeLimit,
                 submission.MemoryLimit,
                 ExecutionDetails = new

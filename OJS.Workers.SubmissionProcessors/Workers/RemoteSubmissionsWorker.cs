@@ -101,6 +101,7 @@
                 FileContent = string.IsNullOrEmpty(submission.Code)
                         ? submission.FileContent
                         : null,
+                submission.AdditionalFiles,
                 Code = submission.Code ?? string.Empty,
                 submission.Id,
                 submission.TimeLimit,

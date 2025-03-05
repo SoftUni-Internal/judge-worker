@@ -2,11 +2,12 @@
 {
     public enum ExceptionType
     {
-        None = 0,
-        Compile = 1,
+        Solution = 0,
+        Configuration = 1,
         Strategy = 2,
-        Runtime = 3,
-        Remote = 4,
+        Remote = 3,
+        Other = 4,
         UnprocessableSubmission = 5,
+        None = 6,
     }
 }

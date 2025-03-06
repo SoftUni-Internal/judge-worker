@@ -175,10 +175,12 @@
 
             submission.StartedExecutionOn = result.StartedExecutionOn;
             submission.CompletedExecutionOn = result.CompletedExecutionOn;
+            submission.ExceptionType = result.Exception.ExceptionType ?? ExceptionType.None;
             submission.WorkerEndpoint = this.Location;
             throw new Exception(
-                $"Remote worker cauth an unexpected error:{Environment.NewLine}{result.Exception.Message}" +
-                $"{Environment.NewLine}{result.Exception.StackTrace}");
+                result.Exception.Message,
+                new Exception($"Remote worker caught an unexpected error:" +
+                $"{Environment.NewLine}{result.Exception.StackTrace}"));
         }
     }
 }
